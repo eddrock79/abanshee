@@ -1,0 +1,110 @@
+{
+  "generated": "2026-06-03T23:57:37",
+  "events": [
+    {
+      "date": "2026-06-01",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-06-02",
+      "room": "Chamber Room",
+      "what": "Gig and Karaoke"
+    },
+    {
+      "date": "2026-06-02",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-03",
+      "room": "Chamber Room",
+      "what": "Open Mic"
+    },
+    {
+      "date": "2026-06-03",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-04",
+      "room": "Chamber Room",
+      "what": "Gig"
+    },
+    {
+      "date": "2026-06-05",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-05",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-06",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-06",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-07",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-06-08",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-06-09",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-06-09",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-10",
+      "room": "Chamber Room",
+      "what": "Booking + Open Mic"
+    },
+    {
+      "date": "2026-06-12",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-12",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-13",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-13",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-14",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-06-14",
+      "room": "Cinema",
+      "what": "Sound scape"
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cocktails — Banshee Labyrinth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0d0f; --surface:#17171a; --surface2:#1f1f24; --border:#2a2a30;
+    --accent:#e8b84b; --accent-dim:rgba(232,184,75,0.12);
+    --red:#e85d5d; --red-dim:rgba(232,93,93,0.1);
+    --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.12);
+    --text:#e8e8ec; --muted:#6b6b78;
+    /* aliases kept so the rest of the page's styles still resolve */
+    --panel:#17171a; --panel-2:#1f1f24; --line:#2a2a30; --ink:#e8e8ec;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg); color:var(--text); font-family:'DM Sans',system-ui,sans-serif;
+    font-size:15px; min-height:100vh; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 70px}
+ 
+  /* shared topbar + nav (matches Weekly / EON / Dashboard) */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;
+    background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+  .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);}
+  .topbar-centre-logo{position:absolute;left:50%;transform:translateX(-50%);height:34px;width:auto;pointer-events:none;}
+  .topbar-right{display:flex;align-items:center;gap:8px;}
+  .nav-bar{display:flex;gap:8px;background:var(--surface2);border-bottom:1px solid var(--border);
+    padding:10px 16px;flex-wrap:wrap;}
+  .nav-btn{padding:7px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+    border:1px solid var(--border);background:var(--surface);color:var(--muted);text-decoration:none;
+    display:inline-block;transition:color .2s,border-color .2s;-webkit-tap-highlight-color:transparent;}
+  .nav-btn:hover{color:var(--text);border-color:var(--accent);}
+  .nav-btn.current{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);}
+ 
+  .section-label{font-family:'Bebas Neue';letter-spacing:2px;font-size:22px;color:var(--accent);
+    margin:28px 4px 12px;display:flex;align-items:center;gap:10px}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--line)}
+ 
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  .search{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:11px 14px;color:var(--ink);font-family:'DM Sans';font-size:15px}
+  .search::placeholder{color:var(--muted)}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;
+    padding:11px 16px;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+ 
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{border:1px solid var(--line);border-radius:14px;background:var(--panel-2);overflow:hidden;
+    display:flex;flex-direction:column}
+  .card h3{font-family:'Bebas Neue';letter-spacing:1.5px;font-size:21px;margin:0;padding:14px 16px;
+    background:linear-gradient(180deg,#241019,#1a0c11);color:#fff;border-bottom:2px solid var(--red)}
+  .card .body{padding:14px 16px;white-space:pre-wrap;line-height:1.5;font-size:15px;color:#d9d6e0}
+ 
+  .state{text-align:center;padding:46px 20px;color:var(--muted)}
+  .spinner{width:34px;height:34px;border-radius:50%;margin:0 auto 14px;border:3px solid var(--line);
+    border-top-color:var(--accent);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .retry{margin-top:14px;padding:10px 20px;border-radius:10px;border:1px solid var(--accent);
+    background:rgba(232,184,75,.12);color:var(--accent);font-weight:600;cursor:pointer}
+ 
+  .lib-intro{color:var(--muted);font-size:14px;margin:0 4px 14px}
+  .lib-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .lib-tab{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+    border-radius:10px;padding:9px 14px;font-weight:600;font-size:13px}
+  .lib-tab.active{color:#fff;border-color:var(--accent);background:#241d10}
+  .hint{color:var(--muted);font-size:12px;margin:8px 4px 0}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:#241d10;border:1px solid var(--accent);
+    color:var(--accent);border-radius:16px;padding:5px 8px 5px 12px;font-size:13px;font-weight:600}
+  .chip b{font-weight:600}
+  .chip .rm{cursor:pointer;width:18px;height:18px;border-radius:50%;background:rgba(232,184,75,.2);
+    display:grid;place-items:center;font-size:12px;line-height:1}
+  .res-group-title{font-weight:700;font-size:15px;margin:18px 4px 10px;color:var(--ink)}
+  .res-group-title.good{color:#5fd08a} .res-group-title.almost{color:var(--accent)}
+  .ing-line{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
+  .ing-line .have{color:#5fd08a} .ing-line .miss{color:#e85d5d}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px}
+  .badge.miss{background:rgba(232,93,93,.15);color:#e85d5d}
+  .recipe-detail{border:1px solid var(--line);border-radius:14px;background:var(--panel-2);overflow:hidden;margin-top:6px}
+  .recipe-detail .rd-head{display:flex;gap:14px;padding:16px;border-bottom:2px solid var(--red);
+    background:linear-gradient(180deg,#241019,#1a0c11)}
+  .recipe-detail .rd-head img{width:96px;height:96px;border-radius:10px;object-fit:cover;flex:none}
+  .recipe-detail .rd-head h3{font-family:'Bebas Neue';letter-spacing:1.5px;font-size:24px;margin:0;color:#fff}
+  .recipe-detail .rd-head .meta{color:#c9b6bd;font-size:13px;margin-top:4px}
+  .recipe-detail .rd-body{padding:16px}
+  .recipe-detail .rd-body h4{margin:0 0 8px;font-size:14px;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+  .recipe-detail .method{margin-top:14px;line-height:1.55;color:#d9d6e0;font-size:14px}
+  .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:640px){.photos{grid-template-columns:repeat(2,1fr)}}
+  .photo{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;
+    background:var(--panel);aspect-ratio:3/4}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block;transition:.25s}
+  .photo:hover img{transform:scale(1.05)}
+  .photo .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;font-size:12px;font-weight:600;
+    color:#fff;background:linear-gradient(180deg,transparent,rgba(0,0,0,.8))}
+  .photo .zoom{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:7px;
+    background:rgba(0,0,0,.55);display:grid;place-items:center;font-size:13px}
+ 
+  /* lightbox */
+  .lb{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.94);display:none;
+    align-items:center;justify-content:center;flex-direction:column;padding:20px}
+  .lb.open{display:flex}
+  .lb img{max-width:96vw;max-height:84vh;object-fit:contain;border-radius:8px;
+    box-shadow:0 20px 60px rgba(0,0,0,.8);touch-action:pinch-zoom}
+  .lb .cap{color:#e8e8ec;margin-top:14px;font-weight:600;letter-spacing:.5px}
+  .lb .x{position:absolute;top:16px;right:20px;font-size:30px;color:#fff;cursor:pointer;
+    width:46px;height:46px;display:grid;place-items:center;border-radius:10px}
+  .lb .x:hover{background:rgba(255,255,255,.1)}
+  .lb .arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:40px;color:#fff;cursor:pointer;
+    width:54px;height:80px;display:grid;place-items:center;user-select:none}
+  .lb .arrow:hover{background:rgba(255,255,255,.08)}
+  .lb .prev{left:8px} .lb .next{right:8px}
+</style>
+<script src="../bl-config.js"></script>
+</head>
+<body>
+ 
+<div class="topbar" style="position:relative;">
+  <div class="topbar-logo">🍸 Cocktails</div>
+  <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
+  <div class="topbar-right"></div>
+</div>
+<div class="nav-bar">
+  <a class="nav-btn" id="nav-home" href="../home">🏠 Home</a>
+  <a class="nav-btn" href="../weekly-cleaning">📋 Weekly Jobs</a>
+  <a class="nav-btn" href="../end-of-night">🌙 End Of Night</a>
+  <a class="nav-btn" href="../rotas">📅 Rotas</a>
+  <span class="nav-btn current">🍸 Cocktails</span>
+</div>
+ 
+<div class="wrap">
+  <div class="section-label">Cocktail Library</div>
+  <div class="lib-intro">Search any cocktail by name, or list what you've got and see what you can make. Powered by TheCocktailDB.</div>
+ 
+  <div class="lib-tabs">
+    <button class="lib-tab active" data-m="name" onclick="libMode('name')">🔎 By name</button>
+    <button class="lib-tab" data-m="make" onclick="libMode('make')">🧪 What can I make?</button>
+    <button class="lib-tab" data-m="random" onclick="doRandom()">🎲 Surprise me</button>
+  </div>
+ 
+  <div id="lib-name-panel" class="lib-panel">
+    <div class="controls">
+      <input class="search" id="lib-search" placeholder="e.g. Bloody Mary, Negroni…"
+        onkeydown="if(event.key==='Enter')doNameSearch()">
+      <button class="btn" onclick="doNameSearch()">Search</button>
+    </div>
+  </div>
+ 
+  <div id="lib-make-panel" class="lib-panel" style="display:none">
+    <div class="controls">
+      <input class="search" id="lib-ing" placeholder="Type what you've got: gin, Campari, lemon… (Enter to add)"
+        onkeydown="if(event.key==='Enter'){addIng();}">
+      <button class="btn" onclick="addIng()">+ Add</button>
+      <button class="btn" onclick="doMakeSearch()" id="make-go" style="border-color:var(--accent);color:var(--accent)">What can I make?</button>
+    </div>
+    <div class="chips" id="ing-chips"></div>
+    <div class="hint">Tip: most bars assume basic mixers, ice &amp; garnishes on hand — those are listed but not counted as “missing”.</div>
+  </div>
+ 
+  <div id="lib-results"></div>
+ 
+  <div class="section-label">Our Cocktails</div>
+  <div class="controls">
+    <button class="btn" onclick="loadRecipes()">↻ Refresh</button>
+  </div>
+  <div id="recipes"><div class="state"><div class="spinner"></div>Loading recipes…</div></div>
+ 
+  <div class="section-label">Recipe Cards (photos)</div>
+  <div class="photos" id="photos"></div>
+ 
+</div>
+ 
+<div class="lb" id="lb">
+  <div class="x" onclick="closeLB()">✕</div>
+  <div class="arrow prev" onclick="step(-1)">‹</div>
+  <img id="lb-img" src="" alt="">
+  <div class="arrow next" onclick="step(1)">›</div>
+  <div class="cap" id="lb-cap"></div>
+</div>
+ 
+<script>
+  // ---- live recipes from the Google Sheet (Name + one text column) ----
+  const SHEET_ID = BL_CFG.cocktails;
+  const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+  let recipes = [];
+ 
+  function parseCSV(text){
+    const rows=[]; let row=[], cell='', q=false;
+    for(let i=0;i<text.length;i++){
+      const c=text[i];
+      if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+      else { if(c==='"')q=true; else if(c===','){row.push(cell);cell='';}
+        else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell='';}
+        else if(c==='\r'){} else cell+=c; }
+    }
+    if(cell.length||row.length){row.push(cell);rows.push(row);}
+    return rows;
+  }
+ 
+  async function loadRecipes(){
+    const host=document.getElementById('recipes');
+    host.innerHTML='<div class="state"><div class="spinner"></div>Loading recipes…</div>';
+    try{
+      const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+      const res=await fetch(CSV_URL+'&_='+Date.now(),{signal:ctrl.signal});
+      clearTimeout(t);
+      if(!res.ok) throw new Error('sheet not reachable');
+      const rows=parseCSV(await res.text());
+      if(!rows.length) throw new Error('empty sheet');
+      // This sheet's layout: column A blank, B = name, C = recipe.
+      // Header sits a row or two down, so skip any leading blank rows and a
+      // header row (where the name cell literally says Name/Cocktail/Drink).
+      recipes = rows
+        .map(r => ({ name:(r[1]||'').trim(), body:(r[2]||'').trim() }))   // B=name, C=recipe
+        .filter(r => r.name || r.body)                                    // drop fully-empty rows
+        .filter(r => {
+          const n=r.name.toLowerCase();
+          return !(n==='name'||n==='cocktail'||n==='drink');              // drop the header row
+        });
+      render(recipes);
+    }catch(err){
+      host.innerHTML='<div class="state">Couldn’t load recipes.<br><small>'+err+'</small>'+
+        '<br><button class="retry" onclick="loadRecipes()">↻ Retry</button></div>';
+    }
+  }
+ 
+  function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+ 
+  function render(list){
+    const host=document.getElementById('recipes');
+    if(!list.length){ host.innerHTML='<div class="state">No cocktails match.</div>'; return; }
+    host.innerHTML='<div class="cards">'+list.map(r=>
+      `<div class="card"><h3>${esc(r.name||'Untitled')}</h3><div class="body">${esc(r.body)}</div></div>`
+    ).join('')+'</div>';
+  }
+ 
+  // ---- photos + lightbox ----
+  const PHOTOS=[
+    {src:'photos/vday-shots.jpg', cap:'V-Day Shots — Cry Wank · Cherry Popper · Lovers Cream'},
+    {src:'photos/mead-wildhunt-cailleach.jpg', cap:'Mead — Wild Hunt · Cailleach'},
+    {src:'photos/viking-oldfashioned-clean.jpg', cap:'Viking Old Fashioned · Honey N’ Fire · Picty Mac'},
+    {src:'photos/viking-honeyfire-pictymac.jpg', cap:'Viking / Honey N’ Fire / Picty Mac (alt)'}
+  ];
+  let lbIndex=0;
+ 
+  function buildPhotos(){
+    document.getElementById('photos').innerHTML=PHOTOS.map((p,i)=>
+      `<div class="photo" onclick="openLB(${i})">
+        <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
+        <div class="zoom">⛶</div>
+        <div class="cap">${esc(p.cap)}</div>
+      </div>`).join('');
+  }
+  function openLB(i){
+    lbIndex=i;
+    document.getElementById('lb-img').src=PHOTOS[i].src;
+    document.getElementById('lb-cap').textContent=PHOTOS[i].cap;
+    document.getElementById('lb').classList.add('open');
+  }
+  function closeLB(){document.getElementById('lb').classList.remove('open');}
+  function step(d){ lbIndex=(lbIndex+d+PHOTOS.length)%PHOTOS.length; openLB(lbIndex); }
+  document.getElementById('lb').addEventListener('click',e=>{ if(e.target.id==='lb') closeLB(); });
+  document.addEventListener('keydown',e=>{
+    if(!document.getElementById('lb').classList.contains('open'))return;
+    if(e.key==='Escape')closeLB(); else if(e.key==='ArrowLeft')step(-1); else if(e.key==='ArrowRight')step(1);
+  });
+ 
+  // ====== COCKTAIL LIBRARY (TheCocktailDB, free test key '1') ======
+  const CDB='https://www.thecocktaildb.com/api/json/v1/1/';
+  const cache={lookup:{}, filter:{}};
+  // ingredients most bars just have — not counted as "missing"
+  const BASICS=['ice','water','sugar','sugar syrup','simple syrup','salt','pepper','soda water',
+    'club soda','tonic water','lemonade','cola','coke','orange juice','lemon juice','lime juice',
+    'lemon','lime','orange','mint','lemon peel','orange peel','lime peel','egg white','cream',
+    'milk','grenadine','bitters','angostura bitters','nutmeg','cinnamon','honey','tabasco',
+    'worcestershire sauce','tomato juice','ginger ale','tonic','cherry','olive'];
+  const norm=s=>(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\bjuice\b/,'').trim();
+  const isBasic=name=>{const n=norm(name);return BASICS.some(b=>{const nb=norm(b);return n===nb||n.includes(nb)||nb.includes(n);});};
+ 
+  let myIng=[];   // ingredients the user has typed
+ 
+  function libMode(m){
+    document.querySelectorAll('.lib-tab').forEach(t=>t.classList.toggle('active',t.dataset.m===m));
+    document.getElementById('lib-name-panel').style.display = m==='name'?'':'none';
+    document.getElementById('lib-make-panel').style.display = m==='make'?'':'none';
+    if(m!=='random') document.getElementById('lib-results').innerHTML='';
+  }
+ 
+  async function cdbGet(kind,q){
+    const key=kind+':'+q;
+    const store = kind==='lookup'?cache.lookup:cache.filter;
+    if(store[key]) return store[key];
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+    try{
+      let url;
+      if(kind==='search') url=CDB+'search.php?s='+encodeURIComponent(q);
+      else if(kind==='filter') url=CDB+'filter.php?i='+encodeURIComponent(q);
+      else if(kind==='lookup') url=CDB+'lookup.php?i='+encodeURIComponent(q);
+      else if(kind==='random') url=CDB+'random.php';
+      const res=await fetch(url,{signal:ctrl.signal}); clearTimeout(t);
+      if(!res.ok) throw new Error('lookup failed');
+      const data=await res.json();
+      store[key]=data; return data;
+    }catch(e){ clearTimeout(t); throw e; }
+  }
+ 
+  function ingredientsOf(d){
+    const out=[];
+    for(let i=1;i<=15;i++){
+      const ing=d['strIngredient'+i], me=d['strMeasure'+i];
+      if(ing&&ing.trim()) out.push({ing:ing.trim(), measure:(me||'').trim()});
+    }
+    return out;
+  }
+ 
+  function recipeDetailHTML(d, withMatch){
+    const ings=ingredientsOf(d);
+    let body='';
+    if(withMatch){
+      const have=myIng.map(norm);
+      const lines=ings.map(x=>{
+        const got = have.some(h=>{const ni=norm(x.ing); return ni===h||ni.includes(h)||h.includes(ni);}) || isBasic(x.ing);
+        const tag = got?'<span class="have">✓ have</span>':'<span class="miss">✗ missing</span>';
+        return `<div class="ing-line"><span>${esc(x.measure)} ${esc(x.ing)}${isBasic(x.ing)?' <span style="color:var(--muted)">(basic)</span>':''}</span>${tag}</div>`;
+      }).join('');
+      body=`<h4>Ingredients</h4>${lines}`;
+    } else {
+      body=`<h4>Ingredients</h4>`+ings.map(x=>
+        `<div class="ing-line"><span>${esc(x.ing)}</span><span style="color:var(--muted)">${esc(x.measure)}</span></div>`).join('');
+    }
+    const meta=[d.strCategory,d.strAlcoholic,d.strGlass].filter(Boolean).join(' · ');
+    return `<div class="recipe-detail">
+      <div class="rd-head">
+        ${d.strDrinkThumb?`<img src="${d.strDrinkThumb}" alt="${esc(d.strDrink)}" loading="lazy">`:''}
+        <div><h3>${esc(d.strDrink)}</h3><div class="meta">${esc(meta)}</div></div>
+      </div>
+      <div class="rd-body">${body}
+        ${d.strInstructions?`<div class="method"><h4>Method</h4>${esc(d.strInstructions)}</div>`:''}
+      </div></div>`;
+  }
+ 
+  async function doNameSearch(){
+    const q=document.getElementById('lib-search').value.trim();
+    const host=document.getElementById('lib-results');
+    if(!q){host.innerHTML='';return;}
+    host.innerHTML='<div class="state"><div class="spinner"></div>Searching…</div>';
+    try{
+      const data=await cdbGet('search',q);
+      if(!data.drinks){ host.innerHTML='<div class="state">No cocktail found for “'+esc(q)+'”.</div>'; return; }
+      host.innerHTML=data.drinks.map(d=>recipeDetailHTML(d,false)).join('');
+    }catch(e){
+      host.innerHTML='<div class="state">Couldn’t reach the library.<br><button class="retry" onclick="doNameSearch()">↻ Retry</button></div>';
+    }
+  }
+ 
+  async function doRandom(){
+    libMode('random');
+    const host=document.getElementById('lib-results');
+    host.innerHTML='<div class="state"><div class="spinner"></div>Pouring something…</div>';
+    try{
+      const data=await cdbGet('random','');
+      cache.filter['random:']=null; // never cache random
+      host.innerHTML=recipeDetailHTML(data.drinks[0],false);
+    }catch(e){
+      host.innerHTML='<div class="state">Couldn’t fetch a random one.<br><button class="retry" onclick="doRandom()">↻ Retry</button></div>';
+    }
+  }
+ 
+  // ---- "what can I make" ----
+  function renderChips(){
+    document.getElementById('ing-chips').innerHTML=myIng.map((x,i)=>
+      `<span class="chip"><b>${esc(x)}</b><span class="rm" onclick="rmIng(${i})">✕</span></span>`).join('');
+  }
+  function addIng(){
+    const el=document.getElementById('lib-ing'); const v=el.value.trim();
+    if(v && !myIng.map(norm).includes(norm(v))) myIng.push(v);
+    el.value=''; renderChips();
+  }
+  function rmIng(i){ myIng.splice(i,1); renderChips(); }
+ 
+  async function doMakeSearch(){
+    addIng(); // capture anything still in the box
+    const host=document.getElementById('lib-results');
+    if(!myIng.length){ host.innerHTML='<div class="state">Add a few things you’ve got first.</div>'; return; }
+    if(myIng.length>6){ host.innerHTML='<div class="state">Try up to 6 ingredients at a time to keep it quick.</div>'; return; }
+    host.innerHTML='<div class="state"><div class="spinner"></div>Working out what you can make…</div>';
+    try{
+      // 1) get candidate drinks for each non-basic ingredient
+      const searchIng=myIng.filter(x=>!isBasic(x));
+      const useIng = searchIng.length?searchIng:myIng;
+      const lists=await Promise.all(useIng.map(x=>cdbGet('filter',x).then(d=>d.drinks||[]).catch(()=>[])));
+      // tally how many of the user's ingredients each drink id appeared under
+      const tally={}; const meta={};
+      lists.forEach(list=>list.forEach(d=>{ tally[d.idDrink]=(tally[d.idDrink]||0)+1; meta[d.idDrink]=d; }));
+      const ids=Object.keys(tally);
+      if(!ids.length){ host.innerHTML='<div class="state">Nothing matched those. Try different or fewer items.</div>'; return; }
+      // 2) rank by overlap, look up the top ~24 for full ingredient detail
+      ids.sort((a,b)=>tally[b]-tally[a]);
+      const top=ids.slice(0,24);
+      const details=await Promise.all(top.map(id=>cdbGet('lookup',id).then(d=>d.drinks&&d.drinks[0]).catch(()=>null)));
+      const have=myIng.map(norm);
+      const canMake=[], almost=[];
+      details.filter(Boolean).forEach(d=>{
+        const ings=ingredientsOf(d);
+        const missing=ings.filter(x=>{
+          const ni=norm(x.ing);
+          const got=have.some(h=>ni===h||ni.includes(h)||h.includes(ni));
+          return !got && !isBasic(x.ing);
+        });
+        if(missing.length===0) canMake.push({d});
+        else if(missing.length===1) almost.push({d,missing:missing[0].ing});
+      });
+      let html='';
+      if(canMake.length){
+        html+='<div class="res-group-title good">✓ You can make these now ('+canMake.length+')</div>';
+        html+=canMake.map(x=>recipeDetailHTML(x.d,true)).join('');
+      }
+      if(almost.length){
+        html+='<div class="res-group-title almost">○ Almost — missing just one thing ('+almost.length+')</div>';
+        html+=almost.map(x=>'<div style="margin-bottom:6px"><span class="badge miss">missing: '+esc(x.missing)+'</span></div>'+recipeDetailHTML(x.d,true)).join('');
+      }
+      if(!html) html='<div class="state">No close matches. Add another spirit or mixer and try again.</div>';
+      host.innerHTML=html;
+    }catch(e){
+      host.innerHTML='<div class="state">Couldn’t reach the library.<br><button class="retry" onclick="doMakeSearch()">↻ Retry</button></div>';
+    }
+  }
+ 
+  buildPhotos();
+  loadRecipes();
+</script>
+</body>
+</html>
