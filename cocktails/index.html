@@ -131,6 +131,7 @@
   <a class="nav-btn" href="../end-of-night">🌙 End Of Night</a>
   <a class="nav-btn" href="../rotas">📅 Rotas</a>
   <span class="nav-btn current">🍸 Cocktails</span>
+  <button class="nav-btn" type="button" onclick="try{var k=(window.BL_CFG&&BL_CFG.venueKey)||'v';localStorage.removeItem('bl_auth_'+k);localStorage.removeItem('bl_pin_cache_'+k);sessionStorage.clear();}catch(e){};location.href='/';" style="cursor:pointer">🏘️ Switch Venue</button>
 </div>
  
 <div class="wrap">
@@ -207,7 +208,8 @@
     host.innerHTML='<div class="state"><div class="spinner"></div>Loading recipes…</div>';
     try{
       const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
-      const res=await fetch(CSV_URL+'&_='+Date.now(),{signal:ctrl.signal});
+      const csvUrl='https://docs.google.com/spreadsheets/d/'+BL_CFG.cocktails+'/gviz/tq?tqx=out:csv&_='+Date.now();
+      const res=await fetch(csvUrl,{signal:ctrl.signal});
       clearTimeout(t);
       if(!res.ok) throw new Error('sheet not reachable');
       const rows=parseCSV(await res.text());
@@ -432,7 +434,7 @@
   }
  
   buildPhotos();
-  loadRecipes();
+  (window.BLConfig&&BLConfig.refresh?BLConfig.refresh():Promise.resolve()).catch(function(){}).then(loadRecipes);
 </script>
 </body>
 </html>
