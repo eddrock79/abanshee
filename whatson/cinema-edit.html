@@ -102,9 +102,9 @@ a{color:var(--spectre)}
 
   <div class="rowflex">
     <div><label>Date</label><input type="date" id="f_date"></div>
-    <div><label>Start time</label><input type="time" id="f_time" value="20:00"></div>
+    <div><label>Start time</label><input type="time" id="f_time"></div>
   </div>
-  <p class="subhint">Showing more than one film tonight? Set the time on the <b>first</b> one and leave the rest blank — the board works out each next film's rough start from its running time.</p>
+  <p class="subhint" id="timeHint">Set the start time for the <b>first</b> film. Add any later films with the time left <b>blank</b> — the board chains each one from the previous film's running time.</p>
 
   <div class="rowflex">
     <div style="flex:2"><label>Film title</label><input type="text" id="f_title" placeholder="e.g. Superman" autocomplete="off"></div>
@@ -150,8 +150,29 @@ const CINEMA_WRITE_KEY = "1234";  // MUST match MANAGER_PIN in cinema-apps-scrip
 /* ================================================= */
 
 const $=id=>document.getElementById(id);
+let ENTRIES=[];   // films currently saved (for the date-aware time hint)
+function dkeyOf(s){ // normalise any date form to YYYY-MM-DD (local day)
+  s=String(s||"").trim();
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  const d=new Date(s); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  return s;
+}
+function updateTimeHint(){
+  const hint=$("timeHint"); if(!hint) return;
+  const dk=dkeyOf($("f_date").value);
+  const same=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dk);
+  if(same.length){
+    const first=same.map(c=>(String(c.time||"").match(/(\d{1,2}:\d{2})/)||[])[1]||"").filter(Boolean).sort()[0]||"";
+    hint.innerHTML=`There ${same.length===1?"is":"are"} already <b>${same.length}</b> film${same.length===1?"":"s"} set for this date${first?` (first at <b>${esc(first)}</b>)`:""}. Leave the start time <b>blank</b> and the board starts this one ~when the previous film ends.`;
+    $("f_time").value="";   // default extra films to auto-chain
+  } else {
+    hint.innerHTML=`Set the start time for the <b>first</b> film. Add any later films with the time left <b>blank</b> — the board chains each one from the previous film's running time.`;
+  }
+}
 function startEditor(){
   const d=new Date(); $("f_date").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  $("f_date").onchange=updateTimeHint;
   loadEntries();
 }
 if(!CINEMA_API){ $("apiwarn").innerHTML="<br><b style='color:#ffb1a3'>Note:</b> CINEMA_API isn't set yet, so saving is disabled. Deploy the Apps Script and paste its /exec URL into this file and board.html."; }
@@ -207,28 +228,30 @@ async function del(id){
 
 async function loadEntries(){
   const box=$("entries");
-  if(!CINEMA_API){ box.innerHTML="<div class='ce'>Connect the Apps Script to see saved screenings.</div>"; return; }
+  if(!CINEMA_API){ box.innerHTML="<div class='ce'>Connect the Apps Script to see saved screenings.</div>"; ENTRIES=[]; updateTimeHint(); return; }
   try{
     const list=await (await fetch(CINEMA_API+"?action=list&t="+Date.now(),{cache:"no-store"})).json();
+    ENTRIES=Array.isArray(list)?list:[];
     const today=new Date(); today.setHours(0,0,0,0);
     const up=(list||[]).filter(c=>{ const d=new Date(c.date); return !isNaN(d)&&d>=today; })
       .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-    if(!up.length){ box.innerHTML="<div class='ce'>Nothing scheduled yet.</div>"; return; }
+    if(!up.length){ box.innerHTML="<div class='ce'>Nothing scheduled yet.</div>"; updateTimeHint(); return; }
     box.innerHTML=up.map(c=>{
       const d=new Date(c.date);
       const when=isNaN(d)?c.date:d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
       const tt=(String(c.time||"").match(/(\d{1,2}:\d{2})/)||[])[1]||"";
-      return `<div class="entry"><span class="when">${when}${tt?` · ${esc(tt)}`:""}</span>
+      return `<div class="entry"><span class="when">${when}${tt?` · ${esc(tt)}`:" · auto"}</span>
         <span class="ttl">${esc(c.title)} ${c.year?`<span class="ce">(${esc(c.year)})</span>`:""}</span>
         <button class="btn danger" onclick="del('${esc(c.id)}')">Remove</button></div>`;
     }).join("");
+    updateTimeHint();
   }catch(e){ box.innerHTML=`<div class='ce'>Couldn't load: ${esc(e.message)}</div>`; }
 }
 
 function clearForm(keepDate){
   ["f_title","f_year","f_blurb"].forEach(i=>$(i).value="");
   $("preview").classList.remove("show");
-  if(!keepDate) $("f_time").value="20:00";
+  $("f_time").value="";   // first film: type a time · later films: leave blank to auto-chain
 }
 function setMsg(t,c){ const m=$("msg"); m.textContent=t; m.className="msg"+(c?" "+c:""); }
 function esc(s){return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
