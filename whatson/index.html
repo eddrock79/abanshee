@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
 
 <!-- ===================================================================
      WHAT'S ON — DISPLAY MENU (the "front door")
@@ -137,6 +139,11 @@ BOARDS.forEach((b,i)=>{
 });
 
 setTimeout(()=>document.getElementById("tip").classList.add("hide"),6000);
+
+/* One hub login — this menu is manager-only. The display board (board.html)
+   stays open so the bar screen can show it without a login. */
+if(window.BLAuth){ BLAuth.init({appName:"What's On", require:"manager", onReady:function(){}}); }
+
 </script>
 </body>
 </html>
