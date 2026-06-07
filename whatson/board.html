@@ -110,19 +110,43 @@ body{
 @keyframes creepL{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.5;transform:scaleX(1)}}
 @keyframes creepR{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.42;transform:scaleX(1)}}
 
-/* apparition — fades in slowly, hangs, fades out; never a hard flash. Haunts vary (centre / drift across). */
+/* apparition — a dark figure that breaks through static, Ring-style. Flickers, never a hard flash. */
 .banshee{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
   pointer-events:none;opacity:0;will-change:opacity}
-.banshee svg{width:min(58vh,52vw);height:auto;filter:drop-shadow(0 0 46px rgba(116,227,193,.45));will-change:transform}
-@keyframes hauntFade{0%{opacity:0}18%{opacity:.17}68%{opacity:.17}100%{opacity:0}}
-@keyframes driftCentre{0%{transform:translateY(34px) scale(.95)}100%{transform:translateY(-30px) scale(1.07)}}
-@keyframes driftLR{0%{transform:translate(-46vw,22px) scale(.9)}100%{transform:translate(46vw,-22px) scale(1.05)}}
-@keyframes driftRL{0%{transform:translate(46vw,22px) scale(.9)}100%{transform:translate(-46vw,-22px) scale(1.05)}}
+.banshee .appar{position:relative;height:min(82vh,94vw);will-change:transform}
+.banshee .ghost{position:relative;height:100%;
+  filter:drop-shadow(1.5px 0 0 rgba(255,40,80,.4)) drop-shadow(-1.5px 0 0 rgba(60,255,210,.34)) contrast(1.15);
+  animation:ghostJitter 6.2s steps(1,end) infinite}
+.banshee .ghost svg{height:100%;width:auto;display:block}
+.banshee .scan{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;opacity:.55;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.55) 0 1px,transparent 1px 3px);
+  animation:scanMove 7s linear infinite}
+.banshee .roll{position:absolute;left:-5%;right:-5%;height:16%;pointer-events:none;mix-blend-mode:overlay;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.10),rgba(0,0,0,.32),transparent);
+  animation:rollMove 5.5s linear infinite}
+@keyframes scanMove{0%{background-position:0 0}100%{background-position:0 10px}}
+@keyframes rollMove{0%{top:-20%}100%{top:120%}}
+@keyframes ghostJitter{
+  0%,100%{transform:translate(0,0)}
+  5%{transform:translate(-4px,0)}6%{transform:translate(2px,0)}
+  33%{transform:translate(0,0)}34%{transform:translate(5px,-1px)}35.5%{transform:translate(0,0)}
+  68%{transform:translate(-3px,1px)}69%{transform:translate(0,0)}
+  86%{transform:translate(3px,0)}87%{transform:translate(0,0)}
+}
+/* presence: flickers in through interference, one clearer glimpse, then breaks up */
+@keyframes hauntFade{
+  0%{opacity:0}7%{opacity:.14}9%{opacity:.02}15%{opacity:.24}18%{opacity:.06}
+  44%{opacity:.5}50%{opacity:.16}58%{opacity:.42}
+  72%{opacity:.07}80%{opacity:.2}90%{opacity:.04}100%{opacity:0}
+}
+@keyframes driftCentre{0%{transform:translateY(20px) scale(.97)}100%{transform:translateY(-14px) scale(1.04)}}
+@keyframes driftLR{0%{transform:translate(-30vw,14px) scale(.95)}100%{transform:translate(30vw,-14px) scale(1.03)}}
+@keyframes driftRL{0%{transform:translate(30vw,14px) scale(.95)}100%{transform:translate(-30vw,-14px) scale(1.03)}}
 
 /* a whisper of static over the grain while the apparition is present */
-.static{position:fixed;inset:-50%;z-index:62;pointer-events:none;opacity:0;mix-blend-mode:overlay;transition:opacity 2.6s ease;
+.static{position:fixed;inset:-50%;z-index:62;pointer-events:none;opacity:0;mix-blend-mode:overlay;transition:opacity 1.8s ease;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.static.show{opacity:.17;animation:grain .5s steps(2) infinite}
+.static.show{opacity:.2;animation:grain .4s steps(2) infinite}
 
 /* ---------- stage / layout ---------- */
 .stage{
@@ -413,35 +437,56 @@ input:disabled{opacity:.4}
 <div class="breath" aria-hidden="true"></div>
 <div class="static" id="static" aria-hidden="true"></div>
 
-<!-- A faint apparition that drifts in roughly once an hour. Press B to summon for a preview. -->
+<!-- A dark figure that breaks through static roughly when summoned. Press B to preview. -->
 <div class="banshee" id="banshee" aria-hidden="true">
-  <svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="bGlow" cx="50%" cy="40%" r="58%">
-        <stop offset="0%" stop-color="#f2fff9" stop-opacity="0.95"/>
-        <stop offset="50%" stop-color="#bfeede" stop-opacity="0.5"/>
-        <stop offset="100%" stop-color="#bfeede" stop-opacity="0"/>
-      </radialGradient>
-      <filter id="bWisp" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.4"/></filter>
-      <filter id="bSoft"><feGaussianBlur stdDeviation="1.6"/></filter>
-    </defs>
-    <g filter="url(#bWisp)" fill="url(#bGlow)">
-      <path d="M200 30 C150 36 96 120 96 250 C70 200 64 120 120 64 C150 36 180 30 200 30Z" opacity=".55"/>
-      <path d="M200 30 C250 36 304 120 304 250 C330 200 336 120 280 64 C250 36 220 30 200 30Z" opacity=".55"/>
-      <path d="M110 280 C60 360 70 470 120 520 C92 430 96 360 130 300Z" opacity=".4"/>
-      <path d="M290 280 C340 360 330 470 280 520 C308 430 304 360 270 300Z" opacity=".4"/>
-      <ellipse cx="200" cy="260" rx="118" ry="172"/>
-    </g>
-    <g filter="url(#bSoft)" fill="#04130d">
-      <ellipse cx="158" cy="232" rx="25" ry="40"/>
-      <ellipse cx="242" cy="232" rx="25" ry="40"/>
-      <ellipse cx="200" cy="362" rx="29" ry="66"/>
-    </g>
-    <g filter="url(#bSoft)" fill="#74e3c1" opacity=".55">
-      <ellipse cx="158" cy="236" rx="7" ry="13"/>
-      <ellipse cx="242" cy="236" rx="7" ry="13"/>
-    </g>
-  </svg>
+  <div class="appar" id="apparMove">
+    <div class="ghost">
+      <svg viewBox="0 0 420 540" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bSkin" cx="45%" cy="38%" r="62%">
+            <stop offset="0%" stop-color="#454a47"/>
+            <stop offset="42%" stop-color="#191c1a"/>
+            <stop offset="100%" stop-color="#070807" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="bHair" cx="50%" cy="32%" r="72%">
+            <stop offset="0%" stop-color="#0c0d0d"/>
+            <stop offset="68%" stop-color="#040404"/>
+            <stop offset="100%" stop-color="#040404" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="bEye" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#eef6f2" stop-opacity=".95"/>
+            <stop offset="55%" stop-color="#a9d8cb" stop-opacity=".4"/>
+            <stop offset="100%" stop-color="#a9d8cb" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="bWarp" x="-30%" y="-30%" width="160%" height="160%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.022" numOctaves="2" seed="7" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="11"/>
+            <feGaussianBlur stdDeviation="1.05"/>
+          </filter>
+        </defs>
+        <g filter="url(#bWarp)">
+          <path d="M212 22 C118 26 66 122 76 256 C82 372 122 482 154 524 L120 526 C66 442 36 304 54 190 C74 76 142 22 212 22Z" fill="url(#bHair)"/>
+          <path d="M212 22 C306 26 358 122 348 256 C342 372 302 482 270 524 L304 526 C358 442 388 304 370 190 C350 76 282 22 212 22Z" fill="url(#bHair)"/>
+          <ellipse cx="212" cy="258" rx="152" ry="226" fill="url(#bHair)"/>
+          <ellipse cx="208" cy="256" rx="104" ry="152" fill="url(#bSkin)"/>
+          <ellipse cx="170" cy="234" rx="30" ry="41" fill="#040504"/>
+          <ellipse cx="252" cy="234" rx="30" ry="41" fill="#040504"/>
+          <circle cx="174" cy="238" r="8.5" fill="url(#bEye)"/>
+          <circle cx="250" cy="238" r="8.5" fill="url(#bEye)"/>
+          <path d="M208 256 q-9 42 -2 72 q9 -9 4 -42Z" fill="#040504" opacity=".7"/>
+          <ellipse cx="208" cy="356" rx="19" ry="30" fill="#050605" opacity=".85"/>
+          <g stroke="#0a0b0b" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round">
+            <path d="M150 44 C150 200 140 360 150 512"/>
+            <path d="M182 38 C178 220 172 386 178 520"/>
+            <path d="M242 38 C248 220 252 386 246 520"/>
+            <path d="M272 44 C274 200 282 360 270 512"/>
+          </g>
+        </g>
+      </svg>
+      <div class="scan"></div>
+      <div class="roll"></div>
+    </div>
+  </div>
 </div>
 
 
@@ -1199,19 +1244,20 @@ window.addEventListener("online", wakeRefresh);
   box.innerHTML=html;
 })();
 
-/* the apparition — varied haunts (centre fade, or a slow drift across), with a whisper of static. Press B to preview. */
-const HAUNTS=[["driftCentre",13],["driftCentre",13],["driftLR",17],["driftRL",17]];
+/* the apparition — manual only for now (press B). Varied haunts + static whisper. */
+const HAUNTS=[["driftCentre",11],["driftCentre",11],["driftLR",13],["driftRL",13]];
 function summonBanshee(){
   const el=document.getElementById("banshee"); if(!el||el._busy) return;
-  const svg=el.querySelector("svg"), stat=document.getElementById("static");
+  const move=document.getElementById("apparMove"), stat=document.getElementById("static");
   const [drift,dur]=HAUNTS[Math.floor(Math.random()*HAUNTS.length)];
   el._busy=true;
   el.style.animation=`hauntFade ${dur}s ease-in-out`;
-  svg.style.animation=`${drift} ${dur}s linear`;
+  if(move) move.style.animation=`${drift} ${dur}s linear`;
   if(stat) stat.classList.add("show");
-  setTimeout(()=>{ el.style.animation=""; svg.style.animation=""; if(stat) stat.classList.remove("show"); el._busy=false; }, dur*1000);
+  setTimeout(()=>{ el.style.animation=""; if(move) move.style.animation=""; if(stat) stat.classList.remove("show"); el._busy=false; }, dur*1000);
 }
-setInterval(summonBanshee, 60*60*1000);   // ~once an hour
+// AUTO-RUN DISABLED until a cadence is approved — to re-enable, e.g. hourly:
+// setInterval(summonBanshee, 60*60*1000);
 document.addEventListener("keydown", e=>{ if(e.key==="b"||e.key==="B") summonBanshee(); });
 
 /* =====================================================================
