@@ -168,6 +168,7 @@ function updateTimeHint(){
     $("f_time").value="";   // default extra films to auto-chain
   } else {
     hint.innerHTML=`Set the start time for the <b>first</b> film. Add any later films with the time left <b>blank</b> — the board chains each one from the previous film's running time.`;
+    if(!$("f_time").value) $("f_time").value="20:00";   // first film needs an anchor time
   }
 }
 function startEditor(){
@@ -207,6 +208,8 @@ async function save(){
     date:$("f_date").value, time:$("f_time").value, title:$("f_title").value.trim(),
     year:$("f_year").value.trim(), cert:$("f_cert").value, blurb:$("f_blurb").value.trim() };
   if(!rec.date||!rec.title){ setMsg("Need at least a date and a film title.","err"); return; }
+  const firstOfDay=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dkeyOf(rec.date)).length===0;
+  if(firstOfDay && !rec.time){ setMsg("Set a start time for the first film of the night — later films can be left blank to auto-time.","err"); return; }
   setMsg("Saving…","");
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});

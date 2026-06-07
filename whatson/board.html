@@ -321,6 +321,9 @@ input:disabled{opacity:.4}
 .t-sec{display:flex;flex-direction:column;min-height:0}
 .t-gigs{flex:1.05 1 0}
 .t-cine{flex:1 1 0}
+.t-gigs.solo{flex:1 1 0}
+.t-gigs.solo .show{flex:1 1 0;align-items:center}
+.t-gigs.solo .t-rows{gap:clamp(7px,1.1vh,16px)}
 .t-head{display:flex;align-items:center;gap:.6em;font-family:"Cinzel",serif;font-weight:700;
   text-transform:uppercase;letter-spacing:.13em;font-size:clamp(15px,2.2vw,26px);color:var(--bone);padding:clamp(4px,.8vh,10px) 0}
 .t-glyph{color:var(--spectre);font-size:.85em;filter:drop-shadow(0 0 6px var(--spectre-soft))}
@@ -998,37 +1001,48 @@ async function renderTonight(now, validDate){
 
   // --- gigs: the next several upcoming events, with date + time ---
   const todayKey=isoDate(now);
-  const gigs=state.rows
+  const allGigs=state.rows
     .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
-    .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)))
-    .slice(0,6);
+    .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
-  let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
-  if(!gigs.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
-  else gigs.forEach(s=>{
-    const isToday=s.dkey===todayKey;
-    const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
-    const dlabel=gigDateLabel(s, now);
-    const timeTxt=s.noTime?"":s.startLabel;
-    gh+=`<div class="show${live?" live":""}">
-      <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}</div>
-      <div class="body"><div class="titleline"><span class="name">${esc(s.title)}</span>${s.genre?`<span class="genre">${esc(s.genre)}</span>`:""}</div>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
-      <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
-  });
-  gh+=`</div>`;
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gh;
+  function gigSectionHTML(limit){
+    let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
+    const list=allGigs.slice(0,limit);
+    if(!list.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
+    else list.forEach(s=>{
+      const isToday=s.dkey===todayKey;
+      const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
+      const dlabel=gigDateLabel(s, now);
+      const timeTxt=s.noTime?"":s.startLabel;
+      gh+=`<div class="show${live?" live":""}">
+        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}</div>
+        <div class="body"><div class="titleline"><span class="name">${esc(s.title)}</span>${s.genre?`<span class="genre">${esc(s.genre)}</span>`:""}</div>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
+        <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
+    });
+    gh+=`</div>`;
+    return gh;
+  }
+
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(6);
   container.appendChild(gsec);
 
-  // --- cinema ---
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
   csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>In our Cinema<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
   container.appendChild(csec);
   wrap.appendChild(container);
 
   const films=await buildCinemaTonight(now);
+
+  // No film tonight → drop the cinema panel and let the gig list fill the (portrait) screen
+  if(!films.length){
+    csec.remove();
+    gsec.classList.add("solo");
+    gsec.innerHTML=gigSectionHTML(14);
+    return;
+  }
+
   const body=document.getElementById("tCineBody"); if(!body) return;
-  if(!films.length){ body.innerHTML=`<div class="t-empty">No film tonight.</div>`; return; }
   body.innerHTML=films.slice(0,3).map(f=>{
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
@@ -1068,6 +1082,13 @@ setInterval(()=>{
 },1000);
 // periodic sheet refresh in live mode
 setInterval(()=>{ if(state.useRealTime) loadData(); }, CONFIG.REFRESH_MIN*60*1000);
+
+// self-heal: the moment the screen wakes / the tab is refocused, refresh immediately
+// (timers are paused while a machine sleeps, so this snaps the board back to current)
+function wakeRefresh(){ if(state.useRealTime){ state.lastKey=""; loadData(); } }
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) wakeRefresh(); });
+window.addEventListener("focus", wakeRefresh);
+window.addEventListener("online", wakeRefresh);
 
 /* =====================================================================
    CONTROL DRAWER
