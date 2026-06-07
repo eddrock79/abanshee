@@ -217,7 +217,8 @@ async function loadEntries(){
     box.innerHTML=up.map(c=>{
       const d=new Date(c.date);
       const when=isNaN(d)?c.date:d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
-      return `<div class="entry"><span class="when">${when} · ${esc(c.time||"")}</span>
+      const tt=(String(c.time||"").match(/(\d{1,2}:\d{2})/)||[])[1]||"";
+      return `<div class="entry"><span class="when">${when}${tt?` · ${esc(tt)}`:""}</span>
         <span class="ttl">${esc(c.title)} ${c.year?`<span class="ce">(${esc(c.year)})</span>`:""}</span>
         <button class="btn danger" onclick="del('${esc(c.id)}')">Remove</button></div>`;
     }).join("");

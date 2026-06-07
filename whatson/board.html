@@ -910,10 +910,14 @@ async function tmdbLookup(title,year){
   tmdbCache[ck]=out; return out;
 }
 function isoDate(now){ return `${now.y}-${String(now.mo).padStart(2,"0")}-${String(now.day).padStart(2,"0")}`; }
-function normDate(s){ // accept ISO or DD/MM/YYYY
+function ymdLocal(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function normDate(s){ // accept ISO, DD/MM/YYYY, or a Sheets date-object/timestamp string
   s=String(s||"").trim();
-  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
-  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  // plain calendar date — take the digits literally, no timezone maths
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  // anything with a time/zone component (e.g. "...T23:00:00Z" or a Date string) → resolve to the LOCAL day
+  const d=new Date(s); if(!isNaN(d)) return ymdLocal(d);
   return s;
 }
 function parseClock(s){ const m=String(s||"").match(/(\d{1,2}):(\d{2})/); return m?(+m[1])*60+(+m[2]):null; }
