@@ -83,14 +83,46 @@ body{
 }
 @keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(-3%,2%)}66%{transform:translate(2%,-2%)}100%{transform:translate(0,0)}}
 
-/* apparition — fades in slowly, hangs, fades out; never a hard flash */
+/* drifting dust motes / spectral embers — slow rise, very faint */
+.motes{position:fixed;inset:0;z-index:40;pointer-events:none;overflow:hidden}
+.mote{position:absolute;bottom:-12px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(190,238,222,.95),rgba(190,238,222,0) 70%);
+  animation-name:moteRise;animation-timing-function:linear;animation-iteration-count:infinite}
+.mote.ember{background:radial-gradient(circle,rgba(230,128,70,.9),rgba(227,73,47,0) 70%)}
+@keyframes moteRise{
+  0%{transform:translate(0,0);opacity:0}
+  12%{opacity:var(--mo,.4)}
+  50%{transform:translate(var(--sway,10px),-46vh)}
+  88%{opacity:var(--mo,.4)}
+  100%{transform:translate(0,-95vh);opacity:0}
+}
+
+/* "cold breath" — whole board dims & returns on a long slow cycle (edge-weighted so text stays legible) */
+.breath{position:fixed;inset:0;z-index:55;pointer-events:none;
+  background:radial-gradient(125% 125% at 50% 50%,transparent 42%,#000 100%);
+  opacity:.02;animation:breath 37s ease-in-out infinite}
+@keyframes breath{0%,100%{opacity:.02}50%{opacity:.13}}
+
+/* creeping shadow — slowly darkens an edge then recedes */
+.creep{position:fixed;top:0;bottom:0;width:46vw;z-index:42;pointer-events:none;opacity:0}
+.creep.left{left:0;transform-origin:left center;background:linear-gradient(90deg,rgba(2,5,7,.92),transparent);animation:creepL 66s ease-in-out infinite}
+.creep.right{right:0;transform-origin:right center;background:linear-gradient(270deg,rgba(2,5,7,.92),transparent);animation:creepR 84s ease-in-out infinite 24s}
+@keyframes creepL{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.5;transform:scaleX(1)}}
+@keyframes creepR{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.42;transform:scaleX(1)}}
+
+/* apparition — fades in slowly, hangs, fades out; never a hard flash. Haunts vary (centre / drift across). */
 .banshee{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
-  pointer-events:none;opacity:0;transition:opacity 6s ease-in-out;will-change:opacity}
-.banshee.show{opacity:.17}
-.banshee svg{width:min(58vh,52vw);height:auto;
-  filter:drop-shadow(0 0 46px rgba(116,227,193,.45));
-  transform:translateY(26px) scale(.95);transition:transform 12s ease-out}
-.banshee.show svg{transform:translateY(-26px) scale(1.05)}
+  pointer-events:none;opacity:0;will-change:opacity}
+.banshee svg{width:min(58vh,52vw);height:auto;filter:drop-shadow(0 0 46px rgba(116,227,193,.45));will-change:transform}
+@keyframes hauntFade{0%{opacity:0}18%{opacity:.17}68%{opacity:.17}100%{opacity:0}}
+@keyframes driftCentre{0%{transform:translateY(34px) scale(.95)}100%{transform:translateY(-30px) scale(1.07)}}
+@keyframes driftLR{0%{transform:translate(-46vw,22px) scale(.9)}100%{transform:translate(46vw,-22px) scale(1.05)}}
+@keyframes driftRL{0%{transform:translate(46vw,22px) scale(.9)}100%{transform:translate(-46vw,-22px) scale(1.05)}}
+
+/* a whisper of static over the grain while the apparition is present */
+.static{position:fixed;inset:-50%;z-index:62;pointer-events:none;opacity:0;mix-blend-mode:overlay;transition:opacity 2.6s ease;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.static.show{opacity:.17;animation:grain .5s steps(2) infinite}
 
 /* ---------- stage / layout ---------- */
 .stage{
@@ -369,6 +401,11 @@ input:disabled{opacity:.4}
   <div class="fog a"></div><div class="fog b"></div><div class="fog c"></div>
   <div class="grain"></div>
 </div>
+<div class="motes" id="motes" aria-hidden="true"></div>
+<div class="creep left" aria-hidden="true"></div>
+<div class="creep right" aria-hidden="true"></div>
+<div class="breath" aria-hidden="true"></div>
+<div class="static" id="static" aria-hidden="true"></div>
 
 <!-- A faint apparition that drifts in roughly once an hour. Press B to summon for a preview. -->
 <div class="banshee" id="banshee" aria-hidden="true">
@@ -1131,11 +1168,35 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) wakeRef
 window.addEventListener("focus", wakeRefresh);
 window.addEventListener("online", wakeRefresh);
 
-/* the apparition — drifts in for ~10s about once an hour. Press B to preview. */
+/* drifting motes / embers — spawned once, sized & timed at random */
+(function makeMotes(){
+  const box=document.getElementById("motes"); if(!box) return;
+  const N=window.innerWidth<700?20:38;
+  let html="";
+  for(let i=0;i<N;i++){
+    const left=(Math.random()*100).toFixed(2);
+    const size=(1.4+Math.random()*2.6).toFixed(2);
+    const dur=(16+Math.random()*26).toFixed(1);
+    const delay=(-Math.random()*dur).toFixed(1);
+    const op=(0.16+Math.random()*0.42).toFixed(2);
+    const sway=((Math.random()*2-1)*34).toFixed(0);
+    const ember=Math.random()<0.16;
+    html+=`<span class="mote${ember?" ember":""}" style="left:${left}%;width:${size}px;height:${size}px;--mo:${op};--sway:${sway}px;animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
+  }
+  box.innerHTML=html;
+})();
+
+/* the apparition — varied haunts (centre fade, or a slow drift across), with a whisper of static. Press B to preview. */
+const HAUNTS=[["driftCentre",13],["driftCentre",13],["driftLR",17],["driftRL",17]];
 function summonBanshee(){
-  const el=document.getElementById("banshee"); if(!el||el.classList.contains("show")) return;
-  el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"), 10000);
+  const el=document.getElementById("banshee"); if(!el||el._busy) return;
+  const svg=el.querySelector("svg"), stat=document.getElementById("static");
+  const [drift,dur]=HAUNTS[Math.floor(Math.random()*HAUNTS.length)];
+  el._busy=true;
+  el.style.animation=`hauntFade ${dur}s ease-in-out`;
+  svg.style.animation=`${drift} ${dur}s linear`;
+  if(stat) stat.classList.add("show");
+  setTimeout(()=>{ el.style.animation=""; svg.style.animation=""; if(stat) stat.classList.remove("show"); el._busy=false; }, dur*1000);
 }
 setInterval(summonBanshee, 60*60*1000);   // ~once an hour
 document.addEventListener("keydown", e=>{ if(e.key==="b"||e.key==="B") summonBanshee(); });
