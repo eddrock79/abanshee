@@ -230,6 +230,12 @@ body{
   border:1px solid var(--spectre-soft);border-radius:2px;padding:.2em .6em;white-space:nowrap;
   align-self:center;
 }
+.show .kind{
+  font-family:"Cinzel",serif;font-weight:700;font-size:clamp(10px,1.15vw,14px);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--spectre);white-space:nowrap;align-self:center;
+  background:var(--spectre-soft);border:1px solid var(--spectre-soft);border-radius:3px;
+  padding:.26em .7em;box-shadow:0 0 14px -4px var(--spectre);
+}
 .show .desc{
   font-family:"EB Garamond",serif;font-size:clamp(12px,1.32vw,16.5px);line-height:1.32;
   color:var(--bone-dim);margin-top:.32em;
@@ -1084,6 +1090,11 @@ async function renderTonight(now, validDate){
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
     .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
+  // Header reads "What's On Tonight" only when something really is on tonight, else "Coming Up"
+  const hasGigToday=allGigs.some(g=>g.dkey===todayKey);
+  const setTitle=on=>{ const t=document.getElementById("title"); if(t) t.textContent = on ? "What's On Tonight" : "Coming Up"; };
+  setTitle(hasGigToday);
+
   function gigSectionHTML(limit){
     let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
     const list=allGigs.slice(0,limit);
@@ -1093,9 +1104,10 @@ async function renderTonight(now, validDate){
       const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
       const dlabel=gigDateLabel(s, now);
       const timeTxt=s.noTime?"":s.startLabel;
+      const kind=(s.genre && s.genre.toLowerCase()!==s.title.toLowerCase())?`<span class="kind">${esc(s.genre)}</span>`:"";
       gh+=`<div class="show${live?" live":""}">
         <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}</div>
-        <div class="body"><div class="titleline"><span class="name">${esc(s.title)}</span>${s.genre?`<span class="genre">${esc(s.genre)}</span>`:""}</div>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
+        <div class="body"><div class="titleline">${kind}<span class="name">${esc(s.title)}</span></div>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
         <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
     });
     gh+=`</div>`;
@@ -1111,6 +1123,7 @@ async function renderTonight(now, validDate){
   wrap.appendChild(container);
 
   const films=await buildCinemaTonight(now);
+  setTitle(hasGigToday || films.length>0);
 
   // No film tonight → drop the cinema panel and let the gig list fill the (portrait) screen
   if(!films.length){
