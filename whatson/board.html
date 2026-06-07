@@ -460,7 +460,7 @@ const MODES = {
     source:{kind:"gcal", sheetId:CONFIG.GIGS_SHEET_ID, tab:CONFIG.GIGS_TAB, calMatch:/mollys chamber|stage bar/i}
   },
   cinema: {
-    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"Tonight at the Pictures",
+    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"In our Cinema",
     foot:"Free cinema · Cinema 1",
     testDefault:"2026-06-11T20:00", layout:"cinema", keepAllDay:true,
     rooms:[ {key:"cinema", name:"The Cinema", match:/.*/} ],
@@ -682,12 +682,13 @@ function buildEventsFromCalendar(rows, modeDef){
     const plain=stripHTML(r[ci.desc]||"");
     const door=parseDoorTime(plain);
     const y=d.y, mo=d.mo, day=d.day;
+    const dkey=`${y}-${String(mo).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     out.push({
       roomKey: modeDef.rooms[0].key,
       title, genre:guessType(title), desc:extractBlurb(plain),
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
-      noTime: !door,
+      noTime: !door, y, mo, day, dkey,
       onDate:(now)=> now.y===y && now.mo===mo && now.day===day,
     });
   }
@@ -916,6 +917,16 @@ function normDate(s){ // accept ISO or DD/MM/YYYY
 }
 function parseClock(s){ const m=String(s||"").match(/(\d{1,2}):(\d{2})/); return m?(+m[1])*60+(+m[2]):null; }
 function clockLabel(mins){ if(mins==null) return ""; mins=((Math.round(mins)%1440)+1440)%1440; return `${String(Math.floor(mins/60)).padStart(2,"0")}:${String(mins%60).padStart(2,"0")}`; }
+function gigDateLabel(s, now){
+  const d=new Date(s.y, s.mo-1, s.day), today=new Date(now.y, now.mo-1, now.day);
+  const diff=Math.round((d-today)/86400000);
+  if(diff===0) return "Tonight";
+  if(diff===1) return "Tomorrow";
+  const WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let lbl=`${WD[d.getDay()]} ${s.day}`;
+  if(s.mo!==now.mo) lbl+=" "+MO[s.mo-1];
+  return lbl;
+}
 function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
 
 /* Films for a given date, enriched from TMDB, with rough start times chained
@@ -980,20 +991,23 @@ async function renderTonight(now, validDate){
 
   const container=document.createElement("div"); container.className="tonight";
 
-  // --- gigs ---
+  // --- gigs: the next several upcoming events, with date + time ---
+  const todayKey=isoDate(now);
   const gigs=state.rows
-    .filter(s=> s.roomKey==="molly" && s.onDate(now))
+    .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
-    .sort((a,b)=> (a.startMin==null?1e9:a.startMin) - (b.startMin==null?1e9:b.startMin))
-    .slice(0,4);
+    .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)))
+    .slice(0,6);
 
-  let gh=`<header class="t-head"><span class="t-glyph">♪</span>Live in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
-  if(!gigs.length){ gh+=`<div class="t-empty">No gigs listed tonight.</div>`; }
+  let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
+  if(!gigs.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
   else gigs.forEach(s=>{
-    const live=s.startMin!=null && s.startMin<=now.min && now.min<s._end;
-    const stStyle=s.noTime?' style="font-size:clamp(13px,1.6vw,18px)"':'';
+    const isToday=s.dkey===todayKey;
+    const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
+    const dlabel=gigDateLabel(s, now);
+    const timeTxt=s.noTime?"":s.startLabel;
     gh+=`<div class="show${live?" live":""}">
-      <div class="time"><span class="start"${stStyle}>${esc(s.startLabel)}</span></div>
+      <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}</div>
       <div class="body"><div class="titleline"><span class="name">${esc(s.title)}</span>${s.genre?`<span class="genre">${esc(s.genre)}</span>`:""}</div>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
       <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
   });
@@ -1003,7 +1017,7 @@ async function renderTonight(now, validDate){
 
   // --- cinema ---
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
-  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>At the Pictures<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
+  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>In our Cinema<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
   container.appendChild(csec);
   wrap.appendChild(container);
 
