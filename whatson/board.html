@@ -388,9 +388,14 @@ input:disabled{opacity:.4}
   text-shadow:0 0 30px rgba(116,227,193,.12)}
 .cinema .coverview{font-family:"EB Garamond",serif;font-size:clamp(14px,1.6vw,20px);line-height:1.4;
   color:var(--bone-dim);max-width:62ch;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.cinema .trailer{margin-top:clamp(12px,2vh,22px);width:min(92vw,660px);aspect-ratio:16/9;border-radius:6px;
-  overflow:hidden;box-shadow:0 22px 54px -26px #000,0 0 0 1px var(--rule)}
-.cinema .trailer iframe{width:100%;height:100%;display:block;border:0}
+.cinema .reel{margin-top:clamp(12px,2vh,22px);width:min(92vw,660px);aspect-ratio:16/9;border-radius:6px;
+  overflow:hidden;position:relative;background:#05050a;box-shadow:0 22px 54px -26px #000,0 0 0 1px var(--rule)}
+.cinema .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity 1.8s ease;transform:scale(1.05);animation:reelKen 19s ease-in-out infinite alternate;will-change:opacity,transform}
+.cinema .reel img.active{opacity:1}
+.cinema .reel::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 120% at 50% 40%,transparent 55%,rgba(0,0,0,.5))}
+@keyframes reelKen{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.14) translate(-2.5%,-1.5%)}}
 .cinema .later{margin-top:12px;font-family:"Cinzel",serif;font-size:clamp(10px,1.1vw,13px);
   letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint)}
 .cinemaMsg{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -1048,7 +1053,7 @@ const tmdbCache={};
 async function tmdbLookup(title,year){
   const ck=(title+"|"+(year||"")).toLowerCase();
   if(tmdbCache[ck]) return tmdbCache[ck];
-  const out={title,year,poster:null,overview:"",runtime:null,trailer:null,found:false};
+  const out={title,year,poster:null,overview:"",runtime:null,trailer:null,backdrops:[],found:false};
   try{
     if(!CONFIG.TMDB_KEY) throw new Error("no TMDB key");
     const sUrl=`https://api.themoviedb.org/3/search/movie?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(title)}`+(year?`&year=${encodeURIComponent(year)}`:"");
@@ -1059,12 +1064,16 @@ async function tmdbLookup(title,year){
       out.overview=hit.overview||"";
       out.poster=hit.poster_path?`https://image.tmdb.org/t/p/w500${hit.poster_path}`:null;
       out.year=(hit.release_date||"").slice(0,4)||year;
-      const dj=await (await fetch(`https://api.themoviedb.org/3/movie/${hit.id}?api_key=${CONFIG.TMDB_KEY}&append_to_response=videos`)).json();
+      const dj=await (await fetch(`https://api.themoviedb.org/3/movie/${hit.id}?api_key=${CONFIG.TMDB_KEY}&append_to_response=videos,images&include_image_language=en,null`)).json();
       if(dj.runtime) out.runtime=dj.runtime;
       if(dj.overview) out.overview=dj.overview;
       const vids=((dj.videos||{}).results)||[];
       const tr=vids.find(v=>v.site==="YouTube"&&/trailer/i.test(v.type))||vids.find(v=>v.site==="YouTube");
       if(tr) out.trailer=tr.key;
+      // backdrop stills for an ambient reel (reliable, unlike embeds)
+      const bd=((dj.images||{}).backdrops||[]).map(b=>b.file_path).filter(Boolean);
+      if(dj.backdrop_path) bd.unshift(dj.backdrop_path);
+      out.backdrops=[...new Set(bd)].slice(0,5).map(p=>`https://image.tmdb.org/t/p/w1280${p}`);
     }
   }catch(e){ out.error=e.message; }
   tmdbCache[ck]=out; return out;
@@ -1127,6 +1136,9 @@ async function renderCinema(now, validDate){
   const timeTxt=film._start!=null?(film._approx?"~":"")+clockLabel(film._start):(film.time||"");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
   const later=films.slice(1).map(f=>`${f._approx?"~":""}${clockLabel(f._start)} ${esc(f.title)}`).join("  ·  ");
+  const reel=(data.backdrops&&data.backdrops.length)
+    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
+    : "";
 
   wrap.innerHTML=`
     <div class="cinema">
@@ -1142,10 +1154,23 @@ async function renderCinema(now, validDate){
         </div>
         <h2 class="cname">${esc(data.title||film.title)}</h2>
         ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
-        ${data.trailer?`<div class="trailer"><iframe src="https://www.youtube.com/embed/${data.trailer}?autoplay=1&mute=1&loop=1&playlist=${data.trailer}&controls=0&modestbranding=1&playsinline=1&rel=0" allow="autoplay; encrypted-media" frameborder="0"></iframe></div>`:""}
+        ${reel}
         ${later?`<div class="later">Also tonight · ${later}</div>`:""}
       </div>
     </div>`;
+
+  // crossfade the backdrop reel (no JS-heavy video, just a slow dissolve)
+  clearInterval(state._reelTimer);
+  const imgs=wrap.querySelectorAll(".reel img");
+  if(imgs.length>1){
+    let idx=0;
+    state._reelTimer=setInterval(()=>{
+      if(!document.body.contains(imgs[0])){ clearInterval(state._reelTimer); return; }
+      idx=(idx+1)%imgs.length;
+      imgs.forEach(im=>im.classList.remove("active"));
+      imgs[idx].classList.add("active");
+    }, 6500);
+  }
 }
 
 /* Combined everyday board: gig list on top, cinema strip below. */
