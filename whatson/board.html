@@ -83,6 +83,15 @@ body{
 }
 @keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(-3%,2%)}66%{transform:translate(2%,-2%)}100%{transform:translate(0,0)}}
 
+/* apparition — fades in slowly, hangs, fades out; never a hard flash */
+.banshee{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity 6s ease-in-out;will-change:opacity}
+.banshee.show{opacity:.17}
+.banshee svg{width:min(58vh,52vw);height:auto;
+  filter:drop-shadow(0 0 46px rgba(116,227,193,.45));
+  transform:translateY(26px) scale(.95);transition:transform 12s ease-out}
+.banshee.show svg{transform:translateY(-26px) scale(1.05)}
+
 /* ---------- stage / layout ---------- */
 .stage{
   position:relative;z-index:1;
@@ -322,8 +331,8 @@ input:disabled{opacity:.4}
 .t-gigs{flex:1.05 1 0}
 .t-cine{flex:1 1 0}
 .t-gigs.solo{flex:1 1 0}
-.t-gigs.solo .show{flex:1 1 0;align-items:center}
-.t-gigs.solo .t-rows{gap:clamp(7px,1.1vh,16px)}
+.t-gigs.solo .t-rows{justify-content:space-between;gap:clamp(8px,1.3vh,20px)}
+.t-gigs.solo .show{align-items:center}
 .t-head{display:flex;align-items:center;gap:.6em;font-family:"Cinzel",serif;font-weight:700;
   text-transform:uppercase;letter-spacing:.13em;font-size:clamp(15px,2.2vw,26px);color:var(--bone);padding:clamp(4px,.8vh,10px) 0}
 .t-glyph{color:var(--spectre);font-size:.85em;filter:drop-shadow(0 0 6px var(--spectre-soft))}
@@ -360,6 +369,38 @@ input:disabled{opacity:.4}
   <div class="fog a"></div><div class="fog b"></div><div class="fog c"></div>
   <div class="grain"></div>
 </div>
+
+<!-- A faint apparition that drifts in roughly once an hour. Press B to summon for a preview. -->
+<div class="banshee" id="banshee" aria-hidden="true">
+  <svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bGlow" cx="50%" cy="40%" r="58%">
+        <stop offset="0%" stop-color="#f2fff9" stop-opacity="0.95"/>
+        <stop offset="50%" stop-color="#bfeede" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#bfeede" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="bWisp" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.4"/></filter>
+      <filter id="bSoft"><feGaussianBlur stdDeviation="1.6"/></filter>
+    </defs>
+    <g filter="url(#bWisp)" fill="url(#bGlow)">
+      <path d="M200 30 C150 36 96 120 96 250 C70 200 64 120 120 64 C150 36 180 30 200 30Z" opacity=".55"/>
+      <path d="M200 30 C250 36 304 120 304 250 C330 200 336 120 280 64 C250 36 220 30 200 30Z" opacity=".55"/>
+      <path d="M110 280 C60 360 70 470 120 520 C92 430 96 360 130 300Z" opacity=".4"/>
+      <path d="M290 280 C340 360 330 470 280 520 C308 430 304 360 270 300Z" opacity=".4"/>
+      <ellipse cx="200" cy="260" rx="118" ry="172"/>
+    </g>
+    <g filter="url(#bSoft)" fill="#04130d">
+      <ellipse cx="158" cy="232" rx="25" ry="40"/>
+      <ellipse cx="242" cy="232" rx="25" ry="40"/>
+      <ellipse cx="200" cy="362" rx="29" ry="66"/>
+    </g>
+    <g filter="url(#bSoft)" fill="#74e3c1" opacity=".55">
+      <ellipse cx="158" cy="236" rx="7" ry="13"/>
+      <ellipse cx="242" cy="236" rx="7" ry="13"/>
+    </g>
+  </svg>
+</div>
+
 
 <main class="stage">
   <header class="masthead">
@@ -1089,6 +1130,15 @@ function wakeRefresh(){ if(state.useRealTime){ state.lastKey=""; loadData(); } }
 document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) wakeRefresh(); });
 window.addEventListener("focus", wakeRefresh);
 window.addEventListener("online", wakeRefresh);
+
+/* the apparition — drifts in for ~10s about once an hour. Press B to preview. */
+function summonBanshee(){
+  const el=document.getElementById("banshee"); if(!el||el.classList.contains("show")) return;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), 10000);
+}
+setInterval(summonBanshee, 60*60*1000);   // ~once an hour
+document.addEventListener("keydown", e=>{ if(e.key==="b"||e.key==="B") summonBanshee(); });
 
 /* =====================================================================
    CONTROL DRAWER
