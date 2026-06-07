@@ -161,6 +161,7 @@
     <a class="nav-btn" href="../rotas">📅 Rotas</a>
     <a class="nav-btn" href="../cocktails">🍸 Cocktails</a>
     <a class="nav-btn mgr" id="nav-dash" href="../dashboard" style="display:none">📊 Dashboard</a>
+    <a class="nav-btn mgr" id="nav-whatson" href="../whatson/" style="display:none">🎭 What's On</a>
     <button class="nav-btn" type="button" onclick="BLAuth.switchVenue()" style="cursor:pointer">🏘️ Switch Venue</button>
     <button class="nav-btn" onclick="logOut()" style="cursor:pointer;color:var(--red);border-color:var(--red)">🔒 Log Out</button>
   </div>
@@ -404,6 +405,7 @@ function showApp(){
     const r=document.getElementById('topbar-role');
     r.textContent='⭐ Manager';r.className='topbar-role manager';r.style.display='inline-block';
     document.getElementById('nav-dash').style.display='inline-block';
+    document.getElementById('nav-whatson').style.display='inline-block';
     document.getElementById('notice-edit-btn').style.display='inline-block';
   }else{
     document.getElementById('nav-dash').style.display='none';
