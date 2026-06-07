@@ -511,9 +511,10 @@ const SAMPLE_CINEMA = [
    ===================================================================== */
 const params = new URLSearchParams(location.search);
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
+const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
   mode: initMode,
-  useRealTime: false,
+  useRealTime: !wantSim,   // LIVE clock by default — bar screens show the real date/time
   simStr: params.get("now") || MODES[initMode].testDefault || "2025-08-08T12:05",
   rows: [],
   cinema: [],
@@ -1088,6 +1089,8 @@ function syncModeButtons(){ [...modeset.children].forEach(b=>b.classList.toggle(
 
 // realtime toggle
 const rt=document.getElementById("realtime"), simInput=document.getElementById("simInput");
+rt.checked=state.useRealTime; simInput.disabled=state.useRealTime;
+document.getElementById("rtLabel").textContent=state.useRealTime?"Using real time (live)":"Frozen test time";
 rt.onchange=()=>{ state.useRealTime=rt.checked; simInput.disabled=rt.checked;
   document.getElementById("rtLabel").textContent=rt.checked?"Using real time (live)":"Frozen test time";
   state.lastKey=""; render(); };
