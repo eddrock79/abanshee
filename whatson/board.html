@@ -788,7 +788,7 @@ function stripHTML(s){
 }
 function parseDMY(s){ const m=(s||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m?{day:+m[1],mo:+m[2],y:+m[3]}:null; }
 function parseDoorTime(text){
-  const m=text.match(/doors?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
+  const m=text.match(/doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
   if(!m) return null;
   let h=+m[1]; const mn=m[2]?+m[2]:0; const ap=(m[3]||"").toLowerCase();
   if(ap==="pm"&&h<12) h+=12;
@@ -819,11 +819,11 @@ function extractBlurb(plain){
   return b;
 }
 // labels the board recognises in a description — used as boundaries so values don't bleed into each other
-const NOTE_LABELS="bands|line ?up|support|blurb|about|info|details?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
-// time-style labels that staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
-const TIME_LABELS="doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
+const NOTE_LABELS="bands|line ?up|support|djs?|blurb|about|info|details?|doors? ?open(?:s|ing)?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|entry ?cost|entry ?price|entry ?fee|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
+// time-style labels staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
+const TIME_LABELS="doors? ?open(?:s|ing)?|doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
 function noteField(plain,label){
-  const re=new RegExp(label+"\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|\\b(?:"+TIME_LABELS+")\\b\\s*\\d|$)","i");
+  const re=new RegExp("\\b(?:"+label+")\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|\\b(?:"+TIME_LABELS+")\\b\\s*\\d|$)","i");
   const m=plain.match(re); if(!m) return "";
   return m[1]
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,"")          // emails
@@ -833,7 +833,7 @@ function noteField(plain,label){
 }
 function parsePrice(plain){
   // public entry price only — must be explicitly labelled; £30+ is treated as venue hire and hidden
-  const m=plain.match(/\b(?:otd|on the door|door price|entry|adv(?:ance)?|price)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
+  const m=plain.match(/\b(?:otd|on the door|door price|entry(?: ?cost| ?price| ?fee)?|adv(?:ance)?|price)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
   if(!m) return "";
   let v=m[1].trim();
   if(/free/i.test(v)) return "Free";
@@ -845,11 +845,13 @@ function parseGigNotes(plain){
   const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
   let bands=noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
   if(!bands){ const f=noteField(plain,"ffo"); if(f) bands="FFO: "+f; }
+  const dj=noteField(plain,"djs?");
   const parts=[];
   if(blurb) parts.push(blurb);
   if(bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);
+  if(dj && !/dj\b/i.test(parts.join(" "))) parts.push("DJ "+dj);
   let desc=parts.join(" — ");
-  if(desc.length>170) desc=desc.slice(0,167).trim()+"…";
+  if(desc.length>200) desc=desc.slice(0,197).trim()+"…";
   return { desc, price:parsePrice(plain) };
 }
 function guessType(title){
