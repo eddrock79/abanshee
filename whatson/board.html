@@ -248,6 +248,9 @@ body{
 .show .time{font-family:"Cinzel",serif;line-height:1.05;padding-top:.18em}
 .show .time .start{display:block;font-size:clamp(18px,2.4vw,30px);font-weight:700;color:var(--bone);letter-spacing:.02em}
 .show .time .end{display:block;font-size:clamp(10px,1.15vw,14px);color:var(--bone-faint);font-weight:500;margin-top:.15em;letter-spacing:.1em}
+.show .time .price{display:inline-block;margin-top:.4em;font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(9px,1.05vw,13px);letter-spacing:.06em;color:var(--ember);
+  border:1px solid rgba(227,73,47,.4);border-radius:2px;padding:.1em .5em}
 
 .show .body{min-width:0;display:grid;grid-template-columns:clamp(98px,12.5vw,158px) 1fr;
   align-items:baseline;column-gap:clamp(8px,1.2vw,18px);row-gap:.3em}
@@ -784,13 +787,12 @@ function stripHTML(s){
 }
 function parseDMY(s){ const m=(s||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m?{day:+m[1],mo:+m[2],y:+m[3]}:null; }
 function parseDoorTime(text){
-  let m=text.match(/doors?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
-  if(!m){ const f=text.match(/\b(\d{1,2})(?:[:.](\d{2}))?\s*pm\b/i); if(f) m=[f[0],f[1],f[2],"pm"]; }
+  const m=text.match(/doors?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
   if(!m) return null;
   let h=+m[1]; const mn=m[2]?+m[2]:0; const ap=(m[3]||"").toLowerCase();
   if(ap==="pm"&&h<12) h+=12;
   if(ap==="am"&&h===12) h=0;
-  if(!ap && h>=1 && h<=11) h+=12;  // bare evening hour → assume pm
+  if(!ap && h>=1 && h<=11) h+=12;  // bare evening hour after "Doors" → assume pm
   if(h>23||mn>59) return null;
   return {min:h*60+mn, label:`${String(h).padStart(2,"0")}:${String(mn).padStart(2,"0")}`};
 }
@@ -814,6 +816,37 @@ function extractBlurb(plain){
   if(b.length<3) return "";
   if(b.length>120) b=b.slice(0,117).trim()+"…";
   return b;
+}
+// labels the board recognises in a description — used as boundaries so values don't bleed into each other
+const NOTE_LABELS="bands|line ?up|support|blurb|about|info|details?|doors?|eta|end ?time|ends?|finish(?:es)?|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|price|otd|on the door|adv(?:ance)?|entry|fee|cost|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|sound ?check|poster|name|ffo";
+function noteField(plain,label){
+  const re=new RegExp(label+"\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|$)","i");
+  const m=plain.match(re); if(!m) return "";
+  return m[1]
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,"")          // emails
+    .replace(/https?:\/\/\S+/gi,"").replace(/\b(?:fb\.me|bit\.ly|facebook\.com)\/\S+/gi,"") // links
+    .replace(/\b0\d[\d ]{7,}\d\b/g,"").replace(/\b07\d{3}\s?\d{6}\b/g,"")  // phone numbers
+    .replace(/[•|]+/g," ").replace(/\s{2,}/g," ").trim().replace(/[,;:\-–]+$/,"").trim();
+}
+function parsePrice(plain){
+  let m=plain.match(/\b(?:otd|on the door|door price|price|entry|adv(?:ance)?|cost)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
+  if(!m) m=plain.match(/(£\s?\d+(?:\.\d{2})?)/);
+  if(!m) return "";
+  let v=m[1].trim();
+  if(/free/i.test(v)) return "Free";
+  v=v.replace(/\s/g,""); if(!v.startsWith("£")) v="£"+v;
+  return v;
+}
+function parseGigNotes(plain){
+  const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
+  let bands=noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
+  if(!bands){ const f=noteField(plain,"ffo"); if(f) bands="FFO: "+f; }
+  const parts=[];
+  if(blurb) parts.push(blurb);
+  if(bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);
+  let desc=parts.join(" — ");
+  if(desc.length>170) desc=desc.slice(0,167).trim()+"…";
+  return { desc, price:parsePrice(plain) };
 }
 function guessType(title){
   const t=title.toLowerCase();
@@ -849,9 +882,10 @@ function buildEventsFromCalendar(rows, modeDef){
     if(!door && !isAllDay) door=parseTimeCell(r[ci.stime]);
     const y=d.y, mo=d.mo, day=d.day;
     const dkey=`${y}-${String(mo).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const notes=parseGigNotes(plain);
     out.push({
       roomKey: modeDef.rooms[0].key,
-      title, genre:guessType(title), desc:extractBlurb(plain),
+      title, genre:guessType(title), desc:notes.desc, price:notes.price,
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
       noTime: !door, y, mo, day, dkey,
@@ -1204,7 +1238,7 @@ async function renderTonight(now, validDate){
       const timeTxt=s.noTime?"":s.startLabel;
       const kindLabel = s.genre ? esc(s.genre) : "";
       gh+=`<div class="show${live?" live":""}">
-        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}</div>
+        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}${s.price?`<span class="price">${esc(s.price)}</span>`:""}</div>
         <div class="body"><span class="kind">${kindLabel}</span><span class="name">${esc(s.title)}</span>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
         <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
     });
