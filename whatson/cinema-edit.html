@@ -67,6 +67,15 @@ input:focus,select,textarea:focus{outline:none;border-color:var(--spectre)}
 .preview .pv-info h3{font-family:"Cinzel",serif;font-size:16px;letter-spacing:.02em}
 .preview .pv-info .meta{color:var(--bone-faint);font-size:13px;margin:4px 0 6px;font-family:"Cinzel",serif;letter-spacing:.1em;text-transform:uppercase}
 .preview .pv-info p{color:var(--bone-dim);font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.preview .pv-noposter{width:84px;height:124px;flex:0 0 auto;border-radius:4px;background:#000;border:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:center;color:var(--bone-faint);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.preview .pv-nav{display:flex;align-items:center;gap:12px;margin-top:12px}
+.preview .pv-arrow{font-family:"Cinzel",serif;font-size:13px;letter-spacing:.06em;color:var(--bone);
+  background:rgba(116,227,193,.08);border:1px solid var(--rule);border-radius:5px;padding:7px 14px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.preview .pv-arrow:hover{border-color:var(--spectre);color:var(--spectre)}
+.preview .pv-arrow:active{transform:translateY(1px)}
+.preview .pv-count{font-family:"Cinzel",serif;font-size:13px;letter-spacing:.1em;color:var(--bone-faint);min-width:48px;text-align:center}
 
 .msg{margin-top:16px;font-size:14px;font-style:italic;min-height:1.2em}
 .msg.ok{color:var(--spectre)}.msg.err{color:#ff9b8a}
@@ -136,7 +145,7 @@ a{color:var(--spectre)}
   </div>
 
   <p class="note">
-    Tip: if the preview shows the wrong film, add the <b>year</b> to pin it down (e.g. Superman 1978 vs 2025).
+    Tip: if there's more than one match (sequels, remakes), use <b>‹ Prev / Next ›</b> in the preview to find the right one — whichever you're looking at is the one that saves. Typing a <b>year</b> jumps straight to it.
     Saved films appear on the Cinema board for the date you set.
     <span id="apiwarn"></span>
   </p>
@@ -182,24 +191,44 @@ if(!CINEMA_API){ $("apiwarn").innerHTML="<br><b style='color:#ffb1a3'>Note:</b> 
 if(window.BLAuth){ BLAuth.init({appName:"Cinema Entry", require:"manager", onReady:startEditor}); }
 else { startEditor(); }
 
+let PICKS=[], pickIdx=0;
 async function preview(){
   const title=$("f_title").value.trim(), year=$("f_year").value.trim();
   const box=$("preview");
   if(!title){ box.classList.remove("show"); return; }
   box.classList.add("show"); box.innerHTML="<div class='ce'>Searching TMDB…</div>";
   try{
-    const sUrl=`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`+(year?`&year=${encodeURIComponent(year)}`:"");
+    // search by title only, so sequels / remakes all come back; year (if typed) just picks the starting match
+    const sUrl=`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`;
     const sj=await (await fetch(sUrl)).json();
-    const hit=(sj.results||[])[0];
-    if(!hit){ box.innerHTML="<div class='ce'>No match found — check the spelling or year.</div>"; return; }
-    const poster=hit.poster_path?`https://image.tmdb.org/t/p/w185${hit.poster_path}`:"";
-    const yr=(hit.release_date||"").slice(0,4);
-    box.innerHTML=`${poster?`<img src="${poster}" alt="">`:""}
-      <div class="pv-info"><h3>${esc(hit.title)} ${yr?`(${yr})`:""}</h3>
-      <div class="meta">Matched on TMDB — saving will use this</div>
-      <p>${esc(hit.overview||"No synopsis on file.")}</p></div>`;
-    if(!$("f_year").value && yr) $("f_year").value=yr;
+    let results=(sj.results||[]).filter(r=>r.title);
+    if(!results.length){ PICKS=[]; box.innerHTML="<div class='ce'>No match found — check the spelling.</div>"; return; }
+    PICKS=results.slice(0,12);   // up to 12 options, already ordered by popularity
+    pickIdx=0;
+    if(year){ const i=PICKS.findIndex(r=>(r.release_date||"").slice(0,4)===year); if(i>=0) pickIdx=i; }
+    renderPick();
   }catch(e){ box.innerHTML=`<div class='ce'>Lookup failed: ${esc(e.message)}</div>`; }
+}
+function pickNav(d){ if(PICKS.length<2) return; pickIdx=(pickIdx+d+PICKS.length)%PICKS.length; renderPick(); }
+function renderPick(){
+  const box=$("preview"), hit=PICKS[pickIdx]; if(!hit) return;
+  const poster=hit.poster_path?`https://image.tmdb.org/t/p/w185${hit.poster_path}`:"";
+  const yr=(hit.release_date||"").slice(0,4);
+  const many=PICKS.length>1;
+  box.innerHTML=`${poster?`<img src="${poster}" alt="">`:`<div class="pv-noposter">no poster</div>`}
+    <div class="pv-info">
+      <h3>${esc(hit.title)} ${yr?`(${yr})`:""}</h3>
+      <div class="meta">${many?`Match ${pickIdx+1} of ${PICKS.length} — saving uses this one`:"Matched on TMDB — saving will use this"}</div>
+      <p>${esc(hit.overview||"No synopsis on file.")}</p>
+      ${many?`<div class="pv-nav">
+        <button type="button" class="pv-arrow" onclick="pickNav(-1)">‹ Prev</button>
+        <span class="pv-count">${pickIdx+1} / ${PICKS.length}</span>
+        <button type="button" class="pv-arrow" onclick="pickNav(1)">Next ›</button>
+      </div>`:""}
+    </div>`;
+  // lock the chosen film into the form so Save (and the board's own lookup) use exactly this match
+  $("f_title").value=hit.title;
+  if(yr) $("f_year").value=yr;
 }
 
 async function save(){
@@ -253,6 +282,7 @@ async function loadEntries(){
 
 function clearForm(keepDate){
   ["f_title","f_year","f_blurb"].forEach(i=>$(i).value="");
+  PICKS=[]; pickIdx=0;
   $("preview").classList.remove("show");
   $("f_time").value="";   // first film: type a time · later films: leave blank to auto-chain
 }
