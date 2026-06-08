@@ -232,6 +232,7 @@ body{
   grid-template-columns:clamp(74px,9vw,116px) 1fr;
   gap:clamp(10px,1.6vw,22px);
   align-items:start;
+  flex-shrink:0;            /* never squash a row — its text must always fit */
   padding:clamp(7px,1vh,13px) clamp(10px,1.4vw,18px) clamp(7px,1vh,13px) clamp(12px,1.6vw,20px);
   position:relative;border-radius:3px;
   background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006));
@@ -818,9 +819,11 @@ function extractBlurb(plain){
   return b;
 }
 // labels the board recognises in a description — used as boundaries so values don't bleed into each other
-const NOTE_LABELS="bands|line ?up|support|blurb|about|info|details?|doors?|eta|end ?time|ends?|finish(?:es)?|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|price|otd|on the door|adv(?:ance)?|entry|fee|cost|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|sound ?check|poster|name|ffo";
+const NOTE_LABELS="bands|line ?up|support|blurb|about|info|details?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
+// time-style labels that staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
+const TIME_LABELS="doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
 function noteField(plain,label){
-  const re=new RegExp(label+"\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|$)","i");
+  const re=new RegExp(label+"\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|\\b(?:"+TIME_LABELS+")\\b\\s*\\d|$)","i");
   const m=plain.match(re); if(!m) return "";
   return m[1]
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,"")          // emails
@@ -829,13 +832,14 @@ function noteField(plain,label){
     .replace(/[•|]+/g," ").replace(/\s{2,}/g," ").trim().replace(/[,;:\-–]+$/,"").trim();
 }
 function parsePrice(plain){
-  let m=plain.match(/\b(?:otd|on the door|door price|price|entry|adv(?:ance)?|cost)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
-  if(!m) m=plain.match(/(£\s?\d+(?:\.\d{2})?)/);
+  // public entry price only — must be explicitly labelled; £30+ is treated as venue hire and hidden
+  const m=plain.match(/\b(?:otd|on the door|door price|entry|adv(?:ance)?|price)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
   if(!m) return "";
   let v=m[1].trim();
   if(/free/i.test(v)) return "Free";
-  v=v.replace(/\s/g,""); if(!v.startsWith("£")) v="£"+v;
-  return v;
+  const num=parseFloat(v.replace(/[£\s]/g,""));
+  if(isNaN(num)||num>=30) return "";   // £30+ = internal venue-hire cost, not entry → hide
+  return "£"+(Number.isInteger(num)?num:num.toFixed(2));
 }
 function parseGigNotes(plain){
   const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
@@ -1261,7 +1265,7 @@ async function renderTonight(now, validDate){
   if(!films.length){
     csec.remove();
     gsec.classList.add("solo");
-    gsec.innerHTML=gigSectionHTML(14);
+    gsec.innerHTML=gigSectionHTML(11);
     return;
   }
 
