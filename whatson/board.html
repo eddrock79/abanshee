@@ -375,24 +375,25 @@ input:disabled{opacity:.4}
 .drawer .close:hover{color:var(--bone)}
 
 /* ---------- cinema layout ---------- */
-.cinema{height:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,2vh,24px);padding-top:clamp(4px,1vh,14px)}
+.cinema{height:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.4vh,18px);padding-top:clamp(4px,1vh,12px)}
 .cinema .poster{flex:0 0 auto;border-radius:6px;overflow:hidden;position:relative;
   box-shadow:0 34px 80px -28px #000,0 0 0 1px var(--rule)}
-.cinema .poster img{display:block;height:48vh;max-width:92vw;object-fit:contain;background:#05050a}
-.cinema .poster .noposter{display:flex;align-items:center;justify-content:center;height:34vh;width:58vw;
+.cinema .poster img{display:block;height:min(40vh,52vw);max-width:92vw;object-fit:contain;background:#05050a}
+.cinema .poster .noposter{display:flex;align-items:center;justify-content:center;height:30vh;width:54vw;
   font-family:"Cinzel",serif;color:var(--bone-dim);padding:1em;text-align:center;background:rgba(255,255,255,.02)}
-.cinema .cinfo{flex:1 1 auto;width:100%;max-width:820px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:0}
+.cinema .cinfo{flex:0 1 auto;width:100%;max-width:820px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:0}
 .cinema .cmeta{display:flex;gap:clamp(8px,1.4vw,16px);align-items:center;flex-wrap:wrap;justify-content:center;
   font-family:"Cinzel",serif;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(11px,1.3vw,15px)}
 .cinema .ctime{color:var(--spectre);font-weight:700}
+.cinema .cwhen{color:var(--spectre);font-weight:700}
 .cinema .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.1em .5em;font-weight:600}
 .cinema .cyear,.cinema .cruntime{color:var(--bone-faint)}
 .cinema .cname{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;
-  font-size:clamp(26px,4.6vw,54px);line-height:1.02;margin:.32em 0 .28em;color:var(--bone);
+  font-size:clamp(24px,4.4vw,52px);line-height:1.02;margin:.28em 0 .24em;color:var(--bone);
   text-shadow:0 0 30px rgba(116,227,193,.12)}
-.cinema .coverview{font-family:"EB Garamond",serif;font-size:clamp(14px,1.6vw,20px);line-height:1.4;
-  color:var(--bone-dim);max-width:62ch;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.cinema .reel{margin-top:clamp(12px,2vh,22px);width:min(92vw,660px);aspect-ratio:16/9;border-radius:6px;
+.cinema .coverview{flex-shrink:0;font-family:"EB Garamond",serif;font-size:clamp(14px,1.6vw,20px);line-height:1.4;
+  color:var(--bone-dim);max-width:62ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cinema .reel{margin-top:clamp(8px,1.4vh,16px);width:min(82vw,520px);aspect-ratio:16/9;border-radius:6px;flex:0 0 auto;
   overflow:hidden;position:relative;background:#05050a;box-shadow:0 22px 54px -26px #000,0 0 0 1px var(--rule)}
 .cinema .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
   transition:opacity 1.8s ease;transform:scale(1.05);animation:reelKen 19s ease-in-out infinite alternate;will-change:opacity,transform}
@@ -402,6 +403,29 @@ input:disabled{opacity:.4}
 @keyframes reelKen{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.14) translate(-2.5%,-1.5%)}}
 .cinema .later{margin-top:12px;font-family:"Cinzel",serif;font-size:clamp(10px,1.1vw,13px);
   letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint)}
+/* ---- Up Next banner ---- */
+.cinema .upnext{flex:0 0 auto;width:min(94vw,820px);margin-top:auto;padding-top:clamp(8px,1.4vh,16px);
+  border-top:1px solid var(--rule)}
+.cinema .un-label{font-family:"Cinzel",serif;font-size:clamp(10px,1.1vw,13px);letter-spacing:.26em;
+  text-transform:uppercase;color:var(--spectre);opacity:.85;margin-bottom:clamp(6px,1vh,10px);text-align:left}
+.cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
+.cinema .un-card{flex:1 1 0;min-width:0;display:flex;gap:clamp(8px,1.2vw,14px);align-items:center;
+  border:1px solid var(--rule);border-radius:5px;padding:clamp(6px,1vw,10px);
+  background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006))}
+.cinema .un-thumb{flex:0 0 auto;width:clamp(82px,16vw,132px);aspect-ratio:16/9;border-radius:4px;overflow:hidden;
+  background:#05050a;position:relative;box-shadow:0 0 0 1px var(--rule)}
+.cinema .un-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transform:scale(1.06);animation:reelKen 17s ease-in-out infinite alternate;will-change:transform}
+.cinema .un-thumb .un-noimg{display:flex;align-items:center;justify-content:center;height:100%;color:var(--bone-faint);
+  font-family:"Cinzel",serif;font-size:10px;letter-spacing:.1em;padding:.4em;text-align:center}
+.cinema .un-text{min-width:0;text-align:left;display:flex;flex-direction:column;gap:2px}
+.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(10px,1.15vw,13px);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--spectre)}
+.cinema .un-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;color:var(--bone);
+  font-size:clamp(14px,1.7vw,21px);line-height:1.05;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cinema .un-meta{font-family:"Cinzel",serif;font-size:clamp(9px,1vw,12px);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--bone-faint)}
 .cinemaMsg{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,22px);padding:2em}
 
@@ -823,7 +847,13 @@ const NOTE_LABELS="bands|line ?up|support|djs?|blurb|about|info|details?|doors? 
 // time-style labels staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
 const TIME_LABELS="doors? ?open(?:s|ing)?|doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
 function noteField(plain,label){
-  const re=new RegExp("\\b(?:"+label+")\\s*:?\\s*([^]*?)(?=\\b(?:"+NOTE_LABELS+")\\b\\s*:|\\b(?:"+TIME_LABELS+")\\b\\s*\\d|$)","i");
+  // value runs until the next heading, a time label, a link, or an internal cost note — whichever comes first
+  const stop="\\b(?:"+NOTE_LABELS+")\\b\\s*:"
+    +"|\\b(?:"+TIME_LABELS+")\\b\\s*\\d"
+    +"|https?:\\/\\/|www\\.|fb\\.me\\/|facebook\\.com|instagram\\.com"
+    +"|£\\s?\\d+\\s*(?:min|minimum)|\\bminimum to pay\\b|duty manager|%\\s?of the bar|door split|bar split|8pm[- ]?close"
+    +"|$";
+  const re=new RegExp("\\b(?:"+label+")\\s*:?\\s*([^]*?)(?="+stop+")","i");
   const m=plain.match(re); if(!m) return "";
   return m[1]
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,"")          // emails
@@ -1162,23 +1192,72 @@ async function buildCinemaTonight(now){
   return films;
 }
 
+/* Tonight + future screenings, soonest first, start times chained per date.
+   Only the first `max` are enriched from TMDB (keeps lookups light). */
+async function buildUpcomingCinema(now, max){
+  const todayKey=isoDate(now);
+  let films=(state.cinema||[])
+    .map((c,idx)=>({...c,_idx:idx,_date:normDate(c.date),_t:parseClock(c.time)}))
+    .filter(f=> f._date && f._date>=todayKey);
+  films.sort((a,b)=> a._date.localeCompare(b._date) || ((a._t==null?1e9:a._t)-(b._t==null?1e9:b._t)) || (a._idx-b._idx));
+  films=films.slice(0, max||4);
+  for(const f of films){ f._tmdb=await tmdbLookup(f.title,f.year); }
+  // chain blank start times within each date off the previous film's runtime
+  const byDate={}; films.forEach(f=>{ (byDate[f._date]=byDate[f._date]||[]).push(f); });
+  Object.values(byDate).forEach(list=>{
+    let clock=null;
+    list.forEach(f=>{
+      if(f._t!=null){ f._start=f._t; f._approx=false; clock=f._t; }
+      else if(clock!=null){ f._start=clock; f._approx=true; }
+      else { f._start=null; f._approx=false; }
+      if(f._start!=null){ const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120; clock=f._start+rt+GAP_MIN; }
+    });
+  });
+  return films;
+}
+function cinemaDateLabel(dstr, now){
+  const today=isoDate(now);
+  if(dstr<=today) return "Tonight";
+  const d=new Date(dstr+"T00:00:00"), t=new Date(today+"T00:00:00");
+  const diff=Math.round((d-t)/86400000);
+  if(diff===1) return "Tomorrow";
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+}
+
 async function renderCinema(now, validDate){
   const wrap=document.getElementById("rooms");
   if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
-  const films=await buildCinemaTonight(now);
-  const sig="cine|"+isoDate(now)+"|"+films.map(f=>f.title+f.time).join(",");
-  if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return; // don't restart the trailer each minute
+  const films=await buildUpcomingCinema(now, 4);
+  const sig="cine|"+isoDate(now)+"|"+films.map(f=>f._date+f.title+f.time).join(",");
+  if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return; // don't restart the reel each minute
   state._cinemaSig=sig;
-  if(!films.length){ wrap.innerHTML=cinemaMsg("No screening listed tonight."); return; }
+  if(!films.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
 
   const film=films[0], data=film._tmdb||{};
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
+  const whenTxt=cinemaDateLabel(film._date, now);
   const timeTxt=film._start!=null?(film._approx?"~":"")+clockLabel(film._start):(film.time||"");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
-  const later=films.slice(1).map(f=>`${f._approx?"~":""}${clockLabel(f._start)} ${esc(f.title)}`).join("  ·  ");
   const reel=(data.backdrops&&data.backdrops.length)
     ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
     : "";
+
+  // Up Next — the following screenings, each with a gently-zooming still
+  const upNext=films.slice(1,3).map(f=>{
+    const d=f._tmdb||{};
+    const img=(d.backdrops&&d.backdrops[0])||d.poster||"";
+    const rt=d.runtime?`${Math.floor(d.runtime/60)}h ${d.runtime%60}m`:"";
+    const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
+    const meta=[f.cert,d.year,rt].filter(Boolean).join(" · ");
+    return `<div class="un-card">
+      <div class="un-thumb">${img?`<img src="${esc(img)}" alt="">`:`<div class="un-noimg">${esc(d.title||f.title)}</div>`}</div>
+      <div class="un-text">
+        <div class="un-when">${esc(cinemaDateLabel(f._date,now))}${tt?` · ${esc(tt)}`:""}</div>
+        <div class="un-title">${esc(d.title||f.title)}</div>
+        ${meta?`<div class="un-meta">${esc(meta)}</div>`:""}
+      </div></div>`;
+  }).join("");
+  const upnextHTML=upNext?`<div class="upnext"><div class="un-label">Up Next</div><div class="un-row">${upNext}</div></div>`:"";
 
   wrap.innerHTML=`
     <div class="cinema">
@@ -1187,6 +1266,7 @@ async function renderCinema(now, validDate){
       </div>
       <div class="cinfo">
         <div class="cmeta">
+          <span class="cwhen">${esc(whenTxt)}</span>
           ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
           ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
           ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
@@ -1195,11 +1275,11 @@ async function renderCinema(now, validDate){
         <h2 class="cname">${esc(data.title||film.title)}</h2>
         ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
         ${reel}
-        ${later?`<div class="later">Also tonight · ${later}</div>`:""}
       </div>
+      ${upnextHTML}
     </div>`;
 
-  // crossfade the backdrop reel (no JS-heavy video, just a slow dissolve)
+  // crossfade the hero backdrop reel (slow dissolve, no video)
   clearInterval(state._reelTimer);
   const imgs=wrap.querySelectorAll(".reel img");
   if(imgs.length>1){
