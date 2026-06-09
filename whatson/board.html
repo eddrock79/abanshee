@@ -551,24 +551,15 @@ input:disabled{opacity:.4}
 /* shooters column — keep the warm amber */
 .prd-shooters .prd-card::before{background:var(--gold);box-shadow:0 0 12px var(--gold)}
 
-/* price labels in section headers */
-.prd-head .prd-price{margin-left:auto;font-family:"Cinzel",serif;font-weight:700;
-  font-size:clamp(22px,3.4vw,46px);color:var(--gold);letter-spacing:.04em}
-
-/* persistent glow border — survives transitions (z above fxOverlay) */
-#pageBorder{position:fixed;inset:0;z-index:52;pointer-events:none;
-  animation:borderCycle 14s ease-in-out infinite}
-@keyframes borderCycle{
-  0%,100%{box-shadow:inset 0 0 65px 5px rgba(227,73,47,.38),inset 0 0 130px 12px rgba(227,73,47,.11)}
-  38%{box-shadow:inset 0 0 65px 5px rgba(88,16,136,.4),inset 0 0 130px 12px rgba(88,16,136,.13)}
-  68%{box-shadow:inset 0 0 65px 5px rgba(192,48,180,.38),inset 0 0 130px 12px rgba(192,48,180,.11)}
-}
+/* price labels in section headers — own line below the heading, same size as members prices */
 .prd-head{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;text-transform:none;letter-spacing:.04em;
-  font-size:clamp(20px,3.2vw,46px);color:var(--bone);display:flex;align-items:baseline;gap:.4em;
+  font-size:clamp(20px,3.2vw,46px);color:var(--bone);display:flex;flex-direction:column;gap:clamp(2px,.35vh,5px);
   flex-shrink:0;margin-bottom:clamp(6px,.8vh,12px);line-height:1;
   text-shadow:0 0 24px rgba(116,227,193,.1)}
-.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;font-weight:400;
-  font-size:clamp(14px,1.8vw,24px);color:var(--gold);font-style:italic;letter-spacing:0}
+.prd-head .prd-heading{display:flex;align-items:center;gap:.4em}
+.prd-head .prd-price{font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(22px,3.4vw,46px);color:var(--gold);letter-spacing:.04em;
+  text-shadow:0 0 20px rgba(217,164,65,.35)}
 .prd-list{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(5px,.7vh,10px)}
 .prd-card{flex:1 1 0;min-height:0;display:flex;flex-direction:column;justify-content:center;
   padding:clamp(6px,1vh,14px) clamp(10px,1.4vw,18px);border-radius:5px;
@@ -580,8 +571,19 @@ input:disabled{opacity:.4}
   font-size:clamp(20px,3vw,44px);opacity:.14;pointer-events:none;line-height:1}
 .prd-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone);
   font-size:clamp(20px,2.8vw,40px);line-height:1.1}
-.prd-ing{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
-  font-size:clamp(14px,1.9vw,26px);line-height:1.2;margin-top:2px}
+/* ingredients — system sans-serif for maximum clarity on a bar screen */
+.prd-ing{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-style:normal;
+  font-size:clamp(13px,1.7vw,22px);line-height:1.3;color:rgba(236,230,214,.78);margin-top:2px;
+  letter-spacing:.01em}
+
+/* persistent glow border — survives transitions (z above fxOverlay) */
+#pageBorder{position:fixed;inset:0;z-index:52;pointer-events:none;
+  animation:borderCycle 14s ease-in-out infinite}
+@keyframes borderCycle{
+  0%,100%{box-shadow:inset 0 0 65px 5px rgba(227,73,47,.38),inset 0 0 130px 12px rgba(227,73,47,.11)}
+  38%{box-shadow:inset 0 0 65px 5px rgba(88,16,136,.4),inset 0 0 130px 12px rgba(88,16,136,.13)}
+  68%{box-shadow:inset 0 0 65px 5px rgba(192,48,180,.38),inset 0 0 130px 12px rgba(192,48,180,.11)}
+}
 
 /* ---------- display transitions (?play=1) — 10 styles, chosen in Settings ---------- */
 #fxOverlay{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;will-change:opacity}
@@ -1384,11 +1386,11 @@ function buildDrinksMenu(){
   </div>`;
   return `<div class="pr-drinks">
     <div class="prd-col prd-cocktails">
-      <div class="prd-head">🍸 Cocktails<span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
+      <div class="prd-head"><span class="prd-heading">🍸 Cocktails</span><span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
       <div class="prd-list">${C.map((x,i)=>card("🍸",x,i)).join("")}</div>
     </div>
     <div class="prd-col prd-shooters">
-      <div class="prd-head">🥃 Shooters<span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
+      <div class="prd-head"><span class="prd-heading">🥃 Shooters</span><span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
       <div class="prd-list">${S.map((x,i)=>card("🥃",x,i)).join("")}</div>
     </div>
   </div>`;
