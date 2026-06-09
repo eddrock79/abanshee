@@ -432,10 +432,10 @@ input:disabled{opacity:.4}
 .cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
 .cinema .un-card{flex:1 1 0;min-width:0;display:flex;align-items:stretch;
   border:1px solid var(--rule);border-radius:5px;overflow:hidden;
-  background:#05050a;height:clamp(150px,22vh,280px)}
-.cinema .un-poster{flex:0 0 auto;width:clamp(90px,12vw,160px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
+  background:#05050a;height:clamp(95px,14vh,175px)}
+.cinema .un-poster{flex:0 0 auto;width:clamp(60px,8.5vw,110px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
 .cinema .un-poster.un-nopost{display:flex;align-items:center;justify-content:center;
-  width:clamp(90px,12vw,160px);color:var(--bone-faint);font-size:clamp(20px,2.8vw,40px);
+  width:clamp(60px,8.5vw,110px);color:var(--bone-faint);font-size:clamp(16px,2vw,28px);
   background:rgba(255,255,255,.03)}
 .cinema .un-back{flex:1 1 auto;position:relative;overflow:hidden;background:#05050a}
 .cinema .un-back img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
@@ -544,16 +544,16 @@ input:disabled{opacity:.4}
 .prd-cocktails .prd-card{background:linear-gradient(110deg,rgba(116,227,193,.04),rgba(116,227,193,.01));
   border-color:rgba(116,227,193,.15)}
 .prd-cocktails .prd-card::before{background:var(--spectre);box-shadow:0 0 14px var(--spectre)}
-.prd-cocktails .prd-name{color:var(--spectre)}
-.prd-cocktails .prd-ing{color:rgba(180,230,220,.55)}
+.prd-cocktails .prd-name{color:var(--bone)}
+.prd-cocktails .prd-ing{color:var(--bone-dim)}
 @keyframes ghostShimmer{0%,100%{box-shadow:none}50%{box-shadow:0 0 22px 2px rgba(116,227,193,.07)}}
 .prd-cocktails .prd-card{animation:ghostShimmer 5s ease-in-out infinite}
 /* shooters column — keep the warm amber */
 .prd-shooters .prd-card::before{background:var(--gold);box-shadow:0 0 12px var(--gold)}
 
 /* price labels in section headers */
-.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;font-weight:600;
-  font-size:clamp(16px,2.2vw,30px);color:var(--gold);font-style:italic;letter-spacing:0}
+.prd-head .prd-price{margin-left:auto;font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(14px,1.9vw,26px);color:var(--gold);letter-spacing:.04em}
 
 /* persistent glow border — survives transitions (z above fxOverlay) */
 #pageBorder{position:fixed;inset:0;z-index:52;pointer-events:none;
