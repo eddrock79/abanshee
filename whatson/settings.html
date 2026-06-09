@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>The Banshee Labyrinth — What's On · Settings</title>
+<meta name="theme-color" content="#0a0a0d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+
+<!-- ===================================================================
+     WHAT'S ON — SETTINGS  (manager-only)
+     ===================================================================
+     Three jobs in one place:
+       1. SLIDESHOW   build a rotating display link (which boards + how long
+                      each), then open it on the bar screen.
+       2. PROMOTIONS  the members' price list lives in a Google Sheet (like
+                      the other boards). Preview it here, edit it in Sheets.
+       3. CINEMA      jump to the film editor (cinema-edit.html).
+
+     One value to set after you make the prices sheet:
+        PRICES_SHEET_ID below  (and the same one in board.html's CONFIG).
+     =================================================================== -->
+<style>
+:root{
+  --void:#0a0a0d;--ink:#060507;--bone:#ece6d6;--bone-dim:#b3ab95;--bone-faint:#6f6957;
+  --spectre:#74e3c1;--spectre-soft:rgba(116,227,193,.16);--ember:#e3492f;--ember-soft:rgba(227,73,47,.18);
+  --gold:#d9a441;--rule:rgba(236,230,214,.12);--rule-strong:rgba(236,230,214,.22);
+  --shadow:0 18px 50px -20px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--ink);color:var(--bone);font-family:"EB Garamond",Georgia,serif;
+  -webkit-font-smoothing:antialiased;position:relative;min-height:100vh}
+
+/* atmosphere (quieter than the display) */
+.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.atmos .vignette{position:absolute;inset:0;background:
+  radial-gradient(120% 80% at 50% -10%,rgba(116,227,193,.05),transparent 55%),
+  radial-gradient(140% 120% at 50% 120%,rgba(227,73,47,.045),transparent 55%),
+  radial-gradient(100% 100% at 50% 45%,transparent 40%,rgba(0,0,0,.5) 100%)}
+.atmos .fog{position:absolute;width:80vmax;height:80vmax;border-radius:50%;filter:blur(64px);opacity:.4;mix-blend-mode:screen}
+.atmos .fog.a{background:radial-gradient(circle,rgba(116,227,193,.10),transparent 65%);top:-22vmax;left:-26vmax;animation:d1 70s ease-in-out infinite}
+.atmos .fog.b{background:radial-gradient(circle,rgba(70,90,110,.16),transparent 65%);bottom:-26vmax;right:-26vmax;animation:d2 92s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(12vmax,7vmax) scale(1.16)}}
+@keyframes d2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-10vmax,-5vmax) scale(.92)}}
+
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:clamp(26px,5vw,52px) clamp(18px,4vw,40px) 70px}
+.eyebrow{font-family:"Cinzel",serif;letter-spacing:.42em;text-transform:uppercase;
+  font-size:clamp(9px,1.1vw,12px);color:var(--spectre);opacity:.85;text-indent:.42em}
+h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clamp(30px,5.4vw,52px);
+  line-height:1;margin:6px 0 4px;text-shadow:0 0 30px rgba(116,227,193,.12)}
+.lead{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);font-size:clamp(14px,1.7vw,19px)}
+
+.panel{margin-top:clamp(22px,3.4vh,34px);border:1px solid var(--rule);border-radius:8px;
+  background:linear-gradient(120deg,rgba(255,255,255,.022),rgba(255,255,255,.005));
+  box-shadow:var(--shadow);padding:clamp(18px,2.6vw,28px);position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--spectre));opacity:.5;box-shadow:0 0 16px var(--accent,var(--spectre))}
+.panel.cine{--accent:#9d7bff}
+.panel.promo{--accent:var(--gold)}
+.panel h2{font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  font-size:clamp(15px,2vw,21px);color:var(--bone);display:flex;align-items:center;gap:.5em}
+.panel h2 .g{color:var(--accent,var(--spectre));filter:drop-shadow(0 0 8px var(--spectre-soft))}
+.panel .desc{font-family:"EB Garamond",serif;color:var(--bone-dim);font-size:clamp(13px,1.5vw,16px);
+  line-height:1.45;margin:8px 0 16px}
+
+/* slideshow board rows */
+.brow{display:flex;align-items:center;gap:14px;padding:11px 4px;border-top:1px solid var(--rule)}
+.brow:first-of-type{border-top:none}
+.brow .name{flex:1 1 auto;min-width:0}
+.brow .name b{font-family:"Cinzel",serif;font-weight:600;letter-spacing:.06em;color:var(--bone);font-size:clamp(14px,1.7vw,17px)}
+.brow .name span{display:block;font-family:"EB Garamond",serif;color:var(--bone-faint);font-size:13px}
+.brow .secs{display:flex;align-items:center;gap:6px;color:var(--bone-faint);font-size:13px;font-family:"Cinzel",serif}
+.brow input[type=number]{width:64px;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:3px;
+  color:var(--bone);font-family:"EB Garamond",serif;font-size:15px;padding:7px 9px;text-align:center}
+/* toggle */
+.switch{position:relative;width:46px;height:24px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:rgba(255,255,255,.08);border:1px solid var(--rule);border-radius:24px;cursor:pointer;transition:.25s}
+.slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:var(--bone-dim);border-radius:50%;transition:.25s}
+.switch input:checked+.slider{background:var(--spectre-soft);border-color:var(--spectre)}
+.switch input:checked+.slider::before{transform:translateX(22px);background:var(--spectre)}
+.brow.off{opacity:.5}
+.brow.off input[type=number]{opacity:.5}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
+.btn{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  border-radius:4px;padding:12px 18px;cursor:pointer;border:1px solid var(--spectre);background:var(--spectre);color:var(--ink);transition:.2s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;color:var(--spectre)}
+.btn.gold{border-color:var(--gold);background:var(--gold);color:#1a1306}
+.btn.gold.ghost{background:transparent;color:var(--gold)}
+.btn.violet{border-color:#9d7bff;background:#9d7bff;color:#140b22}
+.btn[disabled]{opacity:.4;cursor:not-allowed;filter:none}
+.linkbox{margin-top:14px}
+.linkbox label{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);display:block;margin-bottom:5px}
+.linkbox input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:3px;
+  color:var(--bone-dim);font-family:"EB Garamond",serif;font-size:13px;padding:9px 11px}
+.note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:13px;margin-top:12px;line-height:1.5}
+.msg{font-family:"EB Garamond",serif;font-size:13px;margin-top:10px;min-height:1.2em;color:var(--spectre)}
+.msg.warn{color:#ffb1a3}
+/* transition picker */
+.tpick{margin:18px 0 0}
+.tp-label{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:8px}
+.tp-btns{display:flex;flex-wrap:wrap;gap:6px}
+.fx-btn{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--bone-dim);background:rgba(255,255,255,.03);border:1px solid var(--rule);border-radius:3px;padding:7px 10px;cursor:pointer;transition:.2s;white-space:nowrap}
+.fx-btn:hover{border-color:var(--rule-strong);color:var(--bone)}
+.fx-btn.on{border-color:var(--spectre);color:var(--spectre);background:var(--spectre-soft)}
+
+/* promotions preview */
+.pp{margin-top:6px;border:1px solid var(--rule);border-radius:5px;overflow:hidden}
+.pp .pp-row{display:flex;align-items:baseline;gap:.6em;padding:9px 14px;border-top:1px solid var(--rule)}
+.pp .pp-row:first-child{border-top:none}
+.pp .pp-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone)}
+.pp .pp-sub{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);margin-left:.5em}
+.pp .pp-dots{flex:1;border-bottom:1px dotted var(--rule-strong);transform:translateY(-.2em)}
+.pp .pp-price{font-family:"Cinzel",serif;font-weight:700;color:var(--gold)}
+.pp .pp-price .p2{color:var(--bone-dim);font-weight:500;margin-left:.3em}
+
+.foot{margin-top:34px;display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.foot a{font-family:"Cinzel",serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);
+  text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:.25s}
+.foot a:hover{color:var(--spectre);border-color:var(--spectre-soft)}
+</style>
+</head>
+<body>
+<div class="atmos"><div class="vignette"></div><div class="fog a"></div><div class="fog b"></div></div>
+
+<div class="wrap">
+  <div class="eyebrow">The Banshee Labyrinth · What's On</div>
+  <h1>Settings</h1>
+  <p class="lead">Set up the rotating display, the members' prices, and tonight's films.</p>
+
+  <!-- ───────── SLIDESHOW ───────── -->
+  <section class="panel">
+    <h2><span class="g">⟳</span> Slideshow</h2>
+    <p class="desc">Tick the boards to show and how long each stays up. The display fades between them with a slow, ghostly dissolve — each board keeps its own layout.</p>
+    <div id="boardRows"></div>
+    <div class="tpick">
+      <div class="tp-label">Transition style</div>
+      <div class="tp-btns" id="tpBtns"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="openHere">▶ Open on this screen</button>
+      <button class="btn ghost" id="copyLink">⧉ Copy display link</button>
+    </div>
+    <div class="linkbox">
+      <label>Display link</label>
+      <input type="text" id="playUrl" readonly onclick="this.select()">
+    </div>
+    <p class="note">On the bar screen: open the link, then press <b>F11</b> for fullscreen. Press <b>P</b> on that screen to pause/resume the rotation.</p>
+    <div class="msg" id="ssMsg"></div>
+  </section>
+
+  <!-- ───────── PROMOTIONS ───────── -->
+  <section class="panel promo">
+    <h2><span class="g">❖</span> Promotions — Members' Prices</h2>
+    <p class="desc">Prices live in a Google Sheet, like the other boards. Edit them there and the Promotions board updates within a few minutes.</p>
+    <div id="promoPreview"></div>
+    <div class="actions">
+      <button class="btn gold" id="editPrices">✎ Edit prices in Google Sheets</button>
+      <a class="btn gold ghost" href="board.html?mode=prices" style="text-decoration:none">▦ Preview the board</a>
+    </div>
+    <div class="msg" id="promoMsg"></div>
+    <p class="note" id="promoSetup" style="display:none">
+      <b>First-time setup:</b> make a Google Sheet with a tab named <b>prices</b> and a header row
+      <b>Name · Price · Price2 · Note</b> (Price2 and Note optional). Share it “Anyone with the link – Viewer”,
+      then paste its ID into <b>PRICES_SHEET_ID</b> in both <b>settings.html</b> and <b>board.html</b>.
+    </p>
+  </section>
+
+  <!-- ───────── CINEMA ───────── -->
+  <section class="panel cine">
+    <h2><span class="g">▦</span> Cinema</h2>
+    <p class="desc">Add or change tonight's films — poster, synopsis and trailer are pulled in automatically.</p>
+    <div class="actions">
+      <a class="btn violet" href="cinema-edit.html" style="text-decoration:none">✎ Open the Cinema editor</a>
+    </div>
+  </section>
+
+  <div class="foot">
+    <a href="./">↩ Display Menu</a>
+    <a href="../home/" rel="noopener">↩ Staff Hub</a>
+  </div>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+/* Same prices sheet as board.html. Paste the sheet ID once you've made it. */
+const PRICES_SHEET_ID = "";       // <-- paste the prices sheet ID here (same as board.html)
+const PRICES_TAB      = "prices";
+
+/* Boards offered in the slideshow. mode must match board.html's MODES keys. */
+const BOARDS = [
+  { mode:"normal", title:"Tonight",    sub:"Gigs + tonight's film", secs:18, on:true  },
+  { mode:"cinema", title:"Cinema",     sub:"Big-screen poster",     secs:20, on:true  },
+  { mode:"prices", title:"Promotions", sub:"Members' drink prices", secs:14, on:true  },
+  { mode:"fringe", title:"Festival",   sub:"Free Fringe listings",  secs:22, on:false },
+];
+const LS_KEY = "whatson_slideshow";   // remembers your last choice on this device
+const FX_NAMES={1:"Ghost Fade",2:"Static",3:"Fog Roll",4:"Soul Rise",5:"Blood Drain",6:"Flicker",7:"Veil Drop",8:"Warp",9:"Apparition",10:"Shadow Creep",0:"Random"};
+let currentFxN=1;
+
+const $=id=>document.getElementById(id);
+
+/* ===================== SLIDESHOW ===================== */
+function loadSaved(){
+  try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(!s) return;
+    BOARDS.forEach(b=>{ if(s[b.mode]){ b.on=!!s[b.mode].on; if(s[b.mode].secs) b.secs=s[b.mode].secs; } });
+    if(s._fx!=null) currentFxN=s._fx;
+  }catch(e){}
+}
+function saveState(){
+  const s={_fx:currentFxN}; BOARDS.forEach(b=> s[b.mode]={on:b.on, secs:b.secs});
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){}
+}
+function buildUrl(){
+  const picked=BOARDS.filter(b=>b.on);
+  if(!picked.length) return "";
+  const boards=picked.map(b=>`${b.mode}:${b.secs}`).join(",");
+  return `board.html?play=1&boards=${encodeURIComponent(boards)}&fx=${currentFxN}`;
+}
+function refreshUrl(){
+  const url=buildUrl();
+  const abs = url ? new URL(url, location.href).href : "";
+  $("playUrl").value = abs || "— tick at least one board —";
+  const none = !url;
+  $("openHere").disabled = none;
+  $("copyLink").disabled = none;
+}
+function renderBoardRows(){
+  const box=$("boardRows"); box.innerHTML="";
+  BOARDS.forEach((b,i)=>{
+    const row=document.createElement("div");
+    row.className="brow"+(b.on?"":" off");
+    row.innerHTML=`
+      <span class="switch"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="tog"><span class="slider"></span></span>
+      <span class="name"><b>${b.title}</b><span>${b.sub}</span></span>
+      <span class="secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="sec"> sec</span>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".tog").forEach(t=> t.onchange=e=>{
+    BOARDS[+e.target.dataset.i].on=e.target.checked;
+    e.target.closest(".brow").classList.toggle("off",!e.target.checked);
+    saveState(); refreshUrl();
+  });
+  box.querySelectorAll(".sec").forEach(s=> s.onchange=e=>{
+    let v=parseInt(e.target.value,10); if(isNaN(v)||v<3)v=3; if(v>120)v=120;
+    e.target.value=v; BOARDS[+e.target.dataset.i].secs=v; saveState(); refreshUrl();
+  });
+  refreshUrl();
+}
+function renderFxPicker(){
+  const box=$("tpBtns"); if(!box) return; box.innerHTML="";
+  [1,2,3,4,5,6,7,8,9,10,0].forEach(n=>{
+    const b=document.createElement("button");
+    b.className="fx-btn"+(currentFxN===n?" on":"");
+    b.textContent=n===0?"✦ Random":`${n} · ${FX_NAMES[n]}`;
+    b.onclick=()=>{ currentFxN=n; [...box.querySelectorAll(".fx-btn")].forEach(x=>x.classList.toggle("on",x===b)); saveState(); refreshUrl(); };
+    box.appendChild(b);
+  });
+}
+$("openHere").onclick=()=>{ const u=buildUrl(); if(u) location.href=u; };
+$("copyLink").onclick=async()=>{
+  const u=$("playUrl").value; if(!u||u.startsWith("—")) return;
+  try{ await navigator.clipboard.writeText(u); flash("ssMsg","Link copied — paste it on the bar screen."); }
+  catch(e){ $("playUrl").select(); flash("ssMsg","Press Ctrl/⌘-C to copy the selected link."); }
+};
+function flash(id,msg,warn){ const el=$(id); el.textContent=msg; el.className="msg"+(warn?" warn":""); clearTimeout(el._t); el._t=setTimeout(()=>{el.textContent="";},4000); }
+
+/* ===================== PROMOTIONS PREVIEW ===================== */
+function gviz(id,tab){ return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`+(tab?`&sheet=${encodeURIComponent(tab)}`:""); }
+function parseCSV(text){
+  const rows=[]; let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else { if(c==='"')q=true; else if(c===','){row.push(f);f="";} else if(c==='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c==='\r'){} else f+=c; }
+  }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+function buildPrices(rows){
+  if(!rows||!rows.length) return [];
+  let hi=rows.findIndex(r=> r.some(c=>/\b(name|item|drink|product)\b/i.test(c))); if(hi<0)hi=0;
+  const H=rows[hi].map(c=>(c||"").trim().toLowerCase());
+  const find=res=>H.findIndex(h=> res.some(re=>re.test(h)));
+  const ci={ name:find([/name|item|drink|product/]), price:find([/price|member|amount/]),
+             p2:find([/price ?2|second|large|big|size ?2|alt/]), note:find([/note|size|caption|detail|desc/]) };
+  if(ci.name<0)ci.name=0;
+  const cl=v=>String(v||"").trim(), money=v=>cl(v).replace(/^£\s*/,"");
+  const out=[];
+  for(let i=hi+1;i<rows.length;i++){ const r=rows[i]; if(!r) continue;
+    const name=cl(r[ci.name]); if(!name) continue;
+    out.push({ name, price:ci.price>=0?money(r[ci.price]):"", price2:ci.p2>=0?money(r[ci.p2]):"", note:ci.note>=0?cl(r[ci.note]):"" });
+  }
+  return out;
+}
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function renderPromoPreview(items){
+  const box=$("promoPreview");
+  if(!items.length){ box.innerHTML=""; return; }
+  box.innerHTML=`<div class="pp">`+items.map(it=>`
+    <div class="pp-row">
+      <span class="pp-name">${esc(it.name)}${it.note?`<span class="pp-sub">${esc(it.note)}</span>`:""}</span>
+      <span class="pp-dots"></span>
+      <span class="pp-price">£${esc(it.price)}${it.price2?`<span class="p2">/ £${esc(it.price2)}</span>`:""}</span>
+    </div>`).join("")+`</div>`;
+}
+async function loadPromo(){
+  if(!PRICES_SHEET_ID){
+    $("editPrices").disabled=true;
+    $("promoSetup").style.display="block";
+    flash("promoMsg","No prices sheet connected yet — see setup below.",true);
+    return;
+  }
+  $("editPrices").onclick=()=> window.open(`https://docs.google.com/spreadsheets/d/${PRICES_SHEET_ID}/edit`,"_blank","noopener");
+  try{
+    const res=await fetch(gviz(PRICES_SHEET_ID,PRICES_TAB),{cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const items=buildPrices(parseCSV(await res.text()));
+    if(!items.length) throw new Error("no rows");
+    renderPromoPreview(items);
+    flash("promoMsg",`${items.length} prices loaded from the sheet.`);
+  }catch(e){ flash("promoMsg","Couldn't read the prices sheet ("+e.message+"). Check it's shared ‘Anyone with the link – Viewer’.",true); }
+}
+
+/* ===================== INIT (manager only) ===================== */
+function start(){
+  loadSaved();
+  renderBoardRows();
+  renderFxPicker();
+  loadPromo();
+}
+if(window.BLAuth){ BLAuth.init({appName:"What's On · Settings", require:"manager", onReady:start}); }
+else { start(); }   // if the auth script isn't present, still work locally
+</script>
+</body>
+</html>
