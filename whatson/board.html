@@ -483,8 +483,8 @@ input:disabled{opacity:.4}
 .prices{height:100%;display:flex;flex-direction:column;min-height:0;padding-top:clamp(6px,1.2vh,14px)}
 .prices .pr-note{text-align:center;font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
   font-size:clamp(13px,1.7vw,21px);margin-bottom:clamp(8px,1.4vh,16px)}
-.prices .pr-list{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;
-  gap:clamp(8px,1.3vh,16px) clamp(10px,1.5vw,18px);align-content:center;min-height:0}
+.prices .pr-list{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(8px,1.3vh,16px) clamp(10px,1.5vw,18px);align-content:start;min-height:0;overflow:hidden}
 .pr-row{display:flex;align-items:baseline;gap:.5em;flex-shrink:0;
   padding:clamp(6px,.9vh,12px) clamp(8px,1.3vw,18px);position:relative;border-radius:3px;
   background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006));
@@ -503,6 +503,29 @@ input:disabled{opacity:.4}
 .pr-price .cur{color:var(--bone-faint);font-size:.7em;margin-right:.03em}
 .pr-price .p2{color:var(--bone-dim);font-size:.74em;margin-left:.4em}
 .pr-price .p2 .cur{font-size:.85em}
+
+/* ---------- promotions: cocktails + shooters section ---------- */
+.pr-drinks{flex:1 1 auto;min-height:0;border-top:1px solid var(--rule-strong);
+  margin-top:clamp(6px,1vh,14px);padding-top:clamp(6px,.9vh,12px);
+  display:flex;gap:clamp(8px,1.2vw,16px);overflow:hidden}
+.prd-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.prd-col+.prd-col{border-left:1px solid var(--rule);padding-left:clamp(8px,1.2vw,16px)}
+.prd-head{font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  font-size:clamp(13px,1.6vw,20px);color:var(--spectre);display:flex;align-items:baseline;gap:.5em;
+  flex-shrink:0;margin-bottom:clamp(5px,.7vh,10px)}
+.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;text-transform:none;
+  letter-spacing:0;font-size:clamp(14px,1.7vw,22px);color:var(--gold);font-style:italic}
+.prd-list{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,.6vh,8px)}
+.prd-card{flex:1 1 0;min-height:0;display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(4px,.7vh,10px) clamp(8px,1.1vw,14px);border-radius:4px;
+  border:1px solid var(--rule);position:relative;overflow:hidden;
+  background:linear-gradient(100deg,rgba(255,255,255,.024),rgba(255,255,255,.006))}
+.prd-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--gold);opacity:.4;box-shadow:0 0 10px var(--gold)}
+.prd-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone);
+  font-size:clamp(16px,2vw,28px);line-height:1.1}
+.prd-ing{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
+  font-size:clamp(12px,1.5vw,20px);line-height:1.2;margin-top:2px}
 
 /* ---------- display transitions (?play=1) — 10 styles, chosen in Settings ---------- */
 #fxOverlay{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;will-change:opacity}
@@ -1291,10 +1314,30 @@ function render(){
 
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 
+/* Build the cocktails + shooters grid shown below the members' prices. */
+function buildDrinksMenu(){
+  const C=CONFIG.COCKTAILS||[], S=CONFIG.SHOOTERS||[];
+  if(!C.length && !S.length) return "";
+  const card=(x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
+    <div class="prd-name">${esc(x.name)}</div>
+    <div class="prd-ing">${esc(x.ing)}</div>
+  </div>`;
+  return `<div class="pr-drinks">
+    <div class="prd-col">
+      <div class="prd-head">Cocktails<span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
+      <div class="prd-list">${C.map(card).join("")}</div>
+    </div>
+    <div class="prd-col">
+      <div class="prd-head">Shooters<span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
+      <div class="prd-list">${S.map(card).join("")}</div>
+    </div>
+  </div>`;
+}
+
 /* =====================================================================
    PRICES  — members' drinks board. Reads state.prices (from the prices
-   sheet, or the built-in fallback), laid out as leader-dot rows that fill
-   the portrait screen evenly.
+   sheet, or the built-in fallback), laid out as a 2-col grid at the top
+   with cocktails + shooters filling the bottom half.
    ===================================================================== */
 function renderPrices(){
   const wrap=document.getElementById("rooms");
@@ -1314,7 +1357,9 @@ function renderPrices(){
       <span class="pr-price"><span class="cur">£</span>${esc(it.price)}${p2}</span>
     </div>`;
   });
-  html+=`</div></div>`;
+  html+=`</div>`;
+  html+=buildDrinksMenu();
+  html+=`</div>`;
   wrap.innerHTML=html;
 }
 
@@ -1498,7 +1543,6 @@ async function renderCinema(now, validDate){
         </div>
         ${upnextHTML}
       </div>
-      ${buildCinBar()}
     </div>`;
 
   // crossfade the hero backdrop reel (slow dissolve, no video)
