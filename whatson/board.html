@@ -128,8 +128,8 @@ body{
 .creep{position:fixed;top:0;bottom:0;width:46vw;z-index:42;pointer-events:none;opacity:0}
 .creep.left{left:0;transform-origin:left center;background:linear-gradient(90deg,rgba(2,5,7,.92),transparent);animation:creepL 66s ease-in-out infinite}
 .creep.right{right:0;transform-origin:right center;background:linear-gradient(270deg,rgba(2,5,7,.92),transparent);animation:creepR 84s ease-in-out infinite 24s}
-@keyframes creepL{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.5;transform:scaleX(1)}}
-@keyframes creepR{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.42;transform:scaleX(1)}}
+@keyframes creepL{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.18;transform:scaleX(1)}}
+@keyframes creepR{0%,100%{opacity:0;transform:scaleX(.25)}50%{opacity:.15;transform:scaleX(1)}}
 
 /* apparition — a quick glitchy glimpse that breaks through interference, Ring-style. Gone in ~1.5s. */
 .banshee{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
@@ -476,8 +476,8 @@ input:disabled{opacity:.4}
 /* ---------- tonight (combined) layout ---------- */
 .tonight{height:100%;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,18px)}
 .t-sec{display:flex;flex-direction:column;min-height:0}
-.t-gigs{flex:1.7 1 0}
-.t-cine{flex:0.7 1 0}
+.t-gigs{flex:0 0 auto;max-height:73%;overflow:hidden}
+.t-cine{flex:1 1 auto}
 .t-gigs.solo{flex:1 1 0}
 .t-gigs.solo .t-rows{justify-content:space-between;gap:clamp(8px,1.3vh,20px)}
 .t-gigs.solo .show{align-items:center}
@@ -778,25 +778,25 @@ const CONFIG = {
   // ── Cocktails & Shooters (shown in the cinema board's bottom strip) ──
   COCKTAIL_PRICE:"7.50", COCKTAIL_PITCHER:"19",
   COCKTAILS:[
-    {name:"Devil's Candy",       ing:"JD, Amaretto & Pepsi"},
-    {name:"Zombie",              ing:"Peach Schnapps, Vodka, OJ & Cranberry"},
-    {name:"Hulk",                ing:"Midori, Absinthe, Apple Sourz & Cranberry"},
-    {name:"Dracula's Bite",      ing:"Malibu & Vodka"},
-    {name:"Count Buckula",       ing:"Buckfast, Gin, Grenadine & Soda"},
-    {name:"Banshee",             ing:"Absinthe, Tequila, Sambuca, Aftershock & Irn Bru"},
-    {name:"Tsunami",             ing:"Blue Curaçao, Cherry Sours, Lemonade & Cranberry"},
-    {name:"Ghostbuster",         ing:"Baileys, Amaretto, Kahlua, Vodka, Choc & Milk"},
+    {name:"Devil's Candy",       ing:"JD, Amaretto & Pepsi",                          glyph:"🔥"},
+    {name:"Zombie",              ing:"Peach Schnapps, Vodka, OJ & Cranberry",         glyph:"💀"},
+    {name:"Hulk",                ing:"Midori, Absinthe, Apple Sourz & Cranberry",     glyph:"🧡"},
+    {name:"Dracula's Bite",      ing:"Malibu & Vodka",                                glyph:"🦇"},
+    {name:"Count Buckula",       ing:"Buckfast, Gin, Grenadine & Soda",               glyph:"🧛"},
+    {name:"Banshee",             ing:"Absinthe, Tequila, Sambuca, Aftershock & Irn Bru", glyph:"👁️"},
+    {name:"Tsunami",             ing:"Blue Curaçao, Cherry Sours, Lemonade & Cranberry", glyph:"🌊"},
+    {name:"Ghostbuster",         ing:"Baileys, Amaretto, Kahlua, Vodka, Choc & Milk", glyph:"👻"},
   ],
   SHOOTER_PRICE:"3.75",
   SHOOTERS:[
-    {name:"Blackdeath",          ing:"Absinthe, Tequila, Black Sambuca, Aftershock"},
-    {name:"Flatliner",           ing:"White Sambuca, Tequila & Tabasco"},
-    {name:"Devil's Kiss",        ing:"Tequila Rose & Crème de Menthe"},
-    {name:"Clockwork Orange",    ing:"Buckfast & Cointreau"},
-    {name:"After Eight",         ing:"White Choc Liqueur & Crème de Menthe"},
-    {name:"Voodoo Doll",         ing:"Kahlua & Baileys"},
-    {name:"Brain Haemorrhage",   ing:"Peach Schnapps, Grenadine & Baileys"},
-    {name:"PB Jelly Time",       ing:"Sheep Dog, Chambord & Grenadine"},
+    {name:"Blackdeath",          ing:"Absinthe, Tequila, Black Sambuca, Aftershock",  glyph:"☠️"},
+    {name:"Flatliner",           ing:"White Sambuca, Tequila & Tabasco",              glyph:"💉"},
+    {name:"Devil's Kiss",        ing:"Tequila Rose & Crème de Menthe",                glyph:"😈"},
+    {name:"Clockwork Orange",    ing:"Buckfast & Cointreau",                          glyph:"🍊"},
+    {name:"After Eight",         ing:"White Choc Liqueur & Crème de Menthe",          glyph:"🍫"},
+    {name:"Voodoo Doll",         ing:"Kahlua & Baileys",                              glyph:"🪆"},
+    {name:"Brain Haemorrhage",   ing:"Peach Schnapps, Grenadine & Baileys",           glyph:"🧠"},
+    {name:"PB Jelly Time",       ing:"Sheep Dog, Chambord & Grenadine",               glyph:"🥜"},
   ],
 };
 
@@ -1379,8 +1379,8 @@ function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":
 function buildDrinksMenu(){
   const C=CONFIG.COCKTAILS||[], S=CONFIG.SHOOTERS||[];
   if(!C.length && !S.length) return "";
-  const card=(icon,x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
-    <span class="prd-icon">${icon}</span>
+  const card=(defaultIcon,x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
+    <span class="prd-icon">${x.glyph||defaultIcon}</span>
     <div class="prd-name">${esc(x.name)}</div>
     <div class="prd-ing">${esc(x.ing)}</div>
   </div>`;
@@ -1689,7 +1689,7 @@ async function renderTonight(now, validDate){
     return gh;
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(9);
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(12);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
