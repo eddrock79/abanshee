@@ -101,6 +101,22 @@ body{
   88%{opacity:var(--mo,.4)}
   100%{transform:translate(0,-95vh);opacity:0}
 }
+/* ember/amber motes flicker bright-to-dark as they rise, like a real fire ember */
+@keyframes emberRise{
+  0%{transform:translate(0,0);opacity:0;filter:brightness(1)}
+  8%{opacity:calc(var(--mo,.4)*.7);filter:brightness(2.4) saturate(1.6)}
+  14%{opacity:var(--mo,.4);filter:brightness(.8)}
+  22%{opacity:calc(var(--mo,.4)*1.2);filter:brightness(3) saturate(1.8)}
+  30%{opacity:calc(var(--mo,.4)*.5);filter:brightness(.7)}
+  40%{opacity:var(--mo,.4);filter:brightness(2) saturate(1.4)}
+  50%{transform:translate(var(--sway,10px),-46vh);filter:brightness(1.5)}
+  58%{opacity:calc(var(--mo,.4)*.4);filter:brightness(.6)}
+  68%{opacity:var(--mo,.4);filter:brightness(2.5)}
+  80%{opacity:calc(var(--mo,.4)*.6);filter:brightness(.9)}
+  88%{opacity:var(--mo,.4);filter:brightness(1.8)}
+  100%{transform:translate(0,-95vh);opacity:0;filter:brightness(1)}
+}
+.mote.ember,.mote.amber{animation-name:emberRise}
 
 /* "cold breath" — whole board dims & returns on a long slow cycle (edge-weighted so text stays legible) */
 .breath{position:fixed;inset:0;z-index:55;pointer-events:none;
@@ -428,13 +444,14 @@ input:disabled{opacity:.4}
 .cinema .un-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
   padding:clamp(5px,.8vh,10px) clamp(8px,1.1vw,12px);
   background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.4) 45%,transparent 80%)}
-.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(8px,.95vw,12px);letter-spacing:.24em;
-  text-transform:uppercase;color:var(--spectre);opacity:.9;margin-bottom:2px}
+.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(9px,1.1vw,14px);letter-spacing:.28em;
+  text-transform:uppercase;color:var(--spectre);opacity:.95;margin-bottom:3px}
 .cinema .un-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;color:var(--bone);
-  font-size:clamp(13px,1.7vw,22px);line-height:1.04;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(8px,1vw,11px);letter-spacing:.12em;
-  text-transform:uppercase;color:var(--bone-faint);margin-top:2px}
+  font-size:clamp(16px,2.2vw,30px);line-height:1.04;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(9px,1.15vw,14px);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--bone-dim);margin-top:3px}
 .cinemaMsg{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,22px);padding:2em}
 
@@ -459,8 +476,8 @@ input:disabled{opacity:.4}
 /* ---------- tonight (combined) layout ---------- */
 .tonight{height:100%;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,18px)}
 .t-sec{display:flex;flex-direction:column;min-height:0}
-.t-gigs{flex:1.05 1 0}
-.t-cine{flex:1 1 0}
+.t-gigs{flex:1.15 1 0}
+.t-cine{flex:.9 1 0}
 .t-gigs.solo{flex:1 1 0}
 .t-gigs.solo .t-rows{justify-content:space-between;gap:clamp(8px,1.3vh,20px)}
 .t-gigs.solo .show{align-items:center}
@@ -476,13 +493,13 @@ input:disabled{opacity:.4}
   padding:clamp(8px,1.2vh,14px);background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006));
   box-shadow:var(--shadow);overflow:hidden;flex:1;min-height:0;position:relative}
 .cine-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ember);opacity:.5;box-shadow:0 0 14px var(--ember)}
-.cine-thumb{flex:0 0 auto;height:clamp(96px,17vh,158px);aspect-ratio:2/3;border-radius:3px;overflow:hidden;background:#05050a}
+.cine-thumb{flex:0 0 auto;height:clamp(84px,14vh,130px);aspect-ratio:2/3;border-radius:3px;overflow:hidden;background:#05050a}
 .cine-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .cine-thumb .noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--bone-faint);font-size:2em}
-.cine-meta{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.25em}
-.cine-time{font-family:"Cinzel",serif;letter-spacing:.1em;text-transform:uppercase;font-size:clamp(11px,1.3vw,15px);color:var(--spectre)}
+.cine-meta{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.3em}
+.cine-time{font-family:"Cinzel",serif;letter-spacing:.1em;text-transform:uppercase;font-size:clamp(12px,1.5vw,17px);color:var(--spectre)}
 .cine-time .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:2px;padding:.05em .4em}
-.cine-title{font-family:"EB Garamond",serif;font-weight:600;font-size:clamp(17px,2.2vw,28px);line-height:1.05;color:var(--bone)}
+.cine-title{font-family:"EB Garamond",serif;font-weight:600;font-size:clamp(20px,2.7vw,36px);line-height:1.05;color:var(--bone)}
 .cine-year{color:var(--bone-faint);font-weight:400}
 .cine-blurb{font-family:"EB Garamond",serif;font-size:clamp(12px,1.3vw,16px);color:var(--bone-dim);line-height:1.3;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -495,7 +512,8 @@ input:disabled{opacity:.4}
   font-size:clamp(18px,3vw,42px);color:var(--bone);text-align:center;line-height:1.1;
   padding:clamp(6px,1vh,14px) 0 clamp(4px,.6vh,8px);flex-shrink:0;
   text-shadow:0 0 30px rgba(116,227,193,.14)}
-.pr-member-card .pr-mc-price{color:var(--gold);font-size:.85em}display:grid;grid-template-columns:1fr 1fr;
+.pr-member-card .pr-mc-price{color:var(--gold);font-size:.85em}
+.prices .pr-list{flex:0 0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;
   gap:clamp(8px,1.3vh,16px) clamp(10px,1.5vw,18px);align-content:start;min-height:0;overflow:hidden}
 .pr-row{display:flex;align-items:baseline;gap:.5em;flex-shrink:0;
   padding:clamp(6px,.9vh,12px) clamp(8px,1.3vw,18px);position:relative;border-radius:3px;
@@ -522,6 +540,29 @@ input:disabled{opacity:.4}
   display:flex;gap:clamp(8px,1.2vw,16px);overflow:hidden}
 .prd-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .prd-col+.prd-col{border-left:1px solid var(--rule);padding-left:clamp(8px,1.2vw,16px)}
+/* cocktails column — ghostly spectral feel */
+.prd-cocktails .prd-card{background:linear-gradient(110deg,rgba(116,227,193,.04),rgba(116,227,193,.01));
+  border-color:rgba(116,227,193,.15)}
+.prd-cocktails .prd-card::before{background:var(--spectre);box-shadow:0 0 14px var(--spectre)}
+.prd-cocktails .prd-name{color:var(--spectre)}
+.prd-cocktails .prd-ing{color:rgba(180,230,220,.55)}
+@keyframes ghostShimmer{0%,100%{box-shadow:none}50%{box-shadow:0 0 22px 2px rgba(116,227,193,.07)}}
+.prd-cocktails .prd-card{animation:ghostShimmer 5s ease-in-out infinite}
+/* shooters column — keep the warm amber */
+.prd-shooters .prd-card::before{background:var(--gold);box-shadow:0 0 12px var(--gold)}
+
+/* price labels in section headers */
+.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;font-weight:600;
+  font-size:clamp(16px,2.2vw,30px);color:var(--gold);font-style:italic;letter-spacing:0}
+
+/* persistent glow border — survives transitions (z above fxOverlay) */
+#pageBorder{position:fixed;inset:0;z-index:52;pointer-events:none;
+  animation:borderCycle 14s ease-in-out infinite}
+@keyframes borderCycle{
+  0%,100%{box-shadow:inset 0 0 65px 5px rgba(227,73,47,.38),inset 0 0 130px 12px rgba(227,73,47,.11)}
+  38%{box-shadow:inset 0 0 65px 5px rgba(88,16,136,.4),inset 0 0 130px 12px rgba(88,16,136,.13)}
+  68%{box-shadow:inset 0 0 65px 5px rgba(192,48,180,.38),inset 0 0 130px 12px rgba(192,48,180,.11)}
+}
 .prd-head{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;text-transform:none;letter-spacing:.04em;
   font-size:clamp(20px,3.2vw,46px);color:var(--bone);display:flex;align-items:baseline;gap:.4em;
   flex-shrink:0;margin-bottom:clamp(6px,.8vh,12px);line-height:1;
@@ -569,6 +610,7 @@ input:disabled{opacity:.4}
   <div class="grain"></div>
 </div>
 <div class="motes" id="motes" aria-hidden="true"></div>
+<div id="pageBorder" aria-hidden="true"></div>
 <div class="creep left" aria-hidden="true"></div>
 <div class="creep right" aria-hidden="true"></div>
 <div class="breath" aria-hidden="true"></div>
@@ -1341,11 +1383,11 @@ function buildDrinksMenu(){
     <div class="prd-ing">${esc(x.ing)}</div>
   </div>`;
   return `<div class="pr-drinks">
-    <div class="prd-col">
+    <div class="prd-col prd-cocktails">
       <div class="prd-head">🍸 Cocktails<span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
       <div class="prd-list">${C.map((x,i)=>card("🍸",x,i)).join("")}</div>
     </div>
-    <div class="prd-col">
+    <div class="prd-col prd-shooters">
       <div class="prd-head">🥃 Shooters<span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
       <div class="prd-list">${S.map((x,i)=>card("🥃",x,i)).join("")}</div>
     </div>
