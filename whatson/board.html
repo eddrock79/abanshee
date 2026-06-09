@@ -166,16 +166,93 @@ body{
 @keyframes flashCentre{0%{transform:scale(1.02)}100%{transform:scale(1.08)}}
 @keyframes flashSide{0%{transform:translateX(-12vw) scale(1.03)}100%{transform:translateX(9vw) scale(1.06)}}
 
-/* visible signal break-up — full-screen static + scanlines while she's present (screen blend so it reads on black) */
-.static{position:fixed;inset:0;z-index:62;pointer-events:none;opacity:0;mix-blend-mode:screen;transition:opacity .18s ease;
-  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.static.show{animation:staticFlicker .1s steps(2) infinite}
-@keyframes staticFlicker{
-  0%{opacity:.34;background-position:0 0,0 0}
-  50%{opacity:.16;background-position:3px -4px,-5px 3px}
-  100%{opacity:.4;background-position:-4px 5px,4px -3px}
+/* haunted signal break-up — darker Ring-style interference, not white 1980s TV snow */
+.static{position:fixed;inset:-3%;z-index:62;pointer-events:none;opacity:0;mix-blend-mode:screen;transition:opacity .12s ease;
+  filter:contrast(1.35) brightness(.72) saturate(.55);
+  background:
+    repeating-linear-gradient(0deg,rgba(236,230,214,.018) 0 1px,transparent 1px 5px),
+    linear-gradient(180deg,transparent 0 12%,rgba(116,227,193,.045) 13%,transparent 14%,transparent 52%,rgba(255,255,255,.04) 53%,transparent 54%,transparent 84%,rgba(227,73,47,.035) 85%,transparent 86%),
+    radial-gradient(120% 95% at 50% 45%,transparent 38%,rgba(0,0,0,.72) 100%);
 }
+.static::before,.static::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0}
+.static::before{mix-blend-mode:screen;
+  background:
+    linear-gradient(90deg,transparent 0 18%,rgba(116,227,193,.14) 18.6%,transparent 20%,transparent 71%,rgba(227,73,47,.1) 72%,transparent 73%),
+    repeating-linear-gradient(90deg,transparent 0 46px,rgba(255,255,255,.028) 47px,transparent 49px);
+  transform:translateX(-2vw) skewX(-1deg);
+}
+.static::after{height:18%;top:-20%;inset-inline:-8%;mix-blend-mode:overlay;
+  background:linear-gradient(180deg,transparent,rgba(236,230,214,.16),rgba(0,0,0,.55),transparent);
+  filter:blur(.4px);
+}
+.static.show{animation:ringSignal .86s steps(1,end) infinite}
+.static.show::before{animation:ringTear .43s steps(1,end) infinite}
+.static.show::after{animation:ringRoll 1.18s linear infinite}
+@keyframes ringSignal{
+  0%{opacity:.05;transform:translate(0,0) scale(1)}
+  8%{opacity:.34;transform:translate(-1.5vw,.2vh) scale(1.01)}
+  11%{opacity:.08;transform:translate(1vw,0) scale(1)}
+  19%{opacity:.26;transform:translate(.4vw,-.4vh) scale(1.012)}
+  25%{opacity:.02;transform:translate(0,0) scale(1)}
+  41%{opacity:.18;transform:translate(-.8vw,0) scale(1.006)}
+  53%{opacity:.31;transform:translate(1.2vw,.3vh) scale(1.012)}
+  58%{opacity:.06;transform:translate(0,0) scale(1)}
+  76%{opacity:.24;transform:translate(-.5vw,-.2vh) scale(1.008)}
+  100%{opacity:.04;transform:translate(0,0) scale(1)}
+}
+@keyframes ringTear{
+  0%,100%{opacity:.12;clip-path:inset(0 0 0 0);transform:translateX(-2vw) skewX(-1deg)}
+  18%{opacity:.52;clip-path:inset(18% 0 64% 0);transform:translateX(4vw) skewX(3deg)}
+  37%{opacity:.2;clip-path:inset(48% 0 35% 0);transform:translateX(-5vw) skewX(-4deg)}
+  61%{opacity:.46;clip-path:inset(67% 0 18% 0);transform:translateX(3vw) skewX(2deg)}
+  82%{opacity:.16;clip-path:inset(8% 0 78% 0);transform:translateX(-3vw) skewX(-2deg)}
+}
+@keyframes ringRoll{0%{opacity:.2;top:-22%}42%{opacity:.45}100%{opacity:.08;top:118%}}
+
+/* tiny haunt events — a single word/price slips, then the whole board lies again */
+.haunt-twitch{display:inline-block;position:relative;animation:hauntTextTwitch .58s steps(1,end);will-change:transform,filter,opacity;text-shadow:none!important}
+.haunt-twitch::before,.haunt-twitch::after{content:attr(data-haunt-text);position:absolute;left:0;top:0;opacity:0;pointer-events:none;mix-blend-mode:screen;white-space:inherit}
+.haunt-twitch::before{color:rgba(116,227,193,.75);transform:translate(-3px,-1px)}
+.haunt-twitch::after{color:rgba(227,73,47,.7);transform:translate(4px,1px)}
+@keyframes hauntTextTwitch{
+  0%,100%{transform:none;filter:none;opacity:1}
+  10%{transform:translateX(-1px);filter:blur(.2px);opacity:.92}
+  13%{transform:translateX(7px) skewX(6deg);filter:blur(.8px);opacity:.52}
+  14%{transform:translateX(-5px) skewX(-4deg);opacity:1}
+  22%{transform:none;filter:none}
+  46%{transform:translateX(2px);opacity:.78}
+  49%{transform:translateX(-9px) skewX(-7deg);filter:blur(1px);opacity:.35}
+  51%{transform:translateX(4px);opacity:1}
+  70%{transform:none;filter:none;opacity:.94}
+}
+.haunt-twitch::before{animation:hauntGhostA .58s steps(1,end)}
+.haunt-twitch::after{animation:hauntGhostB .58s steps(1,end)}
+@keyframes hauntGhostA{0%,9%,22%,45%,52%,100%{opacity:0}10%,13%,46%,50%{opacity:.65}}
+@keyframes hauntGhostB{0%,12%,24%,48%,54%,100%{opacity:0}13%,18%,49%,52%{opacity:.58}}
+body.haunt-tear .stage{animation:hauntStageTear .62s steps(1,end)}
+body.haunt-tear::after{content:"";position:fixed;inset:-4%;z-index:63;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),
+    linear-gradient(90deg,transparent 0 22%,rgba(116,227,193,.16) 23%,transparent 24%,transparent 63%,rgba(227,73,47,.12) 64%,transparent 65%);
+  animation:hauntTearOverlay .62s steps(1,end)}
+body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
+@keyframes hauntStageTear{
+  0%,100%{transform:none;filter:none;opacity:1}
+  8%{transform:translateX(-4px);filter:contrast(1.25) brightness(.86)}
+  14%{transform:translateX(12px) skewX(1.4deg);filter:contrast(1.6) saturate(.45);opacity:.82}
+  17%{transform:translateX(-9px) skewX(-1deg);opacity:.96}
+  27%{transform:none;filter:none;opacity:1}
+  58%{transform:translateX(6px);filter:blur(.5px) contrast(1.35);opacity:.72}
+  61%{transform:translateX(-3px);opacity:1;filter:none}
+}
+@keyframes hauntTearOverlay{
+  0%,100%{opacity:0;transform:none;clip-path:inset(0 0 0 0)}
+  8%{opacity:.25;transform:translateX(2vw);clip-path:inset(12% 0 78% 0)}
+  14%{opacity:.5;transform:translateX(-4vw);clip-path:inset(36% 0 46% 0)}
+  27%{opacity:.12;transform:translateX(1vw);clip-path:inset(64% 0 22% 0)}
+  58%{opacity:.38;transform:translateX(5vw);clip-path:inset(5% 0 82% 0)}
+}
+@keyframes deadBlink{0%,100%{opacity:1;filter:none}42%{opacity:.08;filter:brightness(.18) contrast(2)}48%{opacity:1}58%{opacity:.22}62%{opacity:1}}
 
 /* ---------- stage / layout ---------- */
 .stage{
@@ -1796,6 +1873,81 @@ function summonBanshee(){
 // AUTO-RUN DISABLED until a cadence is approved — to re-enable, e.g. every 20 min:
 // setInterval(summonBanshee, 20*60*1000);
 document.addEventListener("keydown", e=>{ if(e.key==="b"||e.key==="B") summonBanshee(); });
+
+/* =====================================================================
+   HAUNTED MICRO-EFFECTS
+   - Tiny single-word/price twitches: frequent enough to be noticed, not enough to annoy.
+   - Rare signal tears: the whole screen corrupts for a fraction of a second.
+   - Very rare dead-frame: a blink-to-black, then normal. No obvious monster image.
+   Test keys: T = text twitch, G = signal tear, H = hard haunt burst.
+   ===================================================================== */
+function hauntControlsOpen(){
+  const d=document.getElementById("drawer");
+  return d && d.classList.contains("open");
+}
+function visibleHauntTargets(){
+  const q=[
+    ".pr-name", ".pr-price", ".prd-name", ".prd-ing",
+    ".prd-head .prd-heading", ".pr-member-card", ".masthead h1",
+    ".show .name", ".show .desc", ".show .time .start", ".cine-title", ".cine-blurb"
+  ].join(",");
+  return [...document.querySelectorAll(q)].filter(el=>{
+    const r=el.getBoundingClientRect();
+    return r.width>12 && r.height>8 && r.bottom>0 && r.top<window.innerHeight && getComputedStyle(el).visibility!=="hidden";
+  });
+}
+function hauntTextTwitch(){
+  if(hauntControlsOpen()) return;
+  const els=visibleHauntTargets();
+  if(!els.length) return;
+  const el=els[Math.floor(Math.random()*els.length)];
+  if(el.classList.contains("haunt-twitch")) return;
+  el.dataset.hauntText=(el.textContent||"").trim();
+  el.classList.add("haunt-twitch");
+  setTimeout(()=>{ el.classList.remove("haunt-twitch"); delete el.dataset.hauntText; }, 700);
+}
+function hauntSignalTear(){
+  if(hauntControlsOpen()) return;
+  document.body.classList.add("haunt-tear");
+  const stat=document.getElementById("static");
+  if(stat) stat.classList.add("show");
+  setTimeout(()=>{ document.body.classList.remove("haunt-tear"); if(stat) stat.classList.remove("show"); }, 680);
+}
+function hauntDeadBlink(){
+  if(hauntControlsOpen()) return;
+  document.body.classList.add("dead-blink");
+  setTimeout(()=>document.body.classList.remove("dead-blink"), 430);
+}
+function hauntBurst(){
+  hauntSignalTear();
+  setTimeout(hauntTextTwitch, 120);
+  setTimeout(hauntDeadBlink, 520);
+  setTimeout(hauntTextTwitch, 760);
+}
+function scheduleHauntEffects(){
+  // subtle twitch: roughly every 22-65 seconds
+  function nextTwitch(){
+    setTimeout(()=>{ hauntTextTwitch(); nextTwitch(); }, 22000 + Math.random()*43000);
+  }
+  // screen corruption: roughly every 2.5-6.5 minutes
+  function nextTear(){
+    setTimeout(()=>{ Math.random()<.82 ? hauntSignalTear() : hauntDeadBlink(); nextTear(); }, 150000 + Math.random()*240000);
+  }
+  // hard haunt burst: roughly every 45-75 minutes, no monster face
+  function nextBurst(){
+    setTimeout(()=>{ hauntBurst(); nextBurst(); }, 45*60*1000 + Math.random()*30*60*1000);
+  }
+  setTimeout(nextTwitch, 9000 + Math.random()*15000);
+  setTimeout(nextTear, 55000 + Math.random()*90000);
+  setTimeout(nextBurst, 18*60*1000 + Math.random()*18*60*1000);
+}
+scheduleHauntEffects();
+document.addEventListener("keydown", e=>{
+  if(document.activeElement && document.activeElement.tagName==="INPUT") return;
+  if(e.key==="t"||e.key==="T") hauntTextTwitch();
+  if(e.key==="g"||e.key==="G") hauntSignalTear();
+  if(e.key==="h"||e.key==="H") hauntBurst();
+});
 
 /* =====================================================================
    CONTROL DRAWER
