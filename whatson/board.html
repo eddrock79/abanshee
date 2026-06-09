@@ -92,8 +92,8 @@ body{
 .mote{position:absolute;bottom:-12px;border-radius:50%;opacity:0;
   background:radial-gradient(circle,rgba(190,238,222,.95),rgba(190,238,222,0) 70%);
   animation-name:moteRise;animation-timing-function:linear;animation-iteration-count:infinite}
-.mote.ember{background:radial-gradient(circle,rgba(230,128,70,.9),rgba(227,73,47,0) 70%)}
-.mote.amber{background:radial-gradient(circle,rgba(217,164,65,.95),rgba(200,130,20,0) 70%)}
+.mote.ember{background:radial-gradient(circle,rgba(255,145,55,1.0),rgba(255,80,10,0) 68%);filter:brightness(1.3)}
+.mote.amber{background:radial-gradient(circle,rgba(255,200,40,1.0),rgba(230,140,0,0) 68%);filter:brightness(1.2)}
 @keyframes moteRise{
   0%{transform:translate(0,0);opacity:0}
   12%{opacity:var(--mo,.4)}
@@ -104,16 +104,16 @@ body{
 /* ember/amber motes flicker bright-to-dark as they rise, like a real fire ember */
 @keyframes emberRise{
   0%{transform:translate(0,0);opacity:0;filter:brightness(1)}
-  8%{opacity:calc(var(--mo,.4)*.7);filter:brightness(2.4) saturate(1.6)}
-  14%{opacity:var(--mo,.4);filter:brightness(.8)}
-  22%{opacity:calc(var(--mo,.4)*1.2);filter:brightness(3) saturate(1.8)}
-  30%{opacity:calc(var(--mo,.4)*.5);filter:brightness(.7)}
-  40%{opacity:var(--mo,.4);filter:brightness(2) saturate(1.4)}
-  50%{transform:translate(var(--sway,10px),-46vh);filter:brightness(1.5)}
-  58%{opacity:calc(var(--mo,.4)*.4);filter:brightness(.6)}
-  68%{opacity:var(--mo,.4);filter:brightness(2.5)}
-  80%{opacity:calc(var(--mo,.4)*.6);filter:brightness(.9)}
-  88%{opacity:var(--mo,.4);filter:brightness(1.8)}
+  8%{opacity:calc(var(--mo,.4)*.8);filter:brightness(3.5) saturate(2)}
+  14%{opacity:var(--mo,.4);filter:brightness(.7)}
+  22%{opacity:calc(var(--mo,.4)*1.3);filter:brightness(4.5) saturate(2.2)}
+  30%{opacity:calc(var(--mo,.4)*.4);filter:brightness(.6)}
+  40%{opacity:var(--mo,.4);filter:brightness(3) saturate(1.8)}
+  50%{transform:translate(var(--sway,10px),-46vh);filter:brightness(2)}
+  58%{opacity:calc(var(--mo,.4)*.35);filter:brightness(.5)}
+  68%{opacity:var(--mo,.4);filter:brightness(3.8) saturate(1.9)}
+  80%{opacity:calc(var(--mo,.4)*.5);filter:brightness(.8)}
+  88%{opacity:var(--mo,.4);filter:brightness(2.6)}
   100%{transform:translate(0,-95vh);opacity:0;filter:brightness(1)}
 }
 .mote.ember,.mote.amber{animation-name:emberRise}
@@ -432,26 +432,26 @@ input:disabled{opacity:.4}
 .cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
 .cinema .un-card{flex:1 1 0;min-width:0;display:flex;align-items:stretch;
   border:1px solid var(--rule);border-radius:5px;overflow:hidden;
-  background:#05050a;height:clamp(90px,13vh,160px)}
-.cinema .un-poster{flex:0 0 auto;width:clamp(52px,7.5vw,90px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
+  background:#05050a;height:clamp(150px,22vh,280px)}
+.cinema .un-poster{flex:0 0 auto;width:clamp(90px,12vw,160px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
 .cinema .un-poster.un-nopost{display:flex;align-items:center;justify-content:center;
-  width:clamp(52px,7.5vw,90px);color:var(--bone-faint);font-size:clamp(14px,1.8vw,26px);
+  width:clamp(90px,12vw,160px);color:var(--bone-faint);font-size:clamp(20px,2.8vw,40px);
   background:rgba(255,255,255,.03)}
 .cinema .un-back{flex:1 1 auto;position:relative;overflow:hidden;background:#05050a}
 .cinema .un-back img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
   transition:opacity 2s ease;transform:scale(1.05);animation:reelKen 17s ease-in-out infinite alternate}
 .cinema .un-back img.active{opacity:1}
 .cinema .un-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
-  padding:clamp(5px,.8vh,10px) clamp(8px,1.1vw,12px);
-  background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.4) 45%,transparent 80%)}
-.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(9px,1.1vw,14px);letter-spacing:.28em;
-  text-transform:uppercase;color:var(--spectre);opacity:.95;margin-bottom:3px}
+  padding:clamp(10px,1.5vh,20px) clamp(12px,1.6vw,20px);
+  background:linear-gradient(0deg,rgba(0,0,0,.86) 0%,rgba(0,0,0,.45) 50%,transparent 82%)}
+.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(14px,1.8vw,24px);letter-spacing:.28em;
+  text-transform:uppercase;color:var(--spectre);opacity:.95;margin-bottom:4px}
 .cinema .un-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;color:var(--bone);
-  font-size:clamp(16px,2.2vw,30px);line-height:1.04;
+  font-size:clamp(26px,3.8vw,56px);line-height:1.02;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  text-shadow:0 2px 12px rgba(0,0,0,.8)}
-.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(9px,1.15vw,14px);letter-spacing:.14em;
-  text-transform:uppercase;color:var(--bone-dim);margin-top:3px}
+  text-shadow:0 2px 16px rgba(0,0,0,.9)}
+.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(12px,1.6vw,22px);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--bone-dim);margin-top:4px}
 .cinemaMsg{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,22px);padding:2em}
 
@@ -523,12 +523,12 @@ input:disabled{opacity:.4}
 .pr-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
   background:var(--ember);opacity:.5;box-shadow:0 0 14px var(--ember)}
 .pr-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone);
-  font-size:clamp(17px,2.5vw,32px);line-height:1.05;white-space:nowrap}
-.pr-sub{font-family:"Cinzel",serif;font-size:clamp(8px,.85vw,11px);letter-spacing:.16em;
+  font-size:clamp(22px,3.4vw,46px);line-height:1.05;white-space:nowrap}
+.pr-sub{font-family:"Cinzel",serif;font-size:clamp(9px,1vw,13px);letter-spacing:.16em;
   text-transform:uppercase;color:var(--bone-faint);margin-left:.7em;white-space:nowrap}
 .pr-dots{flex:1;border-bottom:1px dotted var(--rule-strong);transform:translateY(-.2em)}
 .pr-price{font-family:"Cinzel",serif;font-weight:700;color:var(--spectre);
-  font-size:clamp(17px,2.5vw,32px);letter-spacing:.02em;white-space:nowrap;
+  font-size:clamp(22px,3.4vw,46px);letter-spacing:.02em;white-space:nowrap;
   text-shadow:0 0 18px var(--spectre-soft)}
 .pr-price .cur{color:var(--bone-faint);font-size:.7em;margin-right:.03em}
 .pr-price .p2{color:var(--bone-dim);font-size:.74em;margin-left:.4em}
@@ -579,9 +579,9 @@ input:disabled{opacity:.4}
 .prd-card .prd-icon{position:absolute;right:clamp(6px,1vw,14px);top:50%;transform:translateY(-50%);
   font-size:clamp(20px,3vw,44px);opacity:.14;pointer-events:none;line-height:1}
 .prd-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone);
-  font-size:clamp(15px,2vw,28px);line-height:1.1}
+  font-size:clamp(20px,2.8vw,40px);line-height:1.1}
 .prd-ing{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
-  font-size:clamp(11px,1.4vw,19px);line-height:1.2;margin-top:2px}
+  font-size:clamp(14px,1.9vw,26px);line-height:1.2;margin-top:2px}
 
 /* ---------- display transitions (?play=1) — 10 styles, chosen in Settings ---------- */
 #fxOverlay{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;will-change:opacity}
@@ -1757,17 +1757,18 @@ window.addEventListener("online", wakeRefresh);
 /* drifting motes / embers — spawned once, sized & timed at random */
 (function makeMotes(){
   const box=document.getElementById("motes"); if(!box) return;
-  const N=window.innerWidth<700?20:38;
+  const N=window.innerWidth<700?28:52;
   let html="";
   for(let i=0;i<N;i++){
+    const r=Math.random();
+    const moteClass = r<0.15 ? " ember" : r<0.42 ? " amber" : "";
+    const colored = moteClass !== "";
     const left=(Math.random()*100).toFixed(2);
-    const size=(1.4+Math.random()*2.6).toFixed(2);
+    const size=colored ? (2.8+Math.random()*4.4).toFixed(2) : (1.4+Math.random()*2.4).toFixed(2);
     const dur=(16+Math.random()*26).toFixed(1);
     const delay=(-Math.random()*dur).toFixed(1);
-    const op=(0.16+Math.random()*0.42).toFixed(2);
+    const op=colored ? (0.42+Math.random()*0.52).toFixed(2) : (0.14+Math.random()*0.38).toFixed(2);
     const sway=((Math.random()*2-1)*34).toFixed(0);
-    const r=Math.random();
-    const moteClass = r<0.15 ? " ember" : r<0.32 ? " amber" : "";
     html+=`<span class="mote${moteClass}" style="left:${left}%;width:${size}px;height:${size}px;--mo:${op};--sway:${sway}px;animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
   }
   box.innerHTML=html;
