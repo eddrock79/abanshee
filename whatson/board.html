@@ -46,12 +46,15 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
+img{image-rendering:-webkit-optimize-contrast;image-rendering:high-quality}
 html,body{height:100%}
 body{
   background:var(--ink);
   color:var(--bone);
   font-family:"EB Garamond",Georgia,serif;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
   overflow:hidden;
   position:relative;
 }
@@ -90,6 +93,7 @@ body{
   background:radial-gradient(circle,rgba(190,238,222,.95),rgba(190,238,222,0) 70%);
   animation-name:moteRise;animation-timing-function:linear;animation-iteration-count:infinite}
 .mote.ember{background:radial-gradient(circle,rgba(230,128,70,.9),rgba(227,73,47,0) 70%)}
+.mote.amber{background:radial-gradient(circle,rgba(217,164,65,.95),rgba(200,130,20,0) 70%)}
 @keyframes moteRise{
   0%{transform:translate(0,0);opacity:0}
   12%{opacity:var(--mo,.4)}
@@ -410,23 +414,27 @@ input:disabled{opacity:.4}
 .cinema .upnext{flex:0 0 auto;width:min(94vw,820px);margin-top:clamp(8px,1.6vh,18px);padding-top:clamp(8px,1.4vh,16px);
   border-top:1px solid var(--rule)}
 .cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
-.cinema .un-card{flex:1 1 0;min-width:0;display:flex;gap:clamp(8px,1.2vw,14px);align-items:center;
-  border:1px solid var(--rule);border-radius:5px;padding:clamp(7px,1vw,11px);
-  background:linear-gradient(100deg,rgba(255,255,255,.024),rgba(255,255,255,.006))}
-.cinema .un-thumb{flex:0 0 auto;width:clamp(78px,15vw,124px);aspect-ratio:16/9;border-radius:4px;overflow:hidden;
-  background:#05050a;position:relative;box-shadow:0 0 0 1px var(--rule)}
-.cinema .un-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transform:scale(1.06);animation:reelKen 17s ease-in-out infinite alternate;will-change:transform}
-.cinema .un-thumb .un-noimg{display:flex;align-items:center;justify-content:center;height:100%;color:var(--bone-faint);
-  font-family:"Cinzel",serif;font-size:10px;letter-spacing:.1em;padding:.4em;text-align:center}
-.cinema .un-text{min-width:0;text-align:left;display:flex;flex-direction:column;gap:3px}
-.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(9px,1vw,12px);letter-spacing:.24em;
-  text-transform:uppercase;color:var(--spectre);opacity:.9}
+.cinema .un-card{flex:1 1 0;min-width:0;display:flex;align-items:stretch;
+  border:1px solid var(--rule);border-radius:5px;overflow:hidden;
+  background:#05050a;height:clamp(90px,13vh,160px)}
+.cinema .un-poster{flex:0 0 auto;width:clamp(52px,7.5vw,90px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
+.cinema .un-poster.un-nopost{display:flex;align-items:center;justify-content:center;
+  width:clamp(52px,7.5vw,90px);color:var(--bone-faint);font-size:clamp(14px,1.8vw,26px);
+  background:rgba(255,255,255,.03)}
+.cinema .un-back{flex:1 1 auto;position:relative;overflow:hidden;background:#05050a}
+.cinema .un-back img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity 2s ease;transform:scale(1.05);animation:reelKen 17s ease-in-out infinite alternate}
+.cinema .un-back img.active{opacity:1}
+.cinema .un-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(5px,.8vh,10px) clamp(8px,1.1vw,12px);
+  background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.4) 45%,transparent 80%)}
+.cinema .un-label2{font-family:"Cinzel",serif;font-size:clamp(8px,.95vw,12px);letter-spacing:.24em;
+  text-transform:uppercase;color:var(--spectre);opacity:.9;margin-bottom:2px}
 .cinema .un-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;color:var(--bone);
-  font-size:clamp(14px,1.7vw,22px);line-height:1.04;
+  font-size:clamp(13px,1.7vw,22px);line-height:1.04;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(9px,1.05vw,12px);letter-spacing:.12em;
-  text-transform:uppercase;color:var(--bone-faint)}
+.cinema .un-when{font-family:"Cinzel",serif;font-size:clamp(8px,1vw,11px);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--bone-faint);margin-top:2px}
 .cinemaMsg{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,22px);padding:2em}
 
@@ -483,7 +491,11 @@ input:disabled{opacity:.4}
 .prices{height:100%;display:flex;flex-direction:column;min-height:0;padding-top:clamp(6px,1.2vh,14px)}
 .prices .pr-note{text-align:center;font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
   font-size:clamp(13px,1.7vw,21px);margin-bottom:clamp(8px,1.4vh,16px)}
-.prices .pr-list{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;
+.pr-member-card{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;
+  font-size:clamp(18px,3vw,42px);color:var(--bone);text-align:center;line-height:1.1;
+  padding:clamp(6px,1vh,14px) 0 clamp(4px,.6vh,8px);flex-shrink:0;
+  text-shadow:0 0 30px rgba(116,227,193,.14)}
+.pr-member-card .pr-mc-price{color:var(--gold);font-size:.85em}display:grid;grid-template-columns:1fr 1fr;
   gap:clamp(8px,1.3vh,16px) clamp(10px,1.5vw,18px);align-content:start;min-height:0;overflow:hidden}
 .pr-row{display:flex;align-items:baseline;gap:.5em;flex-shrink:0;
   padding:clamp(6px,.9vh,12px) clamp(8px,1.3vw,18px);position:relative;border-radius:3px;
@@ -510,22 +522,25 @@ input:disabled{opacity:.4}
   display:flex;gap:clamp(8px,1.2vw,16px);overflow:hidden}
 .prd-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .prd-col+.prd-col{border-left:1px solid var(--rule);padding-left:clamp(8px,1.2vw,16px)}
-.prd-head{font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
-  font-size:clamp(13px,1.6vw,20px);color:var(--spectre);display:flex;align-items:baseline;gap:.5em;
-  flex-shrink:0;margin-bottom:clamp(5px,.7vh,10px)}
-.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;text-transform:none;
-  letter-spacing:0;font-size:clamp(14px,1.7vw,22px);color:var(--gold);font-style:italic}
-.prd-list{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,.6vh,8px)}
+.prd-head{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;text-transform:none;letter-spacing:.04em;
+  font-size:clamp(20px,3.2vw,46px);color:var(--bone);display:flex;align-items:baseline;gap:.4em;
+  flex-shrink:0;margin-bottom:clamp(6px,.8vh,12px);line-height:1;
+  text-shadow:0 0 24px rgba(116,227,193,.1)}
+.prd-head .prd-price{margin-left:auto;font-family:"EB Garamond",serif;font-weight:400;
+  font-size:clamp(14px,1.8vw,24px);color:var(--gold);font-style:italic;letter-spacing:0}
+.prd-list{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(5px,.7vh,10px)}
 .prd-card{flex:1 1 0;min-height:0;display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(4px,.7vh,10px) clamp(8px,1.1vw,14px);border-radius:4px;
+  padding:clamp(6px,1vh,14px) clamp(10px,1.4vw,18px);border-radius:5px;
   border:1px solid var(--rule);position:relative;overflow:hidden;
-  background:linear-gradient(100deg,rgba(255,255,255,.024),rgba(255,255,255,.006))}
-.prd-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
-  background:var(--gold);opacity:.4;box-shadow:0 0 10px var(--gold)}
+  background:linear-gradient(110deg,rgba(255,255,255,.03),rgba(255,255,255,.008))}
+.prd-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--gold);opacity:.45;box-shadow:0 0 12px var(--gold)}
+.prd-card .prd-icon{position:absolute;right:clamp(6px,1vw,14px);top:50%;transform:translateY(-50%);
+  font-size:clamp(20px,3vw,44px);opacity:.14;pointer-events:none;line-height:1}
 .prd-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone);
-  font-size:clamp(16px,2vw,28px);line-height:1.1}
+  font-size:clamp(15px,2vw,28px);line-height:1.1}
 .prd-ing{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);
-  font-size:clamp(12px,1.5vw,20px);line-height:1.2;margin-top:2px}
+  font-size:clamp(11px,1.4vw,19px);line-height:1.2;margin-top:2px}
 
 /* ---------- display transitions (?play=1) — 10 styles, chosen in Settings ---------- */
 #fxOverlay{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;will-change:opacity}
@@ -756,7 +771,7 @@ const MODES = {
     source:{kind:"gsheet", sheetId:CONFIG.SHEET_ID, tab:CONFIG.SHEET_TAB}
   },
   normal: {
-    label:"Tonight", eyebrow:"The Banshee Labyrinth", title:"What's On Tonight",
+    label:"Tonight", eyebrow:"The Banshee Labyrinth", title:"Events",
     foot:"Live music & cinema · Niddry Street",
     testDefault:"2026-06-11T20:30", layout:"tonight", keepAllDay:true,
     rooms:[ {key:"molly", name:"Molly's Chamber", match:/.*/} ],
@@ -780,7 +795,7 @@ const MODES = {
     source:{kind:"cinema"}   // reads CONFIG.CINEMA_API (manager entries), enriched via TMDB
   },
   prices: {
-    label:"Prices", eyebrow:"The Banshee Labyrinth · Bar", title:"Members' Prices",
+    label:"Prices", eyebrow:"The Banshee Labyrinth · Bar", title:"RIP Members' Prices",
     foot:"Members' prices · join free at the bar",
     testDefault:"2026-06-11T20:00", layout:"prices", keepAllDay:true,
     rooms:[],
@@ -841,6 +856,8 @@ const state = {
   prices: [],          // members'-price rows (from the prices sheet, or fallback)
   pricesNote: "",      // caption under the prices title
   _cinemaSig: "",
+  _tonightSig: "",   // flash guard for renderTonight
+  _pricesSig: "",    // flash guard for renderPrices
   dataStatus: "loading", // loading | live | sample | stub | error
   lastKey: "",
 };
@@ -1318,18 +1335,19 @@ function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":
 function buildDrinksMenu(){
   const C=CONFIG.COCKTAILS||[], S=CONFIG.SHOOTERS||[];
   if(!C.length && !S.length) return "";
-  const card=(x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
+  const card=(icon,x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
+    <span class="prd-icon">${icon}</span>
     <div class="prd-name">${esc(x.name)}</div>
     <div class="prd-ing">${esc(x.ing)}</div>
   </div>`;
   return `<div class="pr-drinks">
     <div class="prd-col">
-      <div class="prd-head">Cocktails<span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
-      <div class="prd-list">${C.map(card).join("")}</div>
+      <div class="prd-head">🍸 Cocktails<span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
+      <div class="prd-list">${C.map((x,i)=>card("🍸",x,i)).join("")}</div>
     </div>
     <div class="prd-col">
-      <div class="prd-head">Shooters<span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
-      <div class="prd-list">${S.map(card).join("")}</div>
+      <div class="prd-head">🥃 Shooters<span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
+      <div class="prd-list">${S.map((x,i)=>card("🥃",x,i)).join("")}</div>
     </div>
   </div>`;
 }
@@ -1343,7 +1361,14 @@ function renderPrices(){
   const wrap=document.getElementById("rooms");
   const items=Array.isArray(state.prices)?state.prices:[];
   const note=state.pricesNote||"";
+
+  // Guard — don't flash the rise-animations on every re-render if prices haven't changed
+  const sig="prices|"+note+"|"+items.map(x=>x.name+x.price).join(",");
+  if(sig===state._pricesSig && wrap.querySelector(".prices")) return;
+  state._pricesSig=sig;
+
   let html=`<div class="prices">`;
+  html+=`<div class="pr-member-card">💀 Member Cards <span class="pr-mc-price">£2</span></div>`;
   if(note) html+=`<div class="pr-note">${esc(note)}</div>`;
   html+=`<div class="pr-list">`;
   if(!items.length){
@@ -1510,15 +1535,22 @@ async function renderCinema(now, validDate){
   const labels=["Up Next","Later"];
   const upNext=films.slice(1,3).map((f,i)=>{
     const d=f._tmdb||{};
-    const img=(d.backdrops&&d.backdrops[0])||d.poster||"";
     const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
     const when=cinemaDateLabel(f._date,now)+(tt?` · ${tt}`:"");
+    const posterHTML=d.poster
+      ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
+      : `<div class="un-poster un-nopost">▦</div>`;
+    const backs=(d.backdrops&&d.backdrops.length)?d.backdrops.slice(0,4):(d.poster?[d.poster]:[]);
+    const backImgs=backs.map((u,j)=>`<img src="${esc(u)}" alt=""${j===0?' class="active"':''}>`).join("");
     return `<div class="un-card">
-      <div class="un-thumb">${img?`<img src="${esc(img)}" alt="">`:`<div class="un-noimg">${esc(d.title||f.title)}</div>`}</div>
-      <div class="un-text">
-        <div class="un-label2">${labels[i]}</div>
-        <div class="un-title">${esc(d.title||f.title)}</div>
-        <div class="un-when">${esc(when)}</div>
+      ${posterHTML}
+      <div class="un-back">
+        ${backImgs}
+        <div class="un-overlay">
+          <div class="un-label2">${labels[i]}</div>
+          <div class="un-title">${esc(d.title||f.title)}</div>
+          <div class="un-when">${esc(when)}</div>
+        </div>
       </div></div>`;
   }).join("");
   const upnextHTML=upNext?`<div class="upnext"><div class="un-row">${upNext}</div></div>`:"";
@@ -1557,27 +1589,42 @@ async function renderCinema(now, validDate){
       imgs[idx].classList.add("active");
     }, 6500);
   }
+  // Separate crossfade timers for each Up Next backdrop reel
+  wrap.querySelectorAll(".un-back").forEach((back,bi)=>{
+    const bImgs=back.querySelectorAll("img");
+    if(bImgs.length<2) return;
+    let bidx=0;
+    const t=setInterval(()=>{
+      if(!document.body.contains(bImgs[0])){ clearInterval(t); return; }
+      bidx=(bidx+1)%bImgs.length;
+      bImgs.forEach(im=>im.classList.remove("active"));
+      bImgs[bidx].classList.add("active");
+    }, 5200+(bi*1400));
+    // timer self-cleans when DOM is removed; no explicit store needed
+  });
 }
 
 /* Combined everyday board: gig list on top, cinema strip below. */
 async function renderTonight(now, validDate){
   const wrap=document.getElementById("rooms");
-  wrap.innerHTML="";
   if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight."); return; }
 
-  const container=document.createElement("div"); container.className="tonight";
-
-  // --- gigs: the next several upcoming events, with date + time ---
   const todayKey=isoDate(now);
   const allGigs=state.rows
     .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
     .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
-  // Header reads "What's On Tonight" only when something really is on tonight, else "Coming Up"
   const hasGigToday=allGigs.some(g=>g.dkey===todayKey);
-  const setTitle=on=>{ const t=document.getElementById("title"); if(t) t.textContent = on ? "What's On Tonight" : "Coming Up"; };
-  setTitle(hasGigToday);
+  const setTitle=()=>{ const t=document.getElementById("title"); if(t) t.textContent="Events"; };
+
+  // Guard — skip full DOM rebuild when content hasn't changed (prevents rise-animation flash)
+  const sig="tonight|"+todayKey+"|"+allGigs.length+"|"+(allGigs[0]?allGigs[0].title+allGigs[0].dkey:"");
+  if(sig===state._tonightSig && wrap.querySelector(".tonight")){ setTitle(); return; }
+  state._tonightSig=sig;
+
+  wrap.innerHTML="";
+  const container=document.createElement("div"); container.className="tonight";
 
   function gigSectionHTML(limit){
     let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
@@ -1607,7 +1654,7 @@ async function renderTonight(now, validDate){
   wrap.appendChild(container);
 
   const films=await buildCinemaTonight(now);
-  setTitle(hasGigToday || films.length>0);
+  setTitle();
 
   // No film tonight → drop the cinema panel and let the gig list fill the (portrait) screen
   if(!films.length){
@@ -1677,8 +1724,9 @@ window.addEventListener("online", wakeRefresh);
     const delay=(-Math.random()*dur).toFixed(1);
     const op=(0.16+Math.random()*0.42).toFixed(2);
     const sway=((Math.random()*2-1)*34).toFixed(0);
-    const ember=Math.random()<0.16;
-    html+=`<span class="mote${ember?" ember":""}" style="left:${left}%;width:${size}px;height:${size}px;--mo:${op};--sway:${sway}px;animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
+    const r=Math.random();
+    const moteClass = r<0.15 ? " ember" : r<0.32 ? " amber" : "";
+    html+=`<span class="mote${moteClass}" style="left:${left}%;width:${size}px;height:${size}px;--mo:${op};--sway:${sway}px;animation-duration:${dur}s;animation-delay:${delay}s"></span>`;
   }
   box.innerHTML=html;
 })();
