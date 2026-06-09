@@ -254,7 +254,7 @@ body{
   gap:clamp(10px,1.6vw,22px);
   align-items:start;
   flex-shrink:0;            /* never squash a row — its text must always fit */
-  padding:clamp(7px,1vh,13px) clamp(10px,1.4vw,18px) clamp(7px,1vh,13px) clamp(12px,1.6vw,20px);
+  padding:clamp(5px,.75vh,10px) clamp(10px,1.4vw,18px) clamp(5px,.75vh,10px) clamp(12px,1.6vw,20px);
   position:relative;border-radius:3px;
   background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006));
   box-shadow:var(--shadow);
@@ -476,8 +476,8 @@ input:disabled{opacity:.4}
 /* ---------- tonight (combined) layout ---------- */
 .tonight{height:100%;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,18px)}
 .t-sec{display:flex;flex-direction:column;min-height:0}
-.t-gigs{flex:1.15 1 0}
-.t-cine{flex:.9 1 0}
+.t-gigs{flex:1.7 1 0}
+.t-cine{flex:0.7 1 0}
 .t-gigs.solo{flex:1 1 0}
 .t-gigs.solo .t-rows{justify-content:space-between;gap:clamp(8px,1.3vh,20px)}
 .t-gigs.solo .show{align-items:center}
@@ -493,7 +493,7 @@ input:disabled{opacity:.4}
   padding:clamp(8px,1.2vh,14px);background:linear-gradient(100deg,rgba(255,255,255,.022),rgba(255,255,255,.006));
   box-shadow:var(--shadow);overflow:hidden;flex:1;min-height:0;position:relative}
 .cine-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ember);opacity:.5;box-shadow:0 0 14px var(--ember)}
-.cine-thumb{flex:0 0 auto;height:clamp(84px,14vh,130px);aspect-ratio:2/3;border-radius:3px;overflow:hidden;background:#05050a}
+.cine-thumb{flex:0 0 auto;height:clamp(72px,11vh,110px);aspect-ratio:2/3;border-radius:3px;overflow:hidden;background:#05050a}
 .cine-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .cine-thumb .noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--bone-faint);font-size:2em}
 .cine-meta{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.3em}
@@ -553,7 +553,7 @@ input:disabled{opacity:.4}
 
 /* price labels in section headers */
 .prd-head .prd-price{margin-left:auto;font-family:"Cinzel",serif;font-weight:700;
-  font-size:clamp(14px,1.9vw,26px);color:var(--gold);letter-spacing:.04em}
+  font-size:clamp(22px,3.4vw,46px);color:var(--gold);letter-spacing:.04em}
 
 /* persistent glow border — survives transitions (z above fxOverlay) */
 #pageBorder{position:fixed;inset:0;z-index:52;pointer-events:none;
@@ -830,7 +830,7 @@ const MODES = {
     source:{kind:"gcal", sheetId:CONFIG.GIGS_SHEET_ID, tab:CONFIG.GIGS_TAB, calMatch:/mollys chamber|stage bar/i}
   },
   cinema: {
-    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"In our Cinema",
+    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"Tonight's Movies",
     foot:"Free cinema · Cinema 1",
     testDefault:"2026-06-11T20:00", layout:"cinema", keepAllDay:true,
     rooms:[ {key:"cinema", name:"The Cinema", match:/.*/} ],
@@ -1687,11 +1687,11 @@ async function renderTonight(now, validDate){
     return gh;
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(6);
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(9);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
-  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>In our Cinema<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
+  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>Tonight's Movies<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
   container.appendChild(csec);
   wrap.appendChild(container);
 
