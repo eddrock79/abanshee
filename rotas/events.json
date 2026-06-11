@@ -1,61 +1,6 @@
 {
-  "generated": "2026-06-03T23:57:37",
+  "generated": "2026-06-11T09:24:45",
   "events": [
-    {
-      "date": "2026-06-01",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-06-02",
-      "room": "Chamber Room",
-      "what": "Gig and Karaoke"
-    },
-    {
-      "date": "2026-06-02",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-03",
-      "room": "Chamber Room",
-      "what": "Open Mic"
-    },
-    {
-      "date": "2026-06-03",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-04",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-06-05",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-06-05",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-06",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-06-06",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-07",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
     {
       "date": "2026-06-08",
       "room": "Cinema",
@@ -105,6 +50,81 @@
       "date": "2026-06-14",
       "room": "Cinema",
       "what": "Sound scape"
+    },
+    {
+      "date": "2026-06-15",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-06-16",
+      "room": "Chamber Room",
+      "what": "Rehersals - Karaoke"
+    },
+    {
+      "date": "2026-06-16",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-17",
+      "room": "Chamber Room",
+      "what": "Booking + Open Mic"
+    },
+    {
+      "date": "2026-06-17",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-18",
+      "room": "Chamber Room",
+      "what": "Wild card"
+    },
+    {
+      "date": "2026-06-18",
+      "room": "Cinema",
+      "what": "Braw"
+    },
+    {
+      "date": "2026-06-19",
+      "room": "Chamber Room",
+      "what": "Gig - Dave"
+    },
+    {
+      "date": "2026-06-19",
+      "room": "Cinema",
+      "what": "Booking (?)"
+    },
+    {
+      "date": "2026-06-20",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-20",
+      "room": "Cinema",
+      "what": "EHF"
+    },
+    {
+      "date": "2026-06-20",
+      "room": "Other",
+      "what": "Pride"
+    },
+    {
+      "date": "2026-06-21",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-06-21",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-21",
+      "room": "Other",
+      "what": "Fathers Day"
     }
   ]
 }
