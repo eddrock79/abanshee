@@ -145,19 +145,7 @@
     <div class="form-row">
       <label class="form-label" for="req-name">Your Name</label>
       <select class="form-input" id="req-name">
-        <option value="">— Select your name —</option>
-        <option>Connor</option>
-        <option>Craig</option>
-        <option>Ryan</option>
-        <option>Theresa</option>
-        <option>Maja</option>
-        <option>Rory</option>
-        <option>Blue</option>
-        <option>Jenni</option>
-        <option>Hannah</option>
-        <option>Kat</option>
-        <option>Eva</option>
-        <option>Alix</option>
+        <option value="">— Loading names… —</option>
       </select>
     </div>
 
@@ -219,17 +207,54 @@
 <script>
 // ── CONFIG — uses the same Apps Script as Weekly Jobs (merged) ───────────────
 const HOLIDAYS_SCRIPT_URL = BL_CFG.notesScript;
+// Names pulled live from shifts.json — same source as the rota
+const SHIFTS_URL = '../rotas/shifts.json';
+// Fallback names in case shifts.json can't be reached
+const FALLBACK_NAMES = ['Connor','Craig','Ryan','Theresa','Maja','Rory',
+                        'Blue','Jenni','Hannah','Kat','Eva','Alix'];
 // ─────────────────────────────────────────────────────────────────────────────
 
 let userRole  = 'staff';
 let allReqs   = [];
 let curFilter = 'all';
 
+async function loadStaffNames() {
+  const sel = document.getElementById('req-name');
+  try {
+    const res  = await fetch(SHIFTS_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+
+    // Collect all unique names from every day in shifts.json, preserve rota order
+    const seen  = new Set();
+    const names = [];
+    const days  = data.days || {};
+    Object.values(days).forEach(shifts => {
+      shifts.forEach(s => {
+        if (s.name && !seen.has(s.name)) {
+          seen.add(s.name);
+          names.push(s.name);
+        }
+      });
+    });
+
+    if (names.length === 0) throw new Error('no names found');
+
+    sel.innerHTML = '<option value="">— Select your name —</option>' +
+      names.map(n => `<option>${n}</option>`).join('');
+  } catch(e) {
+    // Fallback to hardcoded list if shifts.json unreachable
+    sel.innerHTML = '<option value="">— Select your name —</option>' +
+      FALLBACK_NAMES.map(n => `<option>${n}</option>`).join('');
+  }
+}
+
 BLAuth.init({
   appName: 'Holiday Requests',
   require: 'staff',
   onReady: function(role) {
     userRole = role;
+    loadStaffNames();
     setMinDates();
     if (role === 'manager') {
       document.getElementById('mgr-panel').style.display = 'block';
