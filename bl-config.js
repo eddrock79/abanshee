@@ -11,11 +11,9 @@
   var CONFIG_SHEET_ID="PUT_CENTRAL_CONFIG_SHEET_ID_HERE",CACHE_KEY="bl_cfg_cache",FETCH_MS=7000;
   var DEFAULTS={venueKey:VENUE,venueName:"Banshee Labyrinth",
     weeklyJobs:"1n_k9VpZmqWhFuj95k0JJFewh8Vi1maYJscPASE09zwg",endOfNight:"1YDUyDlkj_Z5FeTVPFQWsiy_TOKcVEw4uLanvhiGOq8c",cocktails:"1ujPg9uvHjsUhOKkhSX7LN2f-z6vuHsp9ZVWyDIkXK7k",
-    notesScript:"https://script.google.com/macros/s/AKfycbwmPEJGfKL26fZn9aso1W_AyskBNzCdbHeTJ-uEAC1aX3X57ND6qk_7CEJqSuHftaKB/exec",cleaningScript:"https://script.google.com/macros/s/AKfycbwmPEJGfKL26fZn9aso1W_AyskBNzCdbHeTJ-uEAC1aX3X57ND6qk_7CEJqSuHftaKB/exec",eonScript:"https://script.google.com/macros/s/AKfycbyx4KQRQbMx97EJFWMzxNaPE2SkPunBcT31Cm7blohX6blLhUj6i3FvEN2pB4If6wwR/exec",
+    notesScript:"https://script.google.com/macros/s/AKfycbwmPEJGfKL26fZn9aso1W_AyskBNzCdbHeTJ-uEAC1aX3X57ND6qk_7CEJqSuHftaKB/exec",sharedScript:"https://script.google.com/macros/s/AKfycbwcC6rFou4PFhuqDejOhEVgPD-GBFKm3fGlKiFx2HN3YyUDI8d6u1v63L2jJwUalnwj/exec",cleaningScript:"https://script.google.com/macros/s/AKfycbwmPEJGfKL26fZn9aso1W_AyskBNzCdbHeTJ-uEAC1aX3X57ND6qk_7CEJqSuHftaKB/exec",eonScript:"https://script.google.com/macros/s/AKfycbyx4KQRQbMx97EJFWMzxNaPE2SkPunBcT31Cm7blohX6blLhUj6i3FvEN2pB4If6wwR/exec",
     staffPin:"1234",managerPin:"1111",masterPin:"8350"};
   var cached={}; try{cached=JSON.parse(localStorage.getItem(CACHE_KEY)||"{}");}catch(e){}
-  // Always keep PINs from DEFAULTS — never let a stale cache overwrite them
-  delete cached.staffPin; delete cached.managerPin; delete cached.masterPin;
   window.BL_CFG=Object.assign({},DEFAULTS,cached);
   function pc(l){var o=[],c="",q=false;for(var i=0;i<l.length;i++){var ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){o.push(c);c="";}else c+=ch;}o.push(c);return o;}
   function cl(s){return (s||"").replace(/^"|"$/g,"").trim();}

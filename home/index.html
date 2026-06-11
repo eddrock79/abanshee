@@ -258,8 +258,9 @@ const HANDOVER_KEY='bl_handover_notes';
 
 // Shared Notice Board + Handover, synced via the dedicated notes sheet's Apps Script.
 // Paste the deployed /exec URL of notes-AppsScript.gs here:
-const NOTES_SCRIPT_URL=BL_CFG.notesScript;
-// Holiday requests — uses the same Weekly Jobs Apps Script (merged)
+// Notice board + handover notes — original script handles getShared/postNotice
+const NOTES_SCRIPT_URL=BL_CFG.sharedScript||BL_CFG.notesScript;
+// Holiday requests — Banshee Sync script handles holiday actions
 const HOLIDAYS_SCRIPT_URL=BL_CFG.notesScript;
 
 async function checkHolidayBadge(){
