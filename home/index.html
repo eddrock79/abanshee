@@ -50,6 +50,11 @@
   .nav-btn{padding:7px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--muted);text-decoration:none;display:inline-block;-webkit-tap-highlight-color:transparent;}
   .nav-btn.current{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);}
   .nav-btn.mgr{background:var(--purple-dim);color:var(--purple);border-color:var(--purple);}
+  .nav-holiday-wrap{position:relative;display:inline-flex}
+  .holiday-badge{position:absolute;top:-7px;right:-7px;background:var(--red);color:#fff;
+    border-radius:99px;font-size:10px;font-weight:700;min-width:18px;height:18px;
+    display:none;align-items:center;justify-content:center;padding:0 4px;
+    border:2px solid var(--bg);pointer-events:none;line-height:1}
 
   .main{max-width:720px;margin:0 auto;padding:16px 16px;display:flex;flex-direction:column;gap:14px;}
 
@@ -160,6 +165,10 @@
     <a class="nav-btn" href="../end-of-night">🌙 End Of Night</a>
     <a class="nav-btn" href="../rotas">📅 Rotas</a>
     <a class="nav-btn" href="../cocktails">🍸 Cocktails</a>
+    <div class="nav-holiday-wrap">
+      <a class="nav-btn" href="../holidays/">🏖 Holidays</a>
+      <span class="holiday-badge" id="holiday-badge"></span>
+    </div>
     <a class="nav-btn mgr" id="nav-dash" href="../dashboard" style="display:none">📊 Dashboard</a>
     <a class="nav-btn mgr" id="nav-whatson" href="../whatson/" style="display:none">🎭 What's On</a>
     <button class="nav-btn" type="button" onclick="BLAuth.switchVenue()" style="cursor:pointer">🏘️ Switch Venue</button>
@@ -250,6 +259,22 @@ const HANDOVER_KEY='bl_handover_notes';
 // Shared Notice Board + Handover, synced via the dedicated notes sheet's Apps Script.
 // Paste the deployed /exec URL of notes-AppsScript.gs here:
 const NOTES_SCRIPT_URL=BL_CFG.notesScript;
+// Holiday requests — uses the same Weekly Jobs Apps Script (merged)
+const HOLIDAYS_SCRIPT_URL=BL_CFG.notesScript;
+
+async function checkHolidayBadge(){
+  if(!BLAuth.isManager()) return;
+  try{
+    const res  = await fetch(HOLIDAYS_SCRIPT_URL+'?action=pending&_='+Date.now());
+    const data = await res.json();
+    const n    = (data.ok && data.pending) ? data.pending : 0;
+    const badge = document.getElementById('holiday-badge');
+    if(badge){
+      badge.textContent    = n;
+      badge.style.display  = n > 0 ? 'flex' : 'none';
+    }
+  }catch(e){ /* silent — badge just won't show */ }
+}
 const NOTICE_CACHE='bl_notice_list';     // cached JSON of the notice entries
 const HANDOVER_CACHE='bl_handover_list'; // cached JSON of the handover entries
 let sharedSyncFailed=false;
@@ -396,6 +421,7 @@ function closeSuperModal(){document.getElementById('super-modal').style.display=
 // ── SHOW APP ──
 function showApp(){
   isManager=BLAuth.isManager();
+  checkHolidayBadge();
   document.getElementById('pin-screen').classList.add('hidden');
   document.getElementById('app').style.display='block';
   document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});

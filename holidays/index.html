@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holiday Requests — Banshee Labyrinth</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0d0f; --surface:#17171a; --surface2:#1f1f24; --border:#2a2a30;
+    --accent:#e8b84b; --accent-dim:rgba(232,184,75,0.12);
+    --text:#e8e8ec; --muted:#6b6b78; --red:#e85d5d; --red-dim:rgba(232,93,93,0.12);
+    --green:#4caf82; --green-dim:rgba(76,175,130,0.12);
+    --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.12);
+    --orange:#f59e0b; --orange-dim:rgba(245,158,11,0.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;
+    font-size:15px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+  /* ── topbar + nav ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;
+    background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+  .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)}
+  .topbar-centre-logo{position:absolute;left:50%;transform:translateX(-50%);height:34px;width:auto;pointer-events:none}
+  .nav-bar{display:flex;gap:8px;background:var(--surface2);border-bottom:1px solid var(--border);
+    padding:10px 16px;flex-wrap:wrap}
+  .nav-btn{padding:7px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+    border:1px solid var(--border);background:var(--surface);color:var(--muted);text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;transition:color .2s,border-color .2s;
+    -webkit-tap-highlight-color:transparent;cursor:pointer}
+  .nav-btn:hover{color:var(--text);border-color:var(--accent)}
+  .nav-btn.current{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+  .nav-btn.mgr{background:var(--purple-dim);color:var(--purple);border-color:var(--purple)}
+
+  .wrap{max-width:720px;margin:0 auto;padding:24px 16px 80px}
+
+  /* ── section cards ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+  .card-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--accent);margin-bottom:16px}
+
+  /* ── form ── */
+  .form-row{margin-bottom:14px}
+  .form-label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;
+    letter-spacing:1px;margin-bottom:6px}
+  .form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 14px;outline:none;
+    -webkit-appearance:none;appearance:none;transition:border-color .2s}
+  .form-input:focus{border-color:var(--accent)}
+  select.form-input{cursor:pointer}
+  textarea.form-input{resize:vertical;min-height:70px;line-height:1.5}
+
+  .date-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .submit-btn{width:100%;padding:14px;background:var(--accent);color:#000;border:none;border-radius:10px;
+    font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;
+    transition:opacity .2s;margin-top:4px}
+  .submit-btn:hover{opacity:.85}
+  .submit-btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* ── success/error toast ── */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:14px 22px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.5);
+    opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+  .toast.show{opacity:1}
+  .toast.ok{border-color:var(--green);color:var(--green)}
+  .toast.err{border-color:var(--red);color:var(--red)}
+
+  /* ── manager panel ── */
+  #mgr-panel{display:none}
+  .req-list{display:flex;flex-direction:column;gap:12px}
+  .req-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .req-card.pending{border-left:3px solid var(--orange)}
+  .req-card.approved{border-left:3px solid var(--green)}
+  .req-card.declined{border-left:3px solid var(--red);opacity:.6}
+  .req-card.past-card{opacity:.55}
+
+  .req-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .req-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--text)}
+  .req-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:20px}
+  .req-status.pending{background:var(--orange-dim);color:var(--orange)}
+  .req-status.approved{background:var(--green-dim);color:var(--green)}
+  .req-status.declined{background:var(--red-dim);color:var(--red)}
+
+  .req-dates{font-size:14px;color:var(--text);margin-bottom:4px}
+  .req-dates span{color:var(--accent);font-weight:600}
+  .req-note{font-size:13px;color:var(--muted);margin-bottom:12px;font-style:italic}
+  .req-submitted{font-size:12px;color:var(--muted)}
+
+  .req-actions{display:flex;gap:10px;margin-top:12px}
+  .btn-approve{flex:1;padding:10px;background:var(--green-dim);border:1px solid var(--green);
+    color:var(--green);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;
+    font-weight:700;cursor:pointer;transition:.15s}
+  .btn-approve:hover{background:var(--green);color:#000}
+  .btn-decline{flex:1;padding:10px;background:var(--red-dim);border:1px solid var(--red);
+    color:var(--red);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;
+    font-weight:700;cursor:pointer;transition:.15s}
+  .btn-decline:hover{background:var(--red);color:#fff}
+
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+  .empty-icon{font-size:40px;margin-bottom:12px}
+
+  .filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);
+    color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+  .filter-btn.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+
+  .spinner{width:28px;height:28px;border-radius:50%;border:3px solid #2c2734;
+    border-top-color:var(--accent);animation:spin 1s linear infinite;margin:30px auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .reload-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:8px;font-size:13px;cursor:pointer;
+    font-family:'DM Sans',sans-serif;transition:.15s}
+  .reload-btn:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="topbar" style="position:relative">
+  <div class="topbar-logo">🏖 Holidays</div>
+  <img class="topbar-centre-logo"
+    src="../logo.jpg"
+    alt="The Banshee Labyrinth">
+  <div></div>
+</div>
+
+<div class="nav-bar">
+  <a class="nav-btn" href="../home/">🏠 Home</a>
+  <a class="nav-btn" href="../weekly-cleaning/">📋 Weekly Jobs</a>
+  <a class="nav-btn" href="../end-of-night/">🌙 End Of Night</a>
+  <a class="nav-btn" href="../rotas/">📅 Rotas</a>
+  <a class="nav-btn" href="../cocktails/">🍸 Cocktails</a>
+  <span class="nav-btn current">🏖 Holidays</span>
+</div>
+
+<div class="wrap">
+
+  <!-- ── STAFF: Submit a request ── -->
+  <div class="card" id="submit-card">
+    <div class="card-title">Request Holiday</div>
+
+    <div class="form-row">
+      <label class="form-label" for="req-name">Your Name</label>
+      <select class="form-input" id="req-name">
+        <option value="">— Select your name —</option>
+        <option>Connor</option>
+        <option>Craig</option>
+        <option>Ryan</option>
+        <option>Theresa</option>
+        <option>Maja</option>
+        <option>Rory</option>
+        <option>Blue</option>
+        <option>Jenni</option>
+        <option>Hannah</option>
+        <option>Kat</option>
+        <option>Eva</option>
+        <option>Alix</option>
+      </select>
+    </div>
+
+    <div class="date-row">
+      <div class="form-row">
+        <label class="form-label" for="req-start">First Day Off</label>
+        <input type="date" class="form-input" id="req-start">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="req-end">Last Day Off</label>
+        <input type="date" class="form-input" id="req-end">
+      </div>
+    </div>
+
+    <div class="form-row" id="days-preview" style="display:none">
+      <div style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;
+        padding:10px 14px;font-size:14px;color:var(--accent);font-weight:600">
+        📅 <span id="days-count"></span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label" for="req-note">Note (optional)</label>
+      <textarea class="form-input" id="req-note" placeholder="Any extra info for the manager…"></textarea>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitRequest()">Submit Request</button>
+  </div>
+
+  <!-- ── MANAGER: Pending requests panel ── -->
+  <div id="mgr-panel">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Holiday Requests</div>
+        <button class="reload-btn" onclick="loadRequests()">↻ Refresh</button>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn active" id="f-all"      onclick="setFilter('all')">All</button>
+        <button class="filter-btn"        id="f-pending"  onclick="setFilter('pending')">Pending</button>
+        <button class="filter-btn"        id="f-approved" onclick="setFilter('approved')">Approved</button>
+        <button class="filter-btn"        id="f-declined" onclick="setFilter('declined')">Declined</button>
+        <button class="filter-btn"        id="f-past"     onclick="setFilter('past')">Past</button>
+      </div>
+
+      <div id="req-list-wrap">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<script>
+// ── CONFIG — uses the same Apps Script as Weekly Jobs (merged) ───────────────
+const HOLIDAYS_SCRIPT_URL = BL_CFG.notesScript;
+// ─────────────────────────────────────────────────────────────────────────────
+
+let userRole  = 'staff';
+let allReqs   = [];
+let curFilter = 'all';
+
+BLAuth.init({
+  appName: 'Holiday Requests',
+  require: 'staff',
+  onReady: function(role) {
+    userRole = role;
+    setMinDates();
+    if (role === 'manager') {
+      document.getElementById('mgr-panel').style.display = 'block';
+      loadRequests();
+    }
+  }
+});
+
+// ── DATE HELPERS ─────────────────────────────────────────────────────────────
+function setMinDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('req-start').min = today;
+  document.getElementById('req-end').min   = today;
+  document.getElementById('req-start').addEventListener('change', onDateChange);
+  document.getElementById('req-end').addEventListener('change',   onDateChange);
+}
+
+function onDateChange() {
+  const s = document.getElementById('req-start').value;
+  const e = document.getElementById('req-end').value;
+
+  // Keep end >= start
+  if (s) document.getElementById('req-end').min = s;
+
+  if (s && e && e >= s) {
+    const days = Math.round((new Date(e) - new Date(s)) / 86400000) + 1;
+    const label = days === 1 ? '1 day' : days + ' days';
+    document.getElementById('days-count').textContent =
+      'Requesting ' + label + ': ' + fmtDate(s) + (days > 1 ? ' → ' + fmtDate(e) : '');
+    document.getElementById('days-preview').style.display = 'block';
+  } else {
+    document.getElementById('days-preview').style.display = 'none';
+  }
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    const date = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    const time = d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    return date + ' at ' + time;
+  } catch(e) { return iso; }
+}
+
+function isPast(isoDate) {
+  if (!isoDate) return false;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const end = new Date(isoDate + 'T00:00:00');
+  return end < today;
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────────────────
+async function submitRequest() {
+  const name  = document.getElementById('req-name').value.trim();
+  const start = document.getElementById('req-start').value;
+  const end   = document.getElementById('req-end').value;
+  const note  = document.getElementById('req-note').value.trim();
+
+  if (!name)        { showToast('Please select your name', 'err'); return; }
+  if (!start)       { showToast('Please pick a start date', 'err'); return; }
+  if (!end)         { showToast('Please pick an end date', 'err'); return; }
+  if (end < start)  { showToast('End date must be after start date', 'err'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const url = HOLIDAYS_SCRIPT_URL +
+      '?action=submit' +
+      '&name='  + encodeURIComponent(name) +
+      '&start=' + encodeURIComponent(start) +
+      '&end='   + encodeURIComponent(end) +
+      '&note='  + encodeURIComponent(note);
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      showToast('✅ Request submitted — ' + data.days + ' day' + (data.days===1?'':'s'), 'ok');
+      document.getElementById('req-name').value  = '';
+      document.getElementById('req-start').value = '';
+      document.getElementById('req-end').value   = '';
+      document.getElementById('req-note').value  = '';
+      document.getElementById('days-preview').style.display = 'none';
+      if (userRole === 'manager') loadRequests();
+    } else {
+      showToast('Error: ' + (data.error || 'Unknown'), 'err');
+    }
+  } catch(e) {
+    showToast('Could not reach server', 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit Request';
+}
+
+// ── LOAD REQUESTS (manager) ──────────────────────────────────────────────────
+async function loadRequests() {
+  const wrap = document.getElementById('req-list-wrap');
+  wrap.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const res  = await fetch(HOLIDAYS_SCRIPT_URL + '?action=requests&t=' + Date.now());
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    allReqs = data.requests || [];
+    renderRequests();
+  } catch(e) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>Could not load requests.<br><small>' + e + '</small></div>';
+  }
+}
+
+function setFilter(f) {
+  curFilter = f;
+  ['all','pending','approved','declined','past'].forEach(x => {
+    const el = document.getElementById('f-'+x);
+    if (el) el.classList.toggle('active', x === f);
+  });
+  renderRequests();
+}
+
+function renderRequests() {
+  const wrap = document.getElementById('req-list-wrap');
+
+  let list;
+  if (curFilter === 'all') {
+    list = allReqs;
+  } else if (curFilter === 'past') {
+    // Past = end date has already gone, regardless of status
+    list = allReqs.filter(r => isPast(r.end));
+  } else {
+    // For pending/approved/declined, exclude past requests so they don't clutter
+    // active views — they still show under "All" and "Past"
+    list = allReqs.filter(r => r.status.toLowerCase() === curFilter && !isPast(r.end));
+  }
+
+  if (!list.length) {
+    const msgs = { all:'No requests yet.', pending:'No pending requests.',
+                   approved:'No upcoming approved holidays.',
+                   declined:'No declined requests.', past:'No past requests.' };
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">🏖</div>' +
+                     (msgs[curFilter]||'Nothing here.') + '</div>';
+    return;
+  }
+
+  wrap.innerHTML = list.map(r => {
+    const statusClass = r.status.toLowerCase();
+    const isPending   = statusClass === 'pending';
+    const past        = isPast(r.end);
+    const days        = r.days || '?';
+    const dayLabel    = days === 1 ? '1 day' : days + ' days';
+    // Show a subtle "past" label on cards in the All view
+    const pastBadge   = past && curFilter === 'all'
+      ? '<span style="font-size:11px;color:var(--muted);margin-left:8px;font-weight:400">past</span>'
+      : '';
+
+    return `
+    <div class="req-card ${statusClass}${past ? ' past-card' : ''}" id="card-${r.row}">
+      <div class="req-header">
+        <div class="req-name">${escHtml(r.name)}${pastBadge}</div>
+        <div class="req-status ${statusClass}">${r.status}</div>
+      </div>
+      <div class="req-dates">
+        <span>${fmtDate(r.start)}</span>
+        ${r.end !== r.start ? ' → <span>' + fmtDate(r.end) + '</span>' : ''}
+        &nbsp;·&nbsp; ${dayLabel}
+      </div>
+      ${r.note ? '<div class="req-note">"' + escHtml(r.note) + '"</div>' : ''}
+      <div class="req-submitted">Submitted: ${fmtDateTime(r.submitted)}</div>
+      ${isPending && !past ? `
+      <div class="req-actions">
+        <button class="btn-approve" onclick="doApprove(${r.row}, this)">✓ Approve</button>
+        <button class="btn-decline" onclick="doDecline(${r.row}, this)">✗ Decline</button>
+      </div>` : r.reviewedAt ? `<div class="req-submitted" style="margin-top:6px">
+        ${r.status} by ${escHtml(r.reviewedBy||'')} · ${fmtDateTime(r.reviewedAt)}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── APPROVE / DECLINE ────────────────────────────────────────────────────────
+async function doApprove(row, btn) {
+  if (!confirm('Approve this holiday request? This will add it to the Banshee Birthdays calendar.')) return;
+  await reviewRequest('approve', row, btn);
+}
+
+async function doDecline(row, btn) {
+  if (!confirm('Decline this holiday request?')) return;
+  await reviewRequest('decline', row, btn);
+}
+
+async function reviewRequest(action, row, btn) {
+  const card = document.getElementById('card-' + row);
+  const btns = card ? card.querySelectorAll('button') : [];
+  btns.forEach(b => b.disabled = true);
+  if (btn) btn.textContent = action === 'approve' ? 'Approving…' : 'Declining…';
+
+  try {
+    const url  = HOLIDAYS_SCRIPT_URL + '?action=' + action + '&row=' + row;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      showToast(action === 'approve' ? '✅ Approved — added to calendar' : '✗ Request declined', 'ok');
+      loadRequests();   // refresh list
+    } else {
+      showToast('Error: ' + (data.error || 'Unknown'), 'err');
+      btns.forEach(b => b.disabled = false);
+    }
+  } catch(e) {
+    showToast('Could not reach server', 'err');
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
