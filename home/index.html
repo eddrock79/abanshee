@@ -335,7 +335,7 @@ function renderTonight(){
   }
 }
 
-let livePin=null, liveSuper=null, pinEntry='', superEntry='', sheetId='', isManager=false;
+let livePin=null, liveSuper=null, liveMaster=null, pinEntry='', superEntry='', sheetId='', isManager=false;
 
 // ── CSV / HELPERS ──
 function parseCSV(line){const cols=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else{cur+=c;}}cols.push(cur.trim());return cols;}
@@ -344,32 +344,16 @@ function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 // ── LOAD PINS — same logic as original, reads B1/B2 ──
 async function loadPINFromSheet(id){
-  try{
-    const url=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=Settings`;
-    const res=await fetch(url);if(!res.ok)throw new Error();
-    const csv=await res.text();
-    const lines=csv.split('\n').filter(l=>l.trim());
-    const found=[];
-    for(const line of lines){
-      const cols=parseCSV(line);
-      const val=(clean(cols[1])||clean(cols[0])).trim();
-      if(/^\d+$/.test(val))found.push(val);
-      if(found.length===2)break;
-    }
-    livePin=found[0]||'1234';
-    liveSuper=found[1]||'1111';
-    // Also grab script URL from B3
-    for(const line of lines){
-      const cols=parseCSV(line);
-      const val=(clean(cols[1])||clean(cols[0])).trim();
-      if(val.startsWith('https://script.google.com')){localStorage.setItem('bl_script_url',val);break;}
-    }
-  }catch(e){livePin='1234';liveSuper='1111';}
+  // Always use BL_CFG pins — hardcoded and reliable, never affected by cache
+  livePin    = (BL_CFG.staffPin   || '1234').trim();
+  liveSuper  = (BL_CFG.managerPin || '1111').trim();
+  liveMaster = (BL_CFG.masterPin  || '8350').trim();
 }
 
 // ── BOOT ──
 (async function boot(){
-  if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}  // load central config first
+  if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
+  await loadPINFromSheet(); // always loads from BL_CFG now
   const urlParams=new URLSearchParams(window.location.search);
   const urlSheet=urlParams.get('sheet');
   if(urlSheet)localStorage.setItem(SHEET_ID_KEY,urlSheet);
@@ -383,15 +367,16 @@ function pinKey(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots('pd',pinE
 function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots('pd',pinEntry);document.getElementById('pin-error').textContent='';}
 function updateDots(prefix,entry){for(let i=0;i<4;i++)document.getElementById(prefix+i).className='pin-dot'+(i<entry.length?' filled':'');}
 function checkPIN(){
-  if(pinEntry.trim()===(livePin||'').trim()){
-    isManager=false;
-    sessionStorage.setItem('bl_home_unlocked','yes');
-    sessionStorage.removeItem('bl_home_super');
-    showApp();
-  } else if(pinEntry.trim()===(liveSuper||'').trim()){
+  const v = pinEntry.trim();
+  if(v===(liveMaster||'').trim()||v===(liveSuper||'').trim()){
     isManager=true;
     sessionStorage.setItem('bl_home_unlocked','yes');
     sessionStorage.setItem('bl_home_super','yes');
+    showApp();
+  } else if(v===(livePin||'').trim()){
+    isManager=false;
+    sessionStorage.setItem('bl_home_unlocked','yes');
+    sessionStorage.removeItem('bl_home_super');
     showApp();
   } else {
     for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pin-dot error';
