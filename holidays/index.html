@@ -207,11 +207,14 @@
 <script>
 // ── CONFIG — uses the same Apps Script as Weekly Jobs (merged) ───────────────
 const HOLIDAYS_SCRIPT_URL = BL_CFG.notesScript;
-// Names pulled live from shifts.json — same source as the rota
-const SHIFTS_URL = '../rotas/shifts.json';
-// Fallback names in case shifts.json can't be reached
-const FALLBACK_NAMES = ['Connor','Craig','Ryan','Theresa','Maja','Rory',
-                        'Blue','Jenni','Hannah','Kat','Eva','Alix'];
+// Names pulled from staff.json — built from col E of the Blank rota sheet.
+// Everyone on the roster appears here whether or not they have shifts yet.
+const STAFF_JSON_URL  = '../rotas/staff.json';
+// Fallback to shifts.json if staff.json not yet published (first run)
+const SHIFTS_URL      = '../rotas/shifts.json';
+// Hardcoded fallback if both URLs fail
+const FALLBACK_NAMES  = ['Connor','Craig','Ryan','Theresa','Maja','Rory',
+                         'Blue','Jenni','Hannah','Kat','Eva','Alix'];
 // ─────────────────────────────────────────────────────────────────────────────
 
 let userRole  = 'staff';
@@ -220,33 +223,40 @@ let curFilter = 'all';
 
 async function loadStaffNames() {
   const sel = document.getElementById('req-name');
+
+  // Try staff.json first (master roster from Blank sheet)
   try {
-    const res  = await fetch(SHIFTS_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error('fetch failed');
+    const res = await fetch(STAFF_JSON_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('staff.json not found');
     const data = await res.json();
-
-    // Collect all unique names from every day in shifts.json, preserve rota order
-    const seen  = new Set();
-    const names = [];
-    const days  = data.days || {};
-    Object.values(days).forEach(shifts => {
-      shifts.forEach(s => {
-        if (s.name && !seen.has(s.name)) {
-          seen.add(s.name);
-          names.push(s.name);
-        }
-      });
-    });
-
-    if (names.length === 0) throw new Error('no names found');
-
+    const names = data.names || [];
+    if (names.length === 0) throw new Error('empty names list');
     sel.innerHTML = '<option value="">— Select your name —</option>' +
       names.map(n => `<option>${n}</option>`).join('');
-  } catch(e) {
-    // Fallback to hardcoded list if shifts.json unreachable
+    return;
+  } catch(e) { /* fall through to shifts.json */ }
+
+  // Fallback: extract unique names from shifts.json
+  try {
+    const res  = await fetch(SHIFTS_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('shifts.json not found');
+    const data = await res.json();
+    const seen = new Set();
+    const names = [];
+    Object.values(data.days || {}).forEach(shifts => {
+      shifts.forEach(s => {
+        if (s.name && !seen.has(s.name)) { seen.add(s.name); names.push(s.name); }
+      });
+    });
+    if (names.length === 0) throw new Error('no names in shifts');
     sel.innerHTML = '<option value="">— Select your name —</option>' +
-      FALLBACK_NAMES.map(n => `<option>${n}</option>`).join('');
-  }
+      names.map(n => `<option>${n}</option>`).join('');
+    return;
+  } catch(e) { /* fall through to hardcoded */ }
+
+  // Last resort: hardcoded list
+  sel.innerHTML = '<option value="">— Select your name —</option>' +
+    FALLBACK_NAMES.map(n => `<option>${n}</option>`).join('');
 }
 
 BLAuth.init({
