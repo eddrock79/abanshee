@@ -408,6 +408,7 @@ let dbSaving = false;
 
 /* Convert share links to direct-load / thumbnail URLs */
 function dbThumbUrl(url){
+  if(!url) return "";
   if(/dropbox\.com/i.test(url)){
     if(/[?&]dl=\d/.test(url)) return url.replace(/([?&])dl=\d/,"$1dl=1");
     return url.includes("?")?url+"&raw=1":url+"?raw=1";
@@ -418,7 +419,7 @@ function dbThumbUrl(url){
   if(go) return `https://drive.google.com/thumbnail?id=${go[1]}&sz=w120`;
   return url;
 }
-function dbIsImage(url){ return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url.split("?")[0])||/dropbox|drive\.google/i.test(url); }
+function dbIsImage(url){ if(!url) return false; return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url.split("?")[0])||/dropbox|drive\.google/i.test(url); }
 function esc(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 async function dbFetch(){
@@ -428,7 +429,12 @@ async function dbFetch(){
     const r=await fetch(api+"?action=db_list&t="+Date.now(),{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     const j=await r.json();
-    dbItems=Array.isArray(j)?j:[];
+    // Filter to only items that actually have a url field — guards against
+    // the old script version returning cinema entries instead of poster list
+    dbItems=Array.isArray(j)?j.filter(it=>it&&it.url):[];
+    if(!dbItems.length && Array.isArray(j) && j.length && j[0].title){
+      flash("dbMsg","Old script version still active — please redeploy with 'New version' in Apps Script.",true);
+    }
   }catch(e){
     flash("dbMsg","Couldn't load poster list ("+e.message+").",true);
     dbItems=[];
