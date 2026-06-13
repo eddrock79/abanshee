@@ -111,7 +111,42 @@ h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clam
 .fx-btn:hover{border-color:var(--rule-strong);color:var(--bone)}
 .fx-btn.on{border-color:var(--spectre);color:var(--spectre);background:var(--spectre-soft)}
 
-/* promotions preview */
+.panel.disp{--accent:#74e3c1}
+
+/* url list */
+.db-list{margin:12px 0 0;display:flex;flex-direction:column;gap:6px;min-height:0}
+.db-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:rgba(255,255,255,.03);border:1px solid var(--rule);border-radius:4px;
+  cursor:grab;transition:background .2s,border-color .2s;user-select:none}
+.db-row:active{cursor:grabbing}
+.db-row.drag-over{border-color:var(--spectre);background:var(--spectre-soft)}
+.db-row .db-thumb{
+  width:44px;height:44px;flex:0 0 44px;border-radius:3px;overflow:hidden;
+  background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;
+  font-size:20px;color:var(--bone-faint);
+}
+.db-row .db-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.db-row .db-info{flex:1 1 auto;min-width:0}
+.db-row .db-name{font-family:"Cinzel",serif;font-size:13px;font-weight:600;
+  letter-spacing:.05em;color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-row .db-url{font-family:"EB Garamond",serif;font-size:12px;color:var(--bone-faint);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-row .db-del{background:none;border:none;color:var(--bone-faint);cursor:pointer;
+  font-size:18px;padding:4px 6px;border-radius:3px;transition:.2s;flex:0 0 auto;line-height:1}
+.db-row .db-del:hover{color:var(--ember);background:var(--ember-soft)}
+.db-empty-note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);
+  font-size:14px;padding:14px 4px;text-align:center}
+
+/* add row */
+.db-add-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.db-add-row input[type=url]{flex:2 1 260px;background:rgba(255,255,255,.04);
+  border:1px solid var(--rule);border-radius:3px;color:var(--bone);
+  font-family:"EB Garamond",serif;font-size:14px;padding:10px 12px}
+.db-add-row input[type=text]{flex:1 1 130px;background:rgba(255,255,255,.04);
+  border:1px solid var(--rule);border-radius:3px;color:var(--bone);
+  font-family:"EB Garamond",serif;font-size:14px;padding:10px 12px}
+.db-add-row input:focus{outline:none;border-color:var(--spectre)}
+
 .pp{margin-top:6px;border:1px solid var(--rule);border-radius:5px;overflow:hidden}
 .pp .pp-row{display:flex;align-items:baseline;gap:.6em;padding:9px 14px;border-top:1px solid var(--rule)}
 .pp .pp-row:first-child{border-top:none}
@@ -173,6 +208,30 @@ h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clam
     </p>
   </section>
 
+  <!-- ───────── DISPLAY BOARD ───────── -->
+  <section class="panel disp">
+    <h2><span class="g">📁</span> Display Board — Posters & Notices</h2>
+    <p class="desc">Paste in a Dropbox or Google Drive share link for each poster or image. They cycle full-screen on the Display Board. Drag rows to reorder.</p>
+
+    <div id="dbList" class="db-list"></div>
+
+    <div class="db-add-row">
+      <input type="url" id="dbUrlInput" placeholder="Paste Dropbox or Google Drive share link…" autocomplete="off" spellcheck="false">
+      <input type="text" id="dbNameInput" placeholder="Label (optional)" autocomplete="off">
+      <button class="btn" id="dbAddBtn" style="--accent:#74e3c1">＋ Add</button>
+    </div>
+    <div class="msg" id="dbMsg"></div>
+
+    <div class="actions" style="margin-top:12px">
+      <a class="btn ghost" href="board.html?mode=displayboard" style="text-decoration:none;--c:var(--spectre)">▦ Preview the board</a>
+    </div>
+
+    <p class="note" style="margin-top:14px">
+      <b>Dropbox:</b> right-click any file → Share → Copy link. Works with .jpg, .png, .gif, .webp and .pdf.<br>
+      <b>Google Drive:</b> right-click → Share → Anyone with the link → Copy link.
+    </p>
+  </section>
+
   <!-- ───────── CINEMA ───────── -->
   <section class="panel cine">
     <h2><span class="g">▦</span> Cinema</h2>
@@ -190,16 +249,21 @@ h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clam
 
 <script>
 /* ===================== CONFIG ===================== */
+/* Same API as cinema-edit.html — display board posters are stored there too. */
+const CINEMA_API   = "https://script.google.com/macros/s/AKfycbzj8sdKBSn9Kfc5o5_Aoj07q62VxGGtIvW5Mt4Y6MfjkDxqUaLq5ckKzb8eYUlKQACv/exec"; // same /exec URL as board.html CONFIG.CINEMA_API
+const MANAGER_PIN  = "1234";   // same PIN as the Apps Script
+
 /* Same prices sheet as board.html. Paste the sheet ID once you've made it. */
 const PRICES_SHEET_ID = "";       // <-- paste the prices sheet ID here (same as board.html)
 const PRICES_TAB      = "prices";
 
 /* Boards offered in the slideshow. mode must match board.html's MODES keys. */
 const BOARDS = [
-  { mode:"normal", title:"Tonight",    sub:"Gigs + tonight's film", secs:18, on:true  },
-  { mode:"cinema", title:"Cinema",     sub:"Big-screen poster",     secs:20, on:true  },
-  { mode:"prices", title:"Promotions", sub:"Members' drink prices", secs:14, on:true  },
-  { mode:"fringe", title:"Festival",   sub:"Free Fringe listings",  secs:22, on:false },
+  { mode:"normal",       title:"Tonight",       sub:"Gigs + tonight's film",     secs:18, on:true  },
+  { mode:"cinema",       title:"Cinema",        sub:"Big-screen poster",         secs:20, on:true  },
+  { mode:"prices",       title:"Promotions",    sub:"Members' drink prices",     secs:14, on:true  },
+  { mode:"displayboard", title:"Display Board", sub:"Posters & notices",         secs:20, on:false },
+  { mode:"fringe",       title:"Festival",      sub:"Free Fringe listings",      secs:22, on:false },
 ];
 const LS_KEY = "whatson_slideshow";   // remembers your last choice on this device
 const FX_NAMES={1:"Ghost Fade",2:"Static",3:"Fog Roll",4:"Soul Rise",5:"Blood Drain",6:"Flicker",7:"Veil Drop",8:"Warp",9:"Apparition",10:"Shadow Creep",0:"Random"};
@@ -328,12 +392,135 @@ async function loadPromo(){
   }catch(e){ flash("promoMsg","Couldn't read the prices sheet ("+e.message+"). Check it's shared ‘Anyone with the link – Viewer’.",true); }
 }
 
+/* ===================== DISPLAY BOARD ===================== */
+/* Poster list is stored in the same Apps Script as cinema so it syncs
+   across every machine automatically. CINEMA_API is reused — just a
+   second action on the same /exec endpoint.                          */
+
+// Read the CINEMA_API value from the same place cinema-edit.html uses it.
+// It's defined in bl-config.js or hardcoded alongside PRICES_SHEET_ID.
+// We grab it at runtime so there's only one place to update it.
+function dbApiUrl(){ return (window.BLConfig&&BLConfig.CINEMA_API)||CINEMA_API||""; }
+
+// In-memory working copy (loaded from API on start, kept current locally)
+let dbItems = [];
+let dbSaving = false;
+
+/* Convert share links to direct-load / thumbnail URLs */
+function dbThumbUrl(url){
+  if(/dropbox\.com/i.test(url)){
+    if(/[?&]dl=\d/.test(url)) return url.replace(/([?&])dl=\d/,"$1dl=1");
+    return url.includes("?")?url+"&raw=1":url+"?raw=1";
+  }
+  const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+  if(gd) return `https://drive.google.com/thumbnail?id=${gd[1]}&sz=w120`;
+  const go=url.match(/drive\.google\.com\/open\?id=([^&]+)/i);
+  if(go) return `https://drive.google.com/thumbnail?id=${go[1]}&sz=w120`;
+  return url;
+}
+function dbIsImage(url){ return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url.split("?")[0])||/dropbox|drive\.google/i.test(url); }
+function esc(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+async function dbFetch(){
+  const api=dbApiUrl();
+  if(!api){ dbItems=[]; dbRender(); return; }
+  try{
+    const r=await fetch(api+"?action=db_list&t="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    dbItems=Array.isArray(j)?j:[];
+  }catch(e){
+    flash("dbMsg","Couldn't load poster list ("+e.message+").",true);
+    dbItems=[];
+  }
+  dbRender();
+}
+
+async function dbPush(){
+  const api=dbApiUrl();
+  if(!api){ flash("dbMsg","No API URL set — add CINEMA_API to your config.",true); return; }
+  if(dbSaving) return;
+  dbSaving=true;
+  flash("dbMsg","Saving…");
+  try{
+    const r=await fetch(api,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({pin:MANAGER_PIN, action:"db_save", items:dbItems})});
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||"unknown error");
+    flash("dbMsg","Saved ✓  — live on all screens.");
+  }catch(e){
+    flash("dbMsg","Save failed: "+e.message,true);
+  }
+  dbSaving=false;
+}
+
+function dbRender(){
+  const list=$("dbList");
+  if(!dbItems.length){
+    list.innerHTML=`<div class="db-empty-note">No posters added yet — paste a link below.</div>`;
+    return;
+  }
+  list.innerHTML="";
+  dbItems.forEach((it,i)=>{
+    const row=document.createElement("div");
+    row.className="db-row"; row.draggable=true; row.dataset.i=i;
+    const thumb=dbIsImage(it.url)
+      ? `<img src="${esc(dbThumbUrl(it.url))}" alt="" onerror="this.parentNode.innerHTML='📄'">`
+      : `📄`;
+    const displayName=it.name||it.url.split("/").pop().split("?")[0].replace(/[-_]/g," ").replace(/\.\w+$/,"").trim()||"Untitled";
+    const shortUrl=it.url.length>60?it.url.slice(0,57)+"…":it.url;
+    row.innerHTML=`
+      <div class="db-thumb">${thumb}</div>
+      <div class="db-info">
+        <div class="db-name">${esc(displayName)}</div>
+        <div class="db-url">${esc(shortUrl)}</div>
+      </div>
+      <button class="db-del" data-i="${i}" title="Remove">×</button>`;
+    list.appendChild(row);
+  });
+
+  // Delete
+  list.querySelectorAll(".db-del").forEach(b=> b.onclick=e=>{
+    e.stopPropagation();
+    dbItems.splice(+b.dataset.i,1);
+    dbRender(); dbPush();
+  });
+
+  // Drag-to-reorder
+  let dragIdx=null;
+  list.querySelectorAll(".db-row").forEach(row=>{
+    row.addEventListener("dragstart",e=>{ dragIdx=+row.dataset.i; e.dataTransfer.effectAllowed="move"; });
+    row.addEventListener("dragover",e=>{ e.preventDefault();
+      list.querySelectorAll(".db-row").forEach(r=>r.classList.remove("drag-over"));
+      row.classList.add("drag-over"); });
+    row.addEventListener("dragleave",()=> row.classList.remove("drag-over"));
+    row.addEventListener("drop",e=>{ e.preventDefault(); row.classList.remove("drag-over");
+      const toIdx=+row.dataset.i; if(dragIdx===null||dragIdx===toIdx) return;
+      const [moved]=dbItems.splice(dragIdx,1); dbItems.splice(toIdx,0,moved);
+      dragIdx=null; dbRender(); dbPush(); });
+  });
+}
+
+$("dbAddBtn").onclick=function(){
+  const url=$("dbUrlInput").value.trim();
+  const name=$("dbNameInput").value.trim();
+  if(!url){ flash("dbMsg","Paste a link first.",true); return; }
+  if(!/^https?:\/\//i.test(url)){ flash("dbMsg","Needs to be a full https:// URL.",true); return; }
+  if(dbItems.some(it=>it.url===url)){ flash("dbMsg","That link is already in the list.",true); return; }
+  dbItems.push({url,name});
+  $("dbUrlInput").value=""; $("dbNameInput").value="";
+  dbRender(); dbPush();
+};
+
+$("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });
+
 /* ===================== INIT (manager only) ===================== */
 function start(){
   loadSaved();
   renderBoardRows();
   renderFxPicker();
   loadPromo();
+  dbFetch();
 }
 if(window.BLAuth){ BLAuth.init({appName:"What's On · Settings", require:"manager", onReady:start}); }
 else { start(); }   // if the auth script isn't present, still work locally
