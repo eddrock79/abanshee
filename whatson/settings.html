@@ -449,7 +449,9 @@ async function dbPush(){
   dbSaving=true;
   flash("dbMsg","Saving…");
   try{
-    const r=await fetch(api,{method:"POST",headers:{"Content-Type":"application/json"},
+    // No Content-Type header — Google Apps Script blocks preflighted requests.
+    // Sending as plain body (same pattern as cinema-edit.html) works fine.
+    const r=await fetch(api,{method:"POST",
       body:JSON.stringify({pin:MANAGER_PIN, action:"db_save", items:dbItems})});
     const j=await r.json();
     if(!j.ok) throw new Error(j.error||"unknown error");
