@@ -284,7 +284,7 @@
     isManager, isMaster,
     isStaff(){ const a=getAuth(); return !!a && (a.role==='staff'||a.role==='manager'); },
     logout(){ localStorage.removeItem(AUTH_KEY); location.reload(); },
-    switchVenue(){ try{localStorage.removeItem(AUTH_KEY);localStorage.removeItem(PIN_CACHE);sessionStorage.clear();}catch(e){} location.href='/'; },
+    switchVenue(){ try{localStorage.removeItem(AUTH_KEY);localStorage.removeItem(PIN_CACHE);sessionStorage.clear();}catch(e){} location.href='https://eddrock79.github.io'; },
     applyRoleVisibility,
     refreshChip
   };
