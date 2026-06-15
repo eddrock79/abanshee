@@ -1,11 +1,11 @@
 {
   "thisWeek": {
-    "label": "Sun 14 Jun 2026",
+    "label": "Sun 21 Jun 2026",
     "file": "this-week.html"
   },
   "nextWeek": {
-    "label": "Sun 21 Jun 2026",
+    "label": "Sun 28 Jun 2026",
     "file": "next-week.html"
   },
-  "generated": "2026-06-11T09:24:43"
+  "generated": "2026-06-15T08:00:12"
 }
