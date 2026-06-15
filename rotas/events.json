@@ -1,56 +1,6 @@
 {
-  "generated": "2026-06-11T09:24:45",
+  "generated": "2026-06-15T08:00:14",
   "events": [
-    {
-      "date": "2026-06-08",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-06-09",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-06-09",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-10",
-      "room": "Chamber Room",
-      "what": "Booking + Open Mic"
-    },
-    {
-      "date": "2026-06-12",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-06-12",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-13",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-06-13",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-06-14",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
-    {
-      "date": "2026-06-14",
-      "room": "Cinema",
-      "what": "Sound scape"
-    },
     {
       "date": "2026-06-15",
       "room": "Cinema",
@@ -125,6 +75,66 @@
       "date": "2026-06-21",
       "room": "Other",
       "what": "Fathers Day"
+    },
+    {
+      "date": "2026-06-22",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-06-23",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-06-23",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-24",
+      "room": "Chamber Room",
+      "what": "Gig + Open Mic"
+    },
+    {
+      "date": "2026-06-25",
+      "room": "Chamber Room",
+      "what": "noisy Ghosat"
+    },
+    {
+      "date": "2026-06-26",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-26",
+      "room": "Cinema",
+      "what": "Fucking clowns"
+    },
+    {
+      "date": "2026-06-27",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-27",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-06-27",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-06-28",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-06-28",
+      "room": "Cinema",
+      "what": "Sound scape"
     }
   ]
 }
