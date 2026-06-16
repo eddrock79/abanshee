@@ -1198,11 +1198,12 @@ body.landscape .masthead{
   display:flex;align-items:center;justify-content:space-between;
   text-align:left;padding-bottom:clamp(8px,1.2vh,14px);
 }
-body.landscape .masthead .bh-left{flex:0 0 auto}
-body.landscape .masthead .eyebrow{margin-bottom:.3em}
+/* eyebrow + h1 are grouped into .mh-left by JS in landscape mode */
+body.landscape .mh-left{flex:0 0 auto;display:flex;flex-direction:column}
+body.landscape .masthead .eyebrow{margin-bottom:.2em}
 body.landscape .masthead h1{font-size:clamp(18px,2.8vw,38px)}
 body.landscape .masthead .sub{
-  flex:0 0 auto;flex-direction:column;align-items:flex-end;gap:.2em;margin-top:0;
+  flex:0 0 auto;flex-direction:column;align-items:flex-end;gap:.15em;margin-top:0;
 }
 body.landscape .masthead .when{font-size:clamp(11px,1.2vw,18px)}
 body.landscape .masthead .clock{font-size:clamp(14px,1.8vw,26px)}
@@ -1233,6 +1234,31 @@ body.landscape .show .genre{font-size:clamp(7px,.8vw,10px)}
 body.landscape .show .desc{font-size:clamp(9px,1vw,13px)}
 body.landscape .ghostslot{font-size:clamp(9px,1vw,13px)}
 body.landscape .empty-room{font-size:clamp(10px,1.1vw,15px)}
+
+/* ── prices board in landscape ── */
+/* Scale down the oversized portrait vw-based fonts, use full width efficiently */
+body.landscape .prices{padding-top:clamp(4px,.8vh,10px)}
+body.landscape .pr-member-card{font-size:clamp(14px,2.2vw,36px);padding:clamp(4px,.6vh,8px) 0 clamp(2px,.4vh,5px)}
+body.landscape .prices .pr-note{font-size:clamp(11px,1.3vw,20px);margin-bottom:clamp(4px,.8vh,10px)}
+body.landscape .prices .pr-list{
+  grid-template-columns:1fr 1fr 1fr;  /* 3 columns instead of 2 — fills wide screen better */
+  gap:clamp(5px,.8vh,10px) clamp(8px,1vw,14px);
+}
+body.landscape .pr-row{padding:clamp(4px,.6vh,8px) clamp(8px,1.1vw,14px)}
+body.landscape .pr-name{font-size:clamp(14px,1.8vw,28px)}
+body.landscape .pr-sub{font-size:clamp(7px,.85vw,12px)}
+body.landscape .pr-price{font-size:clamp(14px,1.8vw,28px)}
+/* cocktails + shooters section */
+body.landscape .pr-drinks{margin-top:clamp(4px,.6vh,8px);padding-top:clamp(4px,.6vh,8px);gap:clamp(10px,1.4vw,18px)}
+body.landscape .prd-head{font-size:clamp(14px,2vw,30px);margin-bottom:clamp(3px,.5vh,6px);gap:clamp(1px,.2vh,3px)}
+body.landscape .prd-head .prd-heading{font-size:clamp(14px,2vw,30px)}
+body.landscape .prd-head .prd-price{font-size:clamp(13px,1.6vw,24px)}
+body.landscape .prd-list{gap:clamp(3px,.5vh,7px)}
+body.landscape .prd-card{padding:clamp(4px,.6vh,9px) clamp(8px,1.1vw,14px)}
+body.landscape .prd-name{font-size:clamp(12px,1.5vw,22px)}
+body.landscape .prd-ing{font-size:clamp(10px,1.2vw,18px)}
+body.landscape .prd-icon svg{width:clamp(18px,2.2vw,34px);height:clamp(18px,2.2vw,34px)}
+body.landscape .prd-card .prd-icon{font-size:clamp(14px,1.8vw,26px);right:clamp(4px,.7vw,10px)}
 
 /* ── tonight layout: gigs left, cinema right ── */
 body.landscape .tonight{flex-direction:row;gap:clamp(12px,1.6vw,22px)}
@@ -1615,7 +1641,23 @@ const SAMPLE_CINEMA = [
    ===================================================================== */
 const params = new URLSearchParams(location.search);
 const IS_LANDSCAPE = params.get("landscape") === "1";
-if(IS_LANDSCAPE) document.body.classList.add("landscape");
+if(IS_LANDSCAPE){
+  document.body.classList.add("landscape");
+  // Group eyebrow + title into a left-hand wrapper so the masthead flex-row works
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const mh = document.querySelector(".masthead");
+    if(!mh) return;
+    const eyebrow = mh.querySelector(".eyebrow");
+    const h1 = mh.querySelector("h1");
+    if(eyebrow && h1){
+      const wrap = document.createElement("div");
+      wrap.className = "mh-left";
+      mh.insertBefore(wrap, eyebrow);
+      wrap.appendChild(eyebrow);
+      wrap.appendChild(h1);
+    }
+  });
+}
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
