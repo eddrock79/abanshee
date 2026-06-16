@@ -1,289 +1,299 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>The Banshee Labyrinth — What's On · Settings</title>
-<meta name="theme-color" content="#0a0a0d">
+<meta name="theme-color" content="#0d0d0f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="../bl-config.js"></script>
 <script src="../bl-auth.js"></script>
-
-<!-- ===================================================================
-     WHAT'S ON — SETTINGS  (manager-only)
-     ===================================================================
-     Three jobs in one place:
-       1. SLIDESHOW   build a rotating display link (which boards + how long
-                      each), then open it on the bar screen.
-       2. PROMOTIONS  the members' price list lives in a Google Sheet (like
-                      the other boards). Preview it here, edit it in Sheets.
-       3. CINEMA      jump to the film editor (cinema-edit.html).
-
-     One value to set after you make the prices sheet:
-        PRICES_SHEET_ID below  (and the same one in board.html's CONFIG).
-     =================================================================== -->
 <style>
 :root{
-  --void:#0a0a0d;--ink:#060507;--bone:#ece6d6;--bone-dim:#b3ab95;--bone-faint:#6f6957;
-  --spectre:#74e3c1;--spectre-soft:rgba(116,227,193,.16);--ember:#e3492f;--ember-soft:rgba(227,73,47,.18);
-  --gold:#d9a441;--rule:rgba(236,230,214,.12);--rule-strong:rgba(236,230,214,.22);
-  --shadow:0 18px 50px -20px rgba(0,0,0,.9);
+  --bg:#0d0d0f; --surface:#17171a; --surface2:#1f1f24; --border:#2a2a30;
+  --accent:#e8b84b; --accent-dim:rgba(232,184,75,.12);
+  --green:#3ecf6e; --green-dim:rgba(62,207,110,.12);
+  --red:#e85d5d; --red-dim:rgba(232,93,93,.1);
+  --purple:#a78bfa; --purple-dim:rgba(167,139,250,.12);
+  --teal:#4dd9ac; --teal-dim:rgba(77,217,172,.12);
+  --text:#e8e8ec; --muted:#6b6b78; --faint:#3a3a42;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%}
-body{background:var(--ink);color:var(--bone);font-family:"EB Garamond",Georgia,serif;
-  -webkit-font-smoothing:antialiased;position:relative;min-height:100vh}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
 
-/* atmosphere (quieter than the display) */
-.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.atmos .vignette{position:absolute;inset:0;background:
-  radial-gradient(120% 80% at 50% -10%,rgba(116,227,193,.05),transparent 55%),
-  radial-gradient(140% 120% at 50% 120%,rgba(227,73,47,.045),transparent 55%),
-  radial-gradient(100% 100% at 50% 45%,transparent 40%,rgba(0,0,0,.5) 100%)}
-.atmos .fog{position:absolute;width:80vmax;height:80vmax;border-radius:50%;filter:blur(64px);opacity:.4;mix-blend-mode:screen}
-.atmos .fog.a{background:radial-gradient(circle,rgba(116,227,193,.10),transparent 65%);top:-22vmax;left:-26vmax;animation:d1 70s ease-in-out infinite}
-.atmos .fog.b{background:radial-gradient(circle,rgba(70,90,110,.16),transparent 65%);bottom:-26vmax;right:-26vmax;animation:d2 92s ease-in-out infinite}
-@keyframes d1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(12vmax,7vmax) scale(1.16)}}
-@keyframes d2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-10vmax,-5vmax) scale(.92)}}
+/* ── top bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-link{font-size:12px;color:var(--muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:6px;transition:.15s}
+.topbar-link:hover{color:var(--text);border-color:var(--faint)}
 
-.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:clamp(26px,5vw,52px) clamp(18px,4vw,40px) 70px}
-.eyebrow{font-family:"Cinzel",serif;letter-spacing:.42em;text-transform:uppercase;
-  font-size:clamp(9px,1.1vw,12px);color:var(--spectre);opacity:.85;text-indent:.42em}
-h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clamp(30px,5.4vw,52px);
-  line-height:1;margin:6px 0 4px;text-shadow:0 0 30px rgba(116,227,193,.12)}
-.lead{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-dim);font-size:clamp(14px,1.7vw,19px)}
+/* ── tab nav ── */
+.tabbar{display:flex;gap:6px;padding:12px 20px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap}
+.tb{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;transition:.15s;-webkit-tap-highlight-color:transparent}
+.tb:hover{color:var(--text);border-color:var(--faint)}
+.tb.on{background:var(--accent-dim);color:var(--accent);border-color:rgba(232,184,75,.4)}
 
-.panel{margin-top:clamp(22px,3.4vh,34px);border:1px solid var(--rule);border-radius:8px;
-  background:linear-gradient(120deg,rgba(255,255,255,.022),rgba(255,255,255,.005));
-  box-shadow:var(--shadow);padding:clamp(18px,2.6vw,28px);position:relative;overflow:hidden}
-.panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--spectre));opacity:.5;box-shadow:0 0 16px var(--accent,var(--spectre))}
-.panel.cine{--accent:#9d7bff}
-.panel.promo{--accent:var(--gold)}
-.panel h2{font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
-  font-size:clamp(15px,2vw,21px);color:var(--bone);display:flex;align-items:center;gap:.5em}
-.panel h2 .g{color:var(--accent,var(--spectre));filter:drop-shadow(0 0 8px var(--spectre-soft))}
-.panel .desc{font-family:"EB Garamond",serif;color:var(--bone-dim);font-size:clamp(13px,1.5vw,16px);
-  line-height:1.45;margin:8px 0 16px}
+/* ── page ── */
+.page{display:none;padding:20px;max-width:860px;margin:0 auto;flex-direction:column;gap:16px}
+.page.on{display:flex}
 
-/* slideshow board rows */
-.brow{display:flex;align-items:center;gap:14px;padding:11px 4px;border-top:1px solid var(--rule)}
+/* ── section card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-head-left{display:flex;align-items:center;gap:10px}
+.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.card-icon.amber{background:var(--accent-dim);color:var(--accent)}
+.card-icon.green{background:var(--green-dim);color:var(--green)}
+.card-icon.purple{background:var(--purple-dim);color:var(--purple)}
+.card-icon.teal{background:var(--teal-dim);color:var(--teal)}
+.card-icon.red{background:var(--red-dim);color:var(--red)}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.card-head-right{display:flex;gap:8px;flex-shrink:0}
+
+/* ── board rows (toggles) ── */
+.brow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-top:1px solid var(--border)}
 .brow:first-of-type{border-top:none}
-.brow .name{flex:1 1 auto;min-width:0}
-.brow .name b{font-family:"Cinzel",serif;font-weight:600;letter-spacing:.06em;color:var(--bone);font-size:clamp(14px,1.7vw,17px)}
-.brow .name span{display:block;font-family:"EB Garamond",serif;color:var(--bone-faint);font-size:13px}
-.brow .secs{display:flex;align-items:center;gap:6px;color:var(--bone-faint);font-size:13px;font-family:"Cinzel",serif}
-.brow input[type=number]{width:64px;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:3px;
-  color:var(--bone);font-family:"EB Garamond",serif;font-size:15px;padding:7px 9px;text-align:center}
-/* toggle */
-.switch{position:relative;width:46px;height:24px;flex:0 0 auto}
-.switch input{opacity:0;width:0;height:0}
-.slider{position:absolute;inset:0;background:rgba(255,255,255,.08);border:1px solid var(--rule);border-radius:24px;cursor:pointer;transition:.25s}
-.slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:var(--bone-dim);border-radius:50%;transition:.25s}
-.switch input:checked+.slider{background:var(--spectre-soft);border-color:var(--spectre)}
-.switch input:checked+.slider::before{transform:translateX(22px);background:var(--spectre)}
-.brow.off{opacity:.5}
-.brow.off input[type=number]{opacity:.5}
+.brow.off{opacity:.45}
+.brow-toggle{position:relative;width:34px;height:20px;flex-shrink:0;cursor:pointer}
+.brow-toggle input{opacity:0;width:0;height:0;position:absolute}
+.brow-track{position:absolute;inset:0;border-radius:10px;background:var(--faint);transition:.2s}
+.brow-track::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+.brow-toggle input:checked+.brow-track{background:var(--green)}
+.brow-toggle input:checked+.brow-track::after{left:17px}
+.brow-name{flex:1;min-width:0}
+.brow-name b{font-size:14px;font-weight:500;color:var(--text);display:block}
+.brow-name span{font-size:12px;color:var(--muted)}
+.brow-secs{display:flex;align-items:center;gap:6px}
+.brow-secs input{width:52px;text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:5px 0;-moz-appearance:textfield}
+.brow-secs input::-webkit-outer-spin-button,.brow-secs input::-webkit-inner-spin-button{-webkit-appearance:none}
+.brow-secs input:focus{outline:none;border-color:var(--accent)}
+.brow-secs label{font-size:12px;color:var(--muted)}
 
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
-.btn{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
-  border-radius:4px;padding:12px 18px;cursor:pointer;border:1px solid var(--spectre);background:var(--spectre);color:var(--ink);transition:.2s}
-.btn:hover{filter:brightness(1.12)}
-.btn.ghost{background:transparent;color:var(--spectre)}
-.btn.gold{border-color:var(--gold);background:var(--gold);color:#1a1306}
-.btn.gold.ghost{background:transparent;color:var(--gold)}
-.btn.violet{border-color:#9d7bff;background:#9d7bff;color:#140b22}
-.btn[disabled]{opacity:.4;cursor:not-allowed;filter:none}
-.linkbox{margin-top:14px}
-.linkbox label{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);display:block;margin-bottom:5px}
-.linkbox input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:3px;
-  color:var(--bone-dim);font-family:"EB Garamond",serif;font-size:13px;padding:9px 11px}
-.note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:13px;margin-top:12px;line-height:1.5}
-.msg{font-family:"EB Garamond",serif;font-size:13px;margin-top:10px;min-height:1.2em;color:var(--spectre)}
-.msg.warn{color:#ffb1a3}
-/* transition picker */
-.tpick{margin:18px 0 0}
-.tp-label{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:8px}
-.tp-btns{display:flex;flex-wrap:wrap;gap:6px}
-.fx-btn{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--bone-dim);background:rgba(255,255,255,.03);border:1px solid var(--rule);border-radius:3px;padding:7px 10px;cursor:pointer;transition:.2s;white-space:nowrap}
-.fx-btn:hover{border-color:var(--rule-strong);color:var(--bone)}
-.fx-btn.on{border-color:var(--spectre);color:var(--spectre);background:var(--spectre-soft)}
+/* ── fx picker ── */
+.fx-wrap{padding:14px 18px;border-top:1px solid var(--border)}
+.fx-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.fx-btns{display:flex;flex-wrap:wrap;gap:6px}
+.fx-btn{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap}
+.fx-btn:hover{border-color:var(--faint);color:var(--text)}
+.fx-btn.on{border-color:rgba(232,184,75,.5);color:var(--accent);background:var(--accent-dim)}
 
-.panel.disp{--accent:#74e3c1}
+/* ── link box ── */
+.link-box{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.link-url{flex:1;font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'DM Sans',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:text;user-select:all}
+.link-url:focus{outline:none;border-color:var(--accent)}
 
-/* url list */
-.db-list{margin:12px 0 0;display:flex;flex-direction:column;gap:6px;min-height:0}
-.db-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:rgba(255,255,255,.03);border:1px solid var(--rule);border-radius:4px;
-  cursor:grab;transition:background .2s,border-color .2s;user-select:none}
+/* ── action buttons ── */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.15s;white-space:nowrap;border:1px solid var(--border);background:var(--surface2);color:var(--muted)}
+.btn:hover{color:var(--text);border-color:var(--faint)}
+.btn.primary{background:var(--accent);color:#1a1306;border-color:var(--accent);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.green{background:var(--green);color:#0a1f12;border-color:var(--green);font-weight:600}
+.btn.green:hover{filter:brightness(1.08)}
+.btn.purple{background:var(--purple);color:#0f0b22;border-color:var(--purple);font-weight:600}
+.btn.purple:hover{filter:brightness(1.08)}
+.btn[disabled]{opacity:.35;cursor:not-allowed;filter:none}
+.btn-row{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── prices preview ── */
+.pr-table{margin:0;border-collapse:collapse;width:100%}
+.pr-table tr{border-top:1px solid var(--border)}
+.pr-table tr:first-child{border-top:none}
+.pr-table td{padding:9px 18px;font-size:13px}
+.pr-table td:first-child{color:var(--text);font-weight:500}
+.pr-table td:last-child{color:var(--accent);font-weight:600;text-align:right}
+.pr-empty{padding:20px 18px;font-size:13px;color:var(--muted);font-style:italic}
+
+/* ── poster list ── */
+.db-list{display:flex;flex-direction:column}
+.db-row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-top:1px solid var(--border);cursor:grab}
+.db-row:first-child{border-top:none}
 .db-row:active{cursor:grabbing}
-.db-row.drag-over{border-color:var(--spectre);background:var(--spectre-soft)}
-.db-row .db-thumb{
-  width:44px;height:44px;flex:0 0 44px;border-radius:3px;overflow:hidden;
-  background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;
-  font-size:20px;color:var(--bone-faint);
-}
-.db-row .db-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.db-row .db-info{flex:1 1 auto;min-width:0}
-.db-row .db-name{font-family:"Cinzel",serif;font-size:13px;font-weight:600;
-  letter-spacing:.05em;color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.db-row .db-url{font-family:"EB Garamond",serif;font-size:12px;color:var(--bone-faint);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.db-row .db-del{background:none;border:none;color:var(--bone-faint);cursor:pointer;
-  font-size:18px;padding:4px 6px;border-radius:3px;transition:.2s;flex:0 0 auto;line-height:1}
-.db-row .db-del:hover{color:var(--ember);background:var(--ember-soft)}
-.db-empty-note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);
-  font-size:14px;padding:14px 4px;text-align:center}
+.db-row.drag-over{background:var(--accent-dim);border-color:rgba(232,184,75,.4)}
+.db-thumb{width:40px;height:40px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}
+.db-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.db-info{flex:1;min-width:0}
+.db-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-url{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-del{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;padding:5px 9px;font-size:13px;transition:.15s;flex-shrink:0}
+.db-del:hover{color:var(--red);border-color:rgba(232,93,93,.4);background:var(--red-dim)}
+.db-add-row{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
+.db-input{flex:2 1 220px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px}
+.db-input-name{flex:1 1 120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px}
+.db-input:focus,.db-input-name:focus{outline:none;border-color:var(--accent)}
+.db-empty{padding:20px 18px;font-size:13px;color:var(--muted);font-style:italic;text-align:center}
 
-/* add row */
-.db-add-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.db-add-row input[type=url]{flex:2 1 260px;background:rgba(255,255,255,.04);
-  border:1px solid var(--rule);border-radius:3px;color:var(--bone);
-  font-family:"EB Garamond",serif;font-size:14px;padding:10px 12px}
-.db-add-row input[type=text]{flex:1 1 130px;background:rgba(255,255,255,.04);
-  border:1px solid var(--rule);border-radius:3px;color:var(--bone);
-  font-family:"EB Garamond",serif;font-size:14px;padding:10px 12px}
-.db-add-row input:focus{outline:none;border-color:var(--spectre)}
+/* ── msg ── */
+.msg{font-size:13px;font-style:italic;padding:10px 18px;border-top:1px solid var(--border);min-height:1px;display:none}
+.msg.show{display:block}
+.msg.ok{color:var(--green)}
+.msg.warn{color:var(--red)}
 
-.pp{margin-top:6px;border:1px solid var(--rule);border-radius:5px;overflow:hidden}
-.pp .pp-row{display:flex;align-items:baseline;gap:.6em;padding:9px 14px;border-top:1px solid var(--rule)}
-.pp .pp-row:first-child{border-top:none}
-.pp .pp-name{font-family:"EB Garamond",serif;font-weight:600;color:var(--bone)}
-.pp .pp-sub{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);margin-left:.5em}
-.pp .pp-dots{flex:1;border-bottom:1px dotted var(--rule-strong);transform:translateY(-.2em)}
-.pp .pp-price{font-family:"Cinzel",serif;font-weight:700;color:var(--gold)}
-.pp .pp-price .p2{color:var(--bone-dim);font-weight:500;margin-left:.3em}
+/* ── note ── */
+.note{padding:10px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5}
+.note b{color:var(--text);font-weight:500}
 
-.foot{margin-top:34px;display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
-.foot a{font-family:"Cinzel",serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);
-  text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:.25s}
-.foot a:hover{color:var(--spectre);border-color:var(--spectre-soft)}
-
-/* landscape panel */
-.panel.land{--accent:#9d7bff}
-.land-note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:13px;margin-top:10px;line-height:1.5}
+/* ── setup notice ── */
+.setup-notice{padding:12px 18px;border-top:1px solid var(--border);background:var(--accent-dim);display:none}
+.setup-notice.show{display:block}
+.setup-notice p{font-size:13px;color:var(--text);line-height:1.5}
+.setup-notice b{font-weight:600;color:var(--accent)}
 </style>
 </head>
 <body>
-<div class="atmos"><div class="vignette"></div><div class="fog a"></div><div class="fog b"></div></div>
 
-<div class="wrap">
-  <div class="eyebrow">The Banshee Labyrinth · What's On</div>
-  <h1>Settings</h1>
-  <p class="lead">Set up the rotating display, the members' prices, and tonight's films.</p>
+<div class="topbar">
+  <div class="topbar-logo">The Banshee · What's On</div>
+  <div class="topbar-right">
+    <a class="topbar-link" href="./">Display menu</a>
+    <a class="topbar-link" href="../home/">Staff hub</a>
+  </div>
+</div>
 
-  <!-- ───────── SLIDESHOW ───────── -->
-  <section class="panel">
-    <h2><span class="g">⟳</span> Slideshow</h2>
-    <p class="desc">Tick the boards to show and how long each stays up. The display fades between them with a slow, ghostly dissolve — each board keeps its own layout.</p>
+<div class="tabbar">
+  <button class="tb on" onclick="showTab('slideshow',this)">▶ Slideshow</button>
+  <button class="tb" onclick="showTab('landscape',this)">⬛ Landscape</button>
+  <button class="tb" onclick="showTab('posters',this)">📁 Posters</button>
+  <button class="tb" onclick="showTab('prices',this)">❖ Prices</button>
+  <button class="tb" onclick="showTab('cinema',this)">▦ Cinema</button>
+</div>
+
+<!-- ══════════ SLIDESHOW ══════════ -->
+<div class="page on" id="tab-slideshow">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon amber">▶</div>
+        <div>
+          <div class="card-title">Portrait display</div>
+          <div class="card-sub">For vertical bar screens</div>
+        </div>
+      </div>
+    </div>
     <div id="boardRows"></div>
-    <div class="tpick">
-      <div class="tp-label">Transition style</div>
-      <div class="tp-btns" id="tpBtns"></div>
+    <div class="fx-wrap">
+      <div class="fx-label">Transition style</div>
+      <div class="fx-btns" id="tpBtns"></div>
     </div>
-    <div class="actions">
-      <button class="btn" id="openHere">▶ Open on this screen</button>
-      <button class="btn ghost" id="copyLink">⧉ Copy display link</button>
+    <div class="btn-row">
+      <button class="btn primary" id="openHere">▶ Open on this screen</button>
+      <button class="btn" id="copyLink">⧉ Copy display link</button>
     </div>
-    <div class="linkbox">
-      <label>Display link</label>
-      <input type="text" id="playUrl" readonly onclick="this.select()">
-    </div>
-    <p class="note">On the bar screen: open the link, then press <b>F11</b> for fullscreen. Press <b>P</b> on that screen to pause/resume the rotation.</p>
+    <input type="text" class="link-url" id="playUrl" readonly onclick="this.select()" style="margin:0 18px 14px;width:calc(100% - 36px)">
+    <div class="note">On the bar screen: open the link, press <b>F11</b> for fullscreen. Press <b>P</b> to pause/resume the rotation.</div>
     <div class="msg" id="ssMsg"></div>
-  </section>
+  </div>
+</div>
 
-
-  <!-- ───────── LANDSCAPE SLIDESHOW ───────── -->
-  <section class="panel land" style="margin-top:clamp(14px,2vh,20px)">
-    <h2><span class="g">⬛</span> Landscape Display</h2>
-    <p class="desc">Same boards — optimised for a widescreen (16:9) monitor. Rooms sit side by side, cinema fills the screen horizontally, and the poster board shows two images at once. Pick which boards to show and for how long, then copy the link for that screen.</p>
+<!-- ══════════ LANDSCAPE ══════════ -->
+<div class="page" id="tab-landscape">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon purple">⬛</div>
+        <div>
+          <div class="card-title">Landscape display</div>
+          <div class="card-sub">For widescreen (16:9) monitors — rooms side by side, 2 posters at once</div>
+        </div>
+      </div>
+    </div>
     <div id="landRows"></div>
-    <div class="tpick">
-      <div class="tp-label">Transition style</div>
-      <div class="tp-btns" id="landFxBtns"></div>
+    <div class="fx-wrap">
+      <div class="fx-label">Transition style</div>
+      <div class="fx-btns" id="landFxBtns"></div>
     </div>
-    <div class="actions">
-      <button class="btn" style="border-color:#9d7bff;background:#9d7bff;color:#140b22" id="landOpenHere">▶ Open on this screen</button>
-      <button class="btn ghost" style="border-color:#9d7bff;color:#9d7bff" id="landCopyLink">⧉ Copy landscape link</button>
+    <div class="btn-row">
+      <button class="btn purple" id="landOpenHere">▶ Open on this screen</button>
+      <button class="btn" id="landCopyLink">⧉ Copy landscape link</button>
     </div>
-    <div class="linkbox">
-      <label>Landscape display link</label>
-      <input type="text" id="landUrl" readonly onclick="this.select()">
-    </div>
-    <p class="land-note">Open this link on the widescreen monitor, then press <b>F11</b> for fullscreen. The portrait boards above are unchanged.</p>
+    <input type="text" class="link-url" id="landUrl" readonly onclick="this.select()" style="margin:0 18px 14px;width:calc(100% - 36px)">
+    <div class="note">Portrait boards above are <b>unchanged</b> — this link is only for the widescreen monitor.</div>
     <div class="msg" id="landMsg"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- ───────── PROMOTIONS ───────── -->
-  <section class="panel promo">
-    <h2><span class="g">❖</span> Promotions — Members' Prices</h2>
-    <p class="desc">Prices live in a Google Sheet, like the other boards. Edit them there and the Promotions board updates within a few minutes.</p>
-    <div id="promoPreview"></div>
-    <div class="actions">
-      <button class="btn gold" id="editPrices">✎ Edit prices in Google Sheets</button>
-      <a class="btn gold ghost" href="board.html?mode=prices" style="text-decoration:none">▦ Preview the board</a>
+<!-- ══════════ POSTERS ══════════ -->
+<div class="page" id="tab-posters">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon teal">📁</div>
+        <div>
+          <div class="card-title">Display Board — Posters &amp; Notices</div>
+          <div class="card-sub">Paste Dropbox or Google Drive share links · drag to reorder</div>
+        </div>
+      </div>
+      <div class="card-head-right">
+        <a class="btn" href="board.html?mode=displayboard" style="text-decoration:none">▦ Preview</a>
+      </div>
     </div>
-    <div class="msg" id="promoMsg"></div>
-    <p class="note" id="promoSetup" style="display:none">
-      <b>First-time setup:</b> make a Google Sheet with a tab named <b>prices</b> and a header row
-      <b>Name · Price · Price2 · Note</b> (Price2 and Note optional). Share it “Anyone with the link – Viewer”,
-      then paste its ID into <b>PRICES_SHEET_ID</b> in both <b>settings.html</b> and <b>board.html</b>.
-    </p>
-  </section>
-
-  <!-- ───────── DISPLAY BOARD ───────── -->
-  <section class="panel disp">
-    <h2><span class="g">📁</span> Display Board — Posters & Notices</h2>
-    <p class="desc">Paste in a Dropbox or Google Drive share link for each poster or image. They cycle full-screen on the Display Board. Drag rows to reorder.</p>
-
     <div id="dbList" class="db-list"></div>
-
     <div class="db-add-row">
-      <input type="url" id="dbUrlInput" placeholder="Paste Dropbox or Google Drive share link…" autocomplete="off" spellcheck="false">
-      <input type="text" id="dbNameInput" placeholder="Label (optional)" autocomplete="off">
-      <button class="btn" id="dbAddBtn" style="--accent:#74e3c1">＋ Add</button>
+      <input type="url" class="db-input" id="dbUrlInput" placeholder="Paste Dropbox or Google Drive share link…" autocomplete="off" spellcheck="false">
+      <input type="text" class="db-input-name" id="dbNameInput" placeholder="Label (optional)" autocomplete="off">
+      <button class="btn green" id="dbAddBtn">＋ Add</button>
     </div>
     <div class="msg" id="dbMsg"></div>
-
-    <div class="actions" style="margin-top:12px">
-      <a class="btn ghost" href="board.html?mode=displayboard" style="text-decoration:none;--c:var(--spectre)">▦ Preview the board</a>
+    <div class="note">
+      <b>Dropbox:</b> right-click any file → Share → Copy link. Works with .jpg .png .gif .webp .pdf<br>
+      <b>Google Drive:</b> right-click → Share → Anyone with the link → Copy link
     </div>
+  </div>
+</div>
 
-    <p class="note" style="margin-top:14px">
-      <b>Dropbox:</b> right-click any file → Share → Copy link. Works with .jpg, .png, .gif, .webp and .pdf.<br>
-      <b>Google Drive:</b> right-click → Share → Anyone with the link → Copy link.
-    </p>
-  </section>
-
-  <!-- ───────── CINEMA ───────── -->
-  <section class="panel cine">
-    <h2><span class="g">▦</span> Cinema</h2>
-    <p class="desc">Add or change tonight's films — poster, synopsis and trailer are pulled in automatically.</p>
-    <div class="actions">
-      <a class="btn violet" href="cinema-edit.html" style="text-decoration:none">✎ Open the Cinema editor</a>
+<!-- ══════════ PRICES ══════════ -->
+<div class="page" id="tab-prices">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon amber">❖</div>
+        <div>
+          <div class="card-title">Promotions — Members' Prices</div>
+          <div class="card-sub">Prices live in a Google Sheet — edit there, board updates within a few minutes</div>
+        </div>
+      </div>
+      <div class="card-head-right">
+        <button class="btn primary" id="editPrices" disabled>✎ Edit in Sheets</button>
+        <a class="btn" href="board.html?mode=prices" style="text-decoration:none">▦ Preview</a>
+      </div>
     </div>
-  </section>
+    <div id="promoPreview"></div>
+    <div class="msg" id="promoMsg"></div>
+    <div class="setup-notice" id="promoSetup">
+      <p><b>First-time setup:</b> make a Google Sheet with a tab named <b>prices</b> and a header row <b>Name · Price · Price2 · Note</b> (Price2 and Note optional). Share it "Anyone with the link – Viewer", then paste its ID into <b>PRICES_SHEET_ID</b> in both settings.html and board.html.</p>
+    </div>
+  </div>
+</div>
 
-  <div class="foot">
-    <a href="./">↩ Display Menu</a>
-    <a href="../home/" rel="noopener">↩ Staff Hub</a>
+<!-- ══════════ CINEMA ══════════ -->
+<div class="page" id="tab-cinema">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon purple">▦</div>
+        <div>
+          <div class="card-title">Cinema</div>
+          <div class="card-sub">Add or change tonight's films — posters and synopsis pulled in automatically</div>
+        </div>
+      </div>
+      <div class="card-head-right">
+        <a class="btn purple" href="cinema-edit.html" style="text-decoration:none">✎ Open cinema editor</a>
+      </div>
+    </div>
+    <div class="note" style="border-top:none;padding-top:14px">The cinema editor lets you add films by title — it finds the poster, runtime and synopsis from TMDB automatically. You can also add Private Booking slots with a start time and duration.</div>
   </div>
 </div>
 
 <script>
 /* ===================== CONFIG ===================== */
-/* Same API as cinema-edit.html — display board posters are stored there too. */
-const CINEMA_API   = "https://script.google.com/macros/s/AKfycbyXcSKpM3363gnNH7weJwlXqLd4c8dStFdwUrP2zVyFlRkg1OqTsZcqqvqIvwwwck5Jjg/exec"; // same /exec URL as board.html CONFIG.CINEMA_API
-const MANAGER_PIN  = "1234";   // same PIN as the Apps Script
-
-/* Same prices sheet as board.html. Paste the sheet ID once you've made it. */
-const PRICES_SHEET_ID = "";       // <-- paste the prices sheet ID here (same as board.html)
+const CINEMA_API   = "https://script.google.com/macros/s/AKfycbyXcSKpM3363gnNH7weJwlXqLd4c8dStFdwUrP2zVyFlRkg1OqTsZcqqvqIvwwwck5Jjg/exec";
+const MANAGER_PIN  = "1234";
+const PRICES_SHEET_ID = "";
 const PRICES_TAB      = "prices";
 
-/* Boards offered in the slideshow. mode must match board.html's MODES keys. */
 const BOARDS = [
   { mode:"normal",       title:"Tonight",       sub:"Gigs + tonight's film",     secs:18, on:true  },
   { mode:"cinema",       title:"Cinema",        sub:"Big-screen poster",         secs:20, on:true  },
@@ -291,13 +301,20 @@ const BOARDS = [
   { mode:"displayboard", title:"Display Board", sub:"Posters & notices",         secs:20, on:false },
   { mode:"fringe",       title:"Festival",      sub:"Free Fringe listings",      secs:22, on:false },
 ];
-const LS_KEY = "whatson_slideshow";   // remembers your last choice on this device
+const LS_KEY = "whatson_slideshow";
 const FX_NAMES={1:"Ghost Fade",2:"Static",3:"Fog Roll",4:"Soul Rise",5:"Blood Drain",6:"Flicker",7:"Veil Drop",8:"Warp",9:"Apparition",10:"Shadow Creep",0:"Random"};
 let currentFxN=1;
-
 const $=id=>document.getElementById(id);
 
-/* ===================== SLIDESHOW ===================== */
+/* ── tab switching ── */
+function showTab(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  $('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+/* ══════════ SLIDESHOW ══════════ */
 function loadSaved(){
   try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(!s) return;
     BOARDS.forEach(b=>{ if(s[b.mode]){ b.on=!!s[b.mode].on; if(s[b.mode].secs) b.secs=s[b.mode].secs; } });
@@ -305,22 +322,20 @@ function loadSaved(){
   }catch(e){}
 }
 function saveState(){
-  const s={_fx:currentFxN}; BOARDS.forEach(b=> s[b.mode]={on:b.on, secs:b.secs});
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){}
+  const s={_fx:currentFxN}; BOARDS.forEach(b=>s[b.mode]={on:b.on,secs:b.secs});
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(s)); }catch(e){}
 }
 function buildUrl(){
   const picked=BOARDS.filter(b=>b.on);
   if(!picked.length) return "";
-  const boards=picked.map(b=>`${b.mode}:${b.secs}`).join(",");
-  return `board.html?play=1&boards=${encodeURIComponent(boards)}&fx=${currentFxN}`;
+  return `board.html?play=1&boards=${encodeURIComponent(picked.map(b=>`${b.mode}:${b.secs}`).join(","))}&fx=${currentFxN}`;
 }
 function refreshUrl(){
   const url=buildUrl();
-  const abs = url ? new URL(url, location.href).href : "";
-  $("playUrl").value = abs || "— tick at least one board —";
-  const none = !url;
-  $("openHere").disabled = none;
-  $("copyLink").disabled = none;
+  const abs=url?new URL(url,location.href).href:"";
+  $("playUrl").value=abs||"— tick at least one board —";
+  const none=!url;
+  $("openHere").disabled=none; $("copyLink").disabled=none;
 }
 function renderBoardRows(){
   const box=$("boardRows"); box.innerHTML="";
@@ -328,17 +343,17 @@ function renderBoardRows(){
     const row=document.createElement("div");
     row.className="brow"+(b.on?"":" off");
     row.innerHTML=`
-      <label class="switch"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="tog"><span class="slider"></span></label>
-      <span class="name"><b>${b.title}</b><span>${b.sub}</span></span>
-      <span class="secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="sec"> sec</span>`;
+      <label class="brow-toggle"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="tog"><span class="brow-track"></span></label>
+      <span class="brow-name"><b>${b.title}</b><span>${b.sub}</span></span>
+      <span class="brow-secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="sec"><label>sec</label></span>`;
     box.appendChild(row);
   });
-  box.querySelectorAll(".tog").forEach(t=> t.onchange=e=>{
+  box.querySelectorAll(".tog").forEach(t=>t.onchange=e=>{
     BOARDS[+e.target.dataset.i].on=e.target.checked;
     e.target.closest(".brow").classList.toggle("off",!e.target.checked);
     saveState(); refreshUrl();
   });
-  box.querySelectorAll(".sec").forEach(s=> s.onchange=e=>{
+  box.querySelectorAll(".sec").forEach(s=>s.onchange=e=>{
     let v=parseInt(e.target.value,10); if(isNaN(v)||v<3)v=3; if(v>120)v=120;
     e.target.value=v; BOARDS[+e.target.dataset.i].secs=v; saveState(); refreshUrl();
   });
@@ -358,207 +373,10 @@ $("openHere").onclick=()=>{ const u=buildUrl(); if(u) location.href=u; };
 $("copyLink").onclick=async()=>{
   const u=$("playUrl").value; if(!u||u.startsWith("—")) return;
   try{ await navigator.clipboard.writeText(u); flash("ssMsg","Link copied — paste it on the bar screen."); }
-  catch(e){ $("playUrl").select(); flash("ssMsg","Press Ctrl/⌘-C to copy the selected link."); }
-};
-function flash(id,msg,warn){ const el=$(id); el.textContent=msg; el.className="msg"+(warn?" warn":""); clearTimeout(el._t); el._t=setTimeout(()=>{el.textContent="";},4000); }
-
-/* ===================== PROMOTIONS PREVIEW ===================== */
-function gviz(id,tab){ return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`+(tab?`&sheet=${encodeURIComponent(tab)}`:""); }
-function parseCSV(text){
-  const rows=[]; let row=[],f="",q=false;
-  for(let i=0;i<text.length;i++){ const c=text[i];
-    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
-    else { if(c==='"')q=true; else if(c===','){row.push(f);f="";} else if(c==='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c==='\r'){} else f+=c; }
-  }
-  if(f.length||row.length){ row.push(f); rows.push(row); }
-  return rows;
-}
-function buildPrices(rows){
-  if(!rows||!rows.length) return [];
-  let hi=rows.findIndex(r=> r.some(c=>/\b(name|item|drink|product)\b/i.test(c))); if(hi<0)hi=0;
-  const H=rows[hi].map(c=>(c||"").trim().toLowerCase());
-  const find=res=>H.findIndex(h=> res.some(re=>re.test(h)));
-  const ci={ name:find([/name|item|drink|product/]), price:find([/price|member|amount/]),
-             p2:find([/price ?2|second|large|big|size ?2|alt/]), note:find([/note|size|caption|detail|desc/]) };
-  if(ci.name<0)ci.name=0;
-  const cl=v=>String(v||"").trim(), money=v=>cl(v).replace(/^£\s*/,"");
-  const out=[];
-  for(let i=hi+1;i<rows.length;i++){ const r=rows[i]; if(!r) continue;
-    const name=cl(r[ci.name]); if(!name) continue;
-    out.push({ name, price:ci.price>=0?money(r[ci.price]):"", price2:ci.p2>=0?money(r[ci.p2]):"", note:ci.note>=0?cl(r[ci.note]):"" });
-  }
-  return out;
-}
-function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
-function renderPromoPreview(items){
-  const box=$("promoPreview");
-  if(!items.length){ box.innerHTML=""; return; }
-  box.innerHTML=`<div class="pp">`+items.map(it=>`
-    <div class="pp-row">
-      <span class="pp-name">${esc(it.name)}${it.note?`<span class="pp-sub">${esc(it.note)}</span>`:""}</span>
-      <span class="pp-dots"></span>
-      <span class="pp-price">£${esc(it.price)}${it.price2?`<span class="p2">/ £${esc(it.price2)}</span>`:""}</span>
-    </div>`).join("")+`</div>`;
-}
-async function loadPromo(){
-  if(!PRICES_SHEET_ID){
-    $("editPrices").disabled=true;
-    $("promoSetup").style.display="block";
-    flash("promoMsg","No prices sheet connected yet — see setup below.",true);
-    return;
-  }
-  $("editPrices").onclick=()=> window.open(`https://docs.google.com/spreadsheets/d/${PRICES_SHEET_ID}/edit`,"_blank","noopener");
-  try{
-    const res=await fetch(gviz(PRICES_SHEET_ID,PRICES_TAB),{cache:"no-store"});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const items=buildPrices(parseCSV(await res.text()));
-    if(!items.length) throw new Error("no rows");
-    renderPromoPreview(items);
-    flash("promoMsg",`${items.length} prices loaded from the sheet.`);
-  }catch(e){ flash("promoMsg","Couldn't read the prices sheet ("+e.message+"). Check it's shared ‘Anyone with the link – Viewer’.",true); }
-}
-
-/* ===================== DISPLAY BOARD ===================== */
-/* Poster list is stored in the same Apps Script as cinema so it syncs
-   across every machine automatically. CINEMA_API is reused — just a
-   second action on the same /exec endpoint.                          */
-
-// Read the CINEMA_API value from the same place cinema-edit.html uses it.
-// It's defined in bl-config.js or hardcoded alongside PRICES_SHEET_ID.
-// We grab it at runtime so there's only one place to update it.
-function dbApiUrl(){ return (window.BLConfig&&BLConfig.CINEMA_API)||CINEMA_API||""; }
-
-// In-memory working copy (loaded from API on start, kept current locally)
-let dbItems = [];
-let dbSaving = false;
-
-/* Convert share links to direct-load / thumbnail URLs */
-function dbGDriveId(url){
-  let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]{20,})/);
-  if(m) return m[1];
-  m=url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
-  if(m) return m[1];
-  return null;
-}
-function dbThumbUrl(url){
-  if(!url) return "";
-  if(/dropbox\.com/i.test(url)){
-    if(/[?&]dl=\d/.test(url)) return url.replace(/([?&])dl=\d/,"$1dl=1");
-    return url.includes("?")?url+"&raw=1":url+"?raw=1";
-  }
-  const gdId=dbGDriveId(url);
-  if(gdId) return `https://lh3.googleusercontent.com/d/${gdId}`;
-  return url;
-}
-function dbIsImage(url){ if(!url) return false; return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url.split("?")[0])||/dropbox|drive\.google|lh3\.google/i.test(url); }
-function esc(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-
-async function dbFetch(){
-  const api=dbApiUrl();
-  if(!api){ dbItems=[]; dbRender(); return; }
-  try{
-    const r=await fetch(api+"?action=db_list&t="+Date.now(),{cache:"no-store"});
-    if(!r.ok) throw new Error("HTTP "+r.status);
-    const j=await r.json();
-    // Filter to only items that actually have a url field — guards against
-    // the old script version returning cinema entries instead of poster list
-    dbItems=Array.isArray(j)?j.filter(it=>it&&it.url):[];
-    if(!dbItems.length && Array.isArray(j) && j.length && j[0].title){
-      flash("dbMsg","Old script version still active — please redeploy with 'New version' in Apps Script.",true);
-    }
-  }catch(e){
-    flash("dbMsg","Couldn't load poster list ("+e.message+").",true);
-    dbItems=[];
-  }
-  dbRender();
-}
-
-async function dbPush(){
-  const api=dbApiUrl();
-  if(!api){ flash("dbMsg","No API URL set — add CINEMA_API to your config.",true); return; }
-  if(dbSaving) return;
-  dbSaving=true;
-  flash("dbMsg","Saving…");
-  try{
-    // No Content-Type header — Google Apps Script blocks preflighted requests.
-    // Sending as plain body (same pattern as cinema-edit.html) works fine.
-    const r=await fetch(api,{method:"POST",
-      body:JSON.stringify({pin:MANAGER_PIN, action:"db_save", items:dbItems})});
-    const j=await r.json();
-    if(!j.ok) throw new Error(j.error||"unknown error");
-    flash("dbMsg","Saved ✓  — live on all screens.");
-  }catch(e){
-    flash("dbMsg","Save failed: "+e.message,true);
-  }
-  dbSaving=false;
-}
-
-function dbRender(){
-  const list=$("dbList");
-  if(!dbItems.length){
-    list.innerHTML=`<div class="db-empty-note">No posters added yet — paste a link below.</div>`;
-    return;
-  }
-  list.innerHTML="";
-  dbItems.forEach((it,i)=>{
-    const row=document.createElement("div");
-    row.className="db-row"; row.draggable=true; row.dataset.i=i;
-    const thumb=dbIsImage(it.url)
-      ? `<img src="${esc(dbThumbUrl(it.url))}" alt="" onerror="this.parentNode.innerHTML='📄'">`
-      : `📄`;
-    const displayName=it.name||it.url.split("/").pop().split("?")[0].replace(/[-_]/g," ").replace(/\.\w+$/,"").trim()||"Untitled";
-    const shortUrl=it.url.length>60?it.url.slice(0,57)+"…":it.url;
-    row.innerHTML=`
-      <div class="db-thumb">${thumb}</div>
-      <div class="db-info">
-        <div class="db-name">${esc(displayName)}</div>
-        <div class="db-url">${esc(shortUrl)}</div>
-      </div>
-      <button class="db-del" data-i="${i}" title="Remove">×</button>`;
-    list.appendChild(row);
-  });
-
-  // Delete
-  list.querySelectorAll(".db-del").forEach(b=> b.onclick=e=>{
-    e.stopPropagation();
-    dbItems.splice(+b.dataset.i,1);
-    dbRender(); dbPush();
-  });
-
-  // Drag-to-reorder
-  let dragIdx=null;
-  list.querySelectorAll(".db-row").forEach(row=>{
-    row.addEventListener("dragstart",e=>{ dragIdx=+row.dataset.i; e.dataTransfer.effectAllowed="move"; });
-    row.addEventListener("dragover",e=>{ e.preventDefault();
-      list.querySelectorAll(".db-row").forEach(r=>r.classList.remove("drag-over"));
-      row.classList.add("drag-over"); });
-    row.addEventListener("dragleave",()=> row.classList.remove("drag-over"));
-    row.addEventListener("drop",e=>{ e.preventDefault(); row.classList.remove("drag-over");
-      const toIdx=+row.dataset.i; if(dragIdx===null||dragIdx===toIdx) return;
-      const [moved]=dbItems.splice(dragIdx,1); dbItems.splice(toIdx,0,moved);
-      dragIdx=null; dbRender(); dbPush(); });
-  });
-}
-
-$("dbAddBtn").onclick=function(){
-  const url=$("dbUrlInput").value.trim();
-  const name=$("dbNameInput").value.trim();
-  if(!url){ flash("dbMsg","Paste a link first.",true); return; }
-  if(!/^https?:\/\//i.test(url)){ flash("dbMsg","Needs to be a full https:// URL.",true); return; }
-  if(dbItems.some(it=>it.url===url)){ flash("dbMsg","That link is already in the list.",true); return; }
-  dbItems.push({url,name});
-  $("dbUrlInput").value=""; $("dbNameInput").value="";
-  dbRender(); dbPush();
+  catch(e){ $("playUrl").select(); flash("ssMsg","Press Ctrl/⌘-C to copy."); }
 };
 
-$("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });
-
-
-/* ===================== LANDSCAPE SLIDESHOW ===================== */
-/* Identical board list to portrait — independent toggles & seconds.
-   Generates the same URL but with &landscape=1 appended.            */
-
-// Default landscape seconds — slightly longer since more fits on screen
+/* ══════════ LANDSCAPE SLIDESHOW ══════════ */
 const LAND_BOARDS = [
   { mode:"normal",       title:"Tonight",       sub:"Gigs + tonight's film",     secs:20, on:true  },
   { mode:"cinema",       title:"Cinema",        sub:"Big-screen poster",         secs:22, on:true  },
@@ -570,93 +388,199 @@ const LS_LAND_KEY = "whatson_slideshow_land";
 let landFxN = 1;
 
 function loadLandSaved(){
-  try{
-    const s = JSON.parse(localStorage.getItem(LS_LAND_KEY)||"null");
-    if(!s) return;
+  try{ const s=JSON.parse(localStorage.getItem(LS_LAND_KEY)||"null"); if(!s) return;
     LAND_BOARDS.forEach(b=>{ if(s[b.mode]){ b.on=!!s[b.mode].on; if(s[b.mode].secs) b.secs=s[b.mode].secs; } });
-    if(s._fx != null) landFxN = s._fx;
+    if(s._fx!=null) landFxN=s._fx;
   }catch(e){}
 }
 function saveLandState(){
-  const s={_fx:landFxN};
-  LAND_BOARDS.forEach(b=> s[b.mode]={on:b.on, secs:b.secs});
-  try{ localStorage.setItem(LS_LAND_KEY, JSON.stringify(s)); }catch(e){}
+  const s={_fx:landFxN}; LAND_BOARDS.forEach(b=>s[b.mode]={on:b.on,secs:b.secs});
+  try{ localStorage.setItem(LS_LAND_KEY,JSON.stringify(s)); }catch(e){}
 }
 function buildLandUrl(){
-  const picked = LAND_BOARDS.filter(b=>b.on);
+  const picked=LAND_BOARDS.filter(b=>b.on);
   if(!picked.length) return "";
-  const boards = picked.map(b=>`${b.mode}:${b.secs}`).join(",");
-  return `board.html?play=1&boards=${encodeURIComponent(boards)}&fx=${landFxN}&landscape=1`;
+  return `board.html?play=1&boards=${encodeURIComponent(picked.map(b=>`${b.mode}:${b.secs}`).join(","))}&fx=${landFxN}&landscape=1`;
 }
 function refreshLandUrl(){
-  const url = buildLandUrl();
-  const abs  = url ? new URL(url, location.href).href : "";
-  $("landUrl").value = abs || "— tick at least one board —";
-  const none = !url;
-  $("landOpenHere").disabled = none;
-  $("landCopyLink").disabled = none;
+  const url=buildLandUrl();
+  const abs=url?new URL(url,location.href).href:"";
+  $("landUrl").value=abs||"— tick at least one board —";
+  const none=!url; $("landOpenHere").disabled=none; $("landCopyLink").disabled=none;
 }
 function renderLandRows(){
-  const box = $("landRows"); box.innerHTML = "";
+  const box=$("landRows"); box.innerHTML="";
   LAND_BOARDS.forEach((b,i)=>{
-    const row = document.createElement("div");
-    row.className = "brow" + (b.on ? "" : " off");
-    row.innerHTML = `
-      <label class="switch"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="land-tog"><span class="slider"></span></label>
-      <span class="name"><b>${b.title}</b><span>${b.sub}</span></span>
-      <span class="secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="land-sec"> sec</span>`;
+    const row=document.createElement("div");
+    row.className="brow"+(b.on?"":" off");
+    row.innerHTML=`
+      <label class="brow-toggle"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="land-tog"><span class="brow-track"></span></label>
+      <span class="brow-name"><b>${b.title}</b><span>${b.sub}</span></span>
+      <span class="brow-secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="land-sec"><label>sec</label></span>`;
     box.appendChild(row);
   });
-  box.querySelectorAll(".land-tog").forEach(t=> t.onchange=e=>{
-    LAND_BOARDS[+e.target.dataset.i].on = e.target.checked;
-    e.target.closest(".brow").classList.toggle("off", !e.target.checked);
+  box.querySelectorAll(".land-tog").forEach(t=>t.onchange=e=>{
+    LAND_BOARDS[+e.target.dataset.i].on=e.target.checked;
+    e.target.closest(".brow").classList.toggle("off",!e.target.checked);
     saveLandState(); refreshLandUrl();
   });
-  box.querySelectorAll(".land-sec").forEach(s=> s.onchange=e=>{
+  box.querySelectorAll(".land-sec").forEach(s=>s.onchange=e=>{
     let v=parseInt(e.target.value,10); if(isNaN(v)||v<3)v=3; if(v>120)v=120;
     e.target.value=v; LAND_BOARDS[+e.target.dataset.i].secs=v; saveLandState(); refreshLandUrl();
   });
   refreshLandUrl();
 }
 function renderLandFxPicker(){
-  const box = $("landFxBtns"); if(!box) return; box.innerHTML="";
+  const box=$("landFxBtns"); if(!box) return; box.innerHTML="";
   [1,2,3,4,5,6,7,8,9,10,0].forEach(n=>{
-    const b = document.createElement("button");
-    b.className = "fx-btn" + (landFxN===n?" on":"");
-    b.textContent = n===0 ? "✦ Random" : `${n} · ${FX_NAMES[n]}`;
-    b.onclick = ()=>{
-      landFxN=n;
-      [...box.querySelectorAll(".fx-btn")].forEach(x=>x.classList.toggle("on",x===b));
-      saveLandState(); refreshLandUrl();
-    };
+    const b=document.createElement("button");
+    b.className="fx-btn"+(landFxN===n?" on":"");
+    b.textContent=n===0?"✦ Random":`${n} · ${FX_NAMES[n]}`;
+    b.onclick=()=>{ landFxN=n; [...box.querySelectorAll(".fx-btn")].forEach(x=>x.classList.toggle("on",x===b)); saveLandState(); refreshLandUrl(); };
     box.appendChild(b);
   });
 }
-$("landOpenHere").onclick = ()=>{ const u=buildLandUrl(); if(u) location.href=u; };
-$("landCopyLink").onclick = async()=>{
+$("landOpenHere").onclick=()=>{ const u=buildLandUrl(); if(u) location.href=u; };
+$("landCopyLink").onclick=async()=>{
   const u=$("landUrl").value; if(!u||u.startsWith("—")) return;
-  try{
-    await navigator.clipboard.writeText(u);
-    flash("landMsg","Landscape link copied — paste it on the widescreen.");
-  }catch(e){
-    $("landUrl").select();
-    flash("landMsg","Press Ctrl/⌘-C to copy the selected link.");
-  }
+  try{ await navigator.clipboard.writeText(u); flash("landMsg","Landscape link copied — paste it on the widescreen."); }
+  catch(e){ $("landUrl").select(); flash("landMsg","Press Ctrl/⌘-C to copy."); }
 };
 
-/* ===================== INIT (manager only) ===================== */
+/* ══════════ PRICES PREVIEW ══════════ */
+function gviz(id,tab){ return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`+(tab?`&sheet=${encodeURIComponent(tab)}`:""); }
+function parseCSV(text){
+  const rows=[]; let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(f);f="";} else if(c==='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c==='\r'){} else f+=c; }
+  }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+function buildPrices(rows){
+  if(!rows||!rows.length) return [];
+  let hi=rows.findIndex(r=>r.some(c=>/\b(name|item|drink|product)\b/i.test(c))); if(hi<0)hi=0;
+  const H=rows[hi].map(c=>(c||"").trim().toLowerCase());
+  const find=res=>H.findIndex(h=>res.some(re=>re.test(h)));
+  const ci={ name:find([/name|item|drink|product/]), price:find([/price|member|amount/]),
+    p2:find([/price ?2|second|large|big|size ?2|alt/]), note:find([/note|size|caption|detail|desc/]) };
+  if(ci.name<0)ci.name=0;
+  const cl=v=>String(v||"").trim(), money=v=>cl(v).replace(/^£\s*/,"");
+  const out=[];
+  for(let i=hi+1;i<rows.length;i++){ const r=rows[i]; if(!r) continue;
+    const name=cl(r[ci.name]); if(!name) continue;
+    out.push({ name, price:ci.price>=0?money(r[ci.price]):"", price2:ci.p2>=0?money(r[ci.p2]):"", note:ci.note>=0?cl(r[ci.note]):"" });
+  }
+  return out;
+}
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function renderPromoPreview(items){
+  const box=$("promoPreview");
+  if(!items.length){ box.innerHTML=""; return; }
+  box.innerHTML=`<table class="pr-table">`+items.map(it=>`
+    <tr><td>${esc(it.name)}${it.note?` <span style="font-size:11px;color:var(--muted);font-weight:400">${esc(it.note)}</span>`:""}</td>
+    <td>£${esc(it.price)}${it.price2?` <span style="color:var(--muted);font-weight:400">/ £${esc(it.price2)}</span>`:""}</td></tr>`).join("")+`</table>`;
+}
+async function loadPromo(){
+  if(!PRICES_SHEET_ID){
+    $("editPrices").disabled=true;
+    $("promoSetup").classList.add("show");
+    flash("promoMsg","No prices sheet connected yet — see setup notice below.",true);
+    return;
+  }
+  $("editPrices").onclick=()=>window.open(`https://docs.google.com/spreadsheets/d/${PRICES_SHEET_ID}/edit`,"_blank","noopener");
+  $("editPrices").disabled=false;
+  try{
+    const res=await fetch(gviz(PRICES_SHEET_ID,PRICES_TAB),{cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const items=buildPrices(parseCSV(await res.text()));
+    if(!items.length) throw new Error("no rows");
+    renderPromoPreview(items);
+    flash("promoMsg",`${items.length} prices loaded.`);
+  }catch(e){ flash("promoMsg","Couldn't read the prices sheet ("+e.message+"). Check it's shared 'Anyone with the link – Viewer'.",true); }
+}
+
+/* ══════════ DISPLAY BOARD ══════════ */
+function dbApiUrl(){ return (window.BLConfig&&BLConfig.CINEMA_API)||CINEMA_API||""; }
+let dbItems=[], dbSaving=false;
+function dbGDriveId(url){ let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]{20,})/); if(m) return m[1]; m=url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/); return m?m[1]:null; }
+function dbThumbUrl(url){ if(!url) return ""; if(/dropbox\.com/i.test(url)){ if(/[?&]dl=\d/.test(url)) return url.replace(/([?&])dl=\d/,"$1dl=1"); return url.includes("?")?url+"&raw=1":url+"?raw=1"; } const gdId=dbGDriveId(url); if(gdId) return `https://lh3.googleusercontent.com/d/${gdId}`; return url; }
+function dbIsImage(url){ if(!url) return false; return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url.split("?")[0])||/dropbox|drive\.google|lh3\.google/i.test(url); }
+
+async function dbFetch(){
+  const api=dbApiUrl();
+  if(!api){ dbItems=[]; dbRender(); return; }
+  try{
+    const r=await fetch(api+"?action=db_list&t="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    dbItems=Array.isArray(j)?j.filter(it=>it&&it.url):[];
+  }catch(e){ flash("dbMsg","Couldn't load poster list ("+e.message+").",true); dbItems=[]; }
+  dbRender();
+}
+async function dbPush(){
+  const api=dbApiUrl();
+  if(!api){ flash("dbMsg","No API URL set.",true); return; }
+  if(dbSaving) return; dbSaving=true; flash("dbMsg","Saving…");
+  try{
+    const r=await fetch(api,{method:"POST",body:JSON.stringify({pin:MANAGER_PIN,action:"db_save",items:dbItems})});
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||"unknown error");
+    flash("dbMsg","Saved ✓ — live on all screens.");
+  }catch(e){ flash("dbMsg","Save failed: "+e.message,true); }
+  dbSaving=false;
+}
+function dbRender(){
+  const list=$("dbList");
+  if(!dbItems.length){ list.innerHTML=`<div class="db-empty">No posters added yet — paste a link below.</div>`; return; }
+  list.innerHTML="";
+  dbItems.forEach((it,i)=>{
+    const row=document.createElement("div");
+    row.className="db-row"; row.draggable=true; row.dataset.i=i;
+    const thumb=dbIsImage(it.url)?`<img src="${esc(dbThumbUrl(it.url))}" alt="" onerror="this.parentNode.innerHTML='📄'">`:"📄";
+    const displayName=it.name||it.url.split("/").pop().split("?")[0].replace(/[-_]/g," ").replace(/\.\w+$/,"").trim()||"Untitled";
+    const shortUrl=it.url.length>55?it.url.slice(0,52)+"…":it.url;
+    row.innerHTML=`
+      <div class="db-thumb">${thumb}</div>
+      <div class="db-info"><div class="db-name">${esc(displayName)}</div><div class="db-url">${esc(shortUrl)}</div></div>
+      <button class="db-del" data-i="${i}" title="Remove">✕</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll(".db-del").forEach(b=>b.onclick=e=>{ e.stopPropagation(); dbItems.splice(+b.dataset.i,1); dbRender(); dbPush(); });
+  let dragIdx=null;
+  list.querySelectorAll(".db-row").forEach(row=>{
+    row.addEventListener("dragstart",e=>{ dragIdx=+row.dataset.i; e.dataTransfer.effectAllowed="move"; });
+    row.addEventListener("dragover",e=>{ e.preventDefault(); list.querySelectorAll(".db-row").forEach(r=>r.classList.remove("drag-over")); row.classList.add("drag-over"); });
+    row.addEventListener("dragleave",()=>row.classList.remove("drag-over"));
+    row.addEventListener("drop",e=>{ e.preventDefault(); row.classList.remove("drag-over"); const toIdx=+row.dataset.i; if(dragIdx===null||dragIdx===toIdx) return; const [moved]=dbItems.splice(dragIdx,1); dbItems.splice(toIdx,0,moved); dragIdx=null; dbRender(); dbPush(); });
+  });
+}
+$("dbAddBtn").onclick=function(){
+  const url=$("dbUrlInput").value.trim(), name=$("dbNameInput").value.trim();
+  if(!url){ flash("dbMsg","Paste a link first.",true); return; }
+  if(!/^https?:\/\//i.test(url)){ flash("dbMsg","Needs to be a full https:// URL.",true); return; }
+  if(dbItems.some(it=>it.url===url)){ flash("dbMsg","That link is already in the list.",true); return; }
+  dbItems.push({url,name}); $("dbUrlInput").value=""; $("dbNameInput").value="";
+  dbRender(); dbPush();
+};
+$("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });
+
+/* ══════════ UTILS ══════════ */
+function flash(id,msg,warn){
+  const el=$(id); if(!el) return;
+  el.textContent=msg; el.className="msg show"+(warn?" warn":" ok");
+  clearTimeout(el._t); el._t=setTimeout(()=>{ el.textContent=""; el.className="msg"; },4000);
+}
+
+/* ══════════ INIT ══════════ */
 function start(){
-  loadSaved();
-  renderBoardRows();
-  renderFxPicker();
-  loadLandSaved();
-  renderLandRows();
-  renderLandFxPicker();
-  loadPromo();
-  dbFetch();
+  loadSaved(); renderBoardRows(); renderFxPicker();
+  loadLandSaved(); renderLandRows(); renderLandFxPicker();
+  loadPromo(); dbFetch();
 }
 if(window.BLAuth){ BLAuth.init({appName:"What's On · Settings", require:"manager", onReady:start}); }
-else { start(); }   // if the auth script isn't present, still work locally
+else { start(); }
 </script>
 </body>
 </html>

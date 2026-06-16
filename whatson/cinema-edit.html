@@ -1,187 +1,227 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Cinema — Manager Entry · The Banshee Labyrinth</title>
-<meta name="theme-color" content="#0a0a0d">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Cinema Editor · The Banshee Labyrinth</title>
+<meta name="theme-color" content="#0d0d0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Cinema Entry">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="../bl-config.js"></script>
 <script src="../bl-auth.js"></script>
-
-<!-- ===================================================================
-     CINEMA — MANAGER ENTRY PAGE
-     ===================================================================
-     A manager types tonight's film here; it saves to the Cinema sheet via
-     your Apps Script, and board.html?mode=cinema pulls the poster, synopsis,
-     runtime and trailer from TMDB automatically.
-
-     SETUP:
-       1. Deploy the Apps Script (cinema-apps-script.gs) as a Web App
-          ("Execute as: Me", "Who has access: Anyone"), set its PIN.
-       2. Paste the resulting /exec URL into CINEMA_API below
-          (and into board.html's CONFIG.CINEMA_API).
-       3. The TMDB key below just powers the "Find film" preview here.
-     =================================================================== -->
 <style>
 :root{
-  --void:#0a0a0d;--ink:#070608;--bone:#ece6d6;--bone-dim:#b3ab95;--bone-faint:#6f6957;
-  --spectre:#74e3c1;--spectre-soft:rgba(116,227,193,.16);--ember:#e3492f;
-  --rule:rgba(236,230,214,.13);--rule-strong:rgba(236,230,214,.24);
+  --bg:#0d0d0f; --surface:#17171a; --surface2:#1f1f24; --border:#2a2a30;
+  --accent:#e8b84b; --accent-dim:rgba(232,184,75,.12);
+  --green:#3ecf6e; --green-dim:rgba(62,207,110,.12);
+  --red:#e85d5d; --red-dim:rgba(232,93,93,.1);
+  --purple:#a78bfa; --purple-dim:rgba(167,139,250,.12);
+  --teal:#4dd9ac; --teal-dim:rgba(77,217,172,.12);
+  --text:#e8e8ec; --muted:#6b6b78; --faint:#3a3a42;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--bone);font-family:"EB Garamond",Georgia,serif;
-  -webkit-font-smoothing:antialiased;min-height:100vh;
-  background-image:radial-gradient(120% 80% at 50% -10%,rgba(116,227,193,.06),transparent 55%),
-    radial-gradient(120% 100% at 50% 120%,rgba(227,73,47,.05),transparent 55%)}
-.shell{max-width:680px;margin:0 auto;padding:clamp(20px,5vw,44px) clamp(18px,4vw,32px) 64px}
-.head{text-align:center;border-bottom:1px solid var(--rule);padding-bottom:18px;margin-bottom:24px}
-.eyebrow{font-family:"Cinzel",serif;letter-spacing:.34em;text-transform:uppercase;font-size:11px;color:var(--spectre);opacity:.85}
-h1{font-family:"Cinzel",serif;font-weight:700;letter-spacing:.04em;font-size:clamp(22px,4vw,32px);margin-top:8px}
-.head p{color:var(--bone-dim);font-style:italic;margin-top:6px;font-size:15px}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
 
-label{display:block;font-family:"Cinzel",serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim);margin:18px 0 7px}
-input,select,textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:4px;
-  color:var(--bone);font-family:"EB Garamond",serif;font-size:16px;padding:11px 13px}
-textarea{min-height:74px;resize:vertical}
-input:focus,select,textarea:focus{outline:none;border-color:var(--spectre)}
-.rowflex{display:flex;gap:14px}.rowflex>div{flex:1}
-.btn{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
-  border-radius:4px;padding:13px 16px;border:1px solid var(--spectre);background:transparent;color:var(--spectre);transition:.2s}
-.btn:hover{background:var(--spectre-soft)}
-.btn.solid{background:var(--spectre);color:var(--ink);border:none;font-weight:700}
-.btn.solid:hover{filter:brightness(1.12)}
-.btn.danger{border-color:rgba(227,73,47,.5);color:#ffb1a3;padding:8px 12px;font-size:10px}
-.btn.danger:hover{background:rgba(227,73,47,.12)}
-.actions{display:flex;gap:12px;margin-top:22px}.actions .btn{flex:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent)}
+.topbar-right{display:flex;gap:8px}
+.topbar-link{font-size:12px;color:var(--muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:6px;transition:.15s}
+.topbar-link:hover{color:var(--text);border-color:var(--faint)}
+
+.wrap{padding:20px;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.card-icon.purple{background:var(--purple-dim);color:var(--purple)}
+.card-icon.teal{background:var(--teal-dim);color:var(--teal)}
+.card-icon.amber{background:var(--accent-dim);color:var(--accent)}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--muted);margin-top:1px}
+
+.form-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.field-row{display:flex;gap:12px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px;flex:1 1 140px}
+.field.wide{flex:2 1 200px}
+.field.narrow{flex:0 1 110px}
+label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px;width:100%;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+select option{background:var(--surface2)}
+textarea{min-height:64px;resize:vertical}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+.find-btn{width:100%;padding:11px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.find-btn:hover{border-color:var(--faint);color:var(--text)}
 
 /* preview */
-.preview{display:none;margin-top:18px;border:1px solid var(--rule);border-radius:6px;padding:14px;gap:14px;align-items:flex-start;
-  background:rgba(255,255,255,.02)}
+.preview{display:none;border:1px solid var(--border);border-radius:8px;padding:14px;gap:14px;align-items:flex-start;background:var(--surface2);margin-top:2px}
 .preview.show{display:flex}
-.preview img{width:84px;border-radius:4px;flex:0 0 auto;background:#000}
-.preview .pv-info h3{font-family:"Cinzel",serif;font-size:16px;letter-spacing:.02em}
-.preview .pv-info .meta{color:var(--bone-faint);font-size:13px;margin:4px 0 6px;font-family:"Cinzel",serif;letter-spacing:.1em;text-transform:uppercase}
-.preview .pv-info p{color:var(--bone-dim);font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.preview .pv-noposter{width:84px;height:124px;flex:0 0 auto;border-radius:4px;background:#000;border:1px solid var(--rule);
-  display:flex;align-items:center;justify-content:center;color:var(--bone-faint);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
-.preview .pv-nav{display:flex;align-items:center;gap:12px;margin-top:12px}
-.preview .pv-arrow{font-family:"Cinzel",serif;font-size:13px;letter-spacing:.06em;color:var(--bone);
-  background:rgba(116,227,193,.08);border:1px solid var(--rule);border-radius:5px;padding:7px 14px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent}
-.preview .pv-arrow:hover{border-color:var(--spectre);color:var(--spectre)}
-.preview .pv-arrow:active{transform:translateY(1px)}
-.preview .pv-count{font-family:"Cinzel",serif;font-size:13px;letter-spacing:.1em;color:var(--bone-faint);min-width:48px;text-align:center}
+.preview img{width:72px;border-radius:6px;flex:0 0 auto;background:#000;display:block}
+.pv-noposter{width:72px;height:106px;flex:0 0 auto;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;padding:.3em}
+.pv-info{flex:1;min-width:0}
+.pv-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
+.pv-meta{font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.pv-overview{font-size:13px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.pv-nav{display:flex;align-items:center;gap:10px;margin-top:10px}
+.pv-arrow{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:.15s}
+.pv-arrow:hover{border-color:var(--accent);color:var(--accent)}
+.pv-count{font-size:12px;color:var(--muted);min-width:44px;text-align:center}
 
-.msg{margin-top:16px;font-size:14px;font-style:italic;min-height:1.2em}
-.msg.ok{color:var(--spectre)}.msg.err{color:#ff9b8a}
+.divider{height:1px;background:var(--border);margin:2px 0}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:7px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:var(--surface2);color:var(--muted);white-space:nowrap}
+.btn:hover{color:var(--text);border-color:var(--faint)}
+.btn.primary{background:var(--accent);color:#1a1306;border-color:var(--accent);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.teal-btn{background:var(--teal);color:#04342c;border-color:var(--teal);font-weight:600}
+.btn.teal-btn:hover{filter:brightness(1.08)}
+.btn.danger{background:var(--red-dim);color:var(--red);border-color:rgba(232,93,93,.3)}
+.btn.danger:hover{background:var(--red);color:#fff}
+
+.msg{font-size:13px;min-height:1px;display:none;padding:2px 0}
+.msg.show{display:block}
+.msg.ok{color:var(--green)}
+.msg.warn{color:var(--red)}
+
+/* duration input */
+.dur-wrap{position:relative}
+.dur-hint{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
 
 /* upcoming list */
-.list{margin-top:34px;border-top:1px solid var(--rule);padding-top:18px}
-.list h2{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-dim);margin-bottom:12px}
-.entry{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--rule);border-radius:5px;margin-bottom:8px}
-.entry .when{font-family:"Cinzel",serif;font-size:12px;color:var(--spectre);letter-spacing:.06em;min-width:118px}
-.entry .ttl{flex:1;font-size:16px}.entry .ce{color:var(--bone-faint);font-size:12px}
+.entry-list{display:flex;flex-direction:column}
+.entry-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-top:1px solid var(--border)}
+.entry-row:first-child{border-top:none}
+.entry-when{font-size:12px;font-weight:600;color:var(--accent);min-width:110px;flex-shrink:0}
+.entry-title{flex:1;font-size:14px;color:var(--text)}
+.entry-year{font-size:12px;color:var(--muted)}
+.entry-private{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--teal-dim);color:var(--teal);font-weight:500;margin-left:6px}
+.entry-del{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;flex-shrink:0;transition:.15s}
+.entry-del:hover{color:var(--red);border-color:rgba(232,93,93,.4);background:var(--red-dim)}
+.entry-empty{padding:18px;text-align:center;font-size:13px;color:var(--muted);font-style:italic}
 
-/* pin gate */
-.gate{position:fixed;inset:0;background:rgba(7,6,8,.94);backdrop-filter:blur(4px);z-index:10;
-  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;text-align:center}
-.gate.hide{display:none}
-.gate .lock{font-size:34px;color:var(--spectre);filter:drop-shadow(0 0 12px var(--spectre-soft))}
-.gate h2{font-family:"Cinzel",serif;letter-spacing:.16em;text-transform:uppercase;font-size:15px}
-.gate input{max-width:220px;text-align:center;letter-spacing:.5em;font-size:22px}
-.gate .gmsg{color:#ff9b8a;font-size:13px;font-style:italic;min-height:1.1em}
-.note{margin-top:22px;font-size:12.5px;color:var(--bone-faint);line-height:1.5;border-top:1px solid var(--rule);padding-top:14px}
-.subhint{font-size:13px;color:var(--bone-faint);font-style:italic;margin-top:8px;line-height:1.4}
-a{color:var(--spectre)}
+.note{padding:12px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5}
+.note b{color:var(--text);font-weight:500}
 </style>
 </head>
 <body>
 
-<div class="shell">
-  <div class="head">
-    <div class="eyebrow">The Banshee Labyrinth · Cinema</div>
-    <h1>What's On Tonight</h1>
-    <p>Set the film — the screen finds the poster &amp; trailer itself.</p>
+<div class="topbar">
+  <div class="topbar-logo">The Banshee · Cinema</div>
+  <div class="topbar-right">
+    <a class="topbar-link" href="settings.html">Settings</a>
+    <a class="topbar-link" href="../home/">Staff hub</a>
   </div>
+</div>
 
-  <div class="rowflex">
-    <div><label>Date</label><input type="date" id="f_date"></div>
-    <div><label>Start time</label><input type="time" id="f_time"></div>
-  </div>
-  <p class="subhint" id="timeHint">Set the start time for the <b>first</b> film. Add any later films with the time left <b>blank</b> — the board chains each one from the previous film's running time.</p>
+<div class="wrap">
 
-  <div class="rowflex">
-    <div style="flex:2"><label>Film title</label><input type="text" id="f_title" placeholder="e.g. Superman" autocomplete="off"></div>
-    <div><label>Year</label><input type="text" id="f_year" inputmode="numeric" maxlength="4" placeholder="1978"></div>
-  </div>
-
-  <button class="btn" style="margin-top:16px;width:100%" onclick="preview()">🔍 Find film &amp; preview</button>
-  <div class="preview" id="preview"></div>
-
-  <div class="rowflex" style="margin-top:4px">
-    <div><label>Certificate</label>
-      <select id="f_cert">
-        <option value="">—</option><option>U</option><option>PG</option><option>12A</option>
-        <option>12</option><option selected>15</option><option>18</option><option>TBC</option>
-      </select>
+  <!-- ── ADD A FILM ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon purple">▦</div>
+      <div>
+        <div class="card-title">Add a film</div>
+        <div class="card-sub">Type the title — poster, synopsis &amp; runtime load automatically from TMDB</div>
+      </div>
     </div>
-    <div style="flex:2"><label>Override blurb (optional)</label><input type="text" id="f_blurb" placeholder="leave blank to use TMDB synopsis"></div>
+    <div class="form-body">
+      <div class="field-row">
+        <div class="field narrow"><label>Date</label><input type="date" id="f_date"></div>
+        <div class="field narrow"><label>Start time</label><input type="time" id="f_time"></div>
+        <div class="field"><label>Certificate</label>
+          <select id="f_cert">
+            <option value="">—</option><option>U</option><option>PG</option>
+            <option>12A</option><option>12</option><option selected>15</option>
+            <option>18</option><option>TBC</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field wide"><label>Film title</label><input type="text" id="f_title" placeholder="e.g. Hereditary" autocomplete="off"></div>
+        <div class="field narrow"><label>Year</label><input type="text" id="f_year" inputmode="numeric" maxlength="4" placeholder="2018"></div>
+      </div>
+      <button class="find-btn" onclick="preview()">🔍 Find film &amp; preview</button>
+      <div class="preview" id="preview"></div>
+      <div class="field">
+        <label>Override synopsis <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">optional — leave blank to use TMDB</span></label>
+        <input type="text" id="f_blurb" placeholder="Leave blank to use TMDB synopsis…">
+      </div>
+      <div class="divider"></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="save()">Save to board</button>
+        <button class="btn" onclick="clearForm()">Clear</button>
+      </div>
+      <div class="msg" id="msg"></div>
+      <div class="note" style="border-top:none;padding:0">
+        <b>Tip:</b> if there are multiple matches (sequels, remakes), use ‹ Prev / Next › in the preview to pick the right one. Add a <b>year</b> to jump straight to it. Add later films with the start time <b>blank</b> — the board chains each one after the previous film ends.
+      </div>
+    </div>
   </div>
 
-  <div class="actions">
-    <button class="btn solid" onclick="save()">Save to board</button>
-    <button class="btn" onclick="clearForm()">Clear</button>
+  <!-- ── PRIVATE BOOKING ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon teal">🔒</div>
+      <div>
+        <div class="card-title">Private booking</div>
+        <div class="card-sub">Shows the time slot and venue hire info card on the board instead of a film</div>
+      </div>
+    </div>
+    <div class="form-body">
+      <div class="field-row">
+        <div class="field narrow"><label>Date</label><input type="date" id="pb_date"></div>
+        <div class="field narrow"><label>Start time</label><input type="time" id="pb_time"></div>
+        <div class="field narrow">
+          <label>Duration <span style="font-weight:400;text-transform:none;letter-spacing:0">h:mm</span></label>
+          <div class="dur-wrap">
+            <input type="text" id="pb_duration" placeholder="-:--" maxlength="5" style="letter-spacing:.1em;padding-right:36px" oninput="fmtDur(this)">
+            <span class="dur-hint">h:mm</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Event details <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">optional — shown on the board</span></label>
+        <input type="text" id="pb_note" placeholder="e.g. Comedy showcase · doors at 7pm" autocomplete="off">
+      </div>
+      <div class="btn-row">
+        <button class="btn teal-btn" onclick="saveBooking()">Add booking slot</button>
+      </div>
+      <div class="msg" id="pbMsg"></div>
+    </div>
   </div>
-  <div class="msg" id="msg"></div>
 
-  <details style="margin-top:18px;border:1px solid var(--rule);border-radius:5px;padding:12px 14px">
-    <summary style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);cursor:pointer">Private Booking slot</summary>
-    <p style="margin:10px 0 10px;font-size:14px;color:var(--bone-dim);line-height:1.4">Adds a "Private Booking" entry for the chosen date — the board shows the time slot prominently and the venue hire info card.</p>
-    <div class="rowflex" style="margin-top:8px">
-      <div><label>Date</label><input type="date" id="pb_date"></div>
-      <div><label>Start time</label><input type="time" id="pb_time" placeholder="e.g. 19:00"></div>
-      <div><label>Duration <span style="font-size:11px;color:var(--bone-faint);font-family:'EB Garamond',serif;font-style:italic;letter-spacing:0">h:mm</span></label>
-        <input type="text" id="pb_duration" placeholder="-:--" maxlength="5"
-          style="letter-spacing:.12em;font-size:18px"
-          oninput="fmtDur(this)"></div>
+  <!-- ── UPCOMING SCREENINGS ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon amber">📅</div>
+      <div>
+        <div class="card-title">Upcoming screenings</div>
+        <div class="card-sub">Everything saved for today and ahead</div>
+      </div>
     </div>
-    <div style="margin-top:10px">
-      <label>Event details <span style="font-size:11px;color:var(--bone-faint);font-family:'EB Garamond',serif;font-style:italic;letter-spacing:0">optional — shown on the board</span></label>
-      <input type="text" id="pb_note" placeholder="e.g. Comedy showcase · doors at 7pm" autocomplete="off">
+    <div class="entry-list" id="entries">
+      <div class="entry-empty">Loading…</div>
     </div>
-    <div class="actions" style="margin-top:12px">
-      <button class="btn solid" style="background:rgba(116,227,193,.18);border-color:var(--spectre);color:var(--spectre)" onclick="saveBooking()">Add Private Booking slot</button>
-    </div>
-    <div class="msg" id="pbMsg"></div>
-  </details>
-
-  <div class="list">
-    <h2>Upcoming screenings</h2>
-    <div id="entries"><div class="ce">Loading…</div></div>
   </div>
 
-  <p class="note">
-    Tip: if there's more than one match (sequels, remakes), use <b>‹ Prev / Next ›</b> in the preview to find the right one — whichever you're looking at is the one that saves. Typing a <b>year</b> jumps straight to it.
-    Saved films appear on the Cinema board for the date you set.
-    <span id="apiwarn"></span>
-  </p>
 </div>
 
 <script>
 /* ===================== CONFIG ===================== */
-const CINEMA_API = "https://script.google.com/macros/s/AKfycbyXcSKpM3363gnNH7weJwlXqLd4c8dStFdwUrP2zVyFlRkg1OqTsZcqqvqIvwwwck5Jjg/exec";  // deployed Apps Script /exec URL
-const TMDB_KEY   = "6786ab37c7668faaec41954f10f006b4"; // powers the preview lookup
-const CINEMA_WRITE_KEY = "1234";  // MUST match MANAGER_PIN in cinema-apps-script.gs (change both to something private if you like)
+const CINEMA_API = "https://script.google.com/macros/s/AKfycbyXcSKpM3363gnNH7weJwlXqLd4c8dStFdwUrP2zVyFlRkg1OqTsZcqqvqIvwwwck5Jjg/exec";
+const TMDB_KEY   = "6786ab37c7668faaec41954f10f006b4";
+const CINEMA_WRITE_KEY = "1234";
 /* ================================================= */
 
 const $=id=>document.getElementById(id);
-let ENTRIES=[];   // films currently saved (for the date-aware time hint)
-function dkeyOf(s){ // normalise any date form to YYYY-MM-DD (local day)
+let ENTRIES=[];
+
+function dkeyOf(s){
   s=String(s||"").trim();
   let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if(m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
   m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
@@ -189,27 +229,24 @@ function dkeyOf(s){ // normalise any date form to YYYY-MM-DD (local day)
   return s;
 }
 function updateTimeHint(){
-  const hint=$("timeHint"); if(!hint) return;
   const dk=dkeyOf($("f_date").value);
-  const same=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dk);
+  const same=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dk&&!/^private\s+booking$/i.test((c.title||"").trim()));
   if(same.length){
     const first=same.map(c=>(String(c.time||"").match(/(\d{1,2}:\d{2})/)||[])[1]||"").filter(Boolean).sort()[0]||"";
-    hint.innerHTML=`There ${same.length===1?"is":"are"} already <b>${same.length}</b> film${same.length===1?"":"s"} set for this date${first?` (first at <b>${esc(first)}</b>)`:""}. Leave the start time <b>blank</b> and the board starts this one ~when the previous film ends.`;
-    $("f_time").value="";   // default extra films to auto-chain
+    if(!$("f_time").value) $("f_time").value="";
   } else {
-    hint.innerHTML=`Set the start time for the <b>first</b> film. Add any later films with the time left <b>blank</b> — the board chains each one from the previous film's running time.`;
-    if(!$("f_time").value) $("f_time").value="20:00";   // first film needs an anchor time
+    if(!$("f_time").value) $("f_time").value="20:00";
   }
 }
 function startEditor(){
-  const d=new Date(); $("f_date").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const d=new Date();
+  $("f_date").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  $("pb_date").value=$("f_date").value;
   $("f_date").onchange=updateTimeHint;
   loadEntries();
 }
-if(!CINEMA_API){ $("apiwarn").innerHTML="<br><b style='color:#ffb1a3'>Note:</b> CINEMA_API isn't set yet, so saving is disabled. Deploy the Apps Script and paste its /exec URL into this file and board.html."; }
-
-// One hub login — manager only. Shares the session with the rest of the staff hub.
-if(window.BLAuth){ BLAuth.init({appName:"Cinema Entry", require:"manager", onReady:startEditor}); }
+if(!CINEMA_API) flash("msg","CINEMA_API not set — saving is disabled.",true);
+if(window.BLAuth){ BLAuth.init({appName:"Cinema Editor", require:"manager", onReady:startEditor}); }
 else { startEditor(); }
 
 let PICKS=[], pickIdx=0;
@@ -217,18 +254,15 @@ async function preview(){
   const title=$("f_title").value.trim(), year=$("f_year").value.trim();
   const box=$("preview");
   if(!title){ box.classList.remove("show"); return; }
-  box.classList.add("show"); box.innerHTML="<div class='ce'>Searching TMDB…</div>";
+  box.classList.add("show"); box.innerHTML=`<div style="color:var(--muted);font-size:13px">Searching…</div>`;
   try{
-    // search by title only, so sequels / remakes all come back; year (if typed) just picks the starting match
-    const sUrl=`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`;
-    const sj=await (await fetch(sUrl)).json();
+    const sj=await (await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}`)).json();
     let results=(sj.results||[]).filter(r=>r.title);
-    if(!results.length){ PICKS=[]; box.innerHTML="<div class='ce'>No match found — check the spelling.</div>"; return; }
-    PICKS=results.slice(0,12);   // up to 12 options, already ordered by popularity
-    pickIdx=0;
+    if(!results.length){ PICKS=[]; box.innerHTML=`<div style="color:var(--muted);font-size:13px">No match found — check the spelling.</div>`; return; }
+    PICKS=results.slice(0,12); pickIdx=0;
     if(year){ const i=PICKS.findIndex(r=>(r.release_date||"").slice(0,4)===year); if(i>=0) pickIdx=i; }
     renderPick();
-  }catch(e){ box.innerHTML=`<div class='ce'>Lookup failed: ${esc(e.message)}</div>`; }
+  }catch(e){ box.innerHTML=`<div style="color:var(--red);font-size:13px">Lookup failed: ${esc(e.message)}</div>`; }
 }
 function pickNav(d){ if(PICKS.length<2) return; pickIdx=(pickIdx+d+PICKS.length)%PICKS.length; renderPick(); }
 function renderPick(){
@@ -238,113 +272,119 @@ function renderPick(){
   const many=PICKS.length>1;
   box.innerHTML=`${poster?`<img src="${poster}" alt="">`:`<div class="pv-noposter">no poster</div>`}
     <div class="pv-info">
-      <h3>${esc(hit.title)} ${yr?`(${yr})`:""}</h3>
-      <div class="meta">${many?`Match ${pickIdx+1} of ${PICKS.length} — saving uses this one`:"Matched on TMDB — saving will use this"}</div>
-      <p>${esc(hit.overview||"No synopsis on file.")}</p>
+      <div class="pv-title">${esc(hit.title)}${yr?` <span style="color:var(--muted);font-weight:400">(${yr})</span>`:""}</div>
+      <div class="pv-meta">${many?`Result ${pickIdx+1} of ${PICKS.length} — saving uses this one`:"Matched on TMDB"}</div>
+      <div class="pv-overview">${esc(hit.overview||"No synopsis on file.")}</div>
       ${many?`<div class="pv-nav">
-        <button type="button" class="pv-arrow" onclick="pickNav(-1)">‹ Prev</button>
+        <button class="pv-arrow" type="button" onclick="pickNav(-1)">‹ Prev</button>
         <span class="pv-count">${pickIdx+1} / ${PICKS.length}</span>
-        <button type="button" class="pv-arrow" onclick="pickNav(1)">Next ›</button>
+        <button class="pv-arrow" type="button" onclick="pickNav(1)">Next ›</button>
       </div>`:""}
     </div>`;
-  // lock the chosen film into the form so Save (and the board's own lookup) use exactly this match
   $("f_title").value=hit.title;
   if(yr) $("f_year").value=yr;
 }
 
 async function save(){
-  if(!CINEMA_API){ setMsg("Can't save — CINEMA_API not set yet.","err"); return; }
+  if(!CINEMA_API){ flash("msg","Can't save — CINEMA_API not set yet.",true); return; }
   const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
     date:$("f_date").value, time:$("f_time").value, title:$("f_title").value.trim(),
     year:$("f_year").value.trim(), cert:$("f_cert").value, blurb:$("f_blurb").value.trim() };
-  if(!rec.date||!rec.title){ setMsg("Need at least a date and a film title.","err"); return; }
-  const firstOfDay=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dkeyOf(rec.date)).length===0;
-  if(firstOfDay && !rec.time){ setMsg("Set a start time for the first film of the night — later films can be left blank to auto-time.","err"); return; }
-  setMsg("Saving…","");
+  if(!rec.date||!rec.title){ flash("msg","Need at least a date and a film title.",true); return; }
+  const firstOfDay=(ENTRIES||[]).filter(c=>dkeyOf(c.date)===dkeyOf(rec.date)&&!/^private\s+booking$/i.test((c.title||"").trim())).length===0;
+  if(firstOfDay&&!rec.time){ flash("msg","Set a start time for the first film — later films can be left blank to auto-time.",true); return; }
+  flash("msg","Saving…");
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
     const j=await r.json();
-    if(j.ok){ setMsg("Saved ✓ — it'll show on the Cinema board.","ok"); clearForm(true); loadEntries(); }
-    else if(j.error==="pin"){ setMsg("Wrong PIN — reload and try again.","err"); }
-    else setMsg("Save failed: "+(j.error||"unknown"),"err");
-  }catch(e){ setMsg("Save failed: "+e.message,"err"); }
+    if(j.ok){ flash("msg","Saved ✓ — showing on the Cinema board.","ok"); clearForm(true); loadEntries(); }
+    else if(j.error==="pin"){ flash("msg","Wrong PIN.",true); }
+    else flash("msg","Save failed: "+(j.error||"unknown"),true);
+  }catch(e){ flash("msg","Save failed: "+e.message,true); }
 }
 
 async function del(id){
   if(!CINEMA_API) return;
   try{
-    const r=await fetch(CINEMA_API,{method:"POST",
-      body:JSON.stringify({action:"delete",pin:CINEMA_WRITE_KEY,id})});
-    const j=await r.json(); if(j.ok) loadEntries(); else setMsg("Couldn't delete: "+(j.error||""),"err");
-  }catch(e){ setMsg("Delete failed: "+e.message,"err"); }
+    const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify({action:"delete",pin:CINEMA_WRITE_KEY,id})});
+    const j=await r.json(); if(j.ok) loadEntries(); else flash("msg","Couldn't delete: "+(j.error||""),true);
+  }catch(e){ flash("msg","Delete failed: "+e.message,true); }
 }
 
 async function loadEntries(){
   const box=$("entries");
-  if(!CINEMA_API){ box.innerHTML="<div class='ce'>Connect the Apps Script to see saved screenings.</div>"; ENTRIES=[]; updateTimeHint(); return; }
+  if(!CINEMA_API){ box.innerHTML=`<div class="entry-empty">Connect the Apps Script to see saved screenings.</div>`; ENTRIES=[]; updateTimeHint(); return; }
   try{
     const list=await (await fetch(CINEMA_API+"?action=list&t="+Date.now(),{cache:"no-store"})).json();
     ENTRIES=Array.isArray(list)?list:[];
     const today=new Date(); today.setHours(0,0,0,0);
     const up=(list||[]).filter(c=>{ const d=new Date(c.date); return !isNaN(d)&&d>=today; })
       .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-    if(!up.length){ box.innerHTML="<div class='ce'>Nothing scheduled yet.</div>"; updateTimeHint(); return; }
-    box.innerHTML=up.map(c=>{
+    if(!up.length){ box.innerHTML=`<div class="entry-empty">Nothing scheduled yet.</div>`; updateTimeHint(); return; }
+    box.innerHTML="";
+    up.forEach(c=>{
       const d=new Date(c.date);
       const when=isNaN(d)?c.date:d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
       const tt=(String(c.time||"").match(/(\d{1,2}:\d{2})/)||[])[1]||"";
-      return `<div class="entry"><span class="when">${when}${tt?` · ${esc(tt)}`:" · auto"}</span>
-        <span class="ttl">${esc(c.title)} ${c.year?`<span class="ce">(${esc(c.year)})</span>`:""}</span>
-        <button class="btn danger" onclick="del('${esc(c.id)}')">Remove</button></div>`;
-    }).join("");
+      const isPrivate=/^private\s+booking$/i.test((c.title||"").trim());
+      const row=document.createElement("div"); row.className="entry-row";
+      row.innerHTML=`
+        <span class="entry-when">${when}${tt?` · ${esc(tt)}`:" · auto"}</span>
+        <span class="entry-title">${esc(isPrivate?"Private Booking":c.title)}
+          ${c.year&&!isPrivate?`<span class="entry-year">(${esc(c.year)})</span>`:""}
+          ${isPrivate?`<span class="entry-private">🔒 booking</span>`:""}
+        </span>
+        <button class="entry-del" onclick="del('${esc(c.id)}')">Remove</button>`;
+      box.appendChild(row);
+    });
     updateTimeHint();
-  }catch(e){ box.innerHTML=`<div class='ce'>Couldn't load: ${esc(e.message)}</div>`; }
+  }catch(e){ box.innerHTML=`<div class="entry-empty">Couldn't load: ${esc(e.message)}</div>`; }
 }
 
 function clearForm(keepDate){
   ["f_title","f_year","f_blurb"].forEach(i=>$(i).value="");
-  PICKS=[]; pickIdx=0;
-  $("preview").classList.remove("show");
-  $("f_time").value="";   // first film: type a time · later films: leave blank to auto-chain
+  PICKS=[]; pickIdx=0; $("preview").classList.remove("show");
+  $("f_time").value="";
 }
-function setMsg(t,c){ const m=$("msg"); m.textContent=t; m.className="msg"+(c?" "+c:""); }
-function esc(s){return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
 
-/* Format duration input as h:mm live — allows 1–9 hours, 00–59 minutes */
+/* ── Private booking ── */
 function fmtDur(el){
-  let v = el.value.replace(/[^0-9]/g,""); // digits only
-  if(v.length === 0){ el.value = ""; return; }
-  if(v.length === 1){ el.value = v; return; }               // "2"       → wait for more
-  if(v.length === 2){ el.value = v[0]+":"+v[1]; return; }  // "20"      → "2:0"
-  if(v.length === 3){ el.value = v[0]+":"+v.slice(1); return; } // "230" → "2:30"
-  // 4+ digits — keep first as hours, next two as minutes, ignore rest
-  el.value = v[0]+":"+v.slice(1,3);
+  let v=el.value.replace(/[^0-9]/g,"");
+  if(v.length===0){ el.value=""; return; }
+  if(v.length===1){ el.value=v; return; }
+  if(v.length===2){ el.value=v[0]+":"+v[1]; return; }
+  if(v.length===3){ el.value=v[0]+":"+v.slice(1); return; }
+  el.value=v[0]+":"+v.slice(1,3);
 }
-
 async function saveBooking(){
-  if(!CINEMA_API){ document.getElementById("pbMsg").textContent="Can't save — CINEMA_API not set."; return; }
-  const date=$("pb_date").value || $("f_date").value;
+  if(!CINEMA_API){ flash("pbMsg","Can't save — CINEMA_API not set.",true); return; }
+  const date=$("pb_date").value||$("f_date").value;
   const time=$("pb_time").value.trim();
   const duration=$("pb_duration").value.trim();
-  if(!date){ document.getElementById("pbMsg").textContent="Pick a date first."; document.getElementById("pbMsg").className="msg err"; return; }
-  if(!time){ document.getElementById("pbMsg").textContent="Add a start time — it shows on the board."; document.getElementById("pbMsg").className="msg err"; return; }
   const note=$("pb_note").value.trim();
+  if(!date){ flash("pbMsg","Pick a date first.",true); return; }
+  if(!time){ flash("pbMsg","Add a start time — it shows on the board.",true); return; }
   const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
-    date,
-    time,                  // start time — shows large on the board
-    title:"PRIVATE BOOKING",
-    year:"",
-    cert:duration,         // duration stored in cert field — shown as a pill next to the time
-    blurb:note||"" };
-  const pbMsg=document.getElementById("pbMsg");
-  pbMsg.textContent="Saving…"; pbMsg.className="msg";
+    date, time, title:"PRIVATE BOOKING", year:"", cert:duration, blurb:note||"" };
+  flash("pbMsg","Saving…");
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
     const j=await r.json();
-    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board."; pbMsg.className="msg ok"; $("pb_time").value=""; $("pb_duration").value=""; $("pb_note").value=""; loadEntries(); }
-    else { pbMsg.textContent="Save failed: "+(j.error||"unknown"); pbMsg.className="msg err"; }
-  }catch(e){ pbMsg.textContent="Save failed: "+e.message; pbMsg.className="msg err"; }
+    if(j.ok){
+      flash("pbMsg","Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board.","ok");
+      $("pb_time").value=""; $("pb_duration").value=""; $("pb_note").value="";
+      loadEntries();
+    } else { flash("pbMsg","Save failed: "+(j.error||"unknown"),true); }
+  }catch(e){ flash("pbMsg","Save failed: "+e.message,true); }
 }
+
+/* ── Utils ── */
+function flash(id,msg,warn){
+  const el=$(id); if(!el) return;
+  el.textContent=msg; el.className="msg show"+(warn?" warn":" ok");
+  clearTimeout(el._t); el._t=setTimeout(()=>{ el.textContent=""; el.className="msg"; },5000);
+}
+function esc(s){ return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
 </script>
 </body>
 </html>
