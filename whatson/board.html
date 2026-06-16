@@ -1513,6 +1513,22 @@ body.landscape .db-img{object-fit:contain;width:100%;height:100%}
   box-shadow:0 0 8px var(--spectre);flex-shrink:0}
 .cine-day-label.tomorrow{color:var(--bone-faint)}
 .cine-day-label.tomorrow .cdl-dot{background:var(--bone-faint);box-shadow:none}
+/* Now Playing badge */
+.now-playing-badge{
+  display:inline-flex;align-items:center;gap:.45em;
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.22em;font-size:clamp(8px,.95vw,13px);
+  color:var(--ember);
+}
+.now-playing-badge .np-dot{
+  width:.6em;height:.6em;border-radius:50%;
+  background:var(--ember);box-shadow:0 0 10px var(--ember);
+  flex-shrink:0;animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
+/* When now playing, tint the cinfo section */
+.cine-section.now-playing .cname{color:#fff}
+.cine-section.now-playing .cmeta .cwhen{color:var(--ember)}
 
 /* ── private booking card ── */
 .cin-booking .cb-slot{
@@ -2814,11 +2830,14 @@ function buildCinBar(){
 /* ── helpers for the new cinema layout ── */
 function isPrivateBooking(f){ return /^private\s+booking$/i.test((f.title||"").trim()); }
 
-function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand){
+function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand, isNowPlaying){
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
+  const nowBadge=isNowPlaying
+    ?`<span class="now-playing-badge"><span class="np-dot"></span>Now Playing</span>`:"";
   const meta=`<div class="cmeta">
-    <span class="cwhen">${esc(whenTxt)}</span>
+    ${nowBadge}
+    <span class="cwhen">${esc(isNowPlaying?"Now Playing":whenTxt)}</span>
     ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
     ${(film.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(film.cert.trim()))?`<span class="cert">${esc(film.cert.trim())}</span>`:""}
     ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
@@ -2948,7 +2967,11 @@ async function renderCinema(now, validDate){
     const reel=(data.backdrops&&data.backdrops.length)
       ?`<div class="reel">${data.backdrops.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
       :"";
-    heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE);
+    // Film is "now playing" if it has started and hasn't finished yet
+    const isNowPlaying = heroFilm._start!=null && heroFilm._date===todayDkey
+      && now.min >= (isLateNight ? heroFilm._start - 1440 : heroFilm._start)
+      && !filmFinished(heroFilm);
+    heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE, isNowPlaying);
   }
 
   // Today rest (Up Next strip) — active films after the hero on today's date
@@ -2968,8 +2991,8 @@ async function renderCinema(now, validDate){
 
   const todayBookHTML=todayBooking?`<div class="cine-section">${buildBookingCard(todayBooking)}</div>`:"";
 
-  const todaySection=heroFilm||upNextHTML?`<div class="cine-section">
-    <div class="cine-day-label"><span class="cdl-dot"></span>Tonight</div>
+  const todaySection=heroFilm||upNextHTML?`<div class="cine-section${isNowPlaying?" now-playing":""}">
+    <div class="cine-day-label"><span class="cdl-dot"></span>${isNowPlaying?"Now Playing":"Tonight"}</div>
     ${heroHTML}${upNextHTML}
   </div>`:"";
 
