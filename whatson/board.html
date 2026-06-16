@@ -1502,6 +1502,59 @@ body.landscape .db-img{object-fit:contain;width:100%;height:100%}
 .stage .rooms:has(.db-empty){
   position:absolute;inset:0;padding:0;overflow:hidden;
 }
+
+/* ── cinema: today/tomorrow section splits ── */
+.cine-section{display:flex;flex-direction:column;flex:0 0 auto;width:100%;max-width:820px}
+.cine-section+.cine-section{margin-top:clamp(10px,1.6vh,18px);padding-top:clamp(10px,1.6vh,18px);border-top:1px solid var(--rule)}
+.cine-day-label{font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.28em;font-size:clamp(9px,1.1vw,14px);color:var(--spectre);
+  margin-bottom:clamp(6px,1vh,12px);display:flex;align-items:center;gap:.6em}
+.cine-day-label .cdl-dot{width:.55em;height:.55em;border-radius:50%;background:var(--spectre);
+  box-shadow:0 0 8px var(--spectre);flex-shrink:0}
+.cine-day-label.tomorrow{color:var(--bone-faint)}
+.cine-day-label.tomorrow .cdl-dot{background:var(--bone-faint);box-shadow:none}
+
+/* ── private booking card ── */
+.cin-booking{
+  border:1px solid rgba(116,227,193,.25);border-radius:6px;
+  background:linear-gradient(120deg,rgba(116,227,193,.06),rgba(116,227,193,.02));
+  padding:clamp(14px,2vh,24px) clamp(16px,2.4vw,28px);
+  display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);
+  flex:0 0 auto;width:100%;max-width:820px;
+}
+.cin-booking .cb-eyebrow{font-family:"Cinzel",serif;font-size:clamp(9px,1vw,12px);
+  letter-spacing:.32em;text-transform:uppercase;color:var(--spectre);opacity:.85}
+.cin-booking .cb-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;
+  font-size:clamp(18px,2.8vw,38px);color:var(--bone);line-height:1.05}
+.cin-booking .cb-tagline{font-family:"EB Garamond",serif;font-style:italic;
+  font-size:clamp(13px,1.5vw,22px);color:var(--bone-dim);line-height:1.4}
+.cin-booking .cb-body{font-family:"EB Garamond",serif;
+  font-size:clamp(12px,1.35vw,18px);color:var(--bone-dim);line-height:1.5}
+.cin-booking .cb-rule{height:1px;background:var(--rule);flex-shrink:0}
+.cin-booking .cb-specs{display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(4px,.6vh,8px) clamp(12px,1.6vw,20px)}
+.cin-booking .cb-spec{font-family:"EB Garamond",serif;font-size:clamp(11px,1.2vw,16px);
+  color:var(--bone-dim);display:flex;gap:.5em;align-items:baseline}
+.cin-booking .cb-spec b{font-family:"Cinzel",serif;font-size:.78em;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--bone-faint);flex-shrink:0}
+.cin-booking .cb-equip{display:flex;flex-wrap:wrap;gap:clamp(4px,.5vh,7px) clamp(6px,.8vw,10px)}
+.cin-booking .cb-tag{font-family:"EB Garamond",serif;font-size:clamp(10px,1.1vw,15px);
+  color:var(--bone-dim);border:1px solid var(--rule);border-radius:3px;
+  padding:.2em .7em;white-space:nowrap}
+.cin-booking .cb-note{font-family:"EB Garamond",serif;font-style:italic;
+  font-size:clamp(10px,1.1vw,14px);color:var(--bone-faint);border-top:1px solid var(--rule);
+  padding-top:clamp(6px,.9vh,10px);line-height:1.4}
+
+/* landscape tweaks for the new sections */
+body.landscape .cine-section{max-width:none;width:100%}
+body.landscape .cin-booking{max-width:none}
+body.landscape .cin-booking .cb-specs{grid-template-columns:repeat(3,1fr)}
+body.landscape .cin-booking .cb-title{font-size:clamp(14px,1.8vw,26px)}
+body.landscape .cin-booking .cb-tagline{font-size:clamp(11px,1.2vw,16px)}
+body.landscape .cin-booking .cb-body{font-size:clamp(10px,1.1vw,14px)}
+body.landscape .cin-booking .cb-spec{font-size:clamp(9px,.95vw,13px)}
+body.landscape .cin-booking .cb-tag{font-size:clamp(9px,.95vw,12px)}
+body.landscape .cine-day-label{font-size:clamp(8px,.9vw,11px)}
 </style>
 </head>
 <body>
@@ -2595,6 +2648,40 @@ function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
 /* Films for a given date, enriched from TMDB, with rough start times chained
    from the first film's runtime (+15 min changeover) when later times are blank. */
 const GAP_MIN=15;
+// Films before this hour (3am) are treated as part of the previous calendar night
+const LATE_CUTOFF_HOUR = 3;
+
+/* Private booking info card — shown when title === "PRIVATE BOOKING" */
+function buildBookingCard(){
+  return `<div class="cin-booking">
+    <div class="cb-eyebrow">Book Our Space</div>
+    <div class="cb-title">Want to Book Your Event?</div>
+    <div class="cb-tagline">Magic, theatre, drag, cabaret, science, lectures, improv &amp; more</div>
+    <div class="cb-body">We provide our cinema space to community groups to put on events for free. We do fill up months in advance, so reach out in plenty of time.</div>
+    <div class="cb-rule"></div>
+    <div class="cb-specs">
+      <div class="cb-spec"><b>Capacity</b> Approx. 35</div>
+      <div class="cb-spec"><b>Stage</b> 13 ft wide · 7 ft deep</div>
+      <div class="cb-spec"><b>Height</b> 10 ft</div>
+      <div class="cb-spec"><b>Access</b> No wheelchair · 18+ only</div>
+    </div>
+    <div class="cb-equip">
+      <span class="cb-tag">Acer Predator Z650 Projector</span>
+      <span class="cb-tag">Marantz AV7706 Pre-Amp</span>
+      <span class="cb-tag">Sony Blu-Ray Player</span>
+      <span class="cb-tag">DVD Drive &amp; USB</span>
+      <span class="cb-tag">HDMI &amp; Aux inputs</span>
+      <span class="cb-tag">Alto TS315 Speakers</span>
+      <span class="cb-tag">Alto TS318S Subwoofers</span>
+      <span class="cb-tag">Allen &amp; Heath ZED-10 Mixer</span>
+      <span class="cb-tag">Shure SM58 Mics available</span>
+      <span class="cb-tag">Par Stage Lighting</span>
+      <span class="cb-tag">Quantum 384 Lighting Desk</span>
+      <span class="cb-tag">Wi-Fi (no streaming)</span>
+    </div>
+    <div class="cb-note">The entire venue is 18+ only. Anyone who looks under 25 must bring a driving licence or passport. Contact us well in advance — we book up months ahead.</div>
+  </div>`;
+}
 async function buildCinemaTonight(now){
   const dkey=isoDate(now);
   let films=(state.cinema||[]).filter(c=>normDate(c.date)===dkey)
@@ -2636,8 +2723,13 @@ async function buildUpcomingCinema(now, max){
 }
 function cinemaDateLabel(dstr, now){
   const today=isoDate(now);
-  if(dstr<=today) return "Tonight";
-  const d=new Date(dstr+"T00:00:00"), t=new Date(today+"T00:00:00");
+  // Late-night: if it's before LATE_CUTOFF_HOUR, "tonight" means yesterday's date
+  const effectiveToday = (now.min < LATE_CUTOFF_HOUR*60)
+    ? isoDate({...now, y:now.date.getFullYear(), mo:now.date.getMonth()+1,
+        day:new Date(now.date.getFullYear(), now.date.getMonth(), now.date.getDate()-1).getDate()})
+    : today;
+  if(dstr<=effectiveToday) return "Tonight";
+  const d=new Date(dstr+"T00:00:00"), t=new Date(effectiveToday+"T00:00:00");
   const diff=Math.round((d-t)/86400000);
   if(diff===1) return "Tomorrow";
   return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
@@ -2659,99 +2751,153 @@ function buildCinBar(){
   </div>`;
 }
 
-async function renderCinema(now, validDate){
-  const wrap=document.getElementById("rooms");
-  if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
-  const films=await buildUpcomingCinema(now, 4);
-  const sig="cine|"+isoDate(now)+"|"+films.map(f=>f._date+f.title+f.time).join(",");
-  if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return; // don't restart the reel each minute
-  state._cinemaSig=sig;
-  if(!films.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
+/* ── helpers for the new cinema layout ── */
+function isPrivateBooking(f){ return /^private\s+booking$/i.test((f.title||"").trim()); }
 
-  const film=films[0], data=film._tmdb||{};
+function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand){
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
-  const whenTxt=cinemaDateLabel(film._date, now);
-  const timeTxt=film._start!=null?(film._approx?"~":"")+clockLabel(film._start):(film.time||"");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
-  const reel=(data.backdrops&&data.backdrops.length)
-    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
-    : "";
+  const meta=`<div class="cmeta">
+    <span class="cwhen">${esc(whenTxt)}</span>
+    ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
+    ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+    ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+    ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+  </div>`;
+  const posterEl=data.poster
+    ?`<img src="${esc(data.poster)}" alt="">`
+    :`<div class="noposter">${esc(data.title||film.title)}</div>`;
+  if(isLand){
+    return `<div class="cinmain">
+      <div class="ci-ls-left">
+        <div class="poster">${posterEl}</div>
+        ${reel}
+      </div>
+      <div class="ci-ls-right">
+        <div class="cinfo">${meta}
+          <h2 class="cname">${esc(data.title||film.title)}</h2>
+          ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+        </div>
+      </div>
+    </div>`;
+  }
+  return `<div class="cinmain">
+    <div class="poster">${posterEl}</div>
+    <div class="cinfo">${meta}
+      <h2 class="cname">${esc(data.title||film.title)}</h2>
+      ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+      ${reel}
+    </div>
+  </div>`;
+}
 
-  // Up Next (left) and Later (right) — each its own banner with the film's name + a gently-zooming still
-  const labels=["Up Next","Later"];
-  const upNext=films.slice(1,3).map((f,i)=>{
+function buildUpNextStrip(films, now, firstLabel){
+  const labels=[firstLabel||"Up Next","Later"];
+  const cards=films.slice(0,2).map((f,i)=>{
     const d=f._tmdb||{};
     const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
     const when=cinemaDateLabel(f._date,now)+(tt?` · ${tt}`:"");
     const posterHTML=d.poster
-      ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
-      : `<div class="un-poster un-nopost">▦</div>`;
+      ?`<img class="un-poster" src="${esc(d.poster)}" alt="">`
+      :`<div class="un-poster un-nopost">\u25a6</div>`;
     const backs=(d.backdrops&&d.backdrops.length)?d.backdrops.slice(0,4):(d.poster?[d.poster]:[]);
     const backImgs=backs.map((u,j)=>`<img src="${esc(u)}" alt=""${j===0?' class="active"':''}>`).join("");
-    return `<div class="un-card">
-      ${posterHTML}
-      <div class="un-back">
-        ${backImgs}
+    return `<div class="un-card">${posterHTML}<div class="un-back">${backImgs}
         <div class="un-overlay">
-          <div class="un-label2">${labels[i]}</div>
+          <div class="un-label2">${esc(labels[i])}</div>
           <div class="un-title">${esc(d.title||f.title)}</div>
           <div class="un-when">${esc(when)}</div>
-        </div>
-      </div></div>`;
+        </div></div></div>`;
   }).join("");
-  const upnextHTML=upNext?`<div class="upnext"><div class="un-row">${upNext}</div></div>`:"";
+  return cards?`<div class="upnext"><div class="un-row">${cards}</div></div>`:"";
+}
 
-  if(IS_LANDSCAPE){
-    // Landscape: poster+reel in left column, all text+upnext in right column
-    wrap.innerHTML=`
-      <div class="cinema">
-        <div class="cinmain">
-          <div class="ci-ls-left">
-            <div class="poster">
-              ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
-            </div>
-            ${reel}
-          </div>
-          <div class="ci-ls-right">
-            <div class="cinfo">
-              <div class="cmeta">
-                <span class="cwhen">${esc(whenTxt)}</span>
-                ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
-                ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-                ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-                ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
-              </div>
-              <h2 class="cname">${esc(data.title||film.title)}</h2>
-              ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
-            </div>
-            ${upnextHTML}
-          </div>
-        </div>
-      </div>`;
-  } else {
-    wrap.innerHTML=`
-      <div class="cinema">
-        <div class="cinmain">
-          <div class="poster">
-            ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
-          </div>
-          <div class="cinfo">
-            <div class="cmeta">
-              <span class="cwhen">${esc(whenTxt)}</span>
-              ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
-              ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-              ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-              ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
-            </div>
-            <h2 class="cname">${esc(data.title||film.title)}</h2>
-            ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
-            ${reel}
-          </div>
-          ${upnextHTML}
-        </div>
-      </div>`;
+function buildTomorrowRow(f, now){
+  const d=f._tmdb||{};
+  const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
+  const when=cinemaDateLabel(f._date,now)+(tt?` · ${tt}`:"");
+  const posterHTML=d.poster
+    ?`<img class="un-poster" src="${esc(d.poster)}" alt="">`
+    :`<div class="un-poster un-nopost">\u25a6</div>`;
+  const backs=(d.backdrops&&d.backdrops.length)?d.backdrops.slice(0,3):(d.poster?[d.poster]:[]);
+  const backImgs=backs.map((u,j)=>`<img src="${esc(u)}" alt=""${j===0?' class="active"':''}>`).join("");
+  return `<div class="un-card">${posterHTML}<div class="un-back">${backImgs}
+      <div class="un-overlay">
+        <div class="un-label2">${esc(when)}</div>
+        <div class="un-title">${esc(d.title||f.title)}</div>
+        ${d.runtime?`<div class="un-when">${Math.floor(d.runtime/60)}h ${d.runtime%60}m${f.cert?` · ${esc(f.cert)}`:""}</div>`:""}
+      </div></div></div>`;
+}
+
+async function renderCinema(now, validDate){
+  const wrap=document.getElementById("rooms");
+  if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
+
+  const allFilms=await buildUpcomingCinema(now, 8);
+  const sig="cine|"+isoDate(now)+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
+  if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return;
+  state._cinemaSig=sig;
+  if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
+
+  // Late-night: before 3am, "tonight" = yesterday's calendar date
+  const isLateNight = now.min < LATE_CUTOFF_HOUR * 60;
+  const todayDkey = isLateNight
+    ? (()=>{ const d=new Date(now.date); d.setDate(d.getDate()-1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })()
+    : isoDate(now);
+  const tomorrowDkey = isLateNight ? isoDate(now)
+    : (()=>{ const d=new Date(now.date); d.setDate(d.getDate()+1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })();
+
+  const todayFilms    = allFilms.filter(f=>f._date===todayDkey);
+  const tomorrowFilms = allFilms.filter(f=>f._date===tomorrowDkey);
+  const todayReal     = todayFilms.filter(f=>!isPrivateBooking(f));
+  const todayBooking  = todayFilms.find(f=>isPrivateBooking(f));
+  const tmrwReal      = tomorrowFilms.filter(f=>!isPrivateBooking(f));
+  const tmrwBooking   = tomorrowFilms.find(f=>isPrivateBooking(f));
+
+  const heroFilm = todayReal[0] || tmrwReal[0];
+  if(!heroFilm && !todayBooking && !tmrwBooking){
+    wrap.innerHTML=cinemaMsg("No screenings listed yet."); return;
   }
 
+  // Hero film
+  let heroHTML="";
+  if(heroFilm){
+    const data=heroFilm._tmdb||{};
+    const whenTxt=cinemaDateLabel(heroFilm._date, now);
+    const timeTxt=heroFilm._start!=null?(heroFilm._approx?"~":"")+clockLabel(heroFilm._start):(heroFilm.time||"");
+    const reel=(data.backdrops&&data.backdrops.length)
+      ?`<div class="reel">${data.backdrops.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
+      :"";
+    heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE);
+  }
+
+  // Today rest (Up Next strip) — films after the hero on the same day
+  const todayRest = todayReal.slice(heroFilm&&heroFilm._date===todayDkey?1:0);
+  const upNextHTML = buildUpNextStrip(todayRest, now, "Up Next");
+
+  // Tomorrow section
+  let tomorrowHTML="";
+  if(tmrwReal.length||tmrwBooking){
+    const tmrwCards=tmrwReal.map(f=>buildTomorrowRow(f,now)).join("");
+    tomorrowHTML=`<div class="cine-section">
+      <div class="cine-day-label tomorrow"><span class="cdl-dot"></span>Tomorrow</div>
+      ${tmrwCards?`<div class="upnext"><div class="un-row">${tmrwCards}</div></div>`:""}
+      ${tmrwBooking?buildBookingCard():""}
+    </div>`;
+  }
+
+  const todayBookHTML=todayBooking?`<div class="cine-section">${buildBookingCard()}</div>`:"";
+
+  const todaySection=heroFilm||upNextHTML?`<div class="cine-section">
+    <div class="cine-day-label"><span class="cdl-dot"></span>Tonight</div>
+    ${heroHTML}${upNextHTML}
+  </div>`:"";
+
+  wrap.innerHTML=`<div class="cinema"><div class="cinmain" style="flex-direction:column;align-items:${IS_LANDSCAPE?"flex-start":"center"};width:100%">
+    ${todaySection}
+    ${todayBookHTML}
+    ${tomorrowHTML}
+  </div></div>`;
   // crossfade the hero backdrop reel (slow dissolve, no video)
   clearInterval(state._reelTimer);
   const imgs=wrap.querySelectorAll(".reel img");

@@ -139,6 +139,19 @@ a{color:var(--spectre)}
   </div>
   <div class="msg" id="msg"></div>
 
+  <details style="margin-top:18px;border:1px solid var(--rule);border-radius:5px;padding:12px 14px">
+    <summary style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);cursor:pointer">Private Booking slot</summary>
+    <p style="margin:10px 0 6px;font-size:14px;color:var(--bone-dim);line-height:1.4">Adds a "Private Booking" entry for the chosen date — the board shows the venue hire info card instead of a film listing.</p>
+    <div class="rowflex" style="margin-top:8px">
+      <div><label>Date for booking</label><input type="date" id="pb_date"></div>
+      <div><label>Optional note</label><input type="text" id="pb_note" placeholder="e.g. Closed for private event"></div>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn solid" style="background:rgba(116,227,193,.18);border-color:var(--spectre);color:var(--spectre)" onclick="saveBooking()">Add Private Booking slot</button>
+    </div>
+    <div class="msg" id="pbMsg"></div>
+  </details>
+
   <div class="list">
     <h2>Upcoming screenings</h2>
     <div id="entries"><div class="ce">Loading…</div></div>
@@ -288,6 +301,24 @@ function clearForm(keepDate){
 }
 function setMsg(t,c){ const m=$("msg"); m.textContent=t; m.className="msg"+(c?" "+c:""); }
 function esc(s){return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
+
+async function saveBooking(){
+  if(!CINEMA_API){ document.getElementById("pbMsg").textContent="Can't save — CINEMA_API not set."; return; }
+  const date=$("pb_date").value || $("f_date").value;
+  if(!date){ document.getElementById("pbMsg").textContent="Pick a date first."; document.getElementById("pbMsg").className="msg err"; return; }
+  const note=$("pb_note").value.trim();
+  const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
+    date, time:"", title:"PRIVATE BOOKING", year:"", cert:"",
+    blurb:note||"Venue hired for private event" };
+  const pbMsg=document.getElementById("pbMsg");
+  pbMsg.textContent="Saving…"; pbMsg.className="msg";
+  try{
+    const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
+    const j=await r.json();
+    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — it shows the hire info card on the board."; pbMsg.className="msg ok"; loadEntries(); }
+    else { pbMsg.textContent="Save failed: "+(j.error||"unknown"); pbMsg.className="msg err"; }
+  }catch(e){ pbMsg.textContent="Save failed: "+e.message; pbMsg.className="msg err"; }
+}
 </script>
 </body>
 </html>
