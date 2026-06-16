@@ -2704,7 +2704,9 @@ function buildBookingCard(film){
     <div class="cb-eyebrow">Private Booking${startTime?" · Cinema Space":"" }</div>
     ${timeHTML}
     <div class="cb-title">Want to Book Your Event?</div>
-    <div class="cb-tagline">Magic, theatre, drag, cabaret, science, lectures, improv &amp; more</div>
+    ${film&&film.blurb&&film.blurb.trim()&&film.blurb!=="Venue hired for private event"
+      ? `<div class="cb-tagline" style="color:var(--bone);font-style:normal;font-weight:600">${esc(film.blurb.trim())}</div>`
+      : `<div class="cb-tagline">Magic, theatre, drag, cabaret, science, lectures, improv &amp; more</div>`}
     <div class="cb-body">We provide our cinema space to community groups to put on events for free. We do fill up months in advance, so reach out in plenty of time.</div>
     <div class="cb-rule"></div>
     <div class="cb-specs">
@@ -2808,7 +2810,7 @@ function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand){
   const meta=`<div class="cmeta">
     <span class="cwhen">${esc(whenTxt)}</span>
     ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
-    ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+    ${(film.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(film.cert.trim()))?`<span class="cert">${esc(film.cert.trim())}</span>`:""}
     ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
     ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
   </div>`;
@@ -3034,18 +3036,46 @@ async function renderTonight(now, validDate){
   }
 
   const body=document.getElementById("tCineBody"); if(!body) return;
-  body.innerHTML=films.slice(0,3).map(f=>{
+  // Separate private bookings from real films
+  const realFilms   = films.filter(f=>!isPrivateBooking(f));
+  const bookingSlot = films.find(f=>isPrivateBooking(f));
+  const filmRows = realFilms.slice(0,3).map(f=>{
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
     const poster=t.poster?`<img src="${t.poster}" alt="">`:`<div class="noimg">▦</div>`;
+    // cert for real films is the age rating — only show if it looks like one (U/PG/12/15/18/TBC)
+    const certVal = f.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(f.cert.trim()) ? f.cert.trim() : "";
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${time?esc(time):"tonight"}${f.cert?` · <span class="cert">${esc(f.cert)}</span>`:""}${rt?` · ${rt}`:""}</div>
+        <div class="cine-time">${time?esc(time):"tonight"}${certVal?` · <span class="cert">${esc(certVal)}</span>`:""}${rt?` · ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
   }).join("");
+  // Compact booking notice for the tonight panel
+  const bookingRow = bookingSlot ? (()=>{
+    const st=String(bookingSlot.time||"").match(/(\d{1,2}:\d{2})/)?.[1]||"";
+    const dur=bookingSlot.cert&&/^\d+:\d{2}$/.test(bookingSlot.cert.trim())?bookingSlot.cert.trim():"";
+    const note=bookingSlot.blurb||"";
+    let durLabel="", endTime="";
+    if(dur){ const dm=dur.match(/^(\d+):(\d{2})$/);
+      if(dm){ const dh=+dm[1],dmm=+dm[2];
+        if(dh&&dmm) durLabel=`${dh}h ${dmm}m`; else if(dh) durLabel=`${dh}h`; else if(dmm) durLabel=`${dmm}m`;
+        const addM=dh*60+dmm; if(st&&addM){ const [h,m]=st.split(":").map(Number); const tot=h*60+m+addM;
+          endTime=`${String(Math.floor(tot/60)%24).padStart(2,"0")}:${String(tot%60).padStart(2,"0")}`; }
+      }
+    }
+    const timeStr=st?(st+(endTime?" – "+endTime:"")):"";
+    return `<div class="cine-row" style="border-left-color:var(--spectre);background:rgba(116,227,193,.04)">
+      <div class="cine-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--spectre);font-size:1.4em">🔒</div>
+      <div class="cine-meta">
+        <div class="cine-time" style="color:var(--spectre)">${timeStr?esc(timeStr):""}${durLabel?` · <span style="color:var(--bone-faint)">${esc(durLabel)}</span>`:""}</div>
+        <div class="cine-title">Private Booking</div>
+        ${note?`<div class="cine-blurb">${esc(note)}</div>`:""}
+      </div></div>`;
+  })() : "";
+  body.innerHTML = filmRows + bookingRow;
 }
 
 /* =====================================================================

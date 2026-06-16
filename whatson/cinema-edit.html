@@ -150,6 +150,10 @@ a{color:var(--spectre)}
           style="letter-spacing:.12em;font-size:18px"
           oninput="fmtDur(this)"></div>
     </div>
+    <div style="margin-top:10px">
+      <label>Event details <span style="font-size:11px;color:var(--bone-faint);font-family:'EB Garamond',serif;font-style:italic;letter-spacing:0">optional — shown on the board</span></label>
+      <input type="text" id="pb_note" placeholder="e.g. Comedy showcase · doors at 7pm" autocomplete="off">
+    </div>
     <div class="actions" style="margin-top:12px">
       <button class="btn solid" style="background:rgba(116,227,193,.18);border-color:var(--spectre);color:var(--spectre)" onclick="saveBooking()">Add Private Booking slot</button>
     </div>
@@ -324,19 +328,20 @@ async function saveBooking(){
   const duration=$("pb_duration").value.trim();
   if(!date){ document.getElementById("pbMsg").textContent="Pick a date first."; document.getElementById("pbMsg").className="msg err"; return; }
   if(!time){ document.getElementById("pbMsg").textContent="Add a start time — it shows on the board."; document.getElementById("pbMsg").className="msg err"; return; }
+  const note=$("pb_note").value.trim();
   const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
     date,
     time,                  // start time — shows large on the board
     title:"PRIVATE BOOKING",
     year:"",
     cert:duration,         // duration stored in cert field — shown as a pill next to the time
-    blurb:"Venue hired for private event" };
+    blurb:note||"" };
   const pbMsg=document.getElementById("pbMsg");
   pbMsg.textContent="Saving…"; pbMsg.className="msg";
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
     const j=await r.json();
-    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board."; pbMsg.className="msg ok"; $("pb_time").value=""; $("pb_duration").value=""; loadEntries(); }
+    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board."; pbMsg.className="msg ok"; $("pb_time").value=""; $("pb_duration").value=""; $("pb_note").value=""; loadEntries(); }
     else { pbMsg.textContent="Save failed: "+(j.error||"unknown"); pbMsg.className="msg err"; }
   }catch(e){ pbMsg.textContent="Save failed: "+e.message; pbMsg.className="msg err"; }
 }
