@@ -917,9 +917,12 @@ input:disabled{opacity:.4}
 .cinema{height:100%;display:flex;flex-direction:column;overflow:hidden}
 .cinmain{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;
   gap:clamp(6px,1vh,14px);padding-top:clamp(4px,.8vh,10px);overflow:hidden}
+/* cine-section fills available height so content stretches rather than leaving blank gap */
+.cine-section{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;width:100%;max-width:820px}
+.cine-section+.cine-section{flex:0 0 auto}
 .cinema .poster{flex:0 0 auto;border-radius:6px;overflow:hidden;position:relative;
   box-shadow:0 34px 80px -28px #000,0 0 0 1px var(--rule)}
-.cinema .poster img{display:block;height:min(44vh,58vw);max-width:92vw;object-fit:contain;background:#05050a}
+.cinema .poster img{display:block;height:min(52vh,62vw);max-width:92vw;object-fit:contain;background:#05050a}
 .cinema .poster .noposter{display:flex;align-items:center;justify-content:center;height:38vh;width:54vw;
   font-family:"Cinzel",serif;color:var(--bone-dim);padding:1em;text-align:center;background:rgba(255,255,255,.02)}
 .cinema .cinfo{flex:0 1 auto;width:100%;max-width:820px;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:0}
@@ -933,8 +936,8 @@ input:disabled{opacity:.4}
   font-size:clamp(24px,4.4vw,80px);line-height:1.02;margin:.28em 0 .24em;color:var(--bone);
   text-shadow:0 0 30px rgba(116,227,193,.12)}
 .cinema .coverview{flex-shrink:0;font-family:"EB Garamond",serif;font-size:clamp(14px,1.6vw,30px);line-height:1.4;
-  color:var(--bone-dim);max-width:62ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.cinema .reel{margin-top:clamp(8px,1.4vh,16px);width:min(76vw,440px);aspect-ratio:16/9;border-radius:6px;flex:0 0 auto;
+  color:var(--bone-dim);max-width:72ch;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cinema .reel{margin-top:clamp(8px,1.4vh,16px);width:min(86vw,560px);aspect-ratio:16/9;border-radius:6px;flex:0 0 auto;
   overflow:hidden;position:relative;background:#05050a;box-shadow:0 22px 54px -26px #000,0 0 0 1px var(--rule)}
 .cinema .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
   transition:opacity 1.8s ease;transform:scale(1.05);animation:reelKen 19s ease-in-out infinite alternate;will-change:opacity,transform}
@@ -950,7 +953,7 @@ input:disabled{opacity:.4}
 .cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
 .cinema .un-card{flex:1 1 0;min-width:0;display:flex;align-items:stretch;
   border:1px solid var(--rule);border-radius:5px;overflow:hidden;
-  background:#05050a;height:clamp(95px,14vh,175px)}
+  background:#05050a;height:clamp(110px,16vh,200px)}
 .cinema .un-poster{flex:0 0 auto;width:clamp(60px,8.5vw,110px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
 .cinema .un-poster.un-nopost{display:flex;align-items:center;justify-content:center;
   width:clamp(60px,8.5vw,110px);color:var(--bone-faint);font-size:clamp(16px,2vw,44px);
@@ -1392,6 +1395,10 @@ body.landscape .pr-drinks{
   margin-top:0;padding-top:clamp(4px,.6vh,8px);
   gap:clamp(8px,1.2vw,16px);
 }
+body.landscape .prices{align-items:center}
+body.landscape .prices .pr-list{max-width:900px;width:100%}
+body.landscape .pr-drinks{max-width:900px;width:100%}
+body.landscape .pr-member-card{max-width:900px;width:100%;text-align:center}
 body.landscape .prd-col{overflow:hidden}
 body.landscape .prd-head{
   flex-direction:row;align-items:baseline;
@@ -2837,7 +2844,7 @@ function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand, isNowPlaying)
     ?`<span class="now-playing-badge"><span class="np-dot"></span>Now Playing</span>`:"";
   const meta=`<div class="cmeta">
     ${nowBadge}
-    <span class="cwhen">${esc(isNowPlaying?"Now Playing":whenTxt)}</span>
+    ${!isNowPlaying?`<span class="cwhen">${esc(whenTxt)}</span>`:`<span class="cwhen" style="display:none">${esc(whenTxt)}</span>`}
     ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
     ${(film.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(film.cert.trim()))?`<span class="cert">${esc(film.cert.trim())}</span>`:""}
     ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
@@ -2913,48 +2920,9 @@ async function renderCinema(now, validDate){
   if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
 
   const allFilms=await buildUpcomingCinema(now, 8);
-  const sig="cine|"+isoDate(now)+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
-  const sigUnchanged = sig===state._cinemaSig && wrap.querySelector(".cinema");
-  state._cinemaSig=sig;
-  // If only the time changed (not the film list), update Now Playing in-place
-  // rather than rebuilding everything — avoids re-fetching TMDB each minute
-  if(sigUnchanged){
-    const nowMinsCheck = isLateNight ? now.min + 1440 : now.min;
-    const playing = todayActive[0] && todayActive[0]._start!=null
-      && nowMinsCheck >= (isLateNight ? todayActive[0]._start : todayActive[0]._start)
-      && !filmFinished(todayActive[0]);
-    const section=wrap.querySelector(".cine-section");
-    if(section){
-      section.classList.toggle("now-playing", !!playing);
-      const dl=section.querySelector(".cine-day-label");
-      if(dl){
-        const dot=dl.querySelector(".cdl-dot");
-        dl.textContent=playing?"Now Playing":"Tonight";
-        if(dot) dl.prepend(dot);
-      }
-      const badge=section.querySelector(".now-playing-badge");
-      const cwhen=section.querySelector(".cwhen");
-      if(playing){
-        if(!badge){
-          const b=document.createElement("span");
-          b.className="now-playing-badge";
-          b.innerHTML=`<span class="np-dot"></span>Now Playing`;
-          if(cwhen) cwhen.parentNode.insertBefore(b,cwhen);
-        }
-        if(cwhen) cwhen.textContent="Now Playing";
-      } else {
-        if(badge) badge.remove();
-        if(cwhen && todayActive[0]){
-          const tt=todayActive[0]._start!=null?clockLabel(todayActive[0]._start):(todayActive[0].time||"");
-          cwhen.textContent="Tonight"+(tt?" · "+tt:"");
-        }
-      }
-    }
-    return;
-  }
-  if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
+  if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); state._cinemaSig=""; return; }
 
-  // Late-night: before 3am, "tonight" = yesterday's calendar date
+  // ── All timing calculations up front so they're in scope everywhere ──
   const isLateNight = now.min < LATE_CUTOFF_HOUR * 60;
   const todayDkey = isLateNight
     ? (()=>{ const d=new Date(now.date); d.setDate(d.getDate()-1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })()
@@ -2969,32 +2937,47 @@ async function renderCinema(now, validDate){
   const tmrwReal      = tomorrowFilms.filter(f=>!isPrivateBooking(f));
   const tmrwBooking   = tomorrowFilms.find(f=>isPrivateBooking(f));
 
-  // Work out each film's end time (start + runtime + gap), then filter out
-  // films that have already finished — so the hero is always the current or next film.
-  function filmEndMin(f){
-    if(f._start==null) return null;
-    const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120;
-    return f._start + rt; // GAP_MIN not added here — film is "playing" until runtime ends
-  }
   function filmFinished(f){
-    const end=filmEndMin(f);
-    if(end==null) return false;          // no start time — never drop it
-    if(f._date!==todayDkey) return false; // tomorrow's films are never "finished"
-    // Handle films that cross midnight (end > 1440)
+    if(f._start==null) return false;
+    if(f._date!==todayDkey) return false;
+    const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120;
     const nowMins = isLateNight ? now.min + 1440 : now.min;
     const filmStart = (f._start < LATE_CUTOFF_HOUR*60 && !isLateNight) ? f._start + 1440 : f._start;
-    return nowMins > filmStart + (f._tmdb&&f._tmdb.runtime?f._tmdb.runtime:120);
+    return nowMins > filmStart + rt;
   }
 
-  // Active today = films not yet finished
-  const todayActive  = todayReal.filter(f=>!filmFinished(f));
-  // Hero = first active film today, or first tomorrow if everything today is done
-  const heroFilm = todayActive[0] || tmrwReal[0];
+  const todayActive = todayReal.filter(f=>!filmFinished(f));
+  const heroFilm    = todayActive[0] || tmrwReal[0];
+
+  // ── Sig check: if film list unchanged, update Now Playing in-place ──
+  const sig = "cine|"+isoDate(now)+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
+  if(sig===state._cinemaSig && wrap.querySelector(".cinema")){
+    const playing = heroFilm && heroFilm._start!=null && heroFilm._date===todayDkey && !filmFinished(heroFilm)
+      && now.min >= (isLateNight ? heroFilm._start - 1440 : heroFilm._start);
+    const section = wrap.querySelector(".cine-section");
+    if(section){
+      section.classList.toggle("now-playing", !!playing);
+      const dl=section.querySelector(".cine-day-label");
+      if(dl){ const dot=dl.querySelector(".cdl-dot"); dl.textContent=playing?"Now Playing":"Tonight"; if(dot) dl.prepend(dot); }
+      const badge=section.querySelector(".now-playing-badge");
+      const cwhen=section.querySelector(".cwhen");
+      if(playing){
+        if(!badge){ const b=document.createElement("span"); b.className="now-playing-badge"; b.innerHTML=`<span class="np-dot"></span>Now Playing`; if(cwhen) cwhen.parentNode.insertBefore(b,cwhen); }
+        if(cwhen) cwhen.style.display="none"; // hide cwhen when badge is showing — avoids duplicate
+      } else {
+        if(badge) badge.remove();
+        if(cwhen){ cwhen.style.display=""; if(heroFilm){ const tt=heroFilm._start!=null?clockLabel(heroFilm._start):(heroFilm.time||""); cwhen.textContent="Tonight"+(tt?" · "+tt:""); } }
+      }
+    }
+    return;
+  }
+  state._cinemaSig=sig;
+
   if(!heroFilm && !todayBooking && !tmrwBooking){
     wrap.innerHTML=cinemaMsg("No screenings listed yet."); return;
   }
 
-  // Hero film
+  // ── Build hero film HTML ──
   let heroHTML="", isNowPlaying=false;
   if(heroFilm){
     const data=heroFilm._tmdb||{};
@@ -3003,18 +2986,15 @@ async function renderCinema(now, validDate){
     const reel=(data.backdrops&&data.backdrops.length)
       ?`<div class="reel">${data.backdrops.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
       :"";
-    // Film is "now playing" if it has started and hasn't finished yet
     isNowPlaying = heroFilm._start!=null && heroFilm._date===todayDkey
       && now.min >= (isLateNight ? heroFilm._start - 1440 : heroFilm._start)
       && !filmFinished(heroFilm);
     heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE, isNowPlaying);
   }
 
-  // Today rest (Up Next strip) — active films after the hero on today's date
-  const todayRest = todayActive.slice(heroFilm&&heroFilm._date===todayDkey?1:0);
+  const todayRest  = todayActive.slice(heroFilm&&heroFilm._date===todayDkey?1:0);
   const upNextHTML = buildUpNextStrip(todayRest, now, "Up Next");
 
-  // Tomorrow section
   let tomorrowHTML="";
   if(tmrwReal.length||tmrwBooking){
     const tmrwCards=tmrwReal.map(f=>buildTomorrowRow(f,now)).join("");
