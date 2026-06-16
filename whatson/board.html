@@ -1193,130 +1193,238 @@ body.page-switching .stage{will-change:opacity,transform,filter}
    All rules are scoped to body.landscape so portrait is untouched.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── masthead: left/right split instead of centred stack ── */
+/* ── stage: tighter padding on a wide screen ── */
+body.landscape .stage{
+  padding:clamp(10px,1.4vh,20px) clamp(14px,2vw,32px) clamp(8px,1.2vh,14px);
+}
+
+/* ── masthead: eyebrow+title left, date+clock right ── */
 body.landscape .masthead{
   display:flex;align-items:center;justify-content:space-between;
-  text-align:left;padding-bottom:clamp(8px,1.2vh,14px);
+  text-align:left;padding-bottom:clamp(6px,1vh,12px);
+  border-bottom:1px solid var(--rule);
 }
-/* eyebrow + h1 are grouped into .mh-left by JS in landscape mode */
-body.landscape .mh-left{flex:0 0 auto;display:flex;flex-direction:column}
-body.landscape .masthead .eyebrow{margin-bottom:.2em}
-body.landscape .masthead h1{font-size:clamp(18px,2.8vw,38px)}
+body.landscape .mh-left{flex:0 0 auto;display:flex;flex-direction:column;gap:.1em}
+body.landscape .masthead .eyebrow{
+  font-size:clamp(7px,.85vw,11px);margin-bottom:0;
+}
+body.landscape .masthead h1{
+  font-size:clamp(16px,2.2vw,30px);line-height:1;
+}
 body.landscape .masthead .sub{
-  flex:0 0 auto;flex-direction:column;align-items:flex-end;gap:.15em;margin-top:0;
+  flex:0 0 auto;flex-direction:column;align-items:flex-end;gap:.1em;margin-top:0;
 }
-body.landscape .masthead .when{font-size:clamp(11px,1.2vw,18px)}
-body.landscape .masthead .clock{font-size:clamp(14px,1.8vw,26px)}
+body.landscape .masthead .when{
+  font-size:clamp(10px,1.1vw,15px);font-style:italic;
+}
+body.landscape .masthead .clock{
+  font-size:clamp(13px,1.6vw,22px);letter-spacing:.06em;
+}
 
-/* ── rooms: side-by-side columns instead of stacked ── */
+/* ── footer: slightly smaller ── */
+body.landscape .footer{
+  font-size:clamp(7px,.75vw,10px);
+  padding-top:clamp(5px,.8vh,10px);margin-top:clamp(4px,.6vh,8px);
+}
+
+/* ══════════════════════════════════════
+   FRINGE / GIGS — rooms side by side
+   ══════════════════════════════════════ */
 body.landscape .rooms{
-  flex-direction:row;gap:clamp(10px,1.4vw,20px);
-  padding-top:clamp(6px,1vh,12px);
+  flex-direction:row;
+  gap:clamp(8px,1.2vw,16px);
+  padding-top:clamp(5px,.8vh,10px);
 }
 body.landscape .room{
   flex:1 1 0;min-width:0;
   border:1px solid var(--rule);border-radius:4px;
-  padding:clamp(8px,1.2vw,16px);
+  padding:clamp(6px,.9vw,12px);
   background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.005));
 }
-body.landscape .room-head{padding:0 0 clamp(5px,.8vh,9px)}
-body.landscape .room-head h2{font-size:clamp(11px,1.4vw,18px)}
-body.landscape .slots{gap:clamp(4px,.6vh,8px)}
+body.landscape .room-head{padding:0 0 clamp(4px,.6vh,7px)}
+body.landscape .room-head h2{font-size:clamp(10px,1.2vw,16px);letter-spacing:.1em}
+body.landscape .room-head .count{font-size:clamp(7px,.8vw,10px)}
+body.landscape .slots{gap:clamp(3px,.5vh,6px)}
 body.landscape .show{
-  grid-template-columns:clamp(52px,7vw,80px) 1fr;
-  gap:clamp(6px,1vw,14px);
-  padding:clamp(5px,.7vh,9px) clamp(8px,1vw,13px) clamp(5px,.7vh,9px) clamp(9px,1.1vw,14px);
+  grid-template-columns:clamp(48px,6.5vw,76px) 1fr;
+  gap:clamp(5px,.8vw,10px);
+  padding:clamp(4px,.6vh,8px) clamp(6px,.9vw,11px) clamp(4px,.6vh,8px) clamp(7px,.9vw,12px);
 }
-body.landscape .show .time .start{font-size:clamp(12px,1.5vw,20px)}
-body.landscape .show .time .end{font-size:clamp(8px,.9vw,12px)}
-body.landscape .show .name{font-size:clamp(11px,1.4vw,18px)}
-body.landscape .show .genre{font-size:clamp(7px,.8vw,10px)}
-body.landscape .show .desc{font-size:clamp(9px,1vw,13px)}
-body.landscape .ghostslot{font-size:clamp(9px,1vw,13px)}
-body.landscape .empty-room{font-size:clamp(10px,1.1vw,15px)}
-
-/* ── prices board in landscape ── */
-/* Scale down the oversized portrait vw-based fonts, use full width efficiently */
-body.landscape .prices{padding-top:clamp(4px,.8vh,10px)}
-body.landscape .pr-member-card{font-size:clamp(14px,2.2vw,36px);padding:clamp(4px,.6vh,8px) 0 clamp(2px,.4vh,5px)}
-body.landscape .prices .pr-note{font-size:clamp(11px,1.3vw,20px);margin-bottom:clamp(4px,.8vh,10px)}
-body.landscape .prices .pr-list{
-  grid-template-columns:1fr 1fr 1fr;  /* 3 columns instead of 2 — fills wide screen better */
-  gap:clamp(5px,.8vh,10px) clamp(8px,1vw,14px);
+body.landscape .show .time .start{font-size:clamp(11px,1.4vw,18px)}
+body.landscape .show .time .end{font-size:clamp(7px,.8vw,11px);margin-top:.1em}
+body.landscape .show .body{
+  grid-template-columns:clamp(70px,9vw,110px) 1fr;
+  column-gap:clamp(5px,.8vw,10px);
 }
-body.landscape .pr-row{padding:clamp(4px,.6vh,8px) clamp(8px,1.1vw,14px)}
-body.landscape .pr-name{font-size:clamp(14px,1.8vw,28px)}
-body.landscape .pr-sub{font-size:clamp(7px,.85vw,12px)}
-body.landscape .pr-price{font-size:clamp(14px,1.8vw,28px)}
-/* cocktails + shooters section */
-body.landscape .pr-drinks{margin-top:clamp(4px,.6vh,8px);padding-top:clamp(4px,.6vh,8px);gap:clamp(10px,1.4vw,18px)}
-body.landscape .prd-head{font-size:clamp(14px,2vw,30px);margin-bottom:clamp(3px,.5vh,6px);gap:clamp(1px,.2vh,3px)}
-body.landscape .prd-head .prd-heading{font-size:clamp(14px,2vw,30px)}
-body.landscape .prd-head .prd-price{font-size:clamp(13px,1.6vw,24px)}
-body.landscape .prd-list{gap:clamp(3px,.5vh,7px)}
-body.landscape .prd-card{padding:clamp(4px,.6vh,9px) clamp(8px,1.1vw,14px)}
-body.landscape .prd-name{font-size:clamp(12px,1.5vw,22px)}
-body.landscape .prd-ing{font-size:clamp(10px,1.2vw,18px)}
-body.landscape .prd-icon svg{width:clamp(18px,2.2vw,34px);height:clamp(18px,2.2vw,34px)}
-body.landscape .prd-card .prd-icon{font-size:clamp(14px,1.8vw,26px);right:clamp(4px,.7vw,10px)}
+body.landscape .show .name{font-size:clamp(10px,1.25vw,16px);line-height:1.15}
+body.landscape .show .kind{font-size:clamp(7px,.75vw,10px)}
+body.landscape .show .genre{font-size:clamp(6px,.7vw,9px);padding:.15em .45em}
+body.landscape .show .desc{font-size:clamp(8px,.9vw,12px);-webkit-line-clamp:1}
+body.landscape .show .time .price{font-size:clamp(7px,.8vw,10px)}
+body.landscape .ghostslot{font-size:clamp(8px,.9vw,11px);padding:clamp(4px,.6vh,7px) clamp(6px,.9vw,11px)}
+body.landscape .empty-room{font-size:clamp(9px,1vw,13px)}
 
-/* ── tonight layout: gigs left, cinema right ── */
-body.landscape .tonight{flex-direction:row;gap:clamp(12px,1.6vw,22px)}
-body.landscape .t-sec{flex:1;min-width:0}
-body.landscape .t-gigs{flex:1.1 1 0;max-height:none;overflow:visible}
-body.landscape .t-cine{border-left:1px solid var(--rule);padding-left:clamp(10px,1.4vw,18px)}
-body.landscape .t-head{font-size:clamp(11px,1.4vw,18px);padding:0 0 clamp(5px,.8vh,10px)}
+/* ══════════════════════════════════════
+   TONIGHT — gigs left, cinema right
+   ══════════════════════════════════════ */
+body.landscape .tonight{
+  flex-direction:row;gap:clamp(10px,1.4vw,20px);
+}
+body.landscape .t-sec{flex:1;min-width:0;display:flex;flex-direction:column}
+body.landscape .t-gigs{flex:1.15 1 0;max-height:none;overflow:visible}
+body.landscape .t-cine{
+  flex:1 1 0;
+  border-left:1px solid var(--rule);
+  padding-left:clamp(10px,1.4vw,18px);
+}
+body.landscape .t-head{
+  font-size:clamp(10px,1.2vw,16px);
+  padding:0 0 clamp(4px,.7vh,8px);
+  letter-spacing:.1em;
+}
 body.landscape .t-gigs.solo{flex:1 1 0}
-body.landscape .t-rows{gap:clamp(4px,.6vh,8px)}
-body.landscape .show .kind{font-size:clamp(8px,.9vw,12px)}
-
-/* ── cinema layout: poster left, info right ── */
-body.landscape .cinema{flex-direction:row;align-items:stretch;gap:clamp(12px,1.8vw,24px)}
-body.landscape .cinmain{flex-direction:row;align-items:stretch;gap:clamp(12px,1.8vw,24px)}
-
-/* left column: poster + reel stacked */
-body.landscape .ci-ls-left{
-  flex:0 0 auto;width:min(26vw,280px);
-  display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);
+body.landscape .t-rows{gap:clamp(3px,.5vh,7px)}
+/* tonight show rows — date label as time column */
+body.landscape .t-cine-body{gap:clamp(5px,.8vh,10px)}
+body.landscape .cine-row{
+  gap:clamp(8px,1.2vw,14px);
+  padding:clamp(6px,.9vh,11px) clamp(8px,1.1vw,13px);
 }
-body.landscape .cinema .poster{flex:0 0 auto}
+body.landscape .cine-thumb{height:clamp(54px,8vh,82px)}
+body.landscape .cine-time{font-size:clamp(9px,1.1vw,15px)}
+body.landscape .cine-title{font-size:clamp(13px,1.8vw,26px)}
+body.landscape .cine-blurb{font-size:clamp(9px,1vw,14px)}
+
+/* ══════════════════════════════════════
+   CINEMA — poster left, info right
+   ══════════════════════════════════════ */
+body.landscape .cinema{flex-direction:row;align-items:stretch}
+body.landscape .cinmain{
+  flex-direction:row;align-items:stretch;
+  gap:clamp(12px,1.8vw,24px);padding-top:clamp(4px,.7vh,10px);
+}
+/* left column: poster stacked above backdrop reel */
+body.landscape .ci-ls-left{
+  flex:0 0 auto;width:min(24vw,260px);
+  display:flex;flex-direction:column;gap:clamp(6px,1vh,12px);
+}
+body.landscape .cinema .poster{flex:0 0 auto;border-radius:5px}
 body.landscape .cinema .poster img{
   height:auto;width:100%;max-width:100%;
-  object-fit:cover;border-radius:4px;
+  object-fit:cover;display:block;
 }
 body.landscape .cinema .reel{
   flex:1 1 auto;width:100%;margin-top:0;
-  min-height:clamp(60px,10vh,120px);
+  min-height:clamp(50px,9vh,100px);
 }
-
-/* right column: all text + up-next */
+/* right column: all text info */
 body.landscape .ci-ls-right{
   flex:1;min-width:0;display:flex;flex-direction:column;
-  justify-content:center;overflow:hidden;
+  justify-content:flex-start;padding-top:clamp(2px,.4vh,6px);overflow:hidden;
 }
 body.landscape .cinema .cinfo{
-  max-width:none;text-align:left;align-items:flex-start;
+  max-width:none;text-align:left;align-items:flex-start;flex-shrink:0;
 }
-body.landscape .cinema .cmeta{justify-content:flex-start}
-body.landscape .cinema .cname{font-size:clamp(18px,3.2vw,48px);margin:.2em 0 .2em}
-body.landscape .cinema .coverview{max-width:none;-webkit-line-clamp:4}
-body.landscape .cinema .upnext{width:100%;margin-top:clamp(8px,1.2vh,14px)}
-body.landscape .cinema .un-card{height:clamp(80px,12vh,140px)}
-body.landscape .cinema .un-label2{font-size:clamp(10px,1.3vw,18px)}
-body.landscape .cinema .un-title{font-size:clamp(16px,2.4vw,38px)}
-body.landscape .cinema .un-when{font-size:clamp(9px,1.1vw,16px)}
+body.landscape .cinema .cmeta{
+  justify-content:flex-start;
+  font-size:clamp(9px,1.1vw,16px);gap:clamp(6px,.9vw,12px);
+}
+body.landscape .cinema .cname{
+  font-size:clamp(16px,2.8vw,42px);
+  margin:.18em 0 .18em;
+}
+body.landscape .cinema .coverview{
+  max-width:none;
+  font-size:clamp(11px,1.3vw,20px);
+  -webkit-line-clamp:5;
+}
+body.landscape .cinema .upnext{
+  width:100%;margin-top:clamp(6px,1vh,12px);
+  padding-top:clamp(6px,1vh,12px);
+}
+body.landscape .cinema .un-row{gap:clamp(8px,1.2vw,16px)}
+body.landscape .cinema .un-card{
+  height:clamp(70px,10.5vh,120px);
+}
+body.landscape .cinema .un-poster{
+  width:clamp(46px,6.5vw,80px);
+}
+body.landscape .cinema .un-label2{font-size:clamp(9px,1vw,14px);letter-spacing:.2em}
+body.landscape .cinema .un-title{font-size:clamp(14px,2vw,30px)}
+body.landscape .cinema .un-when{font-size:clamp(8px,.95vw,13px)}
 
-/* ── display board: 2-up side by side ── */
-body.landscape .db-stage{flex-direction:row;gap:clamp(4px,.5vw,8px);padding:clamp(4px,.5vw,8px)}
-body.landscape .db-stage .db-media{
-  position:static;flex:1;display:flex;align-items:center;justify-content:center;
-  border-radius:3px;overflow:hidden;background:#000;
+/* ══════════════════════════════════════
+   PRICES — members' board
+   ══════════════════════════════════════ */
+body.landscape .prices{
+  padding-top:clamp(3px,.5vh,6px);
+  gap:0;
 }
-body.landscape .db-stage .db-media:only-child{
-  /* single item still fills full width */
-  flex:1 1 100%;
+/* Member Cards banner — centred, but smaller */
+body.landscape .pr-member-card{
+  font-size:clamp(13px,1.9vw,28px);
+  padding:clamp(3px,.45vh,6px) 0 clamp(2px,.35vh,4px);
 }
-body.landscape .db-stage .db-label{display:none} /* labels clutter 2-up view */
+body.landscape .prices .pr-note{
+  font-size:clamp(10px,1.1vw,16px);
+  margin-bottom:clamp(3px,.5vh,7px);
+}
+/* 3 columns — even fills for 6 items, no orphan */
+body.landscape .prices .pr-list{
+  grid-template-columns:repeat(3,1fr);
+  gap:clamp(4px,.6vh,8px) clamp(6px,.9vw,12px);
+  margin-bottom:clamp(4px,.6vh,8px);
+}
+body.landscape .pr-row{
+  padding:clamp(4px,.55vh,8px) clamp(8px,1vw,14px);
+}
+body.landscape .pr-name{font-size:clamp(12px,1.55vw,22px)}
+body.landscape .pr-sub{font-size:clamp(7px,.75vw,10px);letter-spacing:.12em}
+body.landscape .pr-price{
+  font-size:clamp(12px,1.55vw,22px);
+  text-shadow:none; /* reduce glow on small text */
+}
+body.landscape .pr-price .cur{font-size:.72em}
+body.landscape .pr-price .p2{font-size:.72em}
+/* Cocktails + shooters — fill remaining space */
+body.landscape .pr-drinks{
+  flex:1 1 auto;min-height:0;
+  margin-top:0;padding-top:clamp(4px,.6vh,8px);
+  gap:clamp(8px,1.2vw,16px);
+}
+body.landscape .prd-col{overflow:hidden}
+body.landscape .prd-head{
+  flex-direction:row;align-items:baseline;
+  gap:.5em;
+  margin-bottom:clamp(3px,.45vh,5px);
+}
+body.landscape .prd-head .prd-heading{
+  font-size:clamp(12px,1.7vw,24px);
+  text-shadow:none;
+}
+body.landscape .prd-head .prd-price{
+  font-size:clamp(11px,1.4vw,19px);
+  text-shadow:none;
+}
+body.landscape .prd-list{gap:clamp(3px,.4vh,5px)}
+body.landscape .prd-card{
+  flex:1 1 0;min-height:0;
+  padding:clamp(3px,.45vh,7px) clamp(38px,5vw,60px) clamp(3px,.45vh,7px) clamp(7px,.9vw,12px);
+}
+body.landscape .prd-name{font-size:clamp(11px,1.35vw,19px);line-height:1.1}
+body.landscape .prd-ing{font-size:clamp(9px,1.05vw,14px);line-height:1.25;margin-top:1px}
+body.landscape .prd-icon svg{
+  width:clamp(16px,1.9vw,28px);height:clamp(16px,1.9vw,28px);
+}
+body.landscape .prd-card .prd-icon{
+  font-size:clamp(12px,1.6vw,22px);
+  right:clamp(5px,.7vw,10px);
+}
+
+/* ══════════════════════════════════════
+   DISPLAY BOARD — 2-up side by side
+   ══════════════════════════════════════ */
+body.landscape .db-stage .db-label{display:none}
 body.landscape .db-stage .db-counter{top:8px;right:10px}
 body.landscape .db-img{object-fit:contain;width:100%;height:100%}
 
