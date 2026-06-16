@@ -2745,6 +2745,16 @@ async function buildCinemaTonight(now){
     else { f._start=null; f._approx=false; }
     if(f._start!=null){ const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120; clock=f._start+rt+GAP_MIN; }
   });
+  // Drop films that have already finished
+  films=films.filter(f=>{
+    if(f._start==null) return true; // no start time — always show
+    const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120;
+    const endMin=f._start+rt;
+    // Handle post-midnight films
+    const nowMins=(now.min < LATE_CUTOFF_HOUR*60)?now.min+1440:now.min;
+    const fStart=(f._start < LATE_CUTOFF_HOUR*60 && now.min >= LATE_CUTOFF_HOUR*60)?f._start+1440:f._start;
+    return nowMins < fStart+rt;
+  });
   return films;
 }
 
@@ -2884,7 +2894,7 @@ async function renderCinema(now, validDate){
   if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
 
   const allFilms=await buildUpcomingCinema(now, 8);
-  const sig="cine|"+isoDate(now)+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
+  const sig="cine|"+isoDate(now)+"|"+now.min+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
   if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return;
   state._cinemaSig=sig;
   if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
@@ -2904,7 +2914,27 @@ async function renderCinema(now, validDate){
   const tmrwReal      = tomorrowFilms.filter(f=>!isPrivateBooking(f));
   const tmrwBooking   = tomorrowFilms.find(f=>isPrivateBooking(f));
 
-  const heroFilm = todayReal[0] || tmrwReal[0];
+  // Work out each film's end time (start + runtime + gap), then filter out
+  // films that have already finished — so the hero is always the current or next film.
+  function filmEndMin(f){
+    if(f._start==null) return null;
+    const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120;
+    return f._start + rt; // GAP_MIN not added here — film is "playing" until runtime ends
+  }
+  function filmFinished(f){
+    const end=filmEndMin(f);
+    if(end==null) return false;          // no start time — never drop it
+    if(f._date!==todayDkey) return false; // tomorrow's films are never "finished"
+    // Handle films that cross midnight (end > 1440)
+    const nowMins = isLateNight ? now.min + 1440 : now.min;
+    const filmStart = (f._start < LATE_CUTOFF_HOUR*60 && !isLateNight) ? f._start + 1440 : f._start;
+    return nowMins > filmStart + (f._tmdb&&f._tmdb.runtime?f._tmdb.runtime:120);
+  }
+
+  // Active today = films not yet finished
+  const todayActive  = todayReal.filter(f=>!filmFinished(f));
+  // Hero = first active film today, or first tomorrow if everything today is done
+  const heroFilm = todayActive[0] || tmrwReal[0];
   if(!heroFilm && !todayBooking && !tmrwBooking){
     wrap.innerHTML=cinemaMsg("No screenings listed yet."); return;
   }
@@ -2921,8 +2951,8 @@ async function renderCinema(now, validDate){
     heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE);
   }
 
-  // Today rest (Up Next strip) — films after the hero on the same day
-  const todayRest = todayReal.slice(heroFilm&&heroFilm._date===todayDkey?1:0);
+  // Today rest (Up Next strip) — active films after the hero on today's date
+  const todayRest = todayActive.slice(heroFilm&&heroFilm._date===todayDkey?1:0);
   const upNextHTML = buildUpNextStrip(todayRest, now, "Up Next");
 
   // Tomorrow section
