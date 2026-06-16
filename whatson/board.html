@@ -2913,9 +2913,45 @@ async function renderCinema(now, validDate){
   if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
 
   const allFilms=await buildUpcomingCinema(now, 8);
-  const sig="cine|"+isoDate(now)+"|"+now.min+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
-  if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return;
+  const sig="cine|"+isoDate(now)+"|"+allFilms.map(f=>f._date+f.title+f.time).join(",");
+  const sigUnchanged = sig===state._cinemaSig && wrap.querySelector(".cinema");
   state._cinemaSig=sig;
+  // If only the time changed (not the film list), update Now Playing in-place
+  // rather than rebuilding everything — avoids re-fetching TMDB each minute
+  if(sigUnchanged){
+    const nowMinsCheck = isLateNight ? now.min + 1440 : now.min;
+    const playing = todayActive[0] && todayActive[0]._start!=null
+      && nowMinsCheck >= (isLateNight ? todayActive[0]._start : todayActive[0]._start)
+      && !filmFinished(todayActive[0]);
+    const section=wrap.querySelector(".cine-section");
+    if(section){
+      section.classList.toggle("now-playing", !!playing);
+      const dl=section.querySelector(".cine-day-label");
+      if(dl){
+        const dot=dl.querySelector(".cdl-dot");
+        dl.textContent=playing?"Now Playing":"Tonight";
+        if(dot) dl.prepend(dot);
+      }
+      const badge=section.querySelector(".now-playing-badge");
+      const cwhen=section.querySelector(".cwhen");
+      if(playing){
+        if(!badge){
+          const b=document.createElement("span");
+          b.className="now-playing-badge";
+          b.innerHTML=`<span class="np-dot"></span>Now Playing`;
+          if(cwhen) cwhen.parentNode.insertBefore(b,cwhen);
+        }
+        if(cwhen) cwhen.textContent="Now Playing";
+      } else {
+        if(badge) badge.remove();
+        if(cwhen && todayActive[0]){
+          const tt=todayActive[0]._start!=null?clockLabel(todayActive[0]._start):(todayActive[0].time||"");
+          cwhen.textContent="Tonight"+(tt?" · "+tt:"");
+        }
+      }
+    }
+    return;
+  }
   if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
 
   // Late-night: before 3am, "tonight" = yesterday's calendar date
@@ -2959,7 +2995,7 @@ async function renderCinema(now, validDate){
   }
 
   // Hero film
-  let heroHTML="";
+  let heroHTML="", isNowPlaying=false;
   if(heroFilm){
     const data=heroFilm._tmdb||{};
     const whenTxt=cinemaDateLabel(heroFilm._date, now);
@@ -2968,7 +3004,7 @@ async function renderCinema(now, validDate){
       ?`<div class="reel">${data.backdrops.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
       :"";
     // Film is "now playing" if it has started and hasn't finished yet
-    const isNowPlaying = heroFilm._start!=null && heroFilm._date===todayDkey
+    isNowPlaying = heroFilm._start!=null && heroFilm._date===todayDkey
       && now.min >= (isLateNight ? heroFilm._start - 1440 : heroFilm._start)
       && !filmFinished(heroFilm);
     heroHTML=buildFilmHero(heroFilm, data, whenTxt, timeTxt, reel, IS_LANDSCAPE, isNowPlaying);
