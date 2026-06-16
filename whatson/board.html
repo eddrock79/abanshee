@@ -1397,12 +1397,12 @@ body.landscape .pr-drinks{
   flex:1 1 auto;min-height:0;
   margin-top:0;padding-top:clamp(4px,.6vh,8px);
   gap:clamp(8px,1.2vw,16px);
-  max-width:900px;width:100%;align-self:center;
+  width:100%;
 }
 /* Centre everything on the wide screen */
-body.landscape .prices{align-items:center}
-body.landscape .prices .pr-list{max-width:900px;width:100%;align-self:center}
-body.landscape .pr-member-card{max-width:900px;width:100%;align-self:center;text-align:center}
+body.landscape .prices{align-items:stretch;max-width:960px;margin:0 auto;width:100%}
+body.landscape .prices .pr-list{max-width:100%;width:100%}
+body.landscape .pr-member-card{text-align:center;width:100%}
 body.landscape .prd-col{overflow:hidden}
 body.landscape .prd-head{
   flex-direction:row;align-items:baseline;
@@ -2760,7 +2760,10 @@ function buildBookingCard(film){
   </div>`;
 }
 async function buildCinemaTonight(now){
-  const dkey=isoDate(now);
+  // After midnight but before 3am, "today" is still yesterday for cinema purposes
+  const dkey = (now.min < LATE_CUTOFF_HOUR*60)
+    ? (()=>{ const d=new Date(now.date); d.setDate(d.getDate()-1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })()
+    : isoDate(now);
   let films=(state.cinema||[]).filter(c=>normDate(c.date)===dkey)
     .map((c,idx)=>({...c,_idx:idx,_t:parseClock(c.time)}));
   films.sort((a,b)=> ((a._t==null?1e9:a._t)-(b._t==null?1e9:b._t)) || (a._idx-b._idx));
@@ -2788,10 +2791,13 @@ async function buildCinemaTonight(now){
 /* Tonight + future screenings, soonest first, start times chained per date.
    Only the first `max` are enriched from TMDB (keeps lookups light). */
 async function buildUpcomingCinema(now, max){
-  const todayKey=isoDate(now);
+  // After midnight but before 3am, "today" is still yesterday for cinema purposes
+  const effectiveKey = (now.min < LATE_CUTOFF_HOUR*60)
+    ? (()=>{ const d=new Date(now.date); d.setDate(d.getDate()-1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })()
+    : isoDate(now);
   let films=(state.cinema||[])
     .map((c,idx)=>({...c,_idx:idx,_date:normDate(c.date),_t:parseClock(c.time)}))
-    .filter(f=> f._date && f._date>=todayKey);
+    .filter(f=> f._date && f._date>=effectiveKey);
   films.sort((a,b)=> a._date.localeCompare(b._date) || ((a._t==null?1e9:a._t)-(b._t==null?1e9:b._t)) || (a._idx-b._idx));
   films=films.slice(0, max||4);
   for(const f of films){ f._tmdb=await tmdbLookup(f.title,f.year); }
