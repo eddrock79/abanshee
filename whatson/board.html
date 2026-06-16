@@ -2673,25 +2673,31 @@ function buildBookingCard(film){
   // time comes from the film.time field; duration from film.cert (repurposed for bookings)
   const startTime = film && film.time ? String(film.time).match(/(\d{1,2}:\d{2})/)?.[1] || "" : "";
   const duration  = film && film.cert ? film.cert.trim() : "";
-  // Derive end time if we have both start and duration in hours
+  // Derive end time from h:mm duration (e.g. "2:30" = 2 hrs 30 mins)
   let endTime = "";
   if(startTime && duration){
-    const hrsMatch = duration.match(/^(\d+(?:\.\d+)?)\s*h(?:r|ours?)?$/i);
-    const minsMatch = duration.match(/^(\d+)\s*m(?:in(?:utes?)?)?$/i);
-    const hmMatch = duration.match(/^(\d+)\s*h(?:r|ours?)?\s*(\d+)\s*m/i);
-    let addMins = 0;
-    if(hrsMatch)   addMins = parseFloat(hrsMatch[1]) * 60;
-    if(minsMatch)  addMins = parseInt(minsMatch[1]);
-    if(hmMatch)    addMins = parseInt(hmMatch[1])*60 + parseInt(hmMatch[2]);
-    if(addMins > 0){
-      const [hh,mm] = startTime.split(":").map(Number);
-      const totalMins = hh*60 + mm + addMins;
-      endTime = `${String(Math.floor(totalMins/60)%24).padStart(2,"0")}:${String(totalMins%60).padStart(2,"0")}`;
+    const m = duration.match(/^(\d+):(\d{2})$/);
+    if(m){
+      const addMins = parseInt(m[1])*60 + parseInt(m[2]);
+      if(addMins > 0){
+        const [hh,mm] = startTime.split(":").map(Number);
+        const total = hh*60 + mm + addMins;
+        endTime = `${String(Math.floor(total/60)%24).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+      }
     }
+  }
+  // Human-readable duration label: "2:00" → "2 hrs", "2:30" → "2 hrs 30 mins", "0:45" → "45 mins"
+  let durLabel = duration;
+  const dm = duration.match(/^(\d+):(\d{2})$/);
+  if(dm){
+    const dh = parseInt(dm[1]), dmm = parseInt(dm[2]);
+    if(dh && dmm)      durLabel = `${dh} hr${dh!==1?"s":""} ${dmm} min${dmm!==1?"s":""}`;
+    else if(dh)        durLabel = `${dh} hr${dh!==1?"s":""}`;
+    else if(dmm)       durLabel = `${dmm} min${dmm!==1?"s":""}`;
   }
   const timeHTML = startTime ? `<div class="cb-slot">
     <span class="cb-slot-time">${esc(startTime)}${endTime?" – "+endTime:""}</span>
-    ${duration?`<span class="cb-slot-dur">${esc(duration)}</span>`:""}
+    ${durLabel?`<span class="cb-slot-dur">${esc(durLabel)}</span>`:""}
   </div>` : "";
 
   return `<div class="cin-booking">

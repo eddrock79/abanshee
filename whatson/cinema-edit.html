@@ -145,7 +145,10 @@ a{color:var(--spectre)}
     <div class="rowflex" style="margin-top:8px">
       <div><label>Date</label><input type="date" id="pb_date"></div>
       <div><label>Start time</label><input type="time" id="pb_time" placeholder="e.g. 19:00"></div>
-      <div><label>Duration</label><input type="text" id="pb_duration" placeholder="e.g. 2h, 90 mins, 2h 30m"></div>
+      <div><label>Duration <span style="font-size:11px;color:var(--bone-faint);font-family:'EB Garamond',serif;font-style:italic;letter-spacing:0">h:mm</span></label>
+        <input type="text" id="pb_duration" placeholder="-:--" maxlength="5"
+          style="letter-spacing:.12em;font-size:18px"
+          oninput="fmtDur(this)"></div>
     </div>
     <div class="actions" style="margin-top:12px">
       <button class="btn solid" style="background:rgba(116,227,193,.18);border-color:var(--spectre);color:var(--spectre)" onclick="saveBooking()">Add Private Booking slot</button>
@@ -302,6 +305,17 @@ function clearForm(keepDate){
 }
 function setMsg(t,c){ const m=$("msg"); m.textContent=t; m.className="msg"+(c?" "+c:""); }
 function esc(s){return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
+
+/* Format duration input as h:mm live — allows 1–9 hours, 00–59 minutes */
+function fmtDur(el){
+  let v = el.value.replace(/[^0-9]/g,""); // digits only
+  if(v.length === 0){ el.value = ""; return; }
+  if(v.length === 1){ el.value = v; return; }               // "2"       → wait for more
+  if(v.length === 2){ el.value = v[0]+":"+v[1]; return; }  // "20"      → "2:0"
+  if(v.length === 3){ el.value = v[0]+":"+v.slice(1); return; } // "230" → "2:30"
+  // 4+ digits — keep first as hours, next two as minutes, ignore rest
+  el.value = v[0]+":"+v.slice(1,3);
+}
 
 async function saveBooking(){
   if(!CINEMA_API){ document.getElementById("pbMsg").textContent="Can't save — CINEMA_API not set."; return; }
