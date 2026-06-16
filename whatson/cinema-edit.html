@@ -62,15 +62,15 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .find-btn:hover{border-color:var(--faint);color:var(--text)}
 
 /* preview */
-.preview{display:none;border:1px solid var(--border);border-radius:8px;padding:14px;gap:14px;align-items:flex-start;background:var(--surface2);margin-top:2px}
+.preview{display:none;border:1px solid var(--border);border-radius:8px;padding:14px;gap:14px;align-items:stretch;background:var(--surface2);margin-top:2px;height:148px}
 .preview.show{display:flex}
-.preview img{width:72px;border-radius:6px;flex:0 0 auto;background:#000;display:block}
-.pv-noposter{width:72px;height:106px;flex:0 0 auto;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;padding:.3em}
-.pv-info{flex:1;min-width:0}
-.pv-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
-.pv-meta{font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
-.pv-overview{font-size:13px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.pv-nav{display:flex;align-items:center;gap:10px;margin-top:10px}
+.preview img{width:72px;border-radius:6px;flex:0 0 auto;background:#000;display:block;align-self:flex-start}
+.pv-noposter{width:72px;height:106px;flex:0 0 auto;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;padding:.3em;align-self:flex-start}
+.pv-info{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.pv-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-meta{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
+.pv-overview{font-size:13px;color:var(--muted);line-height:1.45;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.pv-nav{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:8px;flex-shrink:0}
 .pv-arrow{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:.15s}
 .pv-arrow:hover{border-color:var(--accent);color:var(--accent)}
 .pv-count{font-size:12px;color:var(--muted);min-width:44px;text-align:center}
