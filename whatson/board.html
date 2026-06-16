@@ -1205,10 +1205,10 @@ body.page-switching .stage{will-change:opacity,transform,filter}
 .db-stage{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:var(--ink);overflow:hidden;
-  opacity:0;transition:opacity .7s ease;
+  opacity:0;transition:opacity 1.2s ease;
 }
-.db-stage.db-visible{ opacity:1; }
-.db-stage.db-out{ opacity:0; transition:opacity .7s ease; }
+.db-stage.db-visible{ opacity:1; transition:opacity 1.2s ease; }
+.db-stage.db-out{ opacity:0; transition:opacity 1.0s ease; }
 .db-media{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
 }
@@ -2155,10 +2155,28 @@ function renderDisplayBoard(){
       ${labelEl}${counter}
     </div>`;
 
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      const s=wrap.querySelector(".db-stage");
-      if(s){ s.classList.remove("db-in"); s.classList.add("db-visible"); }
-    }));
+    function revealSlide(){
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        const s=wrap.querySelector(".db-stage");
+        if(s){ s.classList.remove("db-in"); s.classList.add("db-visible"); }
+      }));
+    }
+
+    if(!isPDF){
+      // Wait for the image to actually load before fading it in — prevents the white flash
+      const img=wrap.querySelector(".db-img");
+      if(img && !img.complete){
+        img.addEventListener("load",  revealSlide, {once:true});
+        img.addEventListener("error", revealSlide, {once:true}); // reveal anyway on error
+        // Safety fallback: if image takes >4s, reveal anyway rather than staying black
+        setTimeout(revealSlide, 4000);
+      } else {
+        revealSlide(); // already cached — reveal immediately
+      }
+    } else {
+      // PDFs: iframes don't have a reliable load event, just use rAF delay
+      revealSlide();
+    }
   }
 
   function advanceSlide(){
@@ -2882,7 +2900,7 @@ function applyFX(n,modeKey){
   if(!st || !ov){ sw(); return fx.total; }
   document.body.classList.add("page-switching");
 
-  function wrap(cls,coverMs,outMs,maxOp=1,holdMs=180){
+  function wrap(cls,coverMs,outMs,maxOp=1,holdMs=600){
     Object.assign(ov.style,{opacity:"0",transition:"none",transform:"scale(1.02)",filter:""});
     ov.className=cls;
     rAF2(()=>{
