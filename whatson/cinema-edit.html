@@ -29,6 +29,10 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
 .topbar-right{display:flex;gap:8px}
 .topbar-link{font-size:12px;color:var(--muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:6px;transition:.15s}
 .topbar-link:hover{color:var(--text);border-color:var(--faint)}
+.tabbar{display:flex;gap:6px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap}
+.tb{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:none;transition:.15s;-webkit-tap-highlight-color:transparent;display:inline-block}
+.tb:hover{color:var(--text);border-color:var(--faint)}
+.tb.on{background:var(--accent-dim);color:var(--accent);border-color:rgba(232,184,75,.4)}
 
 .wrap{padding:20px;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 
@@ -111,11 +115,16 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 <body>
 
 <div class="topbar">
-  <div class="topbar-logo">The Banshee · Cinema</div>
+  <div class="topbar-logo">The Banshee · What's On</div>
   <div class="topbar-right">
-    <a class="topbar-link" href="settings.html">Settings</a>
     <a class="topbar-link" href="../home/">Staff hub</a>
   </div>
+</div>
+<div class="tabbar">
+  <a class="tb" href="settings.html">▶ Slideshow</a>
+  <a class="tb" href="settings.html#landscape">⬛ Landscape</a>
+  <a class="tb" href="settings.html#posters">📁 Posters</a>
+  <a class="tb on" href="cinema-edit.html">▦ Cinema</a>
 </div>
 
 <div class="wrap">

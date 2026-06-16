@@ -98,14 +98,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
 .btn[disabled]{opacity:.35;cursor:not-allowed;filter:none}
 .btn-row{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
 
-/* ── prices preview ── */
-.pr-table{margin:0;border-collapse:collapse;width:100%}
-.pr-table tr{border-top:1px solid var(--border)}
-.pr-table tr:first-child{border-top:none}
-.pr-table td{padding:9px 18px;font-size:13px}
-.pr-table td:first-child{color:var(--text);font-weight:500}
-.pr-table td:last-child{color:var(--accent);font-weight:600;text-align:right}
-.pr-empty{padding:20px 18px;font-size:13px;color:var(--muted);font-style:italic}
+
 
 /* ── poster list ── */
 .db-list{display:flex;flex-direction:column}
@@ -136,11 +129,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
 .note{padding:10px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5}
 .note b{color:var(--text);font-weight:500}
 
-/* ── setup notice ── */
-.setup-notice{padding:12px 18px;border-top:1px solid var(--border);background:var(--accent-dim);display:none}
-.setup-notice.show{display:block}
-.setup-notice p{font-size:13px;color:var(--text);line-height:1.5}
-.setup-notice b{font-weight:600;color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -157,8 +146,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
   <button class="tb on" onclick="showTab('slideshow',this)">▶ Slideshow</button>
   <button class="tb" onclick="showTab('landscape',this)">⬛ Landscape</button>
   <button class="tb" onclick="showTab('posters',this)">📁 Posters</button>
-  <button class="tb" onclick="showTab('prices',this)">❖ Prices</button>
-  <button class="tb" onclick="showTab('cinema',this)">▦ Cinema</button>
+  <a class="tb" href="cinema-edit.html">▦ Cinema</a>
 </div>
 
 <!-- ══════════ SLIDESHOW ══════════ -->
@@ -244,55 +232,14 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
   </div>
 </div>
 
-<!-- ══════════ PRICES ══════════ -->
-<div class="page" id="tab-prices">
-  <div class="card">
-    <div class="card-head">
-      <div class="card-head-left">
-        <div class="card-icon amber">❖</div>
-        <div>
-          <div class="card-title">Promotions — Members' Prices</div>
-          <div class="card-sub">Prices live in a Google Sheet — edit there, board updates within a few minutes</div>
-        </div>
-      </div>
-      <div class="card-head-right">
-        <button class="btn primary" id="editPrices" disabled>✎ Edit in Sheets</button>
-        <a class="btn" href="board.html?mode=prices" style="text-decoration:none">▦ Preview</a>
-      </div>
-    </div>
-    <div id="promoPreview"></div>
-    <div class="msg" id="promoMsg"></div>
-    <div class="setup-notice" id="promoSetup">
-      <p><b>First-time setup:</b> make a Google Sheet with a tab named <b>prices</b> and a header row <b>Name · Price · Price2 · Note</b> (Price2 and Note optional). Share it "Anyone with the link – Viewer", then paste its ID into <b>PRICES_SHEET_ID</b> in both settings.html and board.html.</p>
-    </div>
-  </div>
-</div>
 
-<!-- ══════════ CINEMA ══════════ -->
-<div class="page" id="tab-cinema">
-  <div class="card">
-    <div class="card-head">
-      <div class="card-head-left">
-        <div class="card-icon purple">▦</div>
-        <div>
-          <div class="card-title">Cinema</div>
-          <div class="card-sub">Add or change tonight's films — posters and synopsis pulled in automatically</div>
-        </div>
-      </div>
-      <div class="card-head-right">
-        <a class="btn purple" href="cinema-edit.html" style="text-decoration:none">✎ Open cinema editor</a>
-      </div>
-    </div>
-    <div class="note" style="border-top:none;padding-top:14px">The cinema editor lets you add films by title — it finds the poster, runtime and synopsis from TMDB automatically. You can also add Private Booking slots with a start time and duration.</div>
-  </div>
-</div>
+
+
 
 <script>
 /* ===================== CONFIG ===================== */
 const CINEMA_API   = "https://script.google.com/macros/s/AKfycbyXcSKpM3363gnNH7weJwlXqLd4c8dStFdwUrP2zVyFlRkg1OqTsZcqqvqIvwwwck5Jjg/exec";
 const MANAGER_PIN  = "1234";
-const PRICES_SHEET_ID = "";
-const PRICES_TAB      = "prices";
 
 const BOARDS = [
   { mode:"normal",       title:"Tonight",       sub:"Gigs + tonight's film",     secs:18, on:true  },
@@ -447,59 +394,6 @@ $("landCopyLink").onclick=async()=>{
   catch(e){ $("landUrl").select(); flash("landMsg","Press Ctrl/⌘-C to copy."); }
 };
 
-/* ══════════ PRICES PREVIEW ══════════ */
-function gviz(id,tab){ return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`+(tab?`&sheet=${encodeURIComponent(tab)}`:""); }
-function parseCSV(text){
-  const rows=[]; let row=[],f="",q=false;
-  for(let i=0;i<text.length;i++){ const c=text[i];
-    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
-    else{ if(c==='"')q=true; else if(c===','){row.push(f);f="";} else if(c==='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c==='\r'){} else f+=c; }
-  }
-  if(f.length||row.length){ row.push(f); rows.push(row); }
-  return rows;
-}
-function buildPrices(rows){
-  if(!rows||!rows.length) return [];
-  let hi=rows.findIndex(r=>r.some(c=>/\b(name|item|drink|product)\b/i.test(c))); if(hi<0)hi=0;
-  const H=rows[hi].map(c=>(c||"").trim().toLowerCase());
-  const find=res=>H.findIndex(h=>res.some(re=>re.test(h)));
-  const ci={ name:find([/name|item|drink|product/]), price:find([/price|member|amount/]),
-    p2:find([/price ?2|second|large|big|size ?2|alt/]), note:find([/note|size|caption|detail|desc/]) };
-  if(ci.name<0)ci.name=0;
-  const cl=v=>String(v||"").trim(), money=v=>cl(v).replace(/^£\s*/,"");
-  const out=[];
-  for(let i=hi+1;i<rows.length;i++){ const r=rows[i]; if(!r) continue;
-    const name=cl(r[ci.name]); if(!name) continue;
-    out.push({ name, price:ci.price>=0?money(r[ci.price]):"", price2:ci.p2>=0?money(r[ci.p2]):"", note:ci.note>=0?cl(r[ci.note]):"" });
-  }
-  return out;
-}
-function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-function renderPromoPreview(items){
-  const box=$("promoPreview");
-  if(!items.length){ box.innerHTML=""; return; }
-  box.innerHTML=`<table class="pr-table">`+items.map(it=>`
-    <tr><td>${esc(it.name)}${it.note?` <span style="font-size:11px;color:var(--muted);font-weight:400">${esc(it.note)}</span>`:""}</td>
-    <td>£${esc(it.price)}${it.price2?` <span style="color:var(--muted);font-weight:400">/ £${esc(it.price2)}</span>`:""}</td></tr>`).join("")+`</table>`;
-}
-async function loadPromo(){
-  if(!PRICES_SHEET_ID){
-    $("editPrices").disabled=true;
-    $("promoSetup").classList.add("show");
-    flash("promoMsg","No prices sheet connected yet — see setup notice below.",true);
-    return;
-  }
-  $("editPrices").onclick=()=>window.open(`https://docs.google.com/spreadsheets/d/${PRICES_SHEET_ID}/edit`,"_blank","noopener");
-  $("editPrices").disabled=false;
-  try{
-    const res=await fetch(gviz(PRICES_SHEET_ID,PRICES_TAB),{cache:"no-store"});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const items=buildPrices(parseCSV(await res.text()));
-    if(!items.length) throw new Error("no rows");
-    renderPromoPreview(items);
-    flash("promoMsg",`${items.length} prices loaded.`);
-  }catch(e){ flash("promoMsg","Couldn't read the prices sheet ("+e.message+"). Check it's shared 'Anyone with the link – Viewer'.",true); }
-}
 
 /* ══════════ DISPLAY BOARD ══════════ */
 function dbApiUrl(){ return (window.BLConfig&&BLConfig.CINEMA_API)||CINEMA_API||""; }
@@ -577,7 +471,13 @@ function flash(id,msg,warn){
 function start(){
   loadSaved(); renderBoardRows(); renderFxPicker();
   loadLandSaved(); renderLandRows(); renderLandFxPicker();
-  loadPromo(); dbFetch();
+  dbFetch();
+  // deep-link via hash: settings.html#landscape, #posters etc.
+  const hash = location.hash.replace("#","");
+  if(hash){
+    const btn = document.querySelector(`.tb[onclick*="${hash}"]`);
+    if(btn){ showTab(hash, btn); }
+  }
 }
 if(window.BLAuth){ BLAuth.init({appName:"What's On · Settings", require:"manager", onReady:start}); }
 else { start(); }
