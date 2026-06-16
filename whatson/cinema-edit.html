@@ -141,10 +141,11 @@ a{color:var(--spectre)}
 
   <details style="margin-top:18px;border:1px solid var(--rule);border-radius:5px;padding:12px 14px">
     <summary style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);cursor:pointer">Private Booking slot</summary>
-    <p style="margin:10px 0 6px;font-size:14px;color:var(--bone-dim);line-height:1.4">Adds a "Private Booking" entry for the chosen date — the board shows the venue hire info card instead of a film listing.</p>
+    <p style="margin:10px 0 10px;font-size:14px;color:var(--bone-dim);line-height:1.4">Adds a "Private Booking" entry for the chosen date — the board shows the time slot prominently and the venue hire info card.</p>
     <div class="rowflex" style="margin-top:8px">
-      <div><label>Date for booking</label><input type="date" id="pb_date"></div>
-      <div><label>Optional note</label><input type="text" id="pb_note" placeholder="e.g. Closed for private event"></div>
+      <div><label>Date</label><input type="date" id="pb_date"></div>
+      <div><label>Start time</label><input type="time" id="pb_time" placeholder="e.g. 19:00"></div>
+      <div><label>Duration</label><input type="text" id="pb_duration" placeholder="e.g. 2h, 90 mins, 2h 30m"></div>
     </div>
     <div class="actions" style="margin-top:12px">
       <button class="btn solid" style="background:rgba(116,227,193,.18);border-color:var(--spectre);color:var(--spectre)" onclick="saveBooking()">Add Private Booking slot</button>
@@ -305,17 +306,23 @@ function esc(s){return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&l
 async function saveBooking(){
   if(!CINEMA_API){ document.getElementById("pbMsg").textContent="Can't save — CINEMA_API not set."; return; }
   const date=$("pb_date").value || $("f_date").value;
+  const time=$("pb_time").value.trim();
+  const duration=$("pb_duration").value.trim();
   if(!date){ document.getElementById("pbMsg").textContent="Pick a date first."; document.getElementById("pbMsg").className="msg err"; return; }
-  const note=$("pb_note").value.trim();
+  if(!time){ document.getElementById("pbMsg").textContent="Add a start time — it shows on the board."; document.getElementById("pbMsg").className="msg err"; return; }
   const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
-    date, time:"", title:"PRIVATE BOOKING", year:"", cert:"",
-    blurb:note||"Venue hired for private event" };
+    date,
+    time,                  // start time — shows large on the board
+    title:"PRIVATE BOOKING",
+    year:"",
+    cert:duration,         // duration stored in cert field — shown as a pill next to the time
+    blurb:"Venue hired for private event" };
   const pbMsg=document.getElementById("pbMsg");
   pbMsg.textContent="Saving…"; pbMsg.className="msg";
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
     const j=await r.json();
-    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — it shows the hire info card on the board."; pbMsg.className="msg ok"; loadEntries(); }
+    if(j.ok){ pbMsg.textContent="Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board."; pbMsg.className="msg ok"; $("pb_time").value=""; $("pb_duration").value=""; loadEntries(); }
     else { pbMsg.textContent="Save failed: "+(j.error||"unknown"); pbMsg.className="msg err"; }
   }catch(e){ pbMsg.textContent="Save failed: "+e.message; pbMsg.className="msg err"; }
 }

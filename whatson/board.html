@@ -1515,6 +1515,23 @@ body.landscape .db-img{object-fit:contain;width:100%;height:100%}
 .cine-day-label.tomorrow .cdl-dot{background:var(--bone-faint);box-shadow:none}
 
 /* ── private booking card ── */
+.cin-booking .cb-slot{
+  display:flex;align-items:baseline;gap:.8em;flex-wrap:wrap;
+  margin-bottom:clamp(4px,.6vh,8px);
+}
+.cin-booking .cb-slot-time{
+  font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(20px,3vw,50px);color:var(--spectre);
+  letter-spacing:.04em;line-height:1;
+  text-shadow:0 0 18px var(--spectre-soft);
+}
+.cin-booking .cb-slot-dur{
+  font-family:"Cinzel",serif;font-size:clamp(10px,1.2vw,16px);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);
+  border:1px solid var(--rule);border-radius:3px;padding:.2em .7em;
+}
+body.landscape .cin-booking .cb-slot-time{font-size:clamp(14px,1.9vw,28px)}
+body.landscape .cin-booking .cb-slot-dur{font-size:clamp(9px,.9vw,12px)}
 .cin-booking{
   border:1px solid rgba(116,227,193,.25);border-radius:6px;
   background:linear-gradient(120deg,rgba(116,227,193,.06),rgba(116,227,193,.02));
@@ -2652,9 +2669,34 @@ const GAP_MIN=15;
 const LATE_CUTOFF_HOUR = 3;
 
 /* Private booking info card — shown when title === "PRIVATE BOOKING" */
-function buildBookingCard(){
+function buildBookingCard(film){
+  // time comes from the film.time field; duration from film.cert (repurposed for bookings)
+  const startTime = film && film.time ? String(film.time).match(/(\d{1,2}:\d{2})/)?.[1] || "" : "";
+  const duration  = film && film.cert ? film.cert.trim() : "";
+  // Derive end time if we have both start and duration in hours
+  let endTime = "";
+  if(startTime && duration){
+    const hrsMatch = duration.match(/^(\d+(?:\.\d+)?)\s*h(?:r|ours?)?$/i);
+    const minsMatch = duration.match(/^(\d+)\s*m(?:in(?:utes?)?)?$/i);
+    const hmMatch = duration.match(/^(\d+)\s*h(?:r|ours?)?\s*(\d+)\s*m/i);
+    let addMins = 0;
+    if(hrsMatch)   addMins = parseFloat(hrsMatch[1]) * 60;
+    if(minsMatch)  addMins = parseInt(minsMatch[1]);
+    if(hmMatch)    addMins = parseInt(hmMatch[1])*60 + parseInt(hmMatch[2]);
+    if(addMins > 0){
+      const [hh,mm] = startTime.split(":").map(Number);
+      const totalMins = hh*60 + mm + addMins;
+      endTime = `${String(Math.floor(totalMins/60)%24).padStart(2,"0")}:${String(totalMins%60).padStart(2,"0")}`;
+    }
+  }
+  const timeHTML = startTime ? `<div class="cb-slot">
+    <span class="cb-slot-time">${esc(startTime)}${endTime?" – "+endTime:""}</span>
+    ${duration?`<span class="cb-slot-dur">${esc(duration)}</span>`:""}
+  </div>` : "";
+
   return `<div class="cin-booking">
-    <div class="cb-eyebrow">Book Our Space</div>
+    <div class="cb-eyebrow">Private Booking${startTime?" · Cinema Space":"" }</div>
+    ${timeHTML}
     <div class="cb-title">Want to Book Your Event?</div>
     <div class="cb-tagline">Magic, theatre, drag, cabaret, science, lectures, improv &amp; more</div>
     <div class="cb-body">We provide our cinema space to community groups to put on events for free. We do fill up months in advance, so reach out in plenty of time.</div>
@@ -2882,11 +2924,11 @@ async function renderCinema(now, validDate){
     tomorrowHTML=`<div class="cine-section">
       <div class="cine-day-label tomorrow"><span class="cdl-dot"></span>Tomorrow</div>
       ${tmrwCards?`<div class="upnext"><div class="un-row">${tmrwCards}</div></div>`:""}
-      ${tmrwBooking?buildBookingCard():""}
+      ${tmrwBooking?buildBookingCard(tmrwBooking):""}
     </div>`;
   }
 
-  const todayBookHTML=todayBooking?`<div class="cine-section">${buildBookingCard()}</div>`:"";
+  const todayBookHTML=todayBooking?`<div class="cine-section">${buildBookingCard(todayBooking)}</div>`:"";
 
   const todaySection=heroFilm||upNextHTML?`<div class="cine-section">
     <div class="cine-day-label"><span class="cdl-dot"></span>Tonight</div>
