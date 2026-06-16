@@ -2115,9 +2115,6 @@ function renderDisplayBoard(){
   const wrap=document.getElementById("rooms");
   const files=Array.isArray(state.displayFiles)?state.displayFiles:[];
 
-  // Clear any old internal slide timer
-  if(state._dbSlideTimer){ clearInterval(state._dbSlideTimer); state._dbSlideTimer=null; }
-
   // Hide the standard header/clock/footer — they'd fight the full-bleed image
   const header=document.querySelector(".stage header");
   const footer=document.querySelector(".stage .footer");
@@ -2125,6 +2122,7 @@ function renderDisplayBoard(){
   if(footer) footer.style.display="none";
 
   if(!files.length){
+    if(state._dbSlideTimer){ clearInterval(state._dbSlideTimer); state._dbSlideTimer=null; }
     if(header) header.style.display="";
     if(footer) footer.style.display="";
     wrap.innerHTML=`<div class="db-empty">
@@ -2135,10 +2133,22 @@ function renderDisplayBoard(){
     return;
   }
 
-  // Clamp index
+  // GUARD: if a slide is already showing, this call is from a clock tick or
+  // data refresh — not a deliberate board change. Do nothing; the slide
+  // timer owns the cadence from here.
+  if(wrap.querySelector(".db-stage")){
+    return;
+  }
+
+  // Clamp index and clear any stale timer
   if(state._dbIdx>=files.length) state._dbIdx=0;
+  if(state._dbSlideTimer){ clearInterval(state._dbSlideTimer); state._dbSlideTimer=null; }
 
   function showSlide(idx){
+    if(!files.length) return;
+    idx = ((idx % files.length) + files.length) % files.length;
+    state._dbIdx = idx;
+
     const f=files[idx];
     const isPDF=/\.pdf(\?.*)?$/i.test(f.url);
     const mediaEl=isPDF
@@ -2167,38 +2177,36 @@ function renderDisplayBoard(){
       const img=wrap.querySelector(".db-img");
       if(img && !img.complete){
         img.addEventListener("load",  revealSlide, {once:true});
-        img.addEventListener("error", revealSlide, {once:true}); // reveal anyway on error
-        // Safety fallback: if image takes >4s, reveal anyway rather than staying black
-        setTimeout(revealSlide, 4000);
+        img.addEventListener("error", revealSlide, {once:true});
+        setTimeout(revealSlide, 4000); // safety fallback
       } else {
-        revealSlide(); // already cached — reveal immediately
+        revealSlide();
       }
     } else {
-      // PDFs: iframes don't have a reliable load event, just use rAF delay
       revealSlide();
     }
   }
 
   function advanceSlide(){
+    // Guard against stale timers firing after leaving displayboard mode
+    if(state.mode !== "displayboard"){ clearInterval(state._dbSlideTimer); state._dbSlideTimer=null; return; }
     const s=wrap.querySelector(".db-stage");
     if(s){ s.classList.remove("db-visible"); s.classList.add("db-out"); }
     setTimeout(()=>{
-      state._dbIdx=(state._dbIdx+1)%files.length;
-      showSlide(state._dbIdx);
-    }, 700);
+      showSlide((state._dbIdx + 1) % files.length);
+    }, 1100); // wait for db-out fade (1.0s) before swapping
   }
 
-  // Show current image
-  showSlide(state._dbIdx);
-
   if(SHOW.on){
-    // SLIDESHOW MODE — outer loop handles timing; we just advance the index
-    // for next time this board comes around, no internal timer needed.
-    state._dbIdx=(state._dbIdx+1)%files.length;
+    // SLIDESHOW MODE — outer slideshowStep owns board-level cadence.
+    // Show the current image; pre-advance index so next visit shows the next one.
+    showSlide(state._dbIdx);
+    state._dbIdx = (state._dbIdx + 1) % files.length;
   } else {
-    // DIRECT MODE — run our own internal timer to cycle through all images
-    if(files.length>1){
-      state._dbSlideTimer=setInterval(advanceSlide, DB_SECS*1000);
+    // DIRECT MODE (?mode=displayboard) — internal timer cycles images.
+    showSlide(state._dbIdx);
+    if(files.length > 1){
+      state._dbSlideTimer = setInterval(advanceSlide, DB_SECS * 1000);
     }
   }
 }
