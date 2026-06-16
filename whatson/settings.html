@@ -160,6 +160,10 @@ h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clam
 .foot a{font-family:"Cinzel",serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);
   text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:.25s}
 .foot a:hover{color:var(--spectre);border-color:var(--spectre-soft)}
+
+/* landscape panel */
+.panel.land{--accent:#9d7bff}
+.land-note{font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:13px;margin-top:10px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -189,6 +193,28 @@ h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;font-size:clam
     </div>
     <p class="note">On the bar screen: open the link, then press <b>F11</b> for fullscreen. Press <b>P</b> on that screen to pause/resume the rotation.</p>
     <div class="msg" id="ssMsg"></div>
+  </section>
+
+
+  <!-- ───────── LANDSCAPE SLIDESHOW ───────── -->
+  <section class="panel land" style="margin-top:clamp(14px,2vh,20px)">
+    <h2><span class="g">⬛</span> Landscape Display</h2>
+    <p class="desc">Same boards — optimised for a widescreen (16:9) monitor. Rooms sit side by side, cinema fills the screen horizontally, and the poster board shows two images at once. Pick which boards to show and for how long, then copy the link for that screen.</p>
+    <div id="landRows"></div>
+    <div class="tpick">
+      <div class="tp-label">Transition style</div>
+      <div class="tp-btns" id="landFxBtns"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" style="border-color:#9d7bff;background:#9d7bff;color:#140b22" id="landOpenHere">▶ Open on this screen</button>
+      <button class="btn ghost" style="border-color:#9d7bff;color:#9d7bff" id="landCopyLink">⧉ Copy landscape link</button>
+    </div>
+    <div class="linkbox">
+      <label>Landscape display link</label>
+      <input type="text" id="landUrl" readonly onclick="this.select()">
+    </div>
+    <p class="land-note">Open this link on the widescreen monitor, then press <b>F11</b> for fullscreen. The portrait boards above are unchanged.</p>
+    <div class="msg" id="landMsg"></div>
   </section>
 
   <!-- ───────── PROMOTIONS ───────── -->
@@ -527,11 +553,105 @@ $("dbAddBtn").onclick=function(){
 
 $("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });
 
+
+/* ===================== LANDSCAPE SLIDESHOW ===================== */
+/* Identical board list to portrait — independent toggles & seconds.
+   Generates the same URL but with &landscape=1 appended.            */
+
+// Default landscape seconds — slightly longer since more fits on screen
+const LAND_BOARDS = [
+  { mode:"normal",       title:"Tonight",       sub:"Gigs + tonight's film",     secs:20, on:true  },
+  { mode:"cinema",       title:"Cinema",        sub:"Big-screen poster",         secs:22, on:true  },
+  { mode:"prices",       title:"Promotions",    sub:"Members' drink prices",     secs:14, on:true  },
+  { mode:"displayboard", title:"Display Board", sub:"Posters & notices (2-up)",  secs:18, on:false },
+  { mode:"fringe",       title:"Festival",      sub:"Free Fringe listings",      secs:24, on:false },
+];
+const LS_LAND_KEY = "whatson_slideshow_land";
+let landFxN = 1;
+
+function loadLandSaved(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LS_LAND_KEY)||"null");
+    if(!s) return;
+    LAND_BOARDS.forEach(b=>{ if(s[b.mode]){ b.on=!!s[b.mode].on; if(s[b.mode].secs) b.secs=s[b.mode].secs; } });
+    if(s._fx != null) landFxN = s._fx;
+  }catch(e){}
+}
+function saveLandState(){
+  const s={_fx:landFxN};
+  LAND_BOARDS.forEach(b=> s[b.mode]={on:b.on, secs:b.secs});
+  try{ localStorage.setItem(LS_LAND_KEY, JSON.stringify(s)); }catch(e){}
+}
+function buildLandUrl(){
+  const picked = LAND_BOARDS.filter(b=>b.on);
+  if(!picked.length) return "";
+  const boards = picked.map(b=>`${b.mode}:${b.secs}`).join(",");
+  return `board.html?play=1&boards=${encodeURIComponent(boards)}&fx=${landFxN}&landscape=1`;
+}
+function refreshLandUrl(){
+  const url = buildLandUrl();
+  const abs  = url ? new URL(url, location.href).href : "";
+  $("landUrl").value = abs || "— tick at least one board —";
+  const none = !url;
+  $("landOpenHere").disabled = none;
+  $("landCopyLink").disabled = none;
+}
+function renderLandRows(){
+  const box = $("landRows"); box.innerHTML = "";
+  LAND_BOARDS.forEach((b,i)=>{
+    const row = document.createElement("div");
+    row.className = "brow" + (b.on ? "" : " off");
+    row.innerHTML = `
+      <label class="switch"><input type="checkbox" ${b.on?"checked":""} data-i="${i}" class="land-tog"><span class="slider"></span></label>
+      <span class="name"><b>${b.title}</b><span>${b.sub}</span></span>
+      <span class="secs"><input type="number" min="3" max="120" value="${b.secs}" data-i="${i}" class="land-sec"> sec</span>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".land-tog").forEach(t=> t.onchange=e=>{
+    LAND_BOARDS[+e.target.dataset.i].on = e.target.checked;
+    e.target.closest(".brow").classList.toggle("off", !e.target.checked);
+    saveLandState(); refreshLandUrl();
+  });
+  box.querySelectorAll(".land-sec").forEach(s=> s.onchange=e=>{
+    let v=parseInt(e.target.value,10); if(isNaN(v)||v<3)v=3; if(v>120)v=120;
+    e.target.value=v; LAND_BOARDS[+e.target.dataset.i].secs=v; saveLandState(); refreshLandUrl();
+  });
+  refreshLandUrl();
+}
+function renderLandFxPicker(){
+  const box = $("landFxBtns"); if(!box) return; box.innerHTML="";
+  [1,2,3,4,5,6,7,8,9,10,0].forEach(n=>{
+    const b = document.createElement("button");
+    b.className = "fx-btn" + (landFxN===n?" on":"");
+    b.textContent = n===0 ? "✦ Random" : `${n} · ${FX_NAMES[n]}`;
+    b.onclick = ()=>{
+      landFxN=n;
+      [...box.querySelectorAll(".fx-btn")].forEach(x=>x.classList.toggle("on",x===b));
+      saveLandState(); refreshLandUrl();
+    };
+    box.appendChild(b);
+  });
+}
+$("landOpenHere").onclick = ()=>{ const u=buildLandUrl(); if(u) location.href=u; };
+$("landCopyLink").onclick = async()=>{
+  const u=$("landUrl").value; if(!u||u.startsWith("—")) return;
+  try{
+    await navigator.clipboard.writeText(u);
+    flash("landMsg","Landscape link copied — paste it on the widescreen.");
+  }catch(e){
+    $("landUrl").select();
+    flash("landMsg","Press Ctrl/⌘-C to copy the selected link.");
+  }
+};
+
 /* ===================== INIT (manager only) ===================== */
 function start(){
   loadSaved();
   renderBoardRows();
   renderFxPicker();
+  loadLandSaved();
+  renderLandRows();
+  renderLandFxPicker();
   loadPromo();
   dbFetch();
 }

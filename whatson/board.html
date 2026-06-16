@@ -1186,6 +1186,114 @@ body.page-switching .stage{will-change:opacity,transform,filter}
   /* if someone opens it landscape, keep it sane */
   .stage{max-width:1920px}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LANDSCAPE MODE  (?landscape=1)
+   Applied via JS: document.body.classList.add("landscape")
+   All rules are scoped to body.landscape so portrait is untouched.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── masthead: left/right split instead of centred stack ── */
+body.landscape .masthead{
+  display:flex;align-items:center;justify-content:space-between;
+  text-align:left;padding-bottom:clamp(8px,1.2vh,14px);
+}
+body.landscape .masthead .bh-left{flex:0 0 auto}
+body.landscape .masthead .eyebrow{margin-bottom:.3em}
+body.landscape .masthead h1{font-size:clamp(18px,2.8vw,38px)}
+body.landscape .masthead .sub{
+  flex:0 0 auto;flex-direction:column;align-items:flex-end;gap:.2em;margin-top:0;
+}
+body.landscape .masthead .when{font-size:clamp(11px,1.2vw,18px)}
+body.landscape .masthead .clock{font-size:clamp(14px,1.8vw,26px)}
+
+/* ── rooms: side-by-side columns instead of stacked ── */
+body.landscape .rooms{
+  flex-direction:row;gap:clamp(10px,1.4vw,20px);
+  padding-top:clamp(6px,1vh,12px);
+}
+body.landscape .room{
+  flex:1 1 0;min-width:0;
+  border:1px solid var(--rule);border-radius:4px;
+  padding:clamp(8px,1.2vw,16px);
+  background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.005));
+}
+body.landscape .room-head{padding:0 0 clamp(5px,.8vh,9px)}
+body.landscape .room-head h2{font-size:clamp(11px,1.4vw,18px)}
+body.landscape .slots{gap:clamp(4px,.6vh,8px)}
+body.landscape .show{
+  grid-template-columns:clamp(52px,7vw,80px) 1fr;
+  gap:clamp(6px,1vw,14px);
+  padding:clamp(5px,.7vh,9px) clamp(8px,1vw,13px) clamp(5px,.7vh,9px) clamp(9px,1.1vw,14px);
+}
+body.landscape .show .time .start{font-size:clamp(12px,1.5vw,20px)}
+body.landscape .show .time .end{font-size:clamp(8px,.9vw,12px)}
+body.landscape .show .name{font-size:clamp(11px,1.4vw,18px)}
+body.landscape .show .genre{font-size:clamp(7px,.8vw,10px)}
+body.landscape .show .desc{font-size:clamp(9px,1vw,13px)}
+body.landscape .ghostslot{font-size:clamp(9px,1vw,13px)}
+body.landscape .empty-room{font-size:clamp(10px,1.1vw,15px)}
+
+/* ── tonight layout: gigs left, cinema right ── */
+body.landscape .tonight{flex-direction:row;gap:clamp(12px,1.6vw,22px)}
+body.landscape .t-sec{flex:1;min-width:0}
+body.landscape .t-gigs{flex:1.1 1 0;max-height:none;overflow:visible}
+body.landscape .t-cine{border-left:1px solid var(--rule);padding-left:clamp(10px,1.4vw,18px)}
+body.landscape .t-head{font-size:clamp(11px,1.4vw,18px);padding:0 0 clamp(5px,.8vh,10px)}
+body.landscape .t-gigs.solo{flex:1 1 0}
+body.landscape .t-rows{gap:clamp(4px,.6vh,8px)}
+body.landscape .show .kind{font-size:clamp(8px,.9vw,12px)}
+
+/* ── cinema layout: poster left, info right ── */
+body.landscape .cinema{flex-direction:row;align-items:stretch;gap:clamp(12px,1.8vw,24px)}
+body.landscape .cinmain{flex-direction:row;align-items:stretch;gap:clamp(12px,1.8vw,24px)}
+
+/* left column: poster + reel stacked */
+body.landscape .ci-ls-left{
+  flex:0 0 auto;width:min(26vw,280px);
+  display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);
+}
+body.landscape .cinema .poster{flex:0 0 auto}
+body.landscape .cinema .poster img{
+  height:auto;width:100%;max-width:100%;
+  object-fit:cover;border-radius:4px;
+}
+body.landscape .cinema .reel{
+  flex:1 1 auto;width:100%;margin-top:0;
+  min-height:clamp(60px,10vh,120px);
+}
+
+/* right column: all text + up-next */
+body.landscape .ci-ls-right{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+  justify-content:center;overflow:hidden;
+}
+body.landscape .cinema .cinfo{
+  max-width:none;text-align:left;align-items:flex-start;
+}
+body.landscape .cinema .cmeta{justify-content:flex-start}
+body.landscape .cinema .cname{font-size:clamp(18px,3.2vw,48px);margin:.2em 0 .2em}
+body.landscape .cinema .coverview{max-width:none;-webkit-line-clamp:4}
+body.landscape .cinema .upnext{width:100%;margin-top:clamp(8px,1.2vh,14px)}
+body.landscape .cinema .un-card{height:clamp(80px,12vh,140px)}
+body.landscape .cinema .un-label2{font-size:clamp(10px,1.3vw,18px)}
+body.landscape .cinema .un-title{font-size:clamp(16px,2.4vw,38px)}
+body.landscape .cinema .un-when{font-size:clamp(9px,1.1vw,16px)}
+
+/* ── display board: 2-up side by side ── */
+body.landscape .db-stage{flex-direction:row;gap:clamp(4px,.5vw,8px);padding:clamp(4px,.5vw,8px)}
+body.landscape .db-stage .db-media{
+  position:static;flex:1;display:flex;align-items:center;justify-content:center;
+  border-radius:3px;overflow:hidden;background:#000;
+}
+body.landscape .db-stage .db-media:only-child{
+  /* single item still fills full width */
+  flex:1 1 100%;
+}
+body.landscape .db-stage .db-label{display:none} /* labels clutter 2-up view */
+body.landscape .db-stage .db-counter{top:8px;right:10px}
+body.landscape .db-img{object-fit:contain;width:100%;height:100%}
+
 /* ── HD / High-DPI enhancement ── */
 @media (min-width:1440px){
   .stage{gap:clamp(18px,1.8vh,32px)}
@@ -1209,6 +1317,11 @@ body.page-switching .stage{will-change:opacity,transform,filter}
 }
 .db-stage.db-visible{ opacity:1; transition:opacity 1.2s ease; }
 .db-stage.db-out{ opacity:0; transition:opacity 1.0s ease; }
+/* Landscape 2-up: two poster panels side by side */
+.db-stage.db-land{flex-direction:row;gap:clamp(4px,.5vw,10px);padding:clamp(4px,.5vw,10px);align-items:stretch}
+.db-stage.db-land .db-media{flex:1;min-width:0;position:static;border-radius:4px;overflow:hidden;background:#000}
+.db-stage.db-land .db-img{width:100%;height:100%;object-fit:contain;display:block}
+.db-stage.db-land .db-counter{top:8px;right:10px}
 .db-media{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
 }
@@ -1501,6 +1614,8 @@ const SAMPLE_CINEMA = [
    STATE
    ===================================================================== */
 const params = new URLSearchParams(location.search);
+const IS_LANDSCAPE = params.get("landscape") === "1";
+if(IS_LANDSCAPE) document.body.classList.add("landscape");
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
@@ -2160,9 +2275,21 @@ function renderDisplayBoard(){
     const labelEl=showLabel?`<div class="db-label">${esc(rawName)}</div>`:"";
     const counter=files.length>1?`<div class="db-counter">${idx+1} / ${files.length}</div>`:"";
 
-    wrap.innerHTML=`<div class="db-stage db-in">
-      <div class="db-media">${mediaEl}</div>
-      ${labelEl}${counter}
+    // In landscape mode, show two posters side by side
+    let secondMediaEl = "";
+    if(IS_LANDSCAPE && files.length > 1){
+      const nextIdx = (idx + 1) % files.length;
+      const f2 = files[nextIdx];
+      const isPDF2 = /\.pdf(\?.*)?$/i.test(f2.url);
+      secondMediaEl = isPDF2
+        ? `<iframe class="db-frame" src="${esc(f2.url)}" title="${esc(f2.name||"")}" allowfullscreen style="flex:1;min-width:0"></iframe>`
+        : `<img class="db-img" src="${esc(f2.url)}" alt="${esc(f2.name||"")}" style="flex:1;min-width:0;object-fit:contain">`;
+    }
+
+    wrap.innerHTML=`<div class="db-stage db-in${IS_LANDSCAPE?" db-land":""}">
+      <div class="db-media"${IS_LANDSCAPE?' style="flex:1;min-width:0"':''}>${mediaEl}</div>
+      ${IS_LANDSCAPE && secondMediaEl ? `<div class="db-media" style="flex:1;min-width:0">${secondMediaEl}</div>` : ""}
+      ${!IS_LANDSCAPE ? labelEl : ""}${counter}
     </div>`;
 
     function revealSlide(){
@@ -2193,7 +2320,8 @@ function renderDisplayBoard(){
     const s=wrap.querySelector(".db-stage");
     if(s){ s.classList.remove("db-visible"); s.classList.add("db-out"); }
     setTimeout(()=>{
-      showSlide((state._dbIdx + 1) % files.length);
+      // In landscape 2-up mode advance by 2 so we always show a fresh pair
+      showSlide((state._dbIdx + (IS_LANDSCAPE && files.length > 1 ? 2 : 1)) % files.length);
     }, 1100); // wait for db-out fade (1.0s) before swapping
   }
 
@@ -2201,7 +2329,7 @@ function renderDisplayBoard(){
     // SLIDESHOW MODE — outer slideshowStep owns board-level cadence.
     // Show the current image; pre-advance index so next visit shows the next one.
     showSlide(state._dbIdx);
-    state._dbIdx = (state._dbIdx + 1) % files.length;
+    state._dbIdx = (state._dbIdx + (IS_LANDSCAPE && files.length > 1 ? 2 : 1)) % files.length;
   } else {
     // DIRECT MODE (?mode=displayboard) — internal timer cycles images.
     showSlide(state._dbIdx);
@@ -2423,27 +2551,56 @@ async function renderCinema(now, validDate){
   }).join("");
   const upnextHTML=upNext?`<div class="upnext"><div class="un-row">${upNext}</div></div>`:"";
 
-  wrap.innerHTML=`
-    <div class="cinema">
-      <div class="cinmain">
-        <div class="poster">
-          ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
-        </div>
-        <div class="cinfo">
-          <div class="cmeta">
-            <span class="cwhen">${esc(whenTxt)}</span>
-            ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
-            ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-            ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-            ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+  if(IS_LANDSCAPE){
+    // Landscape: poster+reel in left column, all text+upnext in right column
+    wrap.innerHTML=`
+      <div class="cinema">
+        <div class="cinmain">
+          <div class="ci-ls-left">
+            <div class="poster">
+              ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+            </div>
+            ${reel}
           </div>
-          <h2 class="cname">${esc(data.title||film.title)}</h2>
-          ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
-          ${reel}
+          <div class="ci-ls-right">
+            <div class="cinfo">
+              <div class="cmeta">
+                <span class="cwhen">${esc(whenTxt)}</span>
+                ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
+                ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+                ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+                ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+              </div>
+              <h2 class="cname">${esc(data.title||film.title)}</h2>
+              ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+            </div>
+            ${upnextHTML}
+          </div>
         </div>
-        ${upnextHTML}
-      </div>
-    </div>`;
+      </div>`;
+  } else {
+    wrap.innerHTML=`
+      <div class="cinema">
+        <div class="cinmain">
+          <div class="poster">
+            ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+          </div>
+          <div class="cinfo">
+            <div class="cmeta">
+              <span class="cwhen">${esc(whenTxt)}</span>
+              ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
+              ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+              ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+              ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+            </div>
+            <h2 class="cname">${esc(data.title||film.title)}</h2>
+            ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+            ${reel}
+          </div>
+          ${upnextHTML}
+        </div>
+      </div>`;
+  }
 
   // crossfade the hero backdrop reel (slow dissolve, no video)
   clearInterval(state._reelTimer);
