@@ -461,6 +461,7 @@ $("dbAddBtn").onclick=function(){
 $("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });
 
 /* ══════════ UTILS ══════════ */
+function esc(s){ return String(s||"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
 function flash(id,msg,warn){
   const el=$(id); if(!el) return;
   el.textContent=msg; el.className="msg show"+(warn?" warn":" ok");
