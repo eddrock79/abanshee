@@ -1278,100 +1278,207 @@ body.landscape .empty-room{font-size:clamp(9px,1vw,13px)}
 /* ══════════════════════════════════════
    TONIGHT — gigs left ~58%, cinema right ~42%
    ══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   TONIGHT — Events left 57% | Cinema right 43%
+   Matches the mockup: bordered event cards,
+   framed cinema cards with poster+backdrop
+   ══════════════════════════════════════════════════ */
 body.landscape .tonight{
-  flex-direction:row;gap:0;
+  flex-direction:row;gap:clamp(10px,1.4vw,22px);
   align-items:stretch;
 }
 body.landscape .t-sec{min-width:0;display:flex;flex-direction:column}
 body.landscape .t-gigs{
-  flex:0 0 58%;
+  flex:0 0 57%;
   max-height:none;overflow:hidden;
-  padding-right:clamp(10px,1.4vw,20px);
 }
 body.landscape .t-cine{
-  flex:0 0 42%;min-width:0;
-  border-left:1px solid var(--rule);
-  padding-left:clamp(10px,1.4vw,20px);
+  flex:1 1 0;min-width:0;
   display:flex;flex-direction:column;
 }
+
+/* ── Column headers ── */
 body.landscape .t-head{
-  font-size:clamp(11px,1.3vw,18px);font-weight:700;
-  padding:0 0 clamp(5px,.7vh,10px);
-  letter-spacing:.1em;
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.22em;font-size:clamp(10px,1.15vw,17px);color:var(--spectre);
+  padding:0 0 clamp(6px,.8vh,12px);
+  display:flex;align-items:center;gap:.7em;
+  border-bottom:1px solid rgba(116,227,193,.2);
+  margin-bottom:clamp(6px,.8vh,12px);
 }
-body.landscape .t-gigs.solo{flex:1 1 0;padding-right:0}
-/* Events rows — bigger, more breathing room */
-body.landscape .t-rows{gap:clamp(4px,.55vh,8px)}
+body.landscape .t-head .t-glyph{font-size:.9em;opacity:.8}
+body.landscape .t-head .t-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(116,227,193,.2),transparent)}
+
+body.landscape .t-gigs.solo{flex:1 1 0}
+
+/* ── Event card rows ── */
+body.landscape .t-rows{
+  display:flex;flex-direction:column;
+  gap:clamp(4px,.5vh,7px);
+  flex:1;
+}
 body.landscape .tonight .show{
-  grid-template-columns:clamp(70px,9vw,130px) 1fr;
-  gap:clamp(6px,.9vw,12px);
-  padding:clamp(7px,1vh,14px) clamp(8px,1.1vw,14px) clamp(7px,1vh,14px) clamp(10px,1.3vw,18px);
+  /* Override portrait grid — use flex row instead */
+  display:flex !important;
+  flex-direction:row;
+  align-items:stretch;
+  grid-template-columns:none;
+  border:1px solid rgba(180,140,100,.2);
+  border-radius:6px;
+  background:rgba(255,255,255,.025);
+  overflow:hidden;
+  padding:0;gap:0;
+  transition:border-color .2s;
+}
+body.landscape .tonight .show:hover{border-color:rgba(180,140,100,.4)}
+body.landscape .tonight .show.live{
+  border-color:rgba(62,207,110,.5);
+  background:rgba(62,207,110,.05);
+}
+
+/* Date/time left column */
+body.landscape .tonight .show .time{
+  flex:0 0 auto;
+  width:clamp(80px,10vw,150px);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(8px,1.1vh,14px) clamp(8px,1.1vw,14px);
+  border-right:1px solid rgba(180,140,100,.15);
+  background:rgba(0,0,0,.2);
+  grid-column:unset;
 }
 body.landscape .tonight .show .time .start{
-  font-size:clamp(14px,1.8vw,26px);font-weight:700;line-height:1.1;
+  font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(12px,1.55vw,24px);line-height:1.15;
+  color:var(--bone);letter-spacing:.02em;
+  display:block;
 }
-body.landscape .tonight .show .time .end{font-size:clamp(9px,1vw,14px);margin-top:.2em}
+/* Date as secondary line above or as start */
+body.landscape .tonight .show .time .end{
+  font-size:clamp(9px,1vw,15px);
+  color:var(--spectre);font-weight:600;
+  margin-top:clamp(2px,.3vh,4px);
+  letter-spacing:.04em;
+}
+body.landscape .tonight .show .time .price{
+  font-size:clamp(8px,.85vw,12px);
+  color:var(--gold);margin-top:clamp(2px,.3vh,3px);
+}
+
+/* Event content column */
+body.landscape .tonight .show .body{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(8px,1.1vh,14px) clamp(10px,1.3vw,16px);
+  grid-column:unset;
+  grid-template-columns:none;
+}
+body.landscape .tonight .show .kind{
+  font-size:clamp(8px,.9vw,12px);
+  padding:.2em .65em;
+  margin-bottom:clamp(3px,.4vh,5px);
+  align-self:flex-start;
+  border-radius:3px;
+  font-weight:700;letter-spacing:.1em;
+}
 body.landscape .tonight .show .name{
-  font-size:clamp(15px,2vw,30px);font-weight:600;line-height:1.1;
+  font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(14px,1.85vw,28px);line-height:1.1;
+  color:var(--bone);
+  display:block;
 }
-body.landscape .tonight .show .kind{font-size:clamp(8px,.9vw,12px);padding:.2em .5em}
+body.landscape .tonight .show .genre{display:none}
 body.landscape .tonight .show .desc{
-  font-size:clamp(10px,1.1vw,15px);
+  font-size:clamp(9px,1vw,14px);
+  color:var(--bone-dim);margin-top:clamp(2px,.3vh,4px);
   -webkit-line-clamp:1;
+  display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;
 }
-/* Cinema column rows — full-bleed backdrop with poster overlay */
+/* On Now indicator */
+body.landscape .tonight .show .nowtag{
+  flex-shrink:0;align-self:center;
+  margin-right:clamp(8px,1vw,14px);
+}
+
+/* ── Cinema column: framed cards matching cinema board style ── */
 body.landscape .t-cine-body{
   flex:1;display:flex;flex-direction:column;
   gap:clamp(6px,.8vh,12px);min-height:0;
-  justify-content:space-between;
 }
 body.landscape .cine-row{
   flex:1 1 0;min-height:0;
   position:relative;overflow:hidden;
-  border-radius:6px;border:1px solid var(--rule);
-  display:flex;flex-direction:row;
-  align-items:stretch;
+  border:1px solid rgba(180,140,100,.25);
+  border-radius:8px;
+  display:flex;flex-direction:row;align-items:stretch;
+  background:#08060e;
+  box-shadow:0 4px 18px rgba(0,0,0,.6);
   padding:0;gap:0;
 }
-/* Thumb becomes a fixed-width portrait column */
+/* Poster column — proper portrait ratio */
 body.landscape .cine-thumb{
   flex:0 0 auto;
-  width:clamp(60px,6vw,90px);
-  height:auto;
-  object-fit:cover;
-  border-right:1px solid var(--rule);
-  align-self:stretch;
+  width:clamp(64px,7.5vw,110px);
+  height:100%;
+  object-fit:cover;object-position:center top;
+  display:block;
 }
-/* Backdrop reel fills the row behind the text */
+/* Backdrop behind text */
 body.landscape .cine-row .un-back{
-  position:absolute;inset:0;left:clamp(60px,6vw,90px);
+  position:absolute;
+  top:0;bottom:0;left:clamp(64px,7.5vw,110px);right:0;
   z-index:0;overflow:hidden;
 }
 body.landscape .cine-row .un-back img{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;opacity:0;transition:opacity 2s ease;
+  object-fit:cover;opacity:0;transition:opacity 2.5s ease;
+  animation:reelKen 20s ease-in-out infinite alternate;
 }
-body.landscape .cine-row .un-back img.active{opacity:.35}
-/* Dark gradient over the reel */
+body.landscape .cine-row .un-back img.active{opacity:.45}
+/* Gradient overlay */
 body.landscape .cine-row::after{
   content:'';position:absolute;
-  inset:0;left:clamp(60px,6vw,90px);z-index:1;
-  background:linear-gradient(90deg,rgba(5,5,10,.95) 0%,rgba(5,5,10,.6) 60%,rgba(5,5,10,.3) 100%);
+  top:0;bottom:0;left:clamp(64px,7.5vw,110px);right:0;
+  z-index:1;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(8,6,14,.95) 0%,rgba(8,6,14,.75) 35%,rgba(8,6,14,.3) 70%,transparent 100%),
+    linear-gradient(0deg,rgba(8,6,14,.7) 0%,rgba(8,6,14,.25) 45%,transparent 70%);
 }
+/* Text sits above gradient */
 body.landscape .cine-meta{
   flex:1;position:relative;z-index:2;
   display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(8px,1.2vh,16px) clamp(10px,1.3vw,18px);
+  padding:clamp(10px,1.4vh,18px) clamp(12px,1.5vw,20px);
 }
-body.landscape .cine-time{font-size:clamp(10px,1.1vw,16px);margin-bottom:clamp(2px,.3vh,4px)}
-body.landscape .cine-title{
-  font-size:clamp(16px,2.2vw,34px);font-weight:700;line-height:1.05;
+/* Label: NOW PLAYING / UP NEXT at top */
+body.landscape .cine-row-label{
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.26em;color:var(--spectre);
+  font-size:clamp(8px,.9vw,13px);
+  display:flex;align-items:center;gap:.5em;
   margin-bottom:clamp(3px,.4vh,6px);
+}
+body.landscape .cine-row-label::before{
+  content:'';display:inline-block;width:.5em;height:.5em;border-radius:50%;
+  background:var(--spectre);box-shadow:0 0 7px var(--spectre);flex-shrink:0;
+}
+body.landscape .cine-time{
+  font-size:clamp(10px,1.1vw,16px);
+  margin-bottom:clamp(3px,.35vh,5px);
+  letter-spacing:.06em;
+}
+body.landscape .cine-title{
+  font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(16px,2.1vw,32px);line-height:1.05;
+  color:var(--bone);
+  margin-bottom:clamp(4px,.5vh,8px);
+  text-shadow:0 2px 12px rgba(0,0,0,.9);
 }
 body.landscape .cine-blurb{
   font-size:clamp(10px,1.05vw,15px);
+  color:var(--bone-dim);
   -webkit-line-clamp:2;
   display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;
+  text-shadow:0 1px 6px rgba(0,0,0,.9);
 }
 
 /* ══════════════════════════════════════
@@ -3469,9 +3576,18 @@ async function renderTonight(now, validDate){
       const timeTxt=s.noTime?"":s.startLabel;
       const kindLabel = s.genre ? esc(s.genre) : "";
       gh+=`<div class="show${live?" live":""}">
-        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}${s.price?`<span class="price">${esc(s.price)}</span>`:""}</div>
-        <div class="body"><span class="kind">${kindLabel}</span><span class="name">${esc(s.title)}</span>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
-        <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
+        <div class="time">
+          <span class="start">${esc(dlabel)}</span>
+          ${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}
+          ${s.price?`<span class="price">${esc(s.price)}</span>`:""}
+        </div>
+        <div class="body">
+          ${kindLabel?`<span class="kind">${kindLabel}</span>`:""}
+          <span class="name">${esc(s.title)}</span>
+          ${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}
+        </div>
+        <div class="nowtag"><span class="dot"></span>On Now</div>
+      </div>`;
     });
     gh+=`</div>`;
     return gh;
@@ -3500,20 +3616,22 @@ async function renderTonight(now, validDate){
   // Separate private bookings from real films
   const realFilms   = films.filter(f=>!isPrivateBooking(f));
   const bookingSlot = films.find(f=>isPrivateBooking(f));
-  const filmRows = realFilms.slice(0,3).map(f=>{
+  const cardLabels = ["Now Playing","Up Next","Later"];
+  const filmRows = realFilms.slice(0,3).map((f,rowIdx)=>{
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
-    const poster=t.poster?`<img src="${t.poster}" alt="">`:`<div class="noimg">▦</div>`;
+    const poster=t.poster?`<img src="${t.poster}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">`:`<div class="noimg">▦</div>`;
     const certVal = f.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(f.cert.trim()) ? f.cert.trim() : "";
-    // Backdrop reel — add animated stills behind the row (landscape only)
     const backs=(t.backdrops&&t.backdrops.length)?t.backdrops.slice(0,4):(t.poster?[t.poster]:[]);
     const backdropHTML=backs.length
       ?`<div class="un-back">${backs.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
       :"";
+    const label = IS_LANDSCAPE ? `<div class="cine-row-label">${esc(cardLabels[rowIdx]||"Later")}</div>` : "";
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       ${backdropHTML}
       <div class="cine-meta">
+        ${label}
         <div class="cine-time">${time?esc(time):"tonight"}${certVal?` · <span class="cert">${esc(certVal)}</span>`:""}${rt?` · ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
