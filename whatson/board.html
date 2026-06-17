@@ -2175,9 +2175,12 @@ body.landscape .wob-event-list{
   flex:1 1 auto;
   min-height:0;
   display:grid;
-  grid-template-rows:repeat(6,minmax(0,1fr));
-  gap:clamp(8px,.9vh,14px);
-  padding:clamp(12px,1.4vh,20px) clamp(14px,1.4vw,24px) clamp(12px,1.5vh,22px);
+  /* Landscape boards need room for a genuine 3-line blurb.
+     Five cards read better than six cramped/cropped cards on signage. */
+  grid-template-rows:repeat(5,minmax(0,1fr));
+  gap:clamp(10px,1vh,16px);
+  /* extra bottom padding keeps the Full list strap from touching the final card */
+  padding:clamp(12px,1.4vh,20px) clamp(14px,1.4vw,24px) clamp(34px,3.4vh,50px);
 }
 body.landscape .wob-event{
   min-height:0;
@@ -2254,7 +2257,8 @@ body.landscape .wob-copy{
   display:flex;
   flex-direction:column;
   justify-content:flex-start;
-  padding-top:clamp(1px,.22vh,4px);
+  padding-top:clamp(1px,.18vh,3px);
+  padding-bottom:clamp(2px,.35vh,6px);
 }
 body.landscape .wob-name{
   color:var(--bone);
@@ -2269,10 +2273,10 @@ body.landscape .wob-name{
   text-shadow:0 2px 12px rgba(0,0,0,.9);
 }
 body.landscape .wob-desc{
-  margin-top:.28em;
+  margin-top:.35em;
   color:var(--bone-dim);
   font-size:clamp(12px,.95vw,18px);
-  line-height:1.18;
+  line-height:1.22;
   display:-webkit-box;
   -webkit-line-clamp:3;
   -webkit-box-orient:vertical;
@@ -4455,7 +4459,7 @@ async function renderTonight(now, validDate){
     wrap.innerHTML=`<div class="wob-board">
       <section class="wob-panel wob-events">
         <header class="wob-panel-head"><span class="glyph">✦</span><span>Coming Up in Molly's Chamber</span><span class="line"></span></header>
-        <div class="wob-event-list">${eventRows(6)}</div>
+        <div class="wob-event-list">${eventRows(5)}</div>
         <div class="wob-more">Full list: thebansheelabyrinth.com/events</div>
       </section>
       <section class="wob-panel wob-movies">
