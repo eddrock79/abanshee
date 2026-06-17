@@ -1238,6 +1238,14 @@ body.landscape .rooms{
   gap:clamp(8px,1.2vw,16px);
   padding-top:clamp(5px,.8vh,10px);
 }
+/* Cinema mode: rooms has a single child (.cinema) — fill everything, no extra padding */
+body.landscape .rooms:has(.cinema){
+  padding-top:0;gap:0;flex-direction:column;
+}
+body.landscape .rooms > .cinema{
+  flex:1 1 0;min-width:0;min-height:0;
+  width:100% !important;max-width:none !important;
+}
 body.landscape .room{
   flex:1 1 0;min-width:0;
   border:1px solid var(--rule);border-radius:4px;
@@ -1374,6 +1382,19 @@ body.landscape .cine-blurb{
    Landscape cinema — framed cards, same width,
    poster left (2:3) + backdrop right, text overlay
    ══════════════════════════════════════════════════ */
+
+/* ── NUKE all portrait width constraints ── */
+body.landscape .cinema,
+body.landscape .cinema-land-inner,
+body.landscape .cine-section,
+body.landscape .cinmain,
+body.landscape .cinema .cinfo,
+body.landscape .cinema .upnext,
+body.landscape .cinema .un-row,
+body.landscape .cinema .cin-booking{
+  max-width:none !important;
+  width:100%;
+}
 body.landscape .cinema{
   flex-direction:column;align-items:stretch;
   height:100%;width:100%;overflow:hidden;
@@ -1385,12 +1406,17 @@ body.landscape .cinema-land-inner{
   gap:clamp(8px,.9vh,14px);
   padding:clamp(4px,.5vh,8px) 0 clamp(2px,.3vh,4px);
 }
-/* Each cine-section (today / tomorrow) takes equal height */
+/* Each cine-section (today / tomorrow) takes equal height — remove portrait max-width */
 body.landscape .cine-section{
   flex:1 1 0;min-height:0;
-  display:flex;flex-direction:column;width:100%;
+  display:flex;flex-direction:column;
+  width:100%;max-width:none;
 }
 body.landscape .cinema-land-inner > .cine-section{flex:1 1 0}
+/* Remove portrait max-width from all cinema text containers */
+body.landscape .cinema .cinfo{max-width:none;width:auto;align-items:flex-start;text-align:left}
+body.landscape .cinmain{max-width:none}
+body.landscape .cinema .upnext{max-width:none}
 /* Hide the day label — label shown inside the card instead */
 body.landscape .cine-day-label{display:none}
 
