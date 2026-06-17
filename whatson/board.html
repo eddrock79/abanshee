@@ -1305,64 +1305,85 @@ body.landscape .cine-blurb{font-size:clamp(9px,1vw,14px)}
    CINEMA — poster left, info right
    ══════════════════════════════════════ */
 /* ── Landscape cinema: poster left narrow column, reel fills the right ── */
-body.landscape .cinema{flex-direction:row;align-items:stretch}
+/* ══ Landscape cinema: top half = hero, bottom half = up next ══ */
+body.landscape .cinema{flex-direction:column;align-items:stretch;height:100%}
 body.landscape .cinmain{
+  flex:1 1 0;min-height:0;
   flex-direction:row;align-items:stretch;
-  gap:clamp(10px,1.4vw,18px);padding-top:clamp(4px,.7vh,10px);
+  gap:0;padding-top:0;position:relative;overflow:hidden;
 }
-/* Left: poster only, narrow */
+/* Hero: poster in narrow left, reel fills right as full-bleed backdrop */
 body.landscape .ci-ls-left{
-  flex:0 0 auto;width:min(18vw,200px);
-  display:flex;flex-direction:column;gap:clamp(6px,1vh,10px);
+  flex:0 0 auto;width:min(14vw,160px);
+  display:flex;flex-direction:column;
+  padding:clamp(10px,1.4vh,18px) 0 clamp(10px,1.4vh,18px) clamp(10px,1.4vw,18px);
+  z-index:2;
 }
 body.landscape .cinema .poster{flex:0 0 auto;border-radius:5px;overflow:hidden}
 body.landscape .cinema .poster img{
   height:auto;width:100%;max-width:100%;
   object-fit:cover;display:block;
 }
-/* Reel in left column: fill remaining height below poster */
-body.landscape .cinema .reel{
-  flex:1 1 auto;width:100%;margin-top:0;
-  min-height:clamp(40px,8vh,90px);
-}
-/* Right: stacked flex — info on top, reel fills remaining height */
+/* Text info sits in right column, overlaid on the reel */
 body.landscape .ci-ls-right{
   flex:1;min-width:0;display:flex;flex-direction:column;
-  justify-content:flex-start;padding-top:clamp(2px,.4vh,6px);overflow:hidden;
+  justify-content:flex-end;padding:clamp(10px,1.4vh,18px);
+  position:relative;overflow:hidden;
+}
+/* Reel fills entire right column as background */
+body.landscape .ci-ls-right .reel{
+  position:absolute;inset:0;width:100%;height:100%;margin:0;border-radius:0;z-index:0;
+}
+body.landscape .ci-ls-right .reel img{width:100%;height:100%;object-fit:cover}
+/* Gradient overlay so text is readable over the reel */
+body.landscape .ci-ls-right::after{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,rgba(5,5,10,.92) 0%,rgba(5,5,10,.6) 40%,rgba(5,5,10,.15) 100%),
+             linear-gradient(0deg,rgba(5,5,10,.9) 0%,rgba(5,5,10,.4) 40%,transparent 70%);
 }
 body.landscape .cinema .cinfo{
+  position:relative;z-index:2;
   max-width:none;text-align:left;align-items:flex-start;flex-shrink:0;
 }
 body.landscape .cinema .cmeta{
   justify-content:flex-start;
-  font-size:clamp(9px,1.1vw,16px);gap:clamp(6px,.9vw,12px);
+  font-size:clamp(10px,1.2vw,18px);gap:clamp(6px,.9vw,14px);
+  position:relative;z-index:2;
 }
 body.landscape .cinema .cname{
-  font-size:clamp(16px,2.8vw,42px);
-  margin:.18em 0 .16em;
+  font-size:clamp(22px,3.8vw,60px);
+  margin:.12em 0 .12em;
+  position:relative;z-index:2;
 }
 body.landscape .cinema .coverview{
-  max-width:none;
-  font-size:clamp(11px,1.3vw,20px);
-  -webkit-line-clamp:4;
+  max-width:60ch;
+  font-size:clamp(12px,1.4vw,22px);
+  -webkit-line-clamp:3;
+  position:relative;z-index:2;
 }
-/* Large backdrop reel in right column — fills all remaining vertical space */
-body.landscape .ci-ls-right .reel{
-  flex:1 1 auto;width:100%;margin-top:clamp(8px,1.2vh,14px);
-  min-height:clamp(80px,14vh,180px);border-radius:6px;
-}
+/* Up Next strip: bottom half — full width, flex row of cards */
 body.landscape .cinema .upnext{
-  width:100%;margin-top:clamp(6px,1vh,10px);
-  padding-top:clamp(6px,1vh,10px);flex-shrink:0;
+  flex:1 1 0;min-height:0;
+  width:100%;margin:0;padding:0;
+  border-top:1px solid var(--rule);
+  display:flex;flex-direction:column;
 }
-body.landscape .cinema .un-row{gap:clamp(8px,1.2vw,16px)}
-body.landscape .cinema .un-card{height:clamp(100px,16vh,200px)}
-body.landscape .cinema .upnext{flex:1 1 auto;margin-top:clamp(8px,1.2vh,16px)}
-body.landscape .cinema .un-row{flex:1;height:100%}
-body.landscape .cinema .un-poster{width:clamp(46px,6.5vw,80px)}
-body.landscape .cinema .un-label2{font-size:clamp(10px,1.1vw,16px);letter-spacing:.2em}
-body.landscape .cinema .un-title{font-size:clamp(16px,2.4vw,38px)}
-body.landscape .cinema .un-when{font-size:clamp(9px,1.05vw,15px)}
+body.landscape .cinema .un-row{
+  flex:1;gap:0;
+  display:flex;
+}
+body.landscape .cinema .un-card{
+  flex:1 1 0;height:100%;border-radius:0;border:none;
+  border-right:1px solid var(--rule);
+}
+body.landscape .cinema .un-card:last-child{border-right:none}
+body.landscape .cinema .un-poster{width:clamp(56px,7vw,100px)}
+body.landscape .cinema .un-label2{font-size:clamp(11px,1.3vw,20px);letter-spacing:.2em}
+body.landscape .cinema .un-title{font-size:clamp(18px,2.8vw,46px)}
+body.landscape .cinema .un-when{font-size:clamp(10px,1.2vw,18px)}
+/* Day label sits above the hero section */
+body.landscape .cine-section{flex:1;min-height:0;display:flex;flex-direction:column}
+body.landscape .cine-day-label{flex-shrink:0;padding:clamp(4px,.6vh,8px) clamp(10px,1.4vw,18px)}
 
 /* ══════════════════════════════════════
    PRICES — members' board
@@ -1373,12 +1394,12 @@ body.landscape .prices{
 }
 /* Member Cards banner — centred, but smaller */
 body.landscape .pr-member-card{
-  font-size:clamp(13px,1.9vw,28px);
-  padding:clamp(3px,.45vh,6px) 0 clamp(2px,.35vh,4px);
+  font-size:clamp(18px,2.6vw,42px);
+  padding:clamp(6px,.8vh,12px) 0 clamp(4px,.6vh,8px);
 }
 body.landscape .prices .pr-note{
-  font-size:clamp(10px,1.1vw,16px);
-  margin-bottom:clamp(3px,.5vh,7px);
+  font-size:clamp(12px,1.4vw,22px);
+  margin-bottom:clamp(4px,.6vh,9px);
 }
 /* 3 columns — even fills for 6 items, no orphan */
 body.landscape .prices .pr-list{
@@ -1389,11 +1410,10 @@ body.landscape .prices .pr-list{
 body.landscape .pr-row{
   padding:clamp(4px,.55vh,8px) clamp(8px,1vw,14px);
 }
-body.landscape .pr-name{font-size:clamp(12px,1.55vw,22px)}
-body.landscape .pr-sub{font-size:clamp(7px,.75vw,10px);letter-spacing:.12em}
+body.landscape .pr-name{font-size:clamp(16px,2.2vw,34px)}
+body.landscape .pr-sub{font-size:clamp(9px,1vw,14px);letter-spacing:.1em}
 body.landscape .pr-price{
-  font-size:clamp(12px,1.55vw,22px);
-  text-shadow:none; /* reduce glow on small text */
+  font-size:clamp(16px,2.2vw,34px);
 }
 body.landscape .pr-price .cur{font-size:.72em}
 body.landscape .pr-price .p2{font-size:.72em}
@@ -1433,7 +1453,7 @@ body.landscape .prices .pr-list{
   margin-bottom:0;
   align-content:space-between;
 }
-body.landscape .pr-row{padding:clamp(4px,.6vh,8px) clamp(8px,1.1vw,14px)}
+body.landscape .pr-row{padding:clamp(7px,1vh,14px) clamp(10px,1.4vw,18px)}
 /* Middle + right columns — cocktails and shooters */
 body.landscape .prd-col{
   display:flex;flex-direction:column;overflow:hidden;
@@ -1448,17 +1468,17 @@ body.landscape .prd-head{
   padding-bottom:clamp(3px,.45vh,5px);
   border-bottom:1px solid var(--rule);
 }
-body.landscape .prd-head .prd-heading{font-size:clamp(12px,1.6vw,22px);text-shadow:none}
-body.landscape .prd-head .prd-price{font-size:clamp(11px,1.3vw,18px);text-shadow:none}
-body.landscape .prd-list{gap:clamp(2px,.32vh,4px);flex:1;justify-content:space-between}
+body.landscape .prd-head .prd-heading{font-size:clamp(18px,2.4vw,38px);text-shadow:none}
+body.landscape .prd-head .prd-price{font-size:clamp(14px,1.8vw,28px);text-shadow:none}
+body.landscape .prd-list{gap:clamp(3px,.45vh,6px);flex:1;justify-content:space-between}
 body.landscape .prd-card{
   flex:1 1 0;min-height:0;
-  padding:clamp(3px,.4vh,5px) clamp(30px,4vw,48px) clamp(3px,.4vh,5px) clamp(6px,.8vw,10px);
+  padding:clamp(5px,.7vh,10px) clamp(40px,5.5vw,72px) clamp(5px,.7vh,10px) clamp(10px,1.2vw,16px);
 }
-body.landscape .prd-name{font-size:clamp(11px,1.28vw,17px);line-height:1.1}
-body.landscape .prd-ing{font-size:clamp(8px,.98vw,13px);line-height:1.2;margin-top:1px}
-body.landscape .prd-icon svg{width:clamp(14px,1.7vw,24px);height:clamp(14px,1.7vw,24px)}
-body.landscape .prd-card .prd-icon{font-size:clamp(10px,1.4vw,18px);right:clamp(4px,.5vw,7px)}
+body.landscape .prd-name{font-size:clamp(15px,1.9vw,30px);line-height:1.15}
+body.landscape .prd-ing{font-size:clamp(11px,1.4vw,22px);line-height:1.25;margin-top:2px}
+body.landscape .prd-icon svg{width:clamp(20px,2.6vw,40px);height:clamp(20px,2.6vw,40px)}
+body.landscape .prd-card .prd-icon{font-size:clamp(15px,2vw,30px);right:clamp(6px,.8vw,12px)}
 
 /* ══════════════════════════════════════
    DISPLAY BOARD — 2-up side by side
@@ -2911,16 +2931,17 @@ function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand, isNowPlaying)
     ?`<img src="${esc(data.poster)}" alt="">`
     :`<div class="noposter">${esc(data.title||film.title)}</div>`;
   if(isLand){
+    // Landscape hero: poster narrow left col, reel fills right as full-bleed backdrop with text overlay
     return `<div class="cinmain">
       <div class="ci-ls-left">
         <div class="poster">${posterEl}</div>
       </div>
       <div class="ci-ls-right">
+        ${reel}
         <div class="cinfo">${meta}
           <h2 class="cname">${esc(data.title||film.title)}</h2>
           ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
         </div>
-        ${reel}
       </div>
     </div>`;
   }
@@ -3069,7 +3090,7 @@ async function renderCinema(now, validDate){
     ${heroHTML}${upNextHTML}
   </div>`:"";
 
-  wrap.innerHTML=`<div class="cinema"><div class="cinmain" style="flex-direction:column;align-items:${IS_LANDSCAPE?"flex-start":"center"};width:100%">
+  wrap.innerHTML=`<div class="cinema"><div class="cinmain" style="${IS_LANDSCAPE?"":"flex-direction:column;align-items:center;"}width:100%">
     ${todaySection}
     ${todayBookHTML}
     ${tomorrowHTML}
