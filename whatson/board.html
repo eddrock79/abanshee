@@ -1146,104 +1146,44 @@ input:disabled{opacity:.4}
 }
 
 
-/* ---------- display transitions (?play=1) — 10 soft horror styles, no flashing ----------
-   These are deliberately smooth for public display boards: no white flashes,
-   no hard static cuts, no rapid blink/flicker effects. Use ?fx=1..10 to test. */
-#fxOverlay{
-  position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;
-  will-change:opacity,transform,filter;overflow:hidden;contain:paint;
-  background:#000;
-}
+/* ---------- display transitions (?play=1) — 10 horror styles, random by default ---------- */
+#fxOverlay{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:0;will-change:opacity,transform,filter;overflow:hidden;contain:paint}
 #fxOverlay::before,#fxOverlay::after{content:"";position:absolute;inset:-18%;pointer-events:none;opacity:0}
-
 /* 1 ghost dissolve */
-#fxOverlay.fx-ghost{
-  background:
-    radial-gradient(ellipse 120% 90% at 50% 42%,rgba(188,255,230,.20),rgba(48,82,76,.46) 38%,rgba(0,0,0,.98) 78%),
-    linear-gradient(180deg,rgba(0,0,0,.94),rgba(0,0,0,.86),rgba(0,0,0,.98));
-}
-#fxOverlay.fx-ghost::before{opacity:.55;background:radial-gradient(ellipse at 50% 50%,rgba(160,255,222,.10),transparent 58%);filter:blur(18px)}
-
-/* 2 dead signal — scanline drift, no flashing */
-#fxOverlay.fx-static{
-  background:
-    repeating-linear-gradient(0deg,rgba(236,230,214,.020) 0 1px,transparent 1px 7px),
-    radial-gradient(ellipse at 50% 46%,rgba(75,105,100,.18),rgba(0,0,0,.98) 72%);
-  filter:contrast(1.18) brightness(.55) saturate(.55);
-}
-#fxOverlay.fx-static::before{opacity:.42;mix-blend-mode:screen;background:linear-gradient(90deg,transparent 0 18%,rgba(116,227,193,.10) 20%,transparent 24%,transparent 72%,rgba(227,73,47,.06) 76%,transparent 82%);filter:blur(3px)}
-#fxOverlay.fx-static::after{opacity:.38;height:30%;top:36%;background:linear-gradient(180deg,transparent,rgba(160,220,205,.08),rgba(0,0,0,.72),transparent);filter:blur(5px)}
-
+#fxOverlay.fx-ghost{background:radial-gradient(ellipse at 50% 42%,rgba(210,255,245,.20),rgba(35,64,62,.42) 34%,rgba(0,0,0,.98) 78%)}
+/* 2 ring tear — dark interference, not white snow */
+#fxOverlay.fx-static{background:#020304;filter:contrast(1.55) brightness(.62) saturate(.45)}
+#fxOverlay.fx-static::before{opacity:.9;mix-blend-mode:screen;background:repeating-linear-gradient(0deg,rgba(236,230,214,.035) 0 1px,transparent 1px 6px),linear-gradient(90deg,rgba(255,0,70,.16),transparent 18%,transparent 78%,rgba(0,255,214,.14))}
+#fxOverlay.fx-static::after{opacity:.45;height:22%;top:32%;background:linear-gradient(180deg,transparent,rgba(255,255,255,.14),rgba(0,0,0,.75),transparent);filter:blur(1px)}
 /* 3 cold mist */
-#fxOverlay.fx-fog{
-  background:
-    radial-gradient(ellipse 150% 120% at 50% 45%,rgba(190,235,226,.46),rgba(74,118,108,.68) 46%,rgba(5,12,12,.99) 100%);
-  filter:saturate(.55) brightness(.72);
-}
-#fxOverlay.fx-fog::before{opacity:.46;background:radial-gradient(ellipse at 25% 80%,rgba(220,255,245,.14),transparent 46%),radial-gradient(ellipse at 80% 18%,rgba(116,227,193,.10),transparent 45%);filter:blur(22px)}
-
+#fxOverlay.fx-fog{background:radial-gradient(ellipse 140% 120% at 50% 42%,rgba(180,230,222,.72),rgba(72,111,106,.82) 48%,rgba(8,18,18,.98) 100%);filter:saturate(.55)}
 /* 4 soul rise */
-#fxOverlay.fx-soul{
-  background:
-    radial-gradient(ellipse at 50% -8%,rgba(236,255,248,.18),transparent 44%),
-    linear-gradient(180deg,rgba(0,0,0,.99),rgba(6,14,15,.94),rgba(0,0,0,.99));
-}
-#fxOverlay.fx-soul::before{opacity:.52;background:repeating-linear-gradient(82deg,transparent 0 24px,rgba(236,255,248,.050) 25px 27px);filter:blur(1.5px)}
-#fxOverlay.fx-soul::after{opacity:.26;background:radial-gradient(ellipse at 50% 70%,rgba(116,227,193,.12),transparent 54%);filter:blur(12px)}
-
+#fxOverlay.fx-soul{background:radial-gradient(ellipse at 50% 0%,rgba(236,255,248,.16),transparent 42%),linear-gradient(180deg,rgba(0,0,0,.98),rgba(5,11,13,.9),rgba(0,0,0,.98))}
+#fxOverlay.fx-soul::before{opacity:.6;background:repeating-linear-gradient(82deg,transparent 0 24px,rgba(236,255,248,.06) 25px 27px);filter:blur(.8px)}
 /* 5 blood drain */
-#fxOverlay.fx-drain{
-  background:
-    radial-gradient(ellipse 120% 140% at 50% 60%,rgba(95,14,14,.25),rgba(33,0,0,.96) 56%,#020000 100%);
-  filter:saturate(.72) brightness(.62);
-}
-#fxOverlay.fx-drain::before{opacity:.32;background:linear-gradient(180deg,rgba(227,73,47,.08),transparent 40%,rgba(0,0,0,.50));filter:blur(10px)}
-
-/* 6 dying candle — now a soft amber dim, not a flicker */
-#fxOverlay.fx-candle{
-  background:
-    radial-gradient(ellipse at 50% 28%,rgba(216,150,55,.16),transparent 30%),
-    radial-gradient(ellipse at 50% 52%,rgba(116,227,193,.07),rgba(0,0,0,.98) 68%);
-  filter:brightness(.62) saturate(.75);
-}
-#fxOverlay.fx-candle::before{opacity:.35;background:linear-gradient(90deg,transparent,rgba(230,160,70,.08),transparent);filter:blur(20px)}
-
+#fxOverlay.fx-drain{background:radial-gradient(ellipse 120% 140% at 50% 60%,rgba(70,0,0,.12),rgba(38,0,0,.96) 52%,#030000 100%)}
+/* 6 dying candle flicker uses stage class */
+@keyframes flickerOut{0%{opacity:1}8%{opacity:.05}18%{opacity:.9}32%{opacity:.02}49%{opacity:.65}63%{opacity:.08}76%{opacity:.5}100%{opacity:0}}
+.stage.fx-flicker{animation:flickerOut .92s steps(1,end) forwards}
 /* 7 funeral veil */
-#fxOverlay.fx-veil{
-  background:linear-gradient(180deg,#000 0%,#020103 45%,#060507 100%);
-  transform-origin:top center;
-}
-#fxOverlay.fx-veil::before{opacity:.42;background:linear-gradient(90deg,transparent,rgba(236,255,248,.045),transparent 52%,rgba(236,255,248,.035),transparent);filter:blur(10px)}
-
-/* 8 possessed warp — slow smoked-glass bend */
-#fxOverlay.fx-warp{
-  background:radial-gradient(ellipse at 50% 50%,rgba(116,227,193,.11),rgba(0,0,0,.97) 60%);
-}
-#fxOverlay.fx-warp::before{opacity:.48;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,255,255,.025) 39px 42px);transform:skewX(-8deg);filter:blur(2px)}
-#fxOverlay.fx-warp::after{opacity:.22;background:radial-gradient(ellipse at 15% 50%,rgba(227,73,47,.08),transparent 45%),radial-gradient(ellipse at 85% 50%,rgba(116,227,193,.08),transparent 45%);filter:blur(18px)}
-
-/* 9 apparition bloom — muted bloom, no bright flash */
-#fxOverlay.fx-blink{
-  background:
-    radial-gradient(ellipse at 50% 42%,rgba(210,255,240,.28),rgba(88,128,118,.30) 36%,rgba(0,0,0,.98) 78%);
-  filter:brightness(.70) saturate(.55);
-}
-#fxOverlay.fx-blink::before{opacity:.42;background:radial-gradient(ellipse at 50% 35%,rgba(0,0,0,.28) 0 8%,transparent 22%,rgba(116,227,193,.08) 42%,transparent 68%);filter:blur(18px)}
-
+#fxOverlay.fx-veil{background:linear-gradient(180deg,#000 0%,#020103 45%,#060507 100%);transform-origin:top center}
+#fxOverlay.fx-veil::before{opacity:.5;background:linear-gradient(90deg,transparent,rgba(236,255,248,.05),transparent 52%,rgba(236,255,248,.04),transparent);filter:blur(8px)}
+/* 8 possessed warp */
+#fxOverlay.fx-warp{background:radial-gradient(ellipse at 50% 50%,rgba(116,227,193,.09),rgba(0,0,0,.96) 58%)}
+#fxOverlay.fx-warp::before{opacity:.8;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,255,255,.04) 39px 41px);transform:skewX(-8deg)}
+/* 9 apparition bloom */
+#fxOverlay.fx-blink{background:radial-gradient(ellipse at 50% 42%,rgba(245,255,252,.75),rgba(140,178,172,.42) 33%,rgba(0,0,0,.96) 76%)}
+#fxOverlay.fx-blink::before{opacity:.8;background:radial-gradient(ellipse at 50% 35%,rgba(0,0,0,.55) 0 8%,transparent 13% 20%,rgba(0,0,0,.45) 23%,transparent 32%);filter:blur(10px)}
 /* 10 shadow hands / creep */
-#fxOverlay.fx-creep{
-  background:radial-gradient(circle at 50% 44%,rgba(0,0,0,.16) 0 10%,rgba(0,0,0,.84) 42%,#000 80%);
-}
-#fxOverlay.fx-creep::before{opacity:.72;background:radial-gradient(ellipse at 7% 55%,rgba(0,0,0,.96),transparent 34%),radial-gradient(ellipse at 93% 52%,rgba(0,0,0,.96),transparent 34%);filter:blur(6px)}
-#fxOverlay.fx-creep::after{opacity:.32;background:repeating-linear-gradient(74deg,transparent 0 26px,rgba(236,255,248,.030) 27px 29px);filter:blur(2px)}
-
+#fxOverlay.fx-creep{background:radial-gradient(circle at 50% 44%,transparent 8%,rgba(0,0,0,.8) 38%,#000 76%)}
+#fxOverlay.fx-creep::before{opacity:.72;background:radial-gradient(ellipse at 8% 55%,rgba(0,0,0,.94),transparent 28%),radial-gradient(ellipse at 92% 52%,rgba(0,0,0,.94),transparent 30%)}
+#fxOverlay.fx-creep::after{opacity:.42;background:repeating-linear-gradient(74deg,transparent 0 26px,rgba(236,255,248,.035) 27px 29px)}
 body.page-switching .stage{will-change:opacity,transform,filter}
-#fxOverlay.fx-on::before{animation:fxVeinDrift 2.25s ease-in-out forwards}
-#fxOverlay.fx-on::after{animation:fxScanDrift 2.25s ease-in-out forwards}
-@keyframes fxVeinDrift{0%{transform:translateY(-8%) scale(.96);opacity:0}35%{opacity:.56}100%{transform:translateY(9%) scale(1.08);opacity:0}}
-@keyframes fxScanDrift{0%{background-position:0 -80px;transform:translateX(-2%);opacity:0}24%,70%{opacity:.42}100%{background-position:0 100px;transform:translateX(2%);opacity:0}}
-@keyframes fxSoftRipple{0%{transform:none;filter:none}100%{transform:scale(1.012);filter:blur(4px) brightness(.62) saturate(.55)}}
-
+#fxOverlay.fx-on::before{animation:fxVeinDrift 1.8s ease-in-out forwards}
+#fxOverlay.fx-on::after{animation:fxScanDrift 1.8s linear forwards}
+@keyframes fxVeinDrift{0%{transform:translateY(-8%) scale(.95);opacity:0}35%{opacity:.72}100%{transform:translateY(9%) scale(1.08);opacity:0}}
+@keyframes fxScanDrift{0%{background-position:0 -80px;transform:translateX(-3%);opacity:0}20%,68%{opacity:.65}100%{background-position:0 100px;transform:translateX(3%);opacity:0}}
+@keyframes fxQuickTear{0%,100%{transform:none;filter:none}18%{transform:translateX(-20px);filter:contrast(2.4) brightness(.45)}42%{transform:translateX(18px) skewX(-2deg);filter:blur(1px) saturate(.1)}65%{transform:translateX(-8px) skewX(2deg);filter:invert(1) contrast(2.5)}}
 
 @media (orientation:landscape) and (min-aspect-ratio:13/10){
   /* if someone opens it landscape, keep it sane */
@@ -2131,8 +2071,7 @@ body.landscape.wob-active .masthead .eyebrow{
 }
 body.landscape.wob-active .masthead h1{
   font-family:"Cinzel Decorative","Cinzel",serif;
-  /* Slightly smaller landscape title so the event cards can breathe. */
-  font-size:clamp(34px,3.8vw,70px);
+  font-size:clamp(36px,4.15vw,82px);
   line-height:.95;
   letter-spacing:.035em;
   text-align:left;
@@ -2236,19 +2175,17 @@ body.landscape .wob-event-list{
   flex:1 1 auto;
   min-height:0;
   display:grid;
-  /* More obvious fix: four larger cards on landscape boards.
-     This gives the title plus a real 3-line blurb room to render cleanly. */
-  grid-template-rows:repeat(4,minmax(0,1fr));
-  gap:clamp(12px,1.25vh,20px);
-  padding:clamp(12px,1.3vh,18px) clamp(14px,1.4vw,24px) clamp(34px,3.2vh,48px);
+  grid-template-rows:repeat(7,minmax(0,1fr));
+  gap:clamp(8px,.9vh,14px);
+  padding:clamp(12px,1.4vh,20px) clamp(14px,1.4vw,24px) clamp(12px,1.5vh,22px);
 }
 body.landscape .wob-event{
   min-height:0;
   display:grid;
-  grid-template-columns:clamp(120px,9.5vw,190px) clamp(92px,6.7vw,132px) minmax(0,1fr);
-  align-items:start;
-  gap:clamp(12px,1.1vw,20px);
-  padding:clamp(12px,1.35vh,20px) clamp(12px,1.2vw,22px);
+  grid-template-columns:clamp(112px,8.8vw,170px) clamp(88px,6.4vw,126px) minmax(0,1fr);
+  align-items:center;
+  gap:clamp(10px,1vw,18px);
+  padding:clamp(8px,1vh,15px) clamp(10px,1.1vw,20px);
   border:1px solid rgba(236,230,214,.12);
   border-left:3px solid rgba(116,227,193,.62);
   border-radius:10px;
@@ -2270,7 +2207,7 @@ body.landscape .wob-date strong{
   display:block;
   color:var(--bone);
   font-family:"Cinzel",serif;
-  font-size:clamp(17px,1.28vw,27px);
+  font-size:clamp(15px,1.15vw,24px);
   line-height:1;
   letter-spacing:.04em;
   text-transform:uppercase;
@@ -2279,27 +2216,27 @@ body.landscape .wob-date span{
   display:block;
   margin-top:.22em;
   color:var(--bone-dim);
-  font-size:clamp(12px,.92vw,18px);
+  font-size:clamp(11px,.85vw,17px);
   letter-spacing:.08em;
   text-transform:uppercase;
 }
 body.landscape .wob-date em{
   display:block;
-  margin-top:.3em;
+  margin-top:.25em;
   color:var(--bone);
   font-style:normal;
-  font-size:clamp(19px,1.55vw,32px);
+  font-size:clamp(17px,1.45vw,30px);
   line-height:1;
 }
 body.landscape .wob-badge{
   justify-self:start;
-  min-width:clamp(78px,5.8vw,116px);
+  min-width:clamp(74px,5.4vw,110px);
   text-align:center;
-  padding:.5em .75em .42em;
+  padding:.45em .7em .38em;
   border-radius:4px;
   font-family:"Cinzel",serif;
   font-weight:700;
-  font-size:clamp(11px,.9vw,16px);
+  font-size:clamp(10px,.82vw,15px);
   letter-spacing:.14em;
   text-transform:uppercase;
   color:var(--spectre);
@@ -2311,21 +2248,13 @@ body.landscape .wob-badge.karaoke{color:#f4a6ff;background:rgba(195,80,220,.13);
 body.landscape .wob-badge.dj-set{color:#d9a441;background:rgba(217,164,65,.12);border-color:rgba(217,164,65,.36)}
 body.landscape .wob-badge.open-mic{color:#7affc9;background:rgba(116,227,193,.12);border-color:rgba(116,227,193,.35)}
 body.landscape .wob-badge.quiz{color:#8fd3ff;background:rgba(100,160,255,.12);border-color:rgba(100,160,255,.35)}
-body.landscape .wob-copy{
-  min-width:0;
-  align-self:stretch;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  padding-top:0;
-  padding-bottom:clamp(4px,.5vh,8px);
-}
+body.landscape .wob-copy{min-width:0}
 body.landscape .wob-name{
   color:var(--bone);
   font-family:"Cinzel",serif;
   font-weight:700;
-  font-size:clamp(24px,2.05vw,42px);
-  line-height:1.02;
+  font-size:clamp(21px,1.9vw,39px);
+  line-height:1.05;
   letter-spacing:.012em;
   white-space:nowrap;
   overflow:hidden;
@@ -2333,12 +2262,12 @@ body.landscape .wob-name{
   text-shadow:0 2px 12px rgba(0,0,0,.9);
 }
 body.landscape .wob-desc{
-  margin-top:.45em;
+  margin-top:.28em;
   color:var(--bone-dim);
-  font-size:clamp(14px,1.08vw,21px);
-  line-height:1.22;
+  font-size:clamp(11px,.82vw,16px);
+  line-height:1.16;
   display:-webkit-box;
-  -webkit-line-clamp:3;
+  -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
@@ -2520,12 +2449,12 @@ body.landscape .wob-movie-blurb{
   font-size:clamp(12px,.93vw,17px);
   line-height:1.17;
   display:-webkit-box;
-  -webkit-line-clamp:3;
+  -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
 body.landscape .wob-movie-bottom .wob-movie-blurb{
-  -webkit-line-clamp:2;
+  -webkit-line-clamp:1;
   font-size:clamp(10px,.78vw,14px);
 }
 body.landscape .wob-no-movies{
@@ -2648,8 +2577,8 @@ body:not(.landscape) .pob-event-list{
 body:not(.landscape) .pob-event{
   position:relative;display:grid;
   grid-template-columns:clamp(88px,17vw,132px) clamp(76px,15vw,112px) 1fr;
-  gap:clamp(10px,1.6vw,18px);align-items:start;min-height:0;
-  padding:clamp(9px,1.1vh,15px) clamp(10px,1.65vw,18px);
+  gap:clamp(10px,1.6vw,18px);align-items:center;min-height:0;
+  padding:clamp(10px,1.25vh,17px) clamp(10px,1.65vw,18px);
   border:1px solid rgba(236,230,214,.13);border-radius:7px;
   background:
     linear-gradient(100deg,rgba(116,227,193,.035),rgba(255,255,255,.014) 42%,rgba(0,0,0,.2)),
@@ -2666,7 +2595,7 @@ body:not(.landscape) .pob-date strong{font-size:clamp(14px,1.8vh,25px);color:var
 body:not(.landscape) .pob-date span{font-size:clamp(9px,1.05vh,15px);color:var(--bone-faint)}
 body:not(.landscape) .pob-date em{font-style:normal;font-size:clamp(18px,2.25vh,32px);color:var(--bone);letter-spacing:.02em;margin-top:.1em}
 body:not(.landscape) .pob-badge{
-  justify-self:stretch;align-self:start;margin-top:.25em;text-align:center;border-radius:4px;padding:.55em .45em;
+  justify-self:stretch;text-align:center;border-radius:4px;padding:.55em .45em;
   font-family:"Cinzel",serif;font-size:clamp(10px,1.1vh,16px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   border:1px solid rgba(116,227,193,.3);background:rgba(116,227,193,.09);color:var(--spectre);
 }
@@ -2674,14 +2603,14 @@ body:not(.landscape) .pob-badge.karaoke{border-color:rgba(240,48,154,.38);backgr
 body:not(.landscape) .pob-badge.dj-set{border-color:rgba(217,164,65,.45);background:rgba(217,164,65,.12);color:#ffd27a}
 body:not(.landscape) .pob-badge.open-mic{border-color:rgba(116,227,193,.45);background:rgba(116,227,193,.12);color:var(--spectre)}
 body:not(.landscape) .pob-badge.quiz{border-color:rgba(167,139,250,.38);background:rgba(167,139,250,.12);color:#c6b7ff}
-body:not(.landscape) .pob-copy{min-width:0;align-self:stretch;display:flex;flex-direction:column;justify-content:flex-start;gap:.3em;padding-top:.05em}
+body:not(.landscape) .pob-copy{min-width:0;display:flex;flex-direction:column;gap:.18em}
 body:not(.landscape) .pob-name{
   font-family:"Cinzel Decorative","Cinzel",serif;font-weight:800;
   font-size:clamp(24px,3.05vh,45px);line-height:1.04;color:var(--bone);
   text-shadow:0 2px 12px rgba(0,0,0,.85);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-body:not(.landscape) .pob-desc{font-size:clamp(13px,1.5vh,22px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-desc{font-size:clamp(13px,1.55vh,23px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 body:not(.landscape) .pob-onnow{position:absolute;right:10px;top:8px;display:none;font-family:"Cinzel",serif;font-size:clamp(8px,.9vh,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
 body:not(.landscape) .pob-event.is-live .pob-onnow{display:block}
 body:not(.landscape) .pob-more{position:relative;z-index:6;margin:0 clamp(14px,2vw,24px) clamp(10px,1.2vh,16px);padding-top:clamp(6px,.75vh,10px);border-top:1px solid rgba(116,227,193,.16);font-family:"Cinzel",serif;font-size:clamp(9px,1vh,15px);letter-spacing:.18em;text-transform:uppercase;color:var(--spectre);text-align:center;opacity:.92}
@@ -2705,7 +2634,7 @@ body:not(.landscape) .pob-movie-meta{display:flex;flex-wrap:wrap;gap:.55em;align
 body:not(.landscape) .pob-movie-meta .time{color:var(--spectre);font-weight:700}
 body:not(.landscape) .pob-movie-meta .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.06em .42em}
 body:not(.landscape) .pob-movie-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:800;font-size:clamp(24px,3.15vh,48px);line-height:1;color:var(--bone);text-shadow:0 2px 18px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-body:not(.landscape) .pob-movie-blurb{margin-top:.45em;font-size:clamp(12px,1.35vh,20px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 8px #000}
+body:not(.landscape) .pob-movie-blurb{margin-top:.45em;font-size:clamp(12px,1.35vh,20px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 8px #000}
 body:not(.landscape) .pob-no-movies{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed rgba(236,230,214,.16);border-radius:8px;color:var(--bone-dim);font-size:clamp(18px,2vh,28px);padding:1.2em}
 body:not(.landscape) .pob-no-movies b{font-family:"Cinzel Decorative","Cinzel",serif;color:var(--bone);font-size:1.35em;margin-bottom:.25em}
 
@@ -2730,7 +2659,7 @@ body:not(.landscape) .pob-cinema-meta{display:flex;align-items:center;justify-co
 body:not(.landscape) .pob-cinema-meta .time{color:var(--spectre);font-weight:700}
 body:not(.landscape) .pob-cinema-meta .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.05em .42em}
 body:not(.landscape) .pob-cinema-title{font-family:"Cinzel Decorative","Cinzel",serif;font-size:clamp(34px,4.8vh,72px);line-height:.96;color:var(--bone);font-weight:900;text-shadow:0 2px 20px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-body:not(.landscape) .pob-cinema-overview{font-size:clamp(15px,1.65vh,24px);line-height:1.28;color:var(--bone-dim);margin-top:clamp(8px,1vh,13px);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-cinema-overview{font-size:clamp(15px,1.65vh,24px);line-height:1.28;color:var(--bone-dim);margin-top:clamp(8px,1vh,13px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 body:not(.landscape) .pob-mini-strip{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1vh,14px);min-height:clamp(130px,15vh,220px)}
 body:not(.landscape) .pob-mini-strip .pob-movie-card{min-height:clamp(130px,15vh,220px);grid-template-columns:clamp(70px,16vw,110px) 1fr}
 body:not(.landscape) .pob-mini-strip .pob-movie-title{font-size:clamp(18px,2.1vh,30px)}
@@ -4519,7 +4448,7 @@ async function renderTonight(now, validDate){
     wrap.innerHTML=`<div class="wob-board">
       <section class="wob-panel wob-events">
         <header class="wob-panel-head"><span class="glyph">✦</span><span>Coming Up in Molly's Chamber</span><span class="line"></span></header>
-        <div class="wob-event-list">${eventRows(4)}</div>
+        <div class="wob-event-list">${eventRows(7)}</div>
         <div class="wob-more">Full list: thebansheelabyrinth.com/events</div>
       </section>
       <section class="wob-panel wob-movies">
@@ -4645,7 +4574,7 @@ async function renderTonight(now, validDate){
       movieHTML=`<div class="pob-movie-stack"><div class="pob-no-movies"><b>Free Cinema</b><span>No screenings listed tonight.</span></div></div>`;
     }
 
-    const gigsLimit=realFilms.length||bookingSlot?5:7;
+    const gigsLimit=realFilms.length||bookingSlot?6:8;
     wrap.innerHTML=`<div class="pob-board pob-tonight">
       <section class="pob-panel pob-gig-panel${realFilms.length||bookingSlot?"":" solo"}">
         <header class="pob-panel-head"><span class="glyph">✦</span><span>Coming Up in Molly's Chamber</span><span class="line"></span></header>
@@ -5062,16 +4991,16 @@ function cancelFX(){
 function rAF2(fn){requestAnimationFrame(()=>requestAnimationFrame(fn));}
 
 const FX_DATA={
-  1:{name:"Ghost Dissolve",   total:2050, cls:"fx-ghost",  cover:760, fade:820, hold:260, op:1,    out:{opacity:".08", filter:"blur(14px) saturate(.30) brightness(.42)", transform:"scale(1.022) translateY(-8px)"}},
-  2:{name:"Dead Signal",      total:1850, cls:"fx-static", cover:650, fade:760, hold:260, op:.98, out:{opacity:".10", filter:"blur(8px) saturate(.35) brightness(.45)",  transform:"scale(1.010) translateX(-8px)"}},
-  3:{name:"Cold Mist",        total:2000, cls:"fx-fog",    cover:720, fade:820, hold:280, op:1,    out:{opacity:".08", filter:"blur(11px) saturate(.28) brightness(.48)", transform:"scale(1.018) translateY(8px)"}},
-  4:{name:"Soul Rise",        total:2150, cls:"fx-soul",   cover:760, fade:840, hold:300, op:.98, out:{opacity:".07", filter:"blur(10px) brightness(.48)",              transform:"translateY(-42px) scale(1.010)"}},
-  5:{name:"Crimson Drain",    total:1950, cls:"fx-drain",  cover:700, fade:780, hold:260, op:.98, out:{opacity:".10", filter:"blur(7px) saturate(.18) brightness(.40)",  transform:"scale(.992)"}},
-  6:{name:"Dying Candle",     total:1850, cls:"fx-candle", cover:620, fade:760, hold:260, op:.96, out:{opacity:".12", filter:"blur(7px) brightness(.38) saturate(.45)",  transform:"scale(.996) translateY(6px)"}},
-  7:{name:"Funeral Veil",     total:2150, cls:"fx-veil",   cover:780, fade:860, hold:300, op:1,    out:{opacity:".06", filter:"blur(10px) brightness(.32)",             transform:"scale(1.006) translateY(16px)"}},
-  8:{name:"Possession Warp",  total:2200, cls:"fx-warp",   cover:760, fade:880, hold:300, op:.98, out:{opacity:".08", filter:"blur(12px) contrast(1.35) brightness(.40)",transform:"scale(1.035) skewX(1.2deg)"}},
-  9:{name:"Apparition Drift", total:1900, cls:"fx-blink",  cover:620, fade:780, hold:260, op:.96, out:{opacity:".10", filter:"blur(9px) saturate(.25) brightness(.50)",  transform:"scale(1.016)"}},
- 10:{name:"Shadow Creep",     total:2350, cls:"fx-creep",  cover:850, fade:900, hold:300, op:1,    out:{opacity:".06", filter:"blur(8px) brightness(.26) contrast(1.15)",transform:"scale(.988)"}},
+  1:{name:"Ghost Dissolve", total:1900},
+  2:{name:"Ring Tear",      total:1450},
+  3:{name:"Cold Mist",      total:1650},
+  4:{name:"Soul Rise",      total:1850},
+  5:{name:"Blood Drain",    total:1550},
+  6:{name:"Dying Candle",   total:1150},
+  7:{name:"Funeral Veil",   total:1800},
+  8:{name:"Possession Warp",total:1950},
+  9:{name:"Apparition Bloom",total:1250},
+ 10:{name:"Shadow Hands",   total:2100},
 };
 function currentFX(){
   if(SHOW.fx===0) return 1 + Math.floor(Math.random()*10);
@@ -5091,66 +5020,92 @@ function applyFX(n,modeKey){
   if(!st || !ov){ sw(); return fx.total; }
   document.body.classList.add("page-switching");
 
-  const out=fx.out||{};
-  const outOpacity=out.opacity||".08";
-  const outFilter=out.filter||"blur(10px) brightness(.42)";
-  const outTransform=out.transform||"scale(1.015)";
-
-  Object.assign(ov.style,{opacity:"0",transition:"none",transform:"scale(1.025)",filter:""});
-  ov.className=fx.cls;
-
-  rAF2(()=>{
-    ov.classList.add("fx-on");
-    ov.style.transition=`opacity ${fx.cover}ms ease, transform ${fx.cover}ms ease`;
-    ov.style.opacity=String(fx.op ?? 1);
-    ov.style.transform="scale(1)";
-    Object.assign(st.style,{
-      transition:`opacity ${fx.cover}ms ease, filter ${fx.cover}ms ease, transform ${fx.cover}ms ease`,
-      opacity:outOpacity,
-      filter:outFilter,
-      transform:outTransform
+  function wrap(cls,coverMs,outMs,maxOp=1,holdMs=600){
+    Object.assign(ov.style,{opacity:"0",transition:"none",transform:"scale(1.02)",filter:""});
+    ov.className=cls;
+    rAF2(()=>{
+      ov.classList.add("fx-on");
+      ov.style.transition=`opacity ${coverMs}ms ease, transform ${coverMs}ms ease`;
+      ov.style.opacity=String(maxOp);
+      ov.style.transform="scale(1)";
     });
-  });
-
-  T(fx.cover+45,()=>{
-    sw();
-    Object.assign(st.style,{
-      transition:"none",
-      opacity:outOpacity,
-      filter:outFilter,
-      transform:outTransform
-    });
-    T(fx.hold,()=>{
-      rAF2(()=>{
-        Object.assign(st.style,{
-          transition:`opacity ${fx.fade}ms ease, filter ${fx.fade}ms ease, transform ${fx.fade}ms ease`,
-          opacity:"1",
-          filter:"",
-          transform:""
-        });
-        ov.style.transition=`opacity ${fx.fade}ms ease, transform ${fx.fade}ms ease`;
+    T(coverMs+40,()=>{
+      sw();
+      T(holdMs,()=>{
+        ov.style.transition=`opacity ${outMs}ms ease, transform ${outMs}ms ease`;
         ov.style.opacity="0";
-        ov.style.transform="scale(1.035)";
-      });
-      T(fx.fade+120,()=>{
-        ov.className="";
-        ov.style.cssText="";
-        Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""});
-        document.body.classList.remove("page-switching");
+        ov.style.transform="scale(1.04)";
+        T(outMs+90,()=>{ ov.className=""; ov.style.cssText=""; document.body.classList.remove("page-switching"); });
       });
     });
-  });
+  }
 
-  // Safety cleanup in case a slow device drops an animation frame.
-  T(fx.total+450,()=>{
-    ov.className="";
-    ov.style.cssText="";
-    Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""});
-    document.body.classList.remove("page-switching");
-  });
+  switch(n){
+    case 1: // Ghost Dissolve
+      wrap("fx-ghost",720,720,.98,260);
+      Object.assign(st.style,{transition:"opacity .72s ease, filter .72s ease, transform .72s ease",opacity:"0",filter:"blur(15px) saturate(.18) brightness(.42)",transform:"scale(1.025) translateY(-8px)"});
+      T(760,()=>{ Object.assign(st.style,{transition:"none",opacity:"0",filter:"blur(15px) saturate(.18) brightness(.42)",transform:"scale(.985) translateY(10px)"});
+        T(260,()=>rAF2(()=>{ Object.assign(st.style,{transition:"opacity .72s ease, filter .72s ease, transform .72s ease",opacity:"1",filter:"",transform:""}); })); });
+      T(fx.total,()=>Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""}));
+      break;
+    case 2: // Ring Tear
+      wrap("fx-static",360,520,.92,180);
+      st.style.animation="fxQuickTear .52s steps(1,end) 1";
+      T(650,()=>{ st.style.animation=""; });
+      break;
+    case 3: // Cold Mist
+      wrap("fx-fog",520,650,1,260);
+      break;
+    case 4: // Soul Rise
+      Object.assign(st.style,{transition:"opacity .72s ease, transform .72s ease, filter .72s ease",opacity:"0",transform:"translateY(-46px)",filter:"blur(7px) brightness(.55)"});
+      wrap("fx-soul",560,650,.97,260);
+      T(620,()=>{ Object.assign(st.style,{transition:"none",opacity:"0",transform:"translateY(46px)",filter:"blur(7px) brightness(.55)"});
+        T(340,()=>rAF2(()=>{ Object.assign(st.style,{transition:"opacity .72s ease, transform .72s ease, filter .72s ease",opacity:"1",transform:"translateY(0)",filter:""}); })); });
+      T(fx.total,()=>Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""}));
+      break;
+    case 5: // Blood Drain
+      wrap("fx-drain",540,620,.95,240);
+      Object.assign(st.style,{transition:"filter .55s ease",filter:"saturate(.08) brightness(.48) contrast(1.35)"});
+      T(1100,()=>Object.assign(st.style,{transition:"filter .55s ease",filter:""}));
+      T(fx.total,()=>Object.assign(st.style,{transition:"",filter:""}));
+      break;
+    case 6: // Dying Candle Flicker
+      st.classList.add("fx-flicker");
+      T(930,()=>{
+        Object.assign(st.style,{transition:"none",opacity:"0"});
+        st.classList.remove("fx-flicker");
+        sw();
+        rAF2(()=>{ Object.assign(st.style,{transition:"opacity .2s ease",opacity:"1"}); });
+      });
+      T(fx.total,()=>{ st.classList.remove("fx-flicker"); Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""}); document.body.classList.remove("page-switching"); });
+      break;
+    case 7: // Funeral Veil
+      Object.assign(ov.style,{opacity:"1",transform:"scaleY(0)",transformOrigin:"top center",transition:"none"});
+      ov.className="fx-veil fx-on";
+      rAF2(()=>{ ov.style.transition="transform .68s cubic-bezier(.35,0,.65,1)"; ov.style.transform="scaleY(1)"; });
+      T(740,()=>{ sw(); T(260,()=>{ ov.style.transition="transform .68s cubic-bezier(.35,0,.65,1)"; ov.style.transform="scaleY(0)"; T(760,()=>{ ov.className=""; ov.style.cssText=""; document.body.classList.remove("page-switching"); }); }); });
+      break;
+    case 8: // Possession Warp
+      wrap("fx-warp",560,720,.96,260);
+      Object.assign(st.style,{transition:"opacity .72s ease, filter .72s ease, transform .72s ease",opacity:"0",filter:"blur(10px) contrast(2) brightness(.34)",transform:"scale(1.045) skewX(3deg)"});
+      T(640,()=>{ Object.assign(st.style,{transition:"none",opacity:"0",filter:"blur(10px) contrast(2) brightness(.34)",transform:"scale(1.04) skewX(-3deg)"});
+        T(350,()=>rAF2(()=>{ Object.assign(st.style,{transition:"opacity .7s ease, filter .7s ease, transform .7s ease",opacity:"1",filter:"",transform:""}); })); });
+      T(fx.total,()=>Object.assign(st.style,{transition:"",opacity:"",filter:"",transform:""}));
+      break;
+    case 9: // Apparition Bloom
+      wrap("fx-blink",230,520,.86,120);
+      break;
+    case 10: // Shadow Hands
+      wrap("fx-creep",820,720,1,260);
+      Object.assign(st.style,{transition:"filter .8s ease, transform .8s ease",filter:"brightness(.35) contrast(1.4)",transform:"scale(.99)"});
+      T(1300,()=>Object.assign(st.style,{transition:"filter .6s ease, transform .6s ease",filter:"",transform:""}));
+      T(fx.total,()=>Object.assign(st.style,{transition:"",filter:"",transform:""}));
+      break;
+    default:
+      wrap("fx-ghost",720,720,.98,260);
+  }
   return fx.total;
 }
-
 function slideshowStep(){
   if(SHOW.paused || drawer.classList.contains("open")){ SHOW.timer=setTimeout(slideshowStep, 2000); return; }
   SHOW.idx=(SHOW.idx+1)%SHOW.seq.length;
