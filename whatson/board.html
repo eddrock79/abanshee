@@ -1283,149 +1283,194 @@ body.landscape .empty-room{font-size:clamp(9px,1vw,13px)}
    Matches the mockup: bordered event cards,
    framed cinema cards with poster+backdrop
    ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   TONIGHT LANDSCAPE — Events left 57% | Cinema right 43%
+   ══════════════════════════════════════════════════════════════ */
 body.landscape .tonight{
-  flex-direction:row;gap:clamp(10px,1.4vw,22px);
+  flex-direction:row;gap:clamp(12px,1.6vw,24px);
   align-items:stretch;
 }
 body.landscape .t-sec{min-width:0;display:flex;flex-direction:column}
-body.landscape .t-gigs{
-  flex:0 0 57%;
-  max-height:none;overflow:hidden;
-}
-body.landscape .t-cine{
-  flex:1 1 0;min-width:0;
-  display:flex;flex-direction:column;
-}
-
-/* ── Column headers ── */
-body.landscape .t-head{
-  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.22em;font-size:clamp(10px,1.15vw,17px);color:var(--spectre);
-  padding:0 0 clamp(6px,.8vh,12px);
-  display:flex;align-items:center;gap:.7em;
-  border-bottom:1px solid rgba(116,227,193,.2);
-  margin-bottom:clamp(6px,.8vh,12px);
-}
-body.landscape .t-head .t-glyph{font-size:.9em;opacity:.8}
-body.landscape .t-head .t-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(116,227,193,.2),transparent)}
-
+body.landscape .t-gigs{flex:0 0 57%;overflow:hidden;display:flex;flex-direction:column}
+body.landscape .t-cine{flex:1 1 0;min-width:0;display:flex;flex-direction:column}
 body.landscape .t-gigs.solo{flex:1 1 0}
 
-/* ── Event card rows ── */
+/* ── Framed panel wrapper — both columns get an outer amber border ── */
+body.landscape .t-panel{
+  display:flex;flex-direction:column;flex:1;min-height:0;
+  border:1px solid rgba(180,140,100,.45);
+  border-radius:8px;overflow:hidden;
+  background:rgba(4,3,10,.7);
+}
+/* Decorative panel header: ✦ TITLE ✦ */
+body.landscape .t-panel-head{
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  gap:.8em;
+  padding:clamp(7px,.9vh,13px) clamp(12px,1.5vw,20px);
+  border-bottom:1px solid rgba(180,140,100,.3);
+  background:rgba(0,0,0,.35);
+}
+body.landscape .t-panel-head-star{
+  color:rgba(180,140,100,.8);font-size:clamp(9px,1vw,14px);
+}
+body.landscape .t-panel-head-title{
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.26em;font-size:clamp(10px,1.1vw,16px);color:var(--spectre);
+  text-shadow:0 0 14px rgba(116,227,193,.3);
+}
+/* Panel body: scrollable event list */
+body.landscape .t-panel-body{
+  flex:1;min-height:0;overflow:hidden;
+  display:flex;flex-direction:column;
+  padding:clamp(8px,.9vh,12px);
+  gap:clamp(5px,.6vh,8px);
+}
+
+/* ── Hide the old t-head (replaced by t-panel-head) ── */
+body.landscape .t-head{display:none}
+
+/* ── Event cards ── */
 body.landscape .t-rows{
   display:flex;flex-direction:column;
-  gap:clamp(4px,.5vh,7px);
+  gap:clamp(5px,.6vh,8px);
   flex:1;
 }
 body.landscape .tonight .show{
-  /* Override portrait grid — use flex row instead */
   display:flex !important;
   flex-direction:row;
   align-items:stretch;
   grid-template-columns:none;
   border:1px solid rgba(180,140,100,.2);
   border-radius:6px;
-  background:rgba(255,255,255,.025);
+  background:rgba(255,255,255,.03);
   overflow:hidden;
-  padding:0;gap:0;
-  transition:border-color .2s;
+  padding:0;gap:0;min-height:0;flex-shrink:0;
+  transition:border-color .2s,background .2s;
+  animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards;
 }
-body.landscape .tonight .show:hover{border-color:rgba(180,140,100,.4)}
+body.landscape .tonight .show:hover{
+  border-color:rgba(180,140,100,.45);
+  background:rgba(255,255,255,.06);
+}
 body.landscape .tonight .show.live{
-  border-color:rgba(62,207,110,.5);
+  border-color:rgba(62,207,110,.55);
   background:rgba(62,207,110,.05);
 }
+/* Left accent bar — inherits --row-accent */
+body.landscape .tonight .show::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--row-accent);opacity:.7;box-shadow:0 0 10px var(--row-accent);
+}
 
-/* Date/time left column */
+/* Date/time left block */
 body.landscape .tonight .show .time{
   flex:0 0 auto;
-  width:clamp(80px,10vw,150px);
-  display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(8px,1.1vh,14px) clamp(8px,1.1vw,14px);
+  width:clamp(88px,10.5vw,155px);
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  padding:clamp(8px,1vh,13px) clamp(8px,1vw,13px) clamp(8px,1vh,13px) clamp(12px,1.4vw,20px);
   border-right:1px solid rgba(180,140,100,.15);
-  background:rgba(0,0,0,.2);
-  grid-column:unset;
+  background:rgba(0,0,0,.25);
+  grid-column:unset;gap:clamp(1px,.2vh,3px);
 }
+/* Day label: TONIGHT / TOMORROW / FRI 19 JUN — teal, small caps */
 body.landscape .tonight .show .time .start{
   font-family:"Cinzel",serif;font-weight:700;
-  font-size:clamp(12px,1.55vw,24px);line-height:1.15;
-  color:var(--bone);letter-spacing:.02em;
+  font-size:clamp(9px,.95vw,14px);line-height:1;
+  color:var(--spectre);letter-spacing:.14em;text-transform:uppercase;
   display:block;
 }
-/* Date as secondary line above or as start */
+/* Time — large, bone colour */
 body.landscape .tonight .show .time .end{
-  font-size:clamp(9px,1vw,15px);
-  color:var(--spectre);font-weight:600;
-  margin-top:clamp(2px,.3vh,4px);
-  letter-spacing:.04em;
+  font-family:"Cinzel",serif;font-weight:700;
+  font-size:clamp(14px,1.7vw,26px);line-height:1.1;
+  color:var(--bone);letter-spacing:.02em;
+  display:block;margin-top:0;
 }
 body.landscape .tonight .show .time .price{
-  font-size:clamp(8px,.85vw,12px);
-  color:var(--gold);margin-top:clamp(2px,.3vh,3px);
+  font-size:clamp(8px,.8vw,12px);
+  color:var(--gold);margin-top:clamp(1px,.15vh,2px);
 }
 
-/* Event content column */
+/* Event kind icon — middle column between date and name */
+body.landscape .tonight .show .kind{
+  flex:0 0 auto;
+  width:clamp(44px,5.5vw,76px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:clamp(6px,.8vh,10px) clamp(4px,.5vw,8px);
+  border-right:1px solid rgba(180,140,100,.1);
+  background:rgba(0,0,0,.15);
+  font-family:"Cinzel",serif;font-weight:700;font-size:clamp(6px,.7vw,10px);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--spectre);text-align:center;line-height:1.2;
+  /* Use the existing kind badge style but as a column */
+  grid-column:unset;grid-row:unset;
+  align-self:unset;
+  white-space:normal;word-break:break-word;
+}
+/* The glyph icon sits above the kind text */
+body.landscape .tonight .show .kind::before{
+  font-size:clamp(12px,1.6vw,22px);line-height:1;
+  margin-bottom:clamp(2px,.3vh,4px);
+  display:block;
+}
+
+/* Name + desc body */
 body.landscape .tonight .show .body{
   flex:1;min-width:0;
   display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(8px,1.1vh,14px) clamp(10px,1.3vw,16px);
-  grid-column:unset;
-  grid-template-columns:none;
-}
-body.landscape .tonight .show .kind{
-  font-size:clamp(8px,.9vw,12px);
-  padding:.2em .65em;
-  margin-bottom:clamp(3px,.4vh,5px);
-  align-self:flex-start;
-  border-radius:3px;
-  font-weight:700;letter-spacing:.1em;
+  padding:clamp(7px,.95vh,12px) clamp(10px,1.3vw,16px);
+  grid-column:unset;grid-template-columns:none;
 }
 body.landscape .tonight .show .name{
   font-family:"Cinzel",serif;font-weight:700;
-  font-size:clamp(14px,1.85vw,28px);line-height:1.1;
-  color:var(--bone);
-  display:block;
+  font-size:clamp(14px,1.8vw,28px);line-height:1.1;
+  color:var(--bone);display:block;
+  grid-column:unset;grid-row:unset;
 }
 body.landscape .tonight .show .genre{display:none}
 body.landscape .tonight .show .desc{
-  font-size:clamp(9px,1vw,14px);
+  font-size:clamp(9px,.98vw,14px);
   color:var(--bone-dim);margin-top:clamp(2px,.3vh,4px);
   -webkit-line-clamp:1;
   display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;
+  grid-column:unset;
 }
-/* On Now indicator */
+/* On Now badge */
 body.landscape .tonight .show .nowtag{
   flex-shrink:0;align-self:center;
   margin-right:clamp(8px,1vw,14px);
+  font-size:clamp(7px,.8vw,11px);
 }
 
-/* ── Cinema column: framed cards matching cinema board style ── */
+/* ── Cinema column: framed cards ── */
 body.landscape .t-cine-body{
   flex:1;display:flex;flex-direction:column;
-  gap:clamp(6px,.8vh,12px);min-height:0;
+  gap:clamp(6px,.8vh,11px);min-height:0;
 }
 body.landscape .cine-row{
   flex:1 1 0;min-height:0;
   position:relative;overflow:hidden;
-  border:1px solid rgba(180,140,100,.25);
-  border-radius:8px;
+  border:1px solid rgba(180,140,100,.3);
+  border-radius:6px;
   display:flex;flex-direction:row;align-items:stretch;
-  background:#08060e;
-  box-shadow:0 4px 18px rgba(0,0,0,.6);
+  background:#07050d;
+  box-shadow:0 4px 16px rgba(0,0,0,.55);
   padding:0;gap:0;
 }
-/* Poster column — proper portrait ratio */
+/* Poster column */
 body.landscape .cine-thumb{
   flex:0 0 auto;
-  width:clamp(64px,7.5vw,110px);
+  width:clamp(58px,7vw,100px);
   height:100%;
   object-fit:cover;object-position:center top;
   display:block;
+  border-right:1px solid rgba(180,140,100,.15);
 }
-/* Backdrop behind text */
+/* Backdrop */
 body.landscape .cine-row .un-back{
-  position:absolute;
-  top:0;bottom:0;left:clamp(64px,7.5vw,110px);right:0;
+  position:absolute;top:0;bottom:0;
+  left:clamp(58px,7vw,100px);right:0;
   z-index:0;overflow:hidden;
 }
 body.landscape .cine-row .un-back img{
@@ -1433,54 +1478,55 @@ body.landscape .cine-row .un-back img{
   object-fit:cover;opacity:0;transition:opacity 2.5s ease;
   animation:reelKen 20s ease-in-out infinite alternate;
 }
-body.landscape .cine-row .un-back img.active{opacity:.45}
-/* Gradient overlay */
+body.landscape .cine-row .un-back img.active{opacity:.5}
+/* Gradient */
 body.landscape .cine-row::after{
   content:'';position:absolute;
-  top:0;bottom:0;left:clamp(64px,7.5vw,110px);right:0;
+  top:0;bottom:0;left:clamp(58px,7vw,100px);right:0;
   z-index:1;pointer-events:none;
   background:
-    linear-gradient(90deg,rgba(8,6,14,.95) 0%,rgba(8,6,14,.75) 35%,rgba(8,6,14,.3) 70%,transparent 100%),
-    linear-gradient(0deg,rgba(8,6,14,.7) 0%,rgba(8,6,14,.25) 45%,transparent 70%);
+    linear-gradient(90deg,rgba(7,5,13,.97) 0%,rgba(7,5,13,.8) 30%,rgba(7,5,13,.35) 65%,transparent 90%),
+    linear-gradient(0deg,rgba(7,5,13,.7) 0%,rgba(7,5,13,.2) 50%,transparent 70%);
 }
-/* Text sits above gradient */
+/* NOW PLAYING / UP NEXT label — top-right corner of card */
+body.landscape .cine-row-label{
+  position:absolute;top:clamp(6px,.7vh,10px);right:clamp(8px,1vw,14px);
+  z-index:3;
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--spectre);
+  font-size:clamp(8px,.85vw,12px);
+  display:flex;align-items:center;gap:.45em;
+  text-shadow:0 0 10px var(--spectre-soft);
+}
+body.landscape .cine-row-label::before{
+  content:'';display:inline-block;width:.45em;height:.45em;border-radius:50%;
+  background:var(--spectre);box-shadow:0 0 6px var(--spectre);flex-shrink:0;
+}
+/* Meta text */
 body.landscape .cine-meta{
   flex:1;position:relative;z-index:2;
   display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(10px,1.4vh,18px) clamp(12px,1.5vw,20px);
-}
-/* Label: NOW PLAYING / UP NEXT at top */
-body.landscape .cine-row-label{
-  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.26em;color:var(--spectre);
-  font-size:clamp(8px,.9vw,13px);
-  display:flex;align-items:center;gap:.5em;
-  margin-bottom:clamp(3px,.4vh,6px);
-}
-body.landscape .cine-row-label::before{
-  content:'';display:inline-block;width:.5em;height:.5em;border-radius:50%;
-  background:var(--spectre);box-shadow:0 0 7px var(--spectre);flex-shrink:0;
+  padding:clamp(10px,1.3vh,18px) clamp(12px,1.4vw,18px);
 }
 body.landscape .cine-time{
-  font-size:clamp(10px,1.1vw,16px);
+  font-size:clamp(10px,1.05vw,15px);
   margin-bottom:clamp(3px,.35vh,5px);
   letter-spacing:.06em;
 }
 body.landscape .cine-title{
   font-family:"Cinzel",serif;font-weight:700;
-  font-size:clamp(16px,2.1vw,32px);line-height:1.05;
+  font-size:clamp(16px,2vw,32px);line-height:1.05;
   color:var(--bone);
   margin-bottom:clamp(4px,.5vh,8px);
-  text-shadow:0 2px 12px rgba(0,0,0,.9);
+  text-shadow:0 2px 10px rgba(0,0,0,.9);
 }
 body.landscape .cine-blurb{
-  font-size:clamp(10px,1.05vw,15px);
+  font-size:clamp(10px,1vw,14px);
   color:var(--bone-dim);
   -webkit-line-clamp:2;
   display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;
-  text-shadow:0 1px 6px rgba(0,0,0,.9);
+  text-shadow:0 1px 5px rgba(0,0,0,.9);
 }
-
 /* ══════════════════════════════════════
    CINEMA — poster left, info right
    ══════════════════════════════════════ */
@@ -3565,8 +3611,18 @@ async function renderTonight(now, validDate){
   wrap.innerHTML="";
   const container=document.createElement("div"); container.className="tonight";
 
-  function gigSectionHTML(limit){
-    let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
+  // Icon glyphs for kind labels — matches the mockup icons
+  const KIND_ICON={
+    "live":"⚡","karaoke":"🎤","dj set":"◎","open mic":"🎙️",
+    "open-mic":"🎙️","acoustic":"♪","comedy":"☺","quiz":"?",
+    "drag":"★","cabaret":"★","theatre":"◈","spoken word":"◈",
+  };
+  function kindIcon(k){ if(!k) return ""; const icon=KIND_ICON[k.toLowerCase()]; return icon||k.charAt(0).toUpperCase(); }
+
+  function gigSectionHTML(limit, landscapeMode){
+    // In landscape: no header (handled externally); rows only
+    let gh = landscapeMode ? "" : `<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header>`;
+    gh += `<div class="t-rows">`;
     const list=allGigs.slice(0,limit);
     if(!list.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
     else list.forEach(s=>{
@@ -3575,14 +3631,20 @@ async function renderTonight(now, validDate){
       const dlabel=gigDateLabel(s, now);
       const timeTxt=s.noTime?"":s.startLabel;
       const kindLabel = s.genre ? esc(s.genre) : "";
+      const icon = landscapeMode ? kindIcon(s.genre||"") : "";
+      // In landscape: .start = day label (TONIGHT/FRI 19 JUN), .end = time (20:00)
+      // In portrait: .start = big time, .end = date label (existing behaviour)
       gh+=`<div class="show${live?" live":""}">
         <div class="time">
           <span class="start">${esc(dlabel)}</span>
           ${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}
           ${s.price?`<span class="price">${esc(s.price)}</span>`:""}
         </div>
+        ${landscapeMode && kindLabel
+          ? `<div class="kind">${icon?`<span style="display:block;font-size:1.4em;line-height:1;margin-bottom:.2em">${icon}</span>`:""}<span>${kindLabel}</span></div>`
+          : ""}
         <div class="body">
-          ${kindLabel?`<span class="kind">${kindLabel}</span>`:""}
+          ${!landscapeMode && kindLabel ? `<span class="kind">${kindLabel}</span>` : ""}
           <span class="name">${esc(s.title)}</span>
           ${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}
         </div>
@@ -3593,11 +3655,21 @@ async function renderTonight(now, validDate){
     return gh;
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(12);
+  // In landscape: wrap in framed panels with decorative headers
+  const panelHead=(title)=>IS_LANDSCAPE
+    ?`<div class="t-panel-head"><span class="t-panel-head-star">✦</span><span class="t-panel-head-title">${title}</span><span class="t-panel-head-star">✦</span></div>`
+    :`<header class="t-head"><span class="t-glyph">♪</span>${title}<span class="t-line"></span></header>`;
+
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs";
+  gsec.innerHTML=IS_LANDSCAPE
+    ?`<div class="t-panel">${panelHead("Coming Up in Molly's Chamber")}<div class="t-panel-body"><div class="t-rows">${gigSectionHTML(12,true)}</div></div></div>`
+    :gigSectionHTML(12);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
-  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>Tonight's Movies<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
+  csec.innerHTML=IS_LANDSCAPE
+    ?`<div class="t-panel">${panelHead("Tonight's Movies")}<div class="t-panel-body"><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div></div></div>`
+    :`<header class="t-head"><span class="t-glyph">▦</span>Tonight's Movies<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
   container.appendChild(csec);
   wrap.appendChild(container);
 
@@ -3608,7 +3680,9 @@ async function renderTonight(now, validDate){
   if(!films.length){
     csec.remove();
     gsec.classList.add("solo");
-    gsec.innerHTML=gigSectionHTML(11);
+    gsec.innerHTML=IS_LANDSCAPE
+      ?`<div class="t-panel">${panelHead("Coming Up in Molly's Chamber")}<div class="t-panel-body"><div class="t-rows">${gigSectionHTML(11,true)}</div></div></div>`
+      :gigSectionHTML(11);
     return;
   }
 
