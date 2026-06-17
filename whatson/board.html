@@ -1376,105 +1376,162 @@ body.landscape .cine-blurb{
    ══════════════════════════════════════════════════ */
 body.landscape .cinema{
   flex-direction:column;align-items:stretch;
-  height:100%;width:100%;
-  overflow:hidden;
+  height:100%;width:100%;overflow:hidden;
 }
-/* Inner wrapper: provides gap and padding around cards */
+/* ── Outer padding wrapper ── */
 body.landscape .cinema-land-inner{
   display:flex;flex-direction:column;
   height:100%;width:100%;
-  gap:clamp(6px,.8vh,12px);
-  padding:clamp(4px,.6vh,8px) 0;
+  gap:clamp(8px,.9vh,14px);
+  padding:clamp(4px,.5vh,8px) 0 clamp(2px,.3vh,4px);
 }
-/* cine-section: flex column, fills all space */
+/* Each cine-section (today / tomorrow) takes equal height */
 body.landscape .cine-section{
   flex:1 1 0;min-height:0;
   display:flex;flex-direction:column;width:100%;
 }
 body.landscape .cinema-land-inner > .cine-section{flex:1 1 0}
-body.landscape .cine-day-label{
-  flex-shrink:0;
-  padding:clamp(2px,.3vh,5px) 0;
-  font-size:clamp(9px,1vw,13px);
-}
-/* ── HERO CARD (Now Playing) ──────────────────── */
-/* cinmain = the framed card */
+/* Hide the day label — label shown inside the card instead */
+body.landscape .cine-day-label{display:none}
+
+/* ════════════════════════════════════════════════════
+   HERO CARD — cinmain
+   Framed card: poster left (~22%) + backdrop right (~78%)
+   Text layout: label → meta → title → rule → overview
+   Left-aligned in backdrop area, not bottom-overlaid
+   ════════════════════════════════════════════════════ */
 body.landscape .cinmain{
   flex:1 1 0;min-height:0;
   display:flex;flex-direction:row;align-items:stretch;
-  border:1px solid rgba(116,227,193,.25);
-  border-radius:8px;overflow:hidden;
-  background:#06060c;
-  box-shadow:0 0 0 1px rgba(0,0,0,.6),
-             0 8px 40px rgba(0,0,0,.7),
-             inset 0 0 60px rgba(116,227,193,.03);
+  border:1px solid rgba(180,140,100,.3);
+  border-radius:10px;overflow:hidden;
+  background:#08060e;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.7),
+    0 6px 32px rgba(0,0,0,.8),
+    inset 0 0 80px rgba(90,20,20,.08);
 }
-/* Left: poster column — fixed width, 2:3 ratio */
+
+/* ── Poster column ── */
 body.landscape .ci-ls-left{
-  flex:0 0 auto;
-  width:clamp(90px,10vw,145px);
+  flex:0 0 22%;
   position:relative;overflow:hidden;
-  background:#030308;
+  background:#060410;
 }
 body.landscape .cinema .poster{
   width:100%;height:100%;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;align-items:stretch;
 }
 body.landscape .cinema .poster img{
-  display:block;width:100%;height:100%;object-fit:cover;
+  display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center top;
 }
-/* Right: backdrop fills, text overlaid at bottom */
+body.landscape .cinema .noposter{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:"Cinzel Decorative","Cinzel",serif;font-size:clamp(14px,1.8vw,28px);
+  color:var(--bone-faint);text-align:center;padding:1em;
+}
+/* Thin right border between poster and backdrop */
+body.landscape .ci-ls-left::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(180,140,100,.35) 30%,rgba(180,140,100,.35) 70%,transparent);
+}
+
+/* ── Backdrop column ── */
 body.landscape .ci-ls-right{
   flex:1 1 0;min-width:0;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:clamp(14px,2vh,28px) clamp(16px,2.2vw,36px);
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:clamp(16px,2.2vh,36px) clamp(18px,2.4vw,42px);
   position:relative;overflow:hidden;
-  background:#06060c;
+  background:#08060e;
 }
-/* Backdrop reel fills right section */
+/* Backdrop reel — fills the entire right column */
 body.landscape .ci-ls-right .reel{
   position:absolute;inset:0;width:100%;height:100%;
   margin:0;border-radius:0;z-index:0;
 }
 body.landscape .ci-ls-right .reel img{
   width:100%;height:100%;object-fit:cover;
+  animation:reelKen 20s ease-in-out infinite alternate;
 }
-/* Poster fallback: blur + scale so it reads as background, not a cropped poster */
+/* Poster fallback: blur so it never looks like a cropped poster */
 body.landscape .ci-ls-right .reel.reel-poster-fallback img{
-  object-fit:cover;filter:blur(20px) saturate(.6) brightness(.5);transform:scale(1.08);
+  filter:blur(22px) saturate(.5) brightness(.4);
+  transform:scale(1.1);animation:none;
 }
-/* Gradient: strong bottom (text) + left edge (joins poster) */
+/* Gradient: dark left third (text area) fading to clear backdrop */
 body.landscape .ci-ls-right::after{
   content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
   background:
-    linear-gradient(90deg,rgba(6,6,12,.85) 0%,rgba(6,6,12,.4) 30%,rgba(6,6,12,.05) 70%),
-    linear-gradient(0deg,rgba(6,6,12,.96) 0%,rgba(6,6,12,.65) 30%,rgba(6,6,12,.15) 60%,transparent 80%);
+    linear-gradient(90deg,
+      rgba(8,6,14,.96) 0%,
+      rgba(8,6,14,.88) 22%,
+      rgba(8,6,14,.62) 40%,
+      rgba(8,6,14,.25) 60%,
+      rgba(8,6,14,.06) 80%,
+      transparent 100%),
+    linear-gradient(0deg,
+      rgba(8,6,14,.7) 0%,
+      rgba(8,6,14,.3) 25%,
+      transparent 55%);
 }
+
+/* ── Text layout (all z-index:2 so above reel+overlay) ── */
 body.landscape .cinema .cinfo{
   position:relative;z-index:2;
-  max-width:none;text-align:left;align-items:flex-start;flex-shrink:0;
+  display:flex;flex-direction:column;
+  align-items:flex-start;text-align:left;
+  flex:1;
 }
+/* Label row: NOW PLAYING / TONIGHT etc */
+body.landscape .cinema .cinfo .now-playing-badge,
+body.landscape .cinema .cinfo .cwhen{
+  font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.28em;color:var(--spectre);
+  font-size:clamp(11px,1.15vw,18px);
+  display:flex;align-items:center;gap:.55em;
+  margin-bottom:clamp(8px,.9vh,14px);
+}
+body.landscape .cinema .cinfo .cwhen{
+  color:var(--spectre);
+}
+/* Meta line: time · cert · year · runtime */
 body.landscape .cinema .cmeta{
   justify-content:flex-start;z-index:2;position:relative;
-  font-size:clamp(12px,1.3vw,21px);gap:clamp(8px,1vw,16px);
-  margin-bottom:clamp(6px,.6vh,10px);
+  font-size:clamp(13px,1.35vw,21px);gap:clamp(6px,.8vw,12px);
+  margin-bottom:clamp(8px,.8vh,14px);
+  letter-spacing:.06em;
 }
+/* Title — large, Cinzel Decorative */
 body.landscape .cinema .cname{
-  font-size:clamp(26px,4vw,68px);line-height:1.02;
-  margin:0 0 clamp(8px,.9vh,14px);
+  font-size:clamp(30px,4.4vw,76px);line-height:1.0;
+  margin:0 0 clamp(10px,1vh,18px);
   position:relative;z-index:2;
-  text-shadow:0 2px 24px rgba(0,0,0,.95),0 0 50px rgba(0,0,0,.8);
+  text-shadow:0 2px 20px rgba(0,0,0,.95);
+  max-width:18ch;
 }
+/* Thin decorative rule below title */
+body.landscape .cinema .cinfo::after{
+  content:'';display:block;
+  width:clamp(40px,5vw,80px);height:1px;
+  background:linear-gradient(90deg,var(--spectre),transparent);
+  margin-bottom:clamp(8px,.8vh,14px);
+  flex-shrink:0;
+}
+/* Overview */
 body.landscape .cinema .coverview{
-  max-width:68ch;
-  font-size:clamp(13px,1.45vw,23px);
-  -webkit-line-clamp:3;
+  max-width:46ch;
+  font-size:clamp(13px,1.4vw,22px);
+  -webkit-line-clamp:4;
   position:relative;z-index:2;
   text-shadow:0 1px 6px rgba(0,0,0,.95);
-  color:var(--bone-dim);
+  color:var(--bone-dim);line-height:1.5;
 }
-/* ── UP NEXT / LATER CARDS ────────────────────── */
-/* upnext strip: same flex:1 so it takes equal space */
+
+/* ════════════════════════════════════════════════════
+   UP NEXT / LATER CARDS — same structure as hero card
+   but via .upnext > .un-row > .un-card
+   ════════════════════════════════════════════════════ */
 body.landscape .cinema .upnext{
   flex:1 1 0;min-height:0;
   width:100%;margin:0;padding:0;
@@ -1483,73 +1540,101 @@ body.landscape .cinema .upnext{
 body.landscape .cinema .un-row{
   flex:1;min-height:0;
   display:flex;
-  gap:clamp(6px,.8vw,12px);
+  gap:clamp(8px,.9vw,14px);
 }
-/* Each up-next card is framed like the hero */
+/* Each card: framed, same styling as hero */
 body.landscape .cinema .un-card{
   flex:1 1 0;min-width:0;height:100%;
   display:flex;flex-direction:row;align-items:stretch;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:8px;overflow:hidden;
-  background:#06060c;
-  box-shadow:0 4px 24px rgba(0,0,0,.6);
+  border:1px solid rgba(180,140,100,.22);
+  border-radius:10px;overflow:hidden;
+  background:#08060e;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.6),
+    0 4px 20px rgba(0,0,0,.7),
+    inset 0 0 60px rgba(90,20,20,.06);
 }
-/* Un-card poster: proper 2:3 column */
+/* Poster column ~22% */
 body.landscape .cinema .un-poster{
-  flex:0 0 auto;
-  width:clamp(55px,6.5vw,95px);
+  flex:0 0 22%;
   height:100%;
-  object-fit:cover;
+  object-fit:cover;object-position:center top;
   display:block;
-  border-right:1px solid rgba(255,255,255,.08);
+  position:relative;
+}
+body.landscape .cinema .un-poster::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(180,140,100,.3) 30%,rgba(180,140,100,.3) 70%,transparent);
 }
 body.landscape .cinema .un-poster.un-nopost{
   display:flex;align-items:center;justify-content:center;
-  width:clamp(55px,6.5vw,95px);
-  color:var(--bone-faint);font-size:clamp(14px,1.8vw,28px);
-  background:rgba(255,255,255,.03);
-  border-right:1px solid rgba(255,255,255,.08);
+  flex:0 0 22%;
+  color:var(--bone-faint);font-size:clamp(16px,2vw,32px);
+  background:rgba(255,255,255,.02);
 }
-/* Un-card back fills the rest */
+/* Backdrop fills the rest */
 body.landscape .cinema .un-back{
-  flex:1;position:relative;overflow:hidden;background:#030308;
+  flex:1;position:relative;overflow:hidden;background:#06040e;
 }
 body.landscape .cinema .un-back img{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;opacity:0;transition:opacity 2s ease;
-  animation:reelKen 18s ease-in-out infinite alternate;
+  object-fit:cover;opacity:0;transition:opacity 2.5s ease;
+  animation:reelKen 20s ease-in-out infinite alternate;
 }
 body.landscape .cinema .un-back img.active{opacity:1}
+/* Overlay: same gradient direction as hero */
 body.landscape .cinema .un-overlay{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:clamp(10px,1.4vh,20px) clamp(12px,1.6vw,22px);
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:clamp(12px,1.8vh,28px) clamp(14px,1.8vw,30px);
   background:
-    linear-gradient(90deg,rgba(6,6,12,.8) 0%,rgba(6,6,12,.3) 40%,rgba(6,6,12,.05) 80%),
-    linear-gradient(0deg,rgba(6,6,12,.95) 0%,rgba(6,6,12,.6) 35%,transparent 65%);
+    linear-gradient(90deg,
+      rgba(8,6,14,.95) 0%,
+      rgba(8,6,14,.85) 20%,
+      rgba(8,6,14,.55) 40%,
+      rgba(8,6,14,.2) 65%,
+      transparent 85%),
+    linear-gradient(0deg,
+      rgba(8,6,14,.6) 0%,
+      rgba(8,6,14,.25) 30%,
+      transparent 55%);
 }
 body.landscape .cinema .un-label2{
   font-family:"Cinzel",serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.28em;color:var(--spectre);
-  font-size:clamp(11px,1.2vw,18px);
-  margin-bottom:clamp(4px,.5vh,8px);
-  text-shadow:0 0 12px var(--spectre-soft);
+  font-size:clamp(11px,1.15vw,18px);
+  margin-bottom:clamp(6px,.7vh,12px);
+  display:flex;align-items:center;gap:.55em;
+}
+body.landscape .cinema .un-label2::before{
+  content:'';display:inline-block;
+  width:.55em;height:.55em;border-radius:50%;
+  background:var(--spectre);box-shadow:0 0 8px var(--spectre);
+  flex-shrink:0;
+}
+body.landscape .cinema .un-when{
+  font-family:"Cinzel",serif;
+  font-size:clamp(12px,1.25vw,20px);
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--bone-dim);
+  margin-bottom:clamp(6px,.7vh,10px);
 }
 body.landscape .cinema .un-title{
   font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;
   color:var(--bone);line-height:1.02;
-  font-size:clamp(18px,2.6vw,46px);
+  font-size:clamp(20px,2.8vw,50px);
   text-shadow:0 2px 16px rgba(0,0,0,.95);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:clamp(8px,.9vh,14px);
 }
-body.landscape .cinema .un-when{
-  font-family:"Cinzel",serif;
-  font-size:clamp(10px,1.1vw,17px);
-  letter-spacing:.12em;text-transform:uppercase;
-  color:var(--bone-dim);
-  margin-top:clamp(4px,.5vh,7px);
+/* Thin rule below title in un-cards too */
+body.landscape .cinema .un-overlay::after{
+  content:'';display:block;
+  width:clamp(30px,4vw,60px);height:1px;
+  background:linear-gradient(90deg,var(--spectre),transparent);
+  margin-bottom:clamp(8px,.8vh,12px);
+  flex-shrink:0;
 }
-
 /* ══════════════════════════════════════
    PRICES — members' board
    ══════════════════════════════════════ */
@@ -3096,14 +3181,26 @@ function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand, isNowPlaying)
     ?`<img src="${esc(data.poster)}" alt="">`
     :`<div class="noposter">${esc(data.title||film.title)}</div>`;
   if(isLand){
-    // Landscape hero: poster narrow left col, reel fills right as full-bleed backdrop with text overlay
+    // Landscape hero: poster left (22%), backdrop right with text overlay top-left
+    // Layout: label → meta → title → rule(CSS ::after) → overview
+    const labelEl = isNowPlaying
+      ? `<div class="cwhen" style="display:flex;align-items:center;gap:.55em"><span class="np-dot"></span>Now Playing</div>`
+      : `<div class="cwhen">Tonight</div>`;
+    const landMeta=`<div class="cmeta">
+      <span class="ctime">${esc(timeTxt)}</span>
+      ${(film.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(film.cert.trim()))?`<span class="cert">${esc(film.cert.trim())}</span>`:""}
+      ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+      ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+    </div>`;
     return `<div class="cinmain">
       <div class="ci-ls-left">
         <div class="poster">${posterEl}</div>
       </div>
       <div class="ci-ls-right">
         ${reel}
-        <div class="cinfo">${meta}
+        <div class="cinfo">
+          ${labelEl}
+          ${landMeta}
           <h2 class="cname">${esc(data.title||film.title)}</h2>
           ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
         </div>
@@ -3135,8 +3232,8 @@ function buildUpNextStrip(films, now, firstLabel){
     return `<div class="un-card">${posterHTML}<div class="un-back">${backImgs}
         <div class="un-overlay">
           <div class="un-label2">${esc(labels[i])}</div>
-          <div class="un-title">${esc(d.title||f.title)}</div>
           <div class="un-when">${esc(when)}</div>
+          <div class="un-title">${esc(d.title||f.title)}</div>
         </div></div></div>`;
   }).join("");
   return cards?`<div class="upnext"><div class="un-row">${cards}</div></div>`:"";
@@ -3201,16 +3298,28 @@ async function renderCinema(now, validDate){
     const section = wrap.querySelector(".cine-section") || wrap.querySelector(".cinema-land-inner .cine-section");
     if(section){
       section.classList.toggle("now-playing", !!playing);
-      const dl=section.querySelector(".cine-day-label");
-      if(dl){ const dot=dl.querySelector(".cdl-dot"); dl.textContent=playing?"Now Playing":"Tonight"; if(dot) dl.prepend(dot); }
+      // In landscape the label is a .cwhen div inside .cinfo — update its text and dot
+      const cwhen = section.querySelector(".cinfo .cwhen");
+      if(cwhen){
+        if(playing){
+          if(!cwhen.querySelector(".np-dot")){
+            const dot=document.createElement("span"); dot.className="np-dot"; cwhen.prepend(dot);
+          }
+          cwhen.childNodes[cwhen.childNodes.length-1].textContent="Now Playing";
+        } else {
+          const dot=cwhen.querySelector(".np-dot"); if(dot) dot.remove();
+          cwhen.textContent="Tonight";
+        }
+      }
+      // Also update portrait badge/cwhen
       const badge=section.querySelector(".now-playing-badge");
-      const cwhen=section.querySelector(".cwhen");
+      const portraitCwhen=section.querySelector(".cmeta ~ .cwhen, .cmeta .cwhen");
       if(playing){
-        if(!badge){ const b=document.createElement("span"); b.className="now-playing-badge"; b.innerHTML=`<span class="np-dot"></span>Now Playing`; if(cwhen) cwhen.parentNode.insertBefore(b,cwhen); }
-        if(cwhen) cwhen.style.display="none"; // hide cwhen when badge is showing — avoids duplicate
+        if(!badge && !cwhen){ const b=document.createElement("span"); b.className="now-playing-badge"; b.innerHTML=`<span class="np-dot"></span>Now Playing`; const mc=section.querySelector(".cmeta"); if(mc) mc.parentNode.insertBefore(b,mc); }
+        if(portraitCwhen) portraitCwhen.style.display="none";
       } else {
         if(badge) badge.remove();
-        if(cwhen){ cwhen.style.display=""; if(heroFilm){ const tt=heroFilm._start!=null?clockLabel(heroFilm._start):(heroFilm.time||""); cwhen.textContent="Tonight"+(tt?" · "+tt:""); } }
+        if(portraitCwhen){ portraitCwhen.style.display=""; }
       }
     }
     return;
