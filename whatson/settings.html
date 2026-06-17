@@ -113,6 +113,13 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM
 .db-url{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .db-del{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;padding:5px 9px;font-size:13px;transition:.15s;flex-shrink:0}
 .db-del:hover{color:var(--red);border-color:rgba(232,93,93,.4);background:var(--red-dim)}
+.db-toggle{position:relative;width:34px;height:20px;flex-shrink:0;cursor:pointer;margin-right:2px}
+.db-toggle input{opacity:0;width:0;height:0;position:absolute}
+.db-toggle-track{position:absolute;inset:0;border-radius:10px;background:var(--faint);transition:.2s}
+.db-toggle-track::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+.db-toggle input:checked+.db-toggle-track{background:var(--green)}
+.db-toggle input:checked+.db-toggle-track::after{left:17px}
+.db-row.db-off{opacity:.45}
 .db-add-row{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
 .db-input{flex:2 1 220px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px}
 .db-input-name{flex:1 1 120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px}
@@ -430,21 +437,33 @@ function dbRender(){
   if(!dbItems.length){ list.innerHTML=`<div class="db-empty">No posters added yet — paste a link below.</div>`; return; }
   list.innerHTML="";
   dbItems.forEach((it,i)=>{
+    const isOn = it.on !== false; // default on for new items
     const row=document.createElement("div");
-    row.className="db-row"; row.draggable=true; row.dataset.i=i;
+    row.className="db-row"+(isOn?"":" db-off"); row.draggable=true; row.dataset.i=i;
     const thumb=dbIsImage(it.url)?`<img src="${esc(dbThumbUrl(it.url))}" alt="" onerror="this.parentNode.innerHTML='📄'">`:"📄";
     const displayName=it.name||it.url.split("/").pop().split("?")[0].replace(/[-_]/g," ").replace(/\.\w+$/,"").trim()||"Untitled";
     const shortUrl=it.url.length>55?it.url.slice(0,52)+"…":it.url;
     row.innerHTML=`
       <div class="db-thumb">${thumb}</div>
       <div class="db-info"><div class="db-name">${esc(displayName)}</div><div class="db-url">${esc(shortUrl)}</div></div>
+      <label class="db-toggle" title="${isOn?"Showing on board — click to hide":"Hidden from board — click to show"}">
+        <input type="checkbox" data-i="${i}" class="db-chk"${isOn?" checked":""}>
+        <span class="db-toggle-track"></span>
+      </label>
       <button class="db-del" data-i="${i}" title="Remove">✕</button>`;
     list.appendChild(row);
+  });
+  list.querySelectorAll(".db-chk").forEach(chk=>chk.onchange=e=>{
+    const idx=+chk.dataset.i;
+    dbItems[idx].on=chk.checked;
+    chk.closest(".db-row").classList.toggle("db-off",!chk.checked);
+    chk.closest(".db-toggle").title=chk.checked?"Showing on board — click to hide":"Hidden from board — click to show";
+    dbPush();
   });
   list.querySelectorAll(".db-del").forEach(b=>b.onclick=e=>{ e.stopPropagation(); dbItems.splice(+b.dataset.i,1); dbRender(); dbPush(); });
   let dragIdx=null;
   list.querySelectorAll(".db-row").forEach(row=>{
-    row.addEventListener("dragstart",e=>{ dragIdx=+row.dataset.i; e.dataTransfer.effectAllowed="move"; });
+    row.addEventListener("dragstart",e=>{ if(e.target.closest(".db-toggle,.db-del")) { e.preventDefault(); return; } dragIdx=+row.dataset.i; e.dataTransfer.effectAllowed="move"; });
     row.addEventListener("dragover",e=>{ e.preventDefault(); list.querySelectorAll(".db-row").forEach(r=>r.classList.remove("drag-over")); row.classList.add("drag-over"); });
     row.addEventListener("dragleave",()=>row.classList.remove("drag-over"));
     row.addEventListener("drop",e=>{ e.preventDefault(); row.classList.remove("drag-over"); const toIdx=+row.dataset.i; if(dragIdx===null||dragIdx===toIdx) return; const [moved]=dbItems.splice(dragIdx,1); dbItems.splice(toIdx,0,moved); dragIdx=null; dbRender(); dbPush(); });
@@ -455,7 +474,7 @@ $("dbAddBtn").onclick=function(){
   if(!url){ flash("dbMsg","Paste a link first.",true); return; }
   if(!/^https?:\/\//i.test(url)){ flash("dbMsg","Needs to be a full https:// URL.",true); return; }
   if(dbItems.some(it=>it.url===url)){ flash("dbMsg","That link is already in the list.",true); return; }
-  dbItems.push({url,name}); $("dbUrlInput").value=""; $("dbNameInput").value="";
+  dbItems.push({url,name,on:true}); $("dbUrlInput").value=""; $("dbNameInput").value="";
   dbRender(); dbPush();
 };
 $("dbUrlInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("dbAddBtn").click(); });

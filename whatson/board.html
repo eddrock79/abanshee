@@ -2274,8 +2274,9 @@ async function loadData(){
       state.displayFiles=Array.isArray(j)?j.map(it=>({
         name: it.name||"",
         url:  dbDirectUrl(it.url||""),
-        ext:  (it.url||"").split("?")[0].split(".").pop().toLowerCase()
-      })).filter(it=>it.url):[];
+        ext:  (it.url||"").split("?")[0].split(".").pop().toLowerCase(),
+        on:   it.on
+      })).filter(it=>it.url && it.on!==false):[];
       state.dataStatus=state.displayFiles.length?"live":"stub"; paintSrc();
       setStatus(state.displayFiles.length
         ? `${state.displayFiles.length} poster(s) loaded.`
