@@ -1268,100 +1268,189 @@ body.landscape .ghostslot{font-size:clamp(8px,.9vw,11px);padding:clamp(4px,.6vh,
 body.landscape .empty-room{font-size:clamp(9px,1vw,13px)}
 
 /* ══════════════════════════════════════
-   TONIGHT — gigs left, cinema right
+   TONIGHT — gigs left ~58%, cinema right ~42%
    ══════════════════════════════════════ */
 body.landscape .tonight{
-  flex-direction:row;gap:clamp(10px,1.4vw,20px);
-}
-body.landscape .t-sec{flex:1;min-width:0;display:flex;flex-direction:column}
-body.landscape .t-gigs{flex:1.15 1 0;max-height:none;overflow:visible}
-body.landscape .t-cine{
-  flex:1 1 0;
-  border-left:1px solid var(--rule);
-  padding-left:clamp(10px,1.4vw,18px);
-}
-body.landscape .t-head{
-  font-size:clamp(10px,1.2vw,16px);
-  padding:0 0 clamp(4px,.7vh,8px);
-  letter-spacing:.1em;
-}
-body.landscape .t-gigs.solo{flex:1 1 0}
-body.landscape .t-rows{gap:clamp(3px,.5vh,7px)}
-/* tonight show rows — date label as time column */
-body.landscape .t-cine-body{gap:clamp(5px,.8vh,10px);flex:1;justify-content:space-between}
-body.landscape .cine-row{
-  flex:1 1 0;
-  gap:clamp(8px,1.2vw,14px);
-  padding:clamp(8px,1.1vh,14px) clamp(8px,1.1vw,13px);
+  flex-direction:row;gap:0;
   align-items:stretch;
 }
-body.landscape .cine-thumb{height:auto;min-height:clamp(60px,9vh,100px);align-self:stretch;object-fit:cover}
-body.landscape .cine-meta{justify-content:center}
-body.landscape .cine-time{font-size:clamp(9px,1.1vw,15px)}
-body.landscape .cine-title{font-size:clamp(13px,1.8vw,26px)}
-body.landscape .cine-blurb{font-size:clamp(9px,1vw,14px)}
+body.landscape .t-sec{min-width:0;display:flex;flex-direction:column}
+body.landscape .t-gigs{
+  flex:0 0 58%;
+  max-height:none;overflow:hidden;
+  padding-right:clamp(10px,1.4vw,20px);
+}
+body.landscape .t-cine{
+  flex:0 0 42%;min-width:0;
+  border-left:1px solid var(--rule);
+  padding-left:clamp(10px,1.4vw,20px);
+  display:flex;flex-direction:column;
+}
+body.landscape .t-head{
+  font-size:clamp(11px,1.3vw,18px);font-weight:700;
+  padding:0 0 clamp(5px,.7vh,10px);
+  letter-spacing:.1em;
+}
+body.landscape .t-gigs.solo{flex:1 1 0;padding-right:0}
+/* Events rows — bigger, more breathing room */
+body.landscape .t-rows{gap:clamp(4px,.55vh,8px)}
+body.landscape .tonight .show{
+  grid-template-columns:clamp(70px,9vw,130px) 1fr;
+  gap:clamp(6px,.9vw,12px);
+  padding:clamp(7px,1vh,14px) clamp(8px,1.1vw,14px) clamp(7px,1vh,14px) clamp(10px,1.3vw,18px);
+}
+body.landscape .tonight .show .time .start{
+  font-size:clamp(14px,1.8vw,26px);font-weight:700;line-height:1.1;
+}
+body.landscape .tonight .show .time .end{font-size:clamp(9px,1vw,14px);margin-top:.2em}
+body.landscape .tonight .show .name{
+  font-size:clamp(15px,2vw,30px);font-weight:600;line-height:1.1;
+}
+body.landscape .tonight .show .kind{font-size:clamp(8px,.9vw,12px);padding:.2em .5em}
+body.landscape .tonight .show .desc{
+  font-size:clamp(10px,1.1vw,15px);
+  -webkit-line-clamp:1;
+}
+/* Cinema column rows — full-bleed backdrop with poster overlay */
+body.landscape .t-cine-body{
+  flex:1;display:flex;flex-direction:column;
+  gap:clamp(6px,.8vh,12px);min-height:0;
+  justify-content:space-between;
+}
+body.landscape .cine-row{
+  flex:1 1 0;min-height:0;
+  position:relative;overflow:hidden;
+  border-radius:6px;border:1px solid var(--rule);
+  display:flex;flex-direction:row;
+  align-items:stretch;
+  padding:0;gap:0;
+}
+/* Thumb becomes a fixed-width portrait column */
+body.landscape .cine-thumb{
+  flex:0 0 auto;
+  width:clamp(60px,6vw,90px);
+  height:auto;
+  object-fit:cover;
+  border-right:1px solid var(--rule);
+  align-self:stretch;
+}
+/* Backdrop reel fills the row behind the text */
+body.landscape .cine-row .un-back{
+  position:absolute;inset:0;left:clamp(60px,6vw,90px);
+  z-index:0;overflow:hidden;
+}
+body.landscape .cine-row .un-back img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;opacity:0;transition:opacity 2s ease;
+}
+body.landscape .cine-row .un-back img.active{opacity:.35}
+/* Dark gradient over the reel */
+body.landscape .cine-row::after{
+  content:'';position:absolute;
+  inset:0;left:clamp(60px,6vw,90px);z-index:1;
+  background:linear-gradient(90deg,rgba(5,5,10,.95) 0%,rgba(5,5,10,.6) 60%,rgba(5,5,10,.3) 100%);
+}
+body.landscape .cine-meta{
+  flex:1;position:relative;z-index:2;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(8px,1.2vh,16px) clamp(10px,1.3vw,18px);
+}
+body.landscape .cine-time{font-size:clamp(10px,1.1vw,16px);margin-bottom:clamp(2px,.3vh,4px)}
+body.landscape .cine-title{
+  font-size:clamp(16px,2.2vw,34px);font-weight:700;line-height:1.05;
+  margin-bottom:clamp(3px,.4vh,6px);
+}
+body.landscape .cine-blurb{
+  font-size:clamp(10px,1.05vw,15px);
+  -webkit-line-clamp:2;
+  display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;
+}
 
 /* ══════════════════════════════════════
    CINEMA — poster left, info right
    ══════════════════════════════════════ */
 /* ── Landscape cinema: poster left narrow column, reel fills the right ── */
-/* ══ Landscape cinema: top half = hero, bottom half = up next ══ */
-body.landscape .cinema{flex-direction:column;align-items:stretch;height:100%}
+/* ══ Landscape cinema: fills full screen, top=hero 50%, bottom=upnext 50% ══ */
+body.landscape .cinema{
+  flex-direction:column;align-items:stretch;
+  height:100%;width:100%;overflow:hidden;
+}
+/* cine-section fills all available space */
+body.landscape .cine-section{
+  flex:1 1 0;min-height:0;
+  display:flex;flex-direction:column;width:100%;
+}
+body.landscape .cine-day-label{
+  flex-shrink:0;
+  padding:clamp(4px,.5vh,8px) 0 clamp(2px,.3vh,4px);
+}
+/* cinmain = hero area, fills top half */
 body.landscape .cinmain{
   flex:1 1 0;min-height:0;
-  flex-direction:row;align-items:stretch;
-  gap:0;padding-top:0;position:relative;overflow:hidden;
+  display:flex;flex-direction:row;
+  align-items:stretch;
+  width:100%;overflow:hidden;
+  gap:0;padding:0;position:relative;
 }
-/* Hero: poster in narrow left, reel fills right as full-bleed backdrop */
+/* Narrow left strip: just the poster */
 body.landscape .ci-ls-left{
-  flex:0 0 auto;width:min(14vw,160px);
-  display:flex;flex-direction:column;
-  padding:clamp(10px,1.4vh,18px) 0 clamp(10px,1.4vh,18px) clamp(10px,1.4vw,18px);
+  flex:0 0 auto;width:clamp(100px,11vw,160px);
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:clamp(8px,1.2vh,16px) 0 clamp(8px,1.2vh,16px) clamp(8px,1.2vw,16px);
   z-index:2;
 }
-body.landscape .cinema .poster{flex:0 0 auto;border-radius:5px;overflow:hidden}
-body.landscape .cinema .poster img{
-  height:auto;width:100%;max-width:100%;
-  object-fit:cover;display:block;
+body.landscape .cinema .poster{
+  flex:0 0 auto;border-radius:6px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,.7);
 }
-/* Text info sits in right column, overlaid on the reel */
+body.landscape .cinema .poster img{
+  display:block;width:100%;height:auto;object-fit:cover;
+}
+/* Right side fills with reel backdrop + text overlay */
 body.landscape .ci-ls-right{
-  flex:1;min-width:0;display:flex;flex-direction:column;
-  justify-content:flex-end;padding:clamp(10px,1.4vh,18px);
+  flex:1 1 0;min-width:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(14px,2vh,28px) clamp(16px,2.2vw,36px);
   position:relative;overflow:hidden;
 }
-/* Reel fills entire right column as background */
+/* Reel as full-bleed background */
 body.landscape .ci-ls-right .reel{
-  position:absolute;inset:0;width:100%;height:100%;margin:0;border-radius:0;z-index:0;
+  position:absolute;inset:0;width:100%;height:100%;
+  margin:0;border-radius:0;z-index:0;
 }
-body.landscape .ci-ls-right .reel img{width:100%;height:100%;object-fit:cover}
-/* Gradient overlay so text is readable over the reel */
+body.landscape .ci-ls-right .reel img{
+  width:100%;height:100%;object-fit:cover;
+}
+/* Dark gradient so text sits on the reel */
 body.landscape .ci-ls-right::after{
   content:'';position:absolute;inset:0;z-index:1;
-  background:linear-gradient(90deg,rgba(5,5,10,.92) 0%,rgba(5,5,10,.6) 40%,rgba(5,5,10,.15) 100%),
-             linear-gradient(0deg,rgba(5,5,10,.9) 0%,rgba(5,5,10,.4) 40%,transparent 70%);
+  background:
+    linear-gradient(90deg,rgba(3,3,8,.95) 0%,rgba(3,3,8,.7) 35%,rgba(3,3,8,.2) 70%,rgba(3,3,8,.05) 100%),
+    linear-gradient(0deg,rgba(3,3,8,.95) 0%,rgba(3,3,8,.5) 35%,transparent 65%);
 }
 body.landscape .cinema .cinfo{
   position:relative;z-index:2;
   max-width:none;text-align:left;align-items:flex-start;flex-shrink:0;
 }
 body.landscape .cinema .cmeta{
-  justify-content:flex-start;
-  font-size:clamp(10px,1.2vw,18px);gap:clamp(6px,.9vw,14px);
-  position:relative;z-index:2;
+  justify-content:flex-start;z-index:2;position:relative;
+  font-size:clamp(12px,1.35vw,22px);gap:clamp(8px,1vw,16px);
+  margin-bottom:clamp(6px,.7vh,12px);
 }
 body.landscape .cinema .cname{
-  font-size:clamp(22px,3.8vw,60px);
-  margin:.12em 0 .12em;
+  font-size:clamp(28px,4.2vw,72px);line-height:1;
+  margin:0 0 clamp(8px,.9vh,16px);
   position:relative;z-index:2;
+  text-shadow:0 2px 30px rgba(0,0,0,.9),0 0 60px rgba(0,0,0,.7);
 }
 body.landscape .cinema .coverview{
-  max-width:60ch;
-  font-size:clamp(12px,1.4vw,22px);
+  max-width:70ch;
+  font-size:clamp(13px,1.5vw,24px);
   -webkit-line-clamp:3;
   position:relative;z-index:2;
+  text-shadow:0 1px 8px rgba(0,0,0,.9);
 }
-/* Up Next strip: bottom half — full width, flex row of cards */
+/* ══ Up Next: bottom half — full-width row of cards ══ */
 body.landscape .cinema .upnext{
   flex:1 1 0;min-height:0;
   width:100%;margin:0;padding:0;
@@ -1369,21 +1458,22 @@ body.landscape .cinema .upnext{
   display:flex;flex-direction:column;
 }
 body.landscape .cinema .un-row{
-  flex:1;gap:0;
-  display:flex;
+  flex:1;min-height:0;
+  display:flex;gap:0;
 }
 body.landscape .cinema .un-card{
-  flex:1 1 0;height:100%;border-radius:0;border:none;
+  flex:1 1 0;min-width:0;height:100%;
+  border-radius:0;border:none;
   border-right:1px solid var(--rule);
 }
 body.landscape .cinema .un-card:last-child{border-right:none}
-body.landscape .cinema .un-poster{width:clamp(56px,7vw,100px)}
-body.landscape .cinema .un-label2{font-size:clamp(11px,1.3vw,20px);letter-spacing:.2em}
-body.landscape .cinema .un-title{font-size:clamp(18px,2.8vw,46px)}
-body.landscape .cinema .un-when{font-size:clamp(10px,1.2vw,18px)}
-/* Day label sits above the hero section */
-body.landscape .cine-section{flex:1;min-height:0;display:flex;flex-direction:column}
-body.landscape .cine-day-label{flex-shrink:0;padding:clamp(4px,.6vh,8px) clamp(10px,1.4vw,18px)}
+body.landscape .cinema .un-poster{width:clamp(60px,7.5vw,110px)}
+body.landscape .cinema .un-label2{
+  font-size:clamp(12px,1.4vw,22px);letter-spacing:.22em;
+  margin-bottom:clamp(4px,.5vh,8px);
+}
+body.landscape .cinema .un-title{font-size:clamp(20px,3vw,52px)}
+body.landscape .cinema .un-when{font-size:clamp(11px,1.25vw,20px);margin-top:clamp(4px,.5vh,8px)}
 
 /* ══════════════════════════════════════
    PRICES — members' board
@@ -2945,7 +3035,8 @@ function buildFilmHero(film, data, whenTxt, timeTxt, reel, isLand, isNowPlaying)
       </div>
     </div>`;
   }
-  return `<div class="cinmain">
+  // Portrait: cinmain wrapper with column layout
+  return `<div class="cinmain" style="flex-direction:column;align-items:center;width:100%">
     <div class="poster">${posterEl}</div>
     <div class="cinfo">${meta}
       <h2 class="cname">${esc(data.title||film.title)}</h2>
@@ -3090,11 +3181,11 @@ async function renderCinema(now, validDate){
     ${heroHTML}${upNextHTML}
   </div>`:"";
 
-  wrap.innerHTML=`<div class="cinema"><div class="cinmain" style="${IS_LANDSCAPE?"":"flex-direction:column;align-items:center;"}width:100%">
+  wrap.innerHTML=`<div class="cinema">
     ${todaySection}
     ${todayBookHTML}
     ${tomorrowHTML}
-  </div></div>`;
+  </div>`;
   // crossfade the hero backdrop reel (slow dissolve, no video)
   clearInterval(state._reelTimer);
   const imgs=wrap.querySelectorAll(".reel img");
@@ -3190,10 +3281,15 @@ async function renderTonight(now, validDate){
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
     const poster=t.poster?`<img src="${t.poster}" alt="">`:`<div class="noimg">▦</div>`;
-    // cert for real films is the age rating — only show if it looks like one (U/PG/12/15/18/TBC)
     const certVal = f.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(f.cert.trim()) ? f.cert.trim() : "";
+    // Backdrop reel — add animated stills behind the row (landscape only)
+    const backs=(t.backdrops&&t.backdrops.length)?t.backdrops.slice(0,4):(t.poster?[t.poster]:[]);
+    const backdropHTML=backs.length
+      ?`<div class="un-back">${backs.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
+      :"";
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
+      ${backdropHTML}
       <div class="cine-meta">
         <div class="cine-time">${time?esc(time):"tonight"}${certVal?` · <span class="cert">${esc(certVal)}</span>`:""}${rt?` · ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
@@ -3223,6 +3319,18 @@ async function renderTonight(now, validDate){
       </div></div>`;
   })() : "";
   body.innerHTML = filmRows + bookingRow;
+  // Crossfade backdrop reels in the tonight cinema rows
+  body.querySelectorAll(".un-back").forEach(back=>{
+    const imgs=[...back.querySelectorAll("img")];
+    if(imgs.length>1){
+      let idx=0;
+      setInterval(()=>{
+        imgs[idx].classList.remove("active");
+        idx=(idx+1)%imgs.length;
+        imgs[idx].classList.add("active");
+      },4500+Math.random()*1500);
+    }
+  });
 }
 
 /* =====================================================================
