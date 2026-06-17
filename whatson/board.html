@@ -953,7 +953,7 @@ input:disabled{opacity:.4}
 .cinema .un-row{display:flex;gap:clamp(8px,1.4vw,16px)}
 .cinema .un-card{flex:1 1 0;min-width:0;display:flex;align-items:stretch;
   border:1px solid var(--rule);border-radius:5px;overflow:hidden;
-  background:#05050a;height:clamp(110px,16vh,200px)}
+  background:#05050a;height:clamp(120px,18vh,240px)}
 .cinema .un-poster{flex:0 0 auto;width:clamp(60px,8.5vw,110px);object-fit:cover;display:block;border-right:1px solid var(--rule)}
 .cinema .un-poster.un-nopost{display:flex;align-items:center;justify-content:center;
   width:clamp(60px,8.5vw,110px);color:var(--bone-faint);font-size:clamp(16px,2vw,44px);
@@ -1288,12 +1288,15 @@ body.landscape .t-head{
 body.landscape .t-gigs.solo{flex:1 1 0}
 body.landscape .t-rows{gap:clamp(3px,.5vh,7px)}
 /* tonight show rows — date label as time column */
-body.landscape .t-cine-body{gap:clamp(5px,.8vh,10px)}
+body.landscape .t-cine-body{gap:clamp(5px,.8vh,10px);flex:1;justify-content:space-between}
 body.landscape .cine-row{
+  flex:1 1 0;
   gap:clamp(8px,1.2vw,14px);
-  padding:clamp(6px,.9vh,11px) clamp(8px,1.1vw,13px);
+  padding:clamp(8px,1.1vh,14px) clamp(8px,1.1vw,13px);
+  align-items:stretch;
 }
-body.landscape .cine-thumb{height:clamp(54px,8vh,82px)}
+body.landscape .cine-thumb{height:auto;min-height:clamp(60px,9vh,100px);align-self:stretch;object-fit:cover}
+body.landscape .cine-meta{justify-content:center}
 body.landscape .cine-time{font-size:clamp(9px,1.1vw,15px)}
 body.landscape .cine-title{font-size:clamp(13px,1.8vw,26px)}
 body.landscape .cine-blurb{font-size:clamp(9px,1vw,14px)}
@@ -1353,11 +1356,13 @@ body.landscape .cinema .upnext{
   padding-top:clamp(6px,1vh,10px);flex-shrink:0;
 }
 body.landscape .cinema .un-row{gap:clamp(8px,1.2vw,16px)}
-body.landscape .cinema .un-card{height:clamp(70px,10.5vh,120px)}
+body.landscape .cinema .un-card{height:clamp(100px,16vh,200px)}
+body.landscape .cinema .upnext{flex:1 1 auto;margin-top:clamp(8px,1.2vh,16px)}
+body.landscape .cinema .un-row{flex:1;height:100%}
 body.landscape .cinema .un-poster{width:clamp(46px,6.5vw,80px)}
-body.landscape .cinema .un-label2{font-size:clamp(9px,1vw,14px);letter-spacing:.2em}
-body.landscape .cinema .un-title{font-size:clamp(14px,2vw,30px)}
-body.landscape .cinema .un-when{font-size:clamp(8px,.95vw,13px)}
+body.landscape .cinema .un-label2{font-size:clamp(10px,1.1vw,16px);letter-spacing:.2em}
+body.landscape .cinema .un-title{font-size:clamp(16px,2.4vw,38px)}
+body.landscape .cinema .un-when{font-size:clamp(9px,1.05vw,15px)}
 
 /* ══════════════════════════════════════
    PRICES — members' board
@@ -1399,38 +1404,61 @@ body.landscape .pr-drinks{
   gap:clamp(8px,1.2vw,16px);
   width:100%;
 }
-/* Centre everything on the wide screen */
-body.landscape .prices{align-items:stretch;max-width:960px;margin:0 auto;width:100%}
-body.landscape .prices .pr-list{max-width:100%;width:100%}
-body.landscape .pr-member-card{text-align:center;width:100%}
-body.landscape .prd-col{overflow:hidden}
+/* ── Landscape prices: 3-column — Members left | Cocktails mid | Shooters right ── */
+body.landscape .prices{
+  align-items:stretch;width:100%;max-width:none;margin:0;
+  display:flex;flex-direction:column;
+}
+body.landscape .pr-member-card{text-align:center;width:100%;flex-shrink:0}
+body.landscape .prices .pr-note{text-align:center;flex-shrink:0}
+/* Prices section: 3 equal columns side-by-side */
+body.landscape .prices-body{
+  flex:1 1 auto;min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  border-top:1px solid var(--rule);
+  margin-top:clamp(4px,.6vh,8px);
+}
+/* Left column — member prices grid */
+body.landscape .prices-body .pr-list-col{
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--rule);
+  padding:clamp(6px,.9vh,12px) clamp(8px,1.1vw,16px) clamp(6px,.9vh,12px) 0;
+}
+body.landscape .prices .pr-list{
+  grid-template-columns:1fr;
+  width:100%;flex:1;
+  gap:clamp(3px,.4vh,6px) 0;
+  margin-bottom:0;
+  align-content:space-between;
+}
+body.landscape .pr-row{padding:clamp(4px,.6vh,8px) clamp(8px,1.1vw,14px)}
+/* Middle + right columns — cocktails and shooters */
+body.landscape .prd-col{
+  display:flex;flex-direction:column;overflow:hidden;
+  padding:clamp(6px,.9vh,12px) clamp(8px,1.1vw,16px);
+  border-right:1px solid var(--rule);
+}
+body.landscape .prd-col:last-child{border-right:none}
 body.landscape .prd-head{
   flex-direction:row;align-items:baseline;
-  gap:.5em;
-  margin-bottom:clamp(3px,.45vh,5px);
+  gap:.5em;flex-shrink:0;
+  margin-bottom:clamp(4px,.6vh,8px);
+  padding-bottom:clamp(3px,.45vh,5px);
+  border-bottom:1px solid var(--rule);
 }
-body.landscape .prd-head .prd-heading{
-  font-size:clamp(12px,1.7vw,24px);
-  text-shadow:none;
-}
-body.landscape .prd-head .prd-price{
-  font-size:clamp(11px,1.4vw,19px);
-  text-shadow:none;
-}
-body.landscape .prd-list{gap:clamp(3px,.4vh,5px)}
+body.landscape .prd-head .prd-heading{font-size:clamp(12px,1.6vw,22px);text-shadow:none}
+body.landscape .prd-head .prd-price{font-size:clamp(11px,1.3vw,18px);text-shadow:none}
+body.landscape .prd-list{gap:clamp(2px,.32vh,4px);flex:1;justify-content:space-between}
 body.landscape .prd-card{
   flex:1 1 0;min-height:0;
-  padding:clamp(3px,.45vh,7px) clamp(38px,5vw,60px) clamp(3px,.45vh,7px) clamp(7px,.9vw,12px);
+  padding:clamp(3px,.4vh,5px) clamp(30px,4vw,48px) clamp(3px,.4vh,5px) clamp(6px,.8vw,10px);
 }
-body.landscape .prd-name{font-size:clamp(11px,1.35vw,19px);line-height:1.1}
-body.landscape .prd-ing{font-size:clamp(9px,1.05vw,14px);line-height:1.25;margin-top:1px}
-body.landscape .prd-icon svg{
-  width:clamp(16px,1.9vw,28px);height:clamp(16px,1.9vw,28px);
-}
-body.landscape .prd-card .prd-icon{
-  font-size:clamp(12px,1.6vw,22px);
-  right:clamp(5px,.7vw,10px);
-}
+body.landscape .prd-name{font-size:clamp(11px,1.28vw,17px);line-height:1.1}
+body.landscape .prd-ing{font-size:clamp(8px,.98vw,13px);line-height:1.2;margin-top:1px}
+body.landscape .prd-icon svg{width:clamp(14px,1.7vw,24px);height:clamp(14px,1.7vw,24px)}
+body.landscape .prd-card .prd-icon{font-size:clamp(10px,1.4vw,18px);right:clamp(4px,.5vw,7px)}
 
 /* ══════════════════════════════════════
    DISPLAY BOARD — 2-up side by side
@@ -1463,9 +1491,11 @@ body.landscape .db-img{object-fit:contain;width:100%;height:100%}
 .db-stage.db-visible{ opacity:1; transition:opacity 1.2s ease; }
 .db-stage.db-out{ opacity:0; transition:opacity 1.0s ease; }
 /* Landscape 2-up: two poster panels side by side */
-.db-stage.db-land{flex-direction:row;gap:clamp(4px,.5vw,10px);padding:clamp(4px,.5vw,10px);align-items:stretch}
-.db-stage.db-land .db-media{flex:1;min-width:0;position:static;border-radius:4px;overflow:hidden;background:#000}
-.db-stage.db-land .db-img{width:100%;height:100%;object-fit:contain;display:block}
+.db-stage.db-land{flex-direction:row;gap:clamp(16px,2.2vw,36px);padding:clamp(8px,1.2vw,20px) clamp(16px,2.4vw,48px);
+  align-items:center;justify-content:space-evenly}
+.db-stage.db-land .db-media{flex:0 1 auto;min-width:0;max-width:46%;position:static;border-radius:6px;overflow:hidden;background:#000;
+  display:flex;align-items:center;justify-content:center;height:100%}
+.db-stage.db-land .db-img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
 .db-stage.db-land .db-counter{top:8px;right:10px}
 .db-media{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -2612,8 +2642,14 @@ function renderPrices(){
   state._pricesSig=sig;
 
   let html=`<div class="prices">`;
+  // In landscape, wrap the list + drinks in a prices-body div for the 3-col grid
+  const landBodyOpen  = IS_LANDSCAPE ? `<div class="prices-body"><div class="pr-list-col">` : "";
+  const landBodyClose = IS_LANDSCAPE ? `</div>` : "";  // closes pr-list-col (drinks appended after)
+  const landBodyEnd   = IS_LANDSCAPE ? `</div>` : "";  // closes prices-body
   html+=`<div class="pr-member-card">💀 Member Cards <span class="pr-mc-price">£2</span></div>`;
   if(note) html+=`<div class="pr-note">${esc(note)}</div>`;
+  // Landscape: open the 3-col prices-body and the left col wrapper
+  if(IS_LANDSCAPE) html+=`<div class="prices-body"><div class="pr-list-col">`;
   html+=`<div class="pr-list">`;
   if(!items.length){
     html+=`<div class="t-empty">No prices listed yet.</div>`;
@@ -2626,9 +2662,19 @@ function renderPrices(){
       <span class="pr-price"><span class="cur">£</span>${esc(it.price)}${p2}</span>
     </div>`;
   });
-  html+=`</div>`;
-  html+=buildDrinksMenu();
-  html+=`</div>`;
+  html+=`</div>`;  // close .pr-list
+  if(IS_LANDSCAPE){
+    // Close left col, append cocktails+shooters as the 2nd+3rd cols, close prices-body
+    html+=`</div>`;   // close .pr-list-col
+    const drinks=buildDrinksMenu();
+    // buildDrinksMenu returns <div class="pr-drinks"><div class="prd-col">...</div><div class="prd-col">...</div></div>
+    // Strip the outer pr-drinks wrapper so prd-cols sit directly in prices-body
+    html+=drinks.replace(/^<div class="pr-drinks">/,"").replace(/<\/div>$/,"");
+    html+=`</div>`;   // close .prices-body
+  } else {
+    html+=buildDrinksMenu();
+  }
+  html+=`</div>`;  // close .prices
   wrap.innerHTML=html;
 }
 
