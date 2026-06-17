@@ -2493,6 +2493,179 @@ body.landscape.wob-active .footer{
   padding-top:clamp(5px,.8vh,9px);
 }
 
+
+
+/* =====================================================================
+   2026-06 Portrait polish — Tonight + Cinema only
+   Cosmetic-only: uses existing state/data/TMDB/API functions.
+   Scoped away from ?landscape=1 so widescreen boards stay as already fixed.
+   ===================================================================== */
+body:not(.landscape).portrait-tonight-active .stage,
+body:not(.landscape).portrait-cinema-active .stage{
+  padding:clamp(18px,2.2vh,34px) clamp(18px,3.4vw,38px) clamp(12px,1.8vh,24px);
+  gap:clamp(10px,1.25vh,18px);
+}
+body:not(.landscape).portrait-tonight-active .masthead,
+body:not(.landscape).portrait-cinema-active .masthead{
+  padding-bottom:clamp(10px,1.4vh,18px);
+  border-bottom:1px solid rgba(217,164,65,.2);
+}
+body:not(.landscape).portrait-tonight-active .masthead .eyebrow,
+body:not(.landscape).portrait-cinema-active .masthead .eyebrow{
+  color:var(--spectre);
+  letter-spacing:.28em;
+  font-size:clamp(10px,1.25vh,18px);
+}
+body:not(.landscape).portrait-tonight-active .masthead h1,
+body:not(.landscape).portrait-cinema-active .masthead h1{
+  font-size:clamp(36px,5.8vh,82px);
+  letter-spacing:.045em;
+  line-height:.92;
+  text-shadow:0 2px 28px rgba(0,0,0,.85),0 0 24px rgba(116,227,193,.08);
+}
+body:not(.landscape).portrait-tonight-active .masthead .sub,
+body:not(.landscape).portrait-cinema-active .masthead .sub{
+  margin-top:clamp(6px,.9vh,12px);
+}
+
+/* ── Shared framed portrait panel language ─────────────────────────── */
+body:not(.landscape) .pob-board,
+body:not(.landscape) .pob-cinema-board{
+  height:100%;min-height:0;width:100%;
+  display:flex;flex-direction:column;
+  gap:clamp(10px,1.4vh,18px);
+}
+body:not(.landscape) .pob-panel{
+  position:relative;min-height:0;overflow:hidden;
+  border:1px solid rgba(217,164,65,.24);
+  border-radius:10px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),
+    radial-gradient(100% 70% at 50% 0%,rgba(116,227,193,.055),transparent 65%),
+    rgba(5,5,8,.72);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.76),
+    0 18px 60px -34px rgba(0,0,0,.95),
+    inset 0 0 60px rgba(0,0,0,.45);
+}
+body:not(.landscape) .pob-panel::before,
+body:not(.landscape) .pob-cinema-hero::before{
+  content:'';position:absolute;inset:7px;border:1px solid rgba(236,230,214,.07);border-radius:7px;pointer-events:none;z-index:5;
+}
+body:not(.landscape) .pob-panel-head{
+  position:relative;z-index:6;
+  display:flex;align-items:center;gap:.65em;
+  padding:clamp(11px,1.45vh,18px) clamp(14px,2vw,24px) clamp(8px,1vh,12px);
+  font-family:"Cinzel",serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.18em;
+  font-size:clamp(15px,1.7vh,26px);
+  color:var(--spectre);
+  text-shadow:0 0 16px rgba(116,227,193,.12);
+}
+body:not(.landscape) .pob-panel-head .glyph{color:var(--gold);font-size:.9em;opacity:.9}
+body:not(.landscape) .pob-panel-head .line{flex:1;height:1px;background:linear-gradient(90deg,rgba(116,227,193,.22),transparent)}
+
+/* ── Portrait Tonight board: gigs + movies ─────────────────────────── */
+body:not(.landscape) .pob-tonight .pob-gig-panel{flex:1.12 1 0;display:flex;flex-direction:column}
+body:not(.landscape) .pob-tonight .pob-movie-panel{flex:.88 1 0;display:flex;flex-direction:column}
+body:not(.landscape) .pob-tonight .pob-gig-panel.solo{flex:1 1 0}
+body:not(.landscape) .pob-event-list{
+  position:relative;z-index:6;flex:1;min-height:0;overflow:hidden;
+  padding:0 clamp(12px,1.9vw,24px) clamp(12px,1.5vh,20px);
+  display:flex;flex-direction:column;gap:clamp(7px,.95vh,13px);
+}
+body:not(.landscape) .pob-event{
+  position:relative;display:grid;
+  grid-template-columns:clamp(88px,17vw,132px) clamp(76px,15vw,112px) 1fr;
+  gap:clamp(10px,1.6vw,18px);align-items:center;min-height:0;
+  padding:clamp(10px,1.25vh,17px) clamp(10px,1.65vw,18px);
+  border:1px solid rgba(236,230,214,.13);border-radius:7px;
+  background:
+    linear-gradient(100deg,rgba(116,227,193,.035),rgba(255,255,255,.014) 42%,rgba(0,0,0,.2)),
+    rgba(7,7,10,.64);
+  box-shadow:0 12px 34px -24px rgba(0,0,0,.9), inset 0 0 28px rgba(0,0,0,.18);
+  overflow:hidden;
+}
+body:not(.landscape) .pob-event::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--spectre);opacity:.75;box-shadow:0 0 16px rgba(116,227,193,.45)}
+body:not(.landscape) .pob-event.is-first{border-color:rgba(116,227,193,.55);background:linear-gradient(100deg,rgba(116,227,193,.095),rgba(255,255,255,.018) 48%,rgba(0,0,0,.18))}
+body:not(.landscape) .pob-event.is-live{border-color:rgba(227,73,47,.66)}
+body:not(.landscape) .pob-event.is-live::before{background:var(--ember);box-shadow:0 0 18px rgba(227,73,47,.58)}
+body:not(.landscape) .pob-date{font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.07em;line-height:1.05;display:flex;flex-direction:column;gap:.22em;color:var(--bone-dim)}
+body:not(.landscape) .pob-date strong{font-size:clamp(14px,1.8vh,25px);color:var(--bone);font-weight:700}
+body:not(.landscape) .pob-date span{font-size:clamp(9px,1.05vh,15px);color:var(--bone-faint)}
+body:not(.landscape) .pob-date em{font-style:normal;font-size:clamp(18px,2.25vh,32px);color:var(--bone);letter-spacing:.02em;margin-top:.1em}
+body:not(.landscape) .pob-badge{
+  justify-self:stretch;text-align:center;border-radius:4px;padding:.55em .45em;
+  font-family:"Cinzel",serif;font-size:clamp(10px,1.1vh,16px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid rgba(116,227,193,.3);background:rgba(116,227,193,.09);color:var(--spectre);
+}
+body:not(.landscape) .pob-badge.karaoke{border-color:rgba(240,48,154,.38);background:rgba(240,48,154,.11);color:#ff8fd3}
+body:not(.landscape) .pob-badge.dj-set{border-color:rgba(217,164,65,.45);background:rgba(217,164,65,.12);color:#ffd27a}
+body:not(.landscape) .pob-badge.open-mic{border-color:rgba(116,227,193,.45);background:rgba(116,227,193,.12);color:var(--spectre)}
+body:not(.landscape) .pob-badge.quiz{border-color:rgba(167,139,250,.38);background:rgba(167,139,250,.12);color:#c6b7ff}
+body:not(.landscape) .pob-copy{min-width:0;display:flex;flex-direction:column;gap:.18em}
+body:not(.landscape) .pob-name{
+  font-family:"Cinzel Decorative","Cinzel",serif;font-weight:800;
+  font-size:clamp(24px,3.05vh,45px);line-height:1.04;color:var(--bone);
+  text-shadow:0 2px 12px rgba(0,0,0,.85);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body:not(.landscape) .pob-desc{font-size:clamp(13px,1.55vh,23px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-onnow{position:absolute;right:10px;top:8px;display:none;font-family:"Cinzel",serif;font-size:clamp(8px,.9vh,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
+body:not(.landscape) .pob-event.is-live .pob-onnow{display:block}
+body:not(.landscape) .pob-more{position:relative;z-index:6;margin:0 clamp(14px,2vw,24px) clamp(10px,1.2vh,16px);padding-top:clamp(6px,.75vh,10px);border-top:1px solid rgba(116,227,193,.16);font-family:"Cinzel",serif;font-size:clamp(9px,1vh,15px);letter-spacing:.18em;text-transform:uppercase;color:var(--spectre);text-align:center;opacity:.92}
+body:not(.landscape) .pob-empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed rgba(236,230,214,.18);border-radius:6px;color:var(--bone-faint);font-style:italic;font-size:clamp(18px,2vh,28px)}
+
+/* Portrait movie cards inside Tonight board */
+body:not(.landscape) .pob-movie-stack{position:relative;z-index:6;flex:1;min-height:0;padding:0 clamp(12px,1.9vw,24px) clamp(14px,1.7vh,22px);display:flex;flex-direction:column;gap:clamp(9px,1.05vh,15px)}
+body:not(.landscape) .pob-movie-card{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:clamp(92px,20vw,150px) 1fr;overflow:hidden;border:1px solid rgba(217,164,65,.24);border-radius:8px;background:#060509;box-shadow:0 18px 54px -34px #000}
+body:not(.landscape) .pob-movie-card.is-hero{flex:1.15 1 0;border-color:rgba(217,164,65,.4)}
+body:not(.landscape) .pob-poster{position:relative;z-index:2;background:#020204;border-right:1px solid rgba(217,164,65,.2);overflow:hidden;display:flex;align-items:stretch;justify-content:center}
+body:not(.landscape) .pob-poster img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+body:not(.landscape) .pob-noposter{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--bone-faint);font-family:"Cinzel Decorative","Cinzel",serif;line-height:1.05;padding:.5em;background:rgba(255,255,255,.025)}
+body:not(.landscape) .pob-movie-visual{position:relative;min-width:0;overflow:hidden;background:#05050a}
+body:not(.landscape) .pob-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(.78) brightness(.68);transform:scale(1.05);animation:pobKen 22s ease-in-out infinite alternate}
+body:not(.landscape) .pob-movie-visual.is-fallback .pob-backdrop{filter:blur(15px) saturate(.55) brightness(.35);transform:scale(1.18)}
+@keyframes pobKen{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.15) translate(-2%,-1.5%)}}
+body:not(.landscape) .pob-movie-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.72) 38%,rgba(0,0,0,.22) 100%),linear-gradient(0deg,rgba(0,0,0,.8) 0%,transparent 60%)}
+body:not(.landscape) .pob-movie-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(12px,1.45vh,22px) clamp(14px,2vw,26px);z-index:2}
+body:not(.landscape) .pob-movie-label{font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.22em;color:var(--spectre);font-size:clamp(11px,1.2vh,18px);font-weight:700;margin-bottom:.35em;text-shadow:0 0 12px rgba(116,227,193,.18)}
+body:not(.landscape) .pob-movie-meta{display:flex;flex-wrap:wrap;gap:.55em;align-items:center;font-family:"Cinzel",serif;font-size:clamp(10px,1.08vh,16px);letter-spacing:.09em;text-transform:uppercase;color:var(--bone-dim);margin-bottom:.28em}
+body:not(.landscape) .pob-movie-meta .time{color:var(--spectre);font-weight:700}
+body:not(.landscape) .pob-movie-meta .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.06em .42em}
+body:not(.landscape) .pob-movie-title{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:800;font-size:clamp(24px,3.15vh,48px);line-height:1;color:var(--bone);text-shadow:0 2px 18px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-movie-blurb{margin-top:.45em;font-size:clamp(12px,1.35vh,20px);line-height:1.22;color:var(--bone-dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 8px #000}
+body:not(.landscape) .pob-no-movies{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed rgba(236,230,214,.16);border-radius:8px;color:var(--bone-dim);font-size:clamp(18px,2vh,28px);padding:1.2em}
+body:not(.landscape) .pob-no-movies b{font-family:"Cinzel Decorative","Cinzel",serif;color:var(--bone);font-size:1.35em;margin-bottom:.25em}
+
+/* ── Portrait Cinema: big-screen poster ────────────────────────────── */
+body:not(.landscape) .pob-cinema-board{gap:clamp(10px,1.25vh,16px)}
+body:not(.landscape) .pob-cinema-hero{
+  position:relative;flex:1 1 0;min-height:0;overflow:hidden;border:1px solid rgba(217,164,65,.26);border-radius:12px;
+  background:#05050a;box-shadow:0 0 0 1px rgba(0,0,0,.76),0 24px 70px -42px #000,inset 0 0 80px rgba(0,0,0,.45);
+  display:grid;grid-template-rows:minmax(0,1fr) auto;
+  padding:clamp(14px,1.7vh,24px);
+}
+body:not(.landscape) .pob-cinema-bg{position:absolute;inset:0;overflow:hidden;background:radial-gradient(circle at 50% 30%,rgba(116,227,193,.08),transparent 55%),#05050a}
+body:not(.landscape) .pob-cinema-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.26;filter:blur(12px) saturate(.6) brightness(.5);transform:scale(1.08);animation:pobKen 28s ease-in-out infinite alternate}
+body:not(.landscape) .pob-cinema-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 36%,rgba(0,0,0,.08),rgba(0,0,0,.68) 65%,rgba(0,0,0,.92) 100%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.68))}
+body:not(.landscape) .pob-big-poster-wrap{position:relative;z-index:2;min-height:0;display:flex;align-items:center;justify-content:center;padding:clamp(8px,1vh,14px) 0 clamp(10px,1.1vh,16px)}
+body:not(.landscape) .pob-big-poster{height:100%;max-height:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#030306;border:1px solid rgba(217,164,65,.36);box-shadow:0 34px 84px -34px #000,0 0 0 1px rgba(0,0,0,.9),0 0 38px rgba(116,227,193,.06)}
+body:not(.landscape) .pob-big-poster img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+body:not(.landscape) .pob-big-noposter{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-family:"Cinzel Decorative","Cinzel",serif;font-size:clamp(28px,4vh,56px);line-height:1.05;color:var(--bone-faint);padding:1em;background:rgba(255,255,255,.025)}
+body:not(.landscape) .pob-cinema-info{position:relative;z-index:2;border:1px solid rgba(236,230,214,.1);border-radius:8px;background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,.5));padding:clamp(14px,1.6vh,24px) clamp(16px,2.3vw,28px);text-align:center}
+body:not(.landscape) .pob-cinema-label{font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.24em;color:var(--spectre);font-size:clamp(12px,1.25vh,18px);font-weight:700;margin-bottom:.45em}
+body:not(.landscape) .pob-cinema-meta{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.65em;font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.1em;font-size:clamp(12px,1.3vh,19px);color:var(--bone-dim);margin-bottom:.45em}
+body:not(.landscape) .pob-cinema-meta .time{color:var(--spectre);font-weight:700}
+body:not(.landscape) .pob-cinema-meta .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.05em .42em}
+body:not(.landscape) .pob-cinema-title{font-family:"Cinzel Decorative","Cinzel",serif;font-size:clamp(34px,4.8vh,72px);line-height:.96;color:var(--bone);font-weight:900;text-shadow:0 2px 20px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-cinema-overview{font-size:clamp(15px,1.65vh,24px);line-height:1.28;color:var(--bone-dim);margin-top:clamp(8px,1vh,13px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body:not(.landscape) .pob-mini-strip{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1vh,14px);min-height:clamp(130px,15vh,220px)}
+body:not(.landscape) .pob-mini-strip .pob-movie-card{min-height:clamp(130px,15vh,220px);grid-template-columns:clamp(70px,16vw,110px) 1fr}
+body:not(.landscape) .pob-mini-strip .pob-movie-title{font-size:clamp(18px,2.1vh,30px)}
+body:not(.landscape) .pob-mini-strip .pob-movie-blurb{display:none}
+body:not(.landscape) .pob-cinema-booking{height:100%;display:flex;align-items:center;justify-content:center}
+
 </style>
 </head>
 <body>
@@ -4292,6 +4465,199 @@ async function renderTonight(now, validDate){
   };
 })();
 
+
+
+/* =====================================================================
+   2026-06 Portrait polish renderers — Tonight + Cinema only
+   No backend/API changes: reuses already-loaded state.rows/state.cinema and
+   the existing TMDB enrichment helpers.
+   ===================================================================== */
+(function(){
+  const __portraitBaseRender = render;
+  render = function(){
+    document.body.classList.toggle("portrait-tonight-active", !IS_LANDSCAPE && state.mode==="normal");
+    document.body.classList.toggle("portrait-cinema-active", !IS_LANDSCAPE && state.mode==="cinema");
+    return __portraitBaseRender();
+  };
+
+  const __portraitPreviousTonight = renderTonight;
+  renderTonight = async function(now, validDate){
+    if(IS_LANDSCAPE) return __portraitPreviousTonight(now, validDate);
+
+    const wrap=document.getElementById("rooms");
+    if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight."); return; }
+
+    const eye=document.getElementById("eyebrow"), ttl=document.getElementById("title"), foot=document.getElementById("footNote");
+    if(eye) eye.textContent="The Banshee Labyrinth";
+    if(ttl) ttl.textContent="Tonight at the Banshee";
+    if(foot) foot.textContent="Live music · Cinema · Molly's Chamber · Niddry Street";
+
+    const todayKey=isoDate(now);
+    let allGigs=(state.rows||[])
+      .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
+      .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
+      .filter(s=> s.dkey>todayKey || s.startMin==null || !s._end || s._end>now.min-15)
+      .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
+
+    const films=await buildCinemaTonight(now);
+    const realFilms=films.filter(f=>!isPrivateBooking(f)).slice(0,2);
+    const bookingSlot=films.find(f=>isPrivateBooking(f));
+
+    const kindClass=s=>{
+      const k=String(s.genre||guessType(s.title||"")||"Live").toLowerCase();
+      if(k.includes("karaoke")) return "karaoke";
+      if(k.includes("dj")) return "dj-set";
+      if(k.includes("open")) return "open-mic";
+      if(k.includes("quiz")) return "quiz";
+      return "live";
+    };
+    const eventDateLabel=s=>{
+      const d=new Date((s.dkey||todayKey)+"T12:00:00");
+      const short=isNaN(d) ? "" : d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+      return {main:gigDateLabel(s,now), short};
+    };
+    const eventRows=limit=>{
+      const list=allGigs.slice(0,limit);
+      if(!list.length) return `<div class="pob-empty">No upcoming events listed.</div>`;
+      return list.map((s,i)=>{
+        const d=eventDateLabel(s);
+        const live=s.dkey===todayKey && s.startMin!=null && s.startMin<=now.min && s._end && now.min<s._end;
+        const timeTxt=s.noTime?"":s.startLabel;
+        const type=s.genre||guessType(s.title||"");
+        return `<article class="pob-event${i===0?" is-first":""}${live?" is-live":""}">
+          <div class="pob-date"><strong>${esc(d.main)}</strong><span>${esc(d.short)}</span>${timeTxt?`<em>${esc(timeTxt)}</em>`:""}</div>
+          <div class="pob-badge ${kindClass(s)}">${esc(type)}</div>
+          <div class="pob-copy"><div class="pob-name">${esc(s.title)}</div>${s.desc?`<div class="pob-desc">${esc(s.desc)}</div>`:""}</div>
+          <div class="pob-onnow">On Now</div>
+        </article>`;
+      }).join("");
+    };
+    const certOK=v=>v&&/^(U|PG|12A?|15|18|TBC)$/i.test(String(v).trim());
+    const movieCard=(f,label,hero)=>{
+      const t=f._tmdb||{};
+      const title=t.title||f.title||"Cinema";
+      const year=t.year||f.year||"";
+      const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
+      const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
+      const cert=certOK(f.cert)?String(f.cert).trim():"";
+      const blurb=(f.blurb&&f.blurb.trim())?f.blurb:(t.overview||"");
+      const poster=t.poster?`<img src="${esc(t.poster)}" alt="">`:`<div class="pob-noposter">Free<br>Cinema</div>`;
+      const hasBackdrop=!!(t.backdrops&&t.backdrops.length);
+      const back=hasBackdrop?t.backdrops[0]:t.poster;
+      return `<article class="pob-movie-card${hero?" is-hero":""}">
+        <div class="pob-poster">${poster}</div>
+        <div class="pob-movie-visual${hasBackdrop?"":" is-fallback"}">
+          ${back?`<img class="pob-backdrop" src="${esc(back)}" alt="">`:""}
+          <div class="pob-movie-shade"></div>
+          <div class="pob-movie-copy">
+            <div class="pob-movie-label">${esc(label)}</div>
+            <div class="pob-movie-meta">${time?`<span class="time">${esc(time)}</span>`:""}${cert?`<span class="cert">${esc(cert)}</span>`:""}${year?`<span>${esc(year)}</span>`:""}${rt?`<span>${esc(rt)}</span>`:""}</div>
+            <div class="pob-movie-title">${esc(title)}${year?` <span class="cine-year">(${esc(year)})</span>`:""}</div>
+            ${blurb?`<div class="pob-movie-blurb">${esc(blurb)}</div>`:""}
+          </div>
+        </div>
+      </article>`;
+    };
+    const bookingCard=f=>{
+      const st=String(f.time||"").match(/(\d{1,2}:\d{2})/)?.[1]||"";
+      const dur=f.cert&&/^\d+:\d{2}$/.test(String(f.cert).trim())?String(f.cert).trim():"";
+      return `<div class="pob-no-movies"><b>Private Booking</b><span>${esc(st)}${dur?` · ${esc(dur)}`:""}</span><span>${esc(f.blurb||"Cinema space reserved")}</span></div>`;
+    };
+
+    let movieHTML="";
+    if(realFilms.length){
+      const labels=["Now Playing","Up Next"];
+      movieHTML=`<div class="pob-movie-stack">${realFilms.map((f,i)=>movieCard(f,labels[i]||"Later",i===0)).join("")}</div>`;
+    }else if(bookingSlot){
+      movieHTML=`<div class="pob-movie-stack">${bookingCard(bookingSlot)}</div>`;
+    }else{
+      movieHTML=`<div class="pob-movie-stack"><div class="pob-no-movies"><b>Free Cinema</b><span>No screenings listed tonight.</span></div></div>`;
+    }
+
+    const gigsLimit=realFilms.length||bookingSlot?6:8;
+    wrap.innerHTML=`<div class="pob-board pob-tonight">
+      <section class="pob-panel pob-gig-panel${realFilms.length||bookingSlot?"":" solo"}">
+        <header class="pob-panel-head"><span class="glyph">✦</span><span>Coming Up in Molly's Chamber</span><span class="line"></span></header>
+        <div class="pob-event-list">${eventRows(gigsLimit)}</div>
+        <div class="pob-more">Full list: thebansheelabyrinth.com/events</div>
+      </section>
+      ${realFilms.length||bookingSlot?`<section class="pob-panel pob-movie-panel"><header class="pob-panel-head"><span class="glyph">▦</span><span>Tonight's Movies</span><span class="line"></span></header>${movieHTML}</section>`:""}
+    </div>`;
+  };
+
+  const __portraitPreviousCinema = renderCinema;
+  renderCinema = async function(now, validDate){
+    if(IS_LANDSCAPE) return __portraitPreviousCinema(now, validDate);
+
+    const wrap=document.getElementById("rooms");
+    if(!validDate){ wrap.innerHTML=cinemaMsg("Choose a date to see tonight's film."); state._cinemaSig=""; return; }
+    const eye=document.getElementById("eyebrow"), ttl=document.getElementById("title"), foot=document.getElementById("footNote");
+    if(eye) eye.textContent="The Banshee Labyrinth · Cinema";
+    if(ttl) ttl.textContent="Tonight's Movies";
+    if(foot) foot.textContent="Free cinema · Cinema 1 · Niddry Street";
+
+    const allFilms=await buildUpcomingCinema(now, 8);
+    if(!allFilms.length){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); state._cinemaSig=""; return; }
+
+    const isLateNight = now.min < LATE_CUTOFF_HOUR * 60;
+    const todayDkey = isLateNight
+      ? (()=>{ const d=new Date(now.date); d.setDate(d.getDate()-1); return isoDate({y:d.getFullYear(),mo:d.getMonth()+1,day:d.getDate()}); })()
+      : isoDate(now);
+    function filmFinished(f){
+      if(f._start==null) return false;
+      if(f._date!==todayDkey) return false;
+      const rt=(f._tmdb&&f._tmdb.runtime)?f._tmdb.runtime:120;
+      const nowMins = isLateNight ? now.min + 1440 : now.min;
+      const filmStart = (f._start < LATE_CUTOFF_HOUR*60 && !isLateNight) ? f._start + 1440 : f._start;
+      return nowMins > filmStart + rt;
+    }
+
+    const realFilms=allFilms.filter(f=>!isPrivateBooking(f));
+    const activeReal=realFilms.filter(f=>!filmFinished(f));
+    const hero=activeReal[0] || realFilms[0];
+    const booking=allFilms.find(f=>isPrivateBooking(f));
+
+    if(!hero && booking){ wrap.innerHTML=`<div class="pob-cinema-board"><div class="pob-cinema-booking">${buildBookingCard(booking)}</div></div>`; return; }
+    if(!hero){ wrap.innerHTML=cinemaMsg("No screenings listed yet."); return; }
+
+    const t=hero._tmdb||{};
+    const title=t.title||hero.title||"Cinema";
+    const year=t.year||hero.year||"";
+    const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
+    const time=hero._start!=null?(hero._approx?"~":"")+clockLabel(hero._start):(hero.time||"");
+    const cert=hero.cert&&/^(U|PG|12A?|15|18|TBC)$/i.test(String(hero.cert).trim())?String(hero.cert).trim():"";
+    const blurb=(hero.blurb&&hero.blurb.trim())?hero.blurb:(t.overview||"");
+    const nowPlaying=hero._start!=null && hero._date===todayDkey && !filmFinished(hero) && now.min >= (isLateNight ? hero._start - 1440 : hero._start);
+    const label=nowPlaying?"Now Playing":cinemaDateLabel(hero._date,now);
+    const poster=t.poster?`<img src="${esc(t.poster)}" alt="">`:`<div class="pob-big-noposter">${esc(title)}</div>`;
+    const bg=(t.backdrops&&t.backdrops.length)?t.backdrops[0]:t.poster;
+
+    const miniCard=(f,label)=>{
+      const d=f._tmdb||{};
+      const ttl=d.title||f.title||"Cinema";
+      const y=d.year||f.year||"";
+      const tm=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
+      const poster=d.poster?`<img src="${esc(d.poster)}" alt="">`:`<div class="pob-noposter">Free<br>Cinema</div>`;
+      const back=(d.backdrops&&d.backdrops.length)?d.backdrops[0]:d.poster;
+      return `<article class="pob-movie-card"><div class="pob-poster">${poster}</div><div class="pob-movie-visual${(d.backdrops&&d.backdrops.length)?"":" is-fallback"}">${back?`<img class="pob-backdrop" src="${esc(back)}" alt="">`:""}<div class="pob-movie-shade"></div><div class="pob-movie-copy"><div class="pob-movie-label">${esc(label)}</div><div class="pob-movie-meta">${tm?`<span class="time">${esc(tm)}</span>`:""}${y?`<span>${esc(y)}</span>`:""}</div><div class="pob-movie-title">${esc(ttl)}</div></div></div></article>`;
+    };
+    const rest=activeReal.filter(f=>f!==hero).slice(0,2);
+
+    wrap.innerHTML=`<div class="pob-cinema-board">
+      <section class="pob-cinema-hero${nowPlaying?" is-now":""}">
+        <div class="pob-cinema-bg">${bg?`<img src="${esc(bg)}" alt="">`:""}</div>
+        <div class="pob-big-poster-wrap"><div class="pob-big-poster">${poster}</div></div>
+        <div class="pob-cinema-info">
+          <div class="pob-cinema-label">${esc(label)}</div>
+          <div class="pob-cinema-meta">${time?`<span class="time">${esc(time)}</span>`:""}${cert?`<span class="cert">${esc(cert)}</span>`:""}${year?`<span>${esc(year)}</span>`:""}${rt?`<span>${esc(rt)}</span>`:""}</div>
+          <div class="pob-cinema-title">${esc(title)}${year?` <span class="cine-year">(${esc(year)})</span>`:""}</div>
+          ${blurb?`<div class="pob-cinema-overview">${esc(blurb)}</div>`:""}
+        </div>
+      </section>
+      ${rest.length?`<section class="pob-mini-strip">${rest.map((f,i)=>miniCard(f,i?"Later":"Up Next")).join("")}</section>`:""}
+    </div>`;
+  };
+})();
 
 /* =====================================================================
    SRC TAG / STATUS
