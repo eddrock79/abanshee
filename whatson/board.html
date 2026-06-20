@@ -974,12 +974,13 @@ input:disabled{opacity:.4}
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,32px);padding:2em}
 
 /* ---- cinema empty-state promo carousel ---- */
-.cpromo{position:relative;height:100%;width:100%;overflow:hidden;background:#05050a}
-.cpromo-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;display:flex;flex-direction:column;
+.cpromo{flex:1 1 auto;position:relative;width:100%;min-height:300px;overflow:hidden;background:#05050a}
+.cpromo-slide{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity 1.4s ease;display:flex;flex-direction:column;
   align-items:center;justify-content:flex-end;overflow:hidden}
 .cpromo-slide.active{opacity:1}
-.cpromo-slide img.cpromo-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  opacity:.72;filter:saturate(1.15) brightness(.85)}
+.cpromo-slide img.cpromo-bg{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover;
+  object-position:center center;opacity:1}
+.cpromo-slide:not(.has-img) img.cpromo-bg{opacity:.72;filter:saturate(1.15) brightness(.85)}
 .cpromo-vignette{position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 40%,rgba(0,0,0,.72) 100%)}
 .cpromo-illus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -2103,16 +2104,18 @@ function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
    If the URL field is blank an illustrated emoji fallback is shown instead.
 */
 function buildPromoSlide({id, img, illus, eyebrow, title, sub, tag}){
-  // Emoji fallback always renders underneath; image sits on top of it.
-  // If the image fails to load it fades to 0 and the emoji shows through.
-  const bgHTML = `<div class="cpromo-illus">${illus}</div>`
+  // When a real poster image is supplied, it fills the slide completely —
+  // the text overlay is hidden so it doesn't clash with the poster's own design.
+  // When no image is set, the emoji + text overlay acts as a placeholder.
+  const hasImg = !!img;
+  const bgHTML = `<div class="cpromo-illus" ${hasImg ? 'style="display:none"' : ''}>${illus}</div>`
     + (img ? `<img class="cpromo-bg" src="${img}" alt=""
-        onerror="this.style.opacity='0';console.warn('Promo image failed:',this.src)">` : "");
+        onerror="this.style.opacity='0';this.previousElementSibling.style.display='flex';this.closest('.cpromo-slide').classList.add('no-img')">` : "");
   return `
-  <div class="cpromo-slide" id="${id}">
+  <div class="cpromo-slide${hasImg ? ' has-img' : ''}" id="${id}">
     ${bgHTML}
-    <div class="cpromo-vignette"></div>
-    <div class="cpromo-body">
+    <div class="cpromo-vignette" ${hasImg ? 'style="display:none"' : ''}></div>
+    <div class="cpromo-body" ${hasImg ? 'style="display:none"' : ''}>
       <div class="cpromo-eyebrow">${esc(eyebrow)}</div>
       <div class="cpromo-title">${esc(title)}</div>
       <p class="cpromo-sub">${esc(sub)}</p>
