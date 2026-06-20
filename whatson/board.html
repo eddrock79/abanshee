@@ -2103,9 +2103,8 @@ function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
    If the URL field is blank an illustrated emoji fallback is shown instead.
 */
 function buildPromoSlide({id, img, illus, eyebrow, title, sub, tag}){
-  // Always render the emoji fallback div underneath; the image sits on top.
-  // If the image fails to load (CORS, wrong URL format, etc.) it hides itself
-  // and the emoji shows through.
+  // Emoji fallback always renders underneath; image sits on top of it.
+  // If the image fails to load it fades to 0 and the emoji shows through.
   const bgHTML = `<div class="cpromo-illus">${illus}</div>`
     + (img ? `<img class="cpromo-bg" src="${img}" alt=""
         onerror="this.style.opacity='0';console.warn('Promo image failed:',this.src)">` : "");
