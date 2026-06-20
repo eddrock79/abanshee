@@ -46,7 +46,7 @@ function doPost(e) {
   // default: save (update if id matches, else append)
   var id = p.id || Utilities.getUuid();
   var rec = [ id, p.date || "", p.time || "", p.title || "", p.year || "",
-              p.cert || "", p.blurb || "", p.by || "", new Date() ];
+              p.cert || "", p.blurb || "", p.by || "", new Date(), p.image || "" ];
 
   var data = sh.getDataRange().getValues();
   var rowToUpdate = -1;
@@ -65,7 +65,7 @@ function sheet_() {
   var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
-    sh.appendRow(["id","date","time","title","year","cert","blurb","by","updated"]);
+    sh.appendRow(["id","date","time","title","year","cert","blurb","by","updated","image"]);
   }
   return sh;
 }
@@ -84,7 +84,8 @@ function listRows_() {
       title: String(r[3]),
       year:  String(r[4] || ""),
       cert:  String(r[5] || ""),
-      blurb: String(r[6] || "")
+      blurb: String(r[6] || ""),
+      image: String(r[9] || "")
     });
   }
   return out;
