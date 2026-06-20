@@ -1357,8 +1357,8 @@ const CONFIG = {
   // Google Drive, Dropbox, Imgur, etc.) to swap the background image
   // without touching any other code. Leave blank to show the built-in
   // illustrated fallback.
-  CINEMA_PROMO_IMG: "https://drive.google.com/file/d/1lNlTK2OT23p9jnfDQC34h-cyOuRMYT5y/view?usp=sharing",   // e.g. "https://1drv.ms/i/s!Abc123..." (converted to direct link)
-  CAVE_PROMO_IMG:  "https://drive.google.com/file/d/12JcpsDu7KHGLkTscvPpvaRiKUmNpgXHq/view?usp=sharing",   // same for the Cave Bar promo slide
+  CINEMA_PROMO_IMG: "https://drive.google.com/thumbnail?id=12JcpsDu7KHGLkTscvPpvaRiKUmNpgXHq&sz=w1920",
+  CAVE_PROMO_IMG:  "https://drive.google.com/thumbnail?id=1lNlTK2OT23p9jnfDQC34h-cyOuRMYT5y&sz=w1920",
 
   COCKTAIL_PRICE:"7.50", COCKTAIL_PITCHER:"19",
   COCKTAILS:[
@@ -2103,9 +2103,12 @@ function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
    If the URL field is blank an illustrated emoji fallback is shown instead.
 */
 function buildPromoSlide({id, img, illus, eyebrow, title, sub, tag}){
-  const bgHTML = img
-    ? `<img class="cpromo-bg" src="${img}" alt="" onerror="this.style.display='none'">`
-    : `<div class="cpromo-illus">${illus}</div>`;
+  // Always render the emoji fallback div underneath; the image sits on top.
+  // If the image fails to load (CORS, wrong URL format, etc.) it hides itself
+  // and the emoji shows through.
+  const bgHTML = `<div class="cpromo-illus">${illus}</div>`
+    + (img ? `<img class="cpromo-bg" src="${img}" alt=""
+        onerror="this.style.opacity='0';console.warn('Promo image failed:',this.src)">` : "");
   return `
   <div class="cpromo-slide" id="${id}">
     ${bgHTML}
@@ -2120,16 +2123,32 @@ function buildPromoSlide({id, img, illus, eyebrow, title, sub, tag}){
 }
 
 function renderCinemaPromo(wrap){
-  /* Helper: convert OneDrive share URL to a direct image URL */
+  /* Helper: convert share URLs to embeddable direct image URLs */
   function fixOneDrive(url){
-    if(!url) return url;
-    // e.g. https://1drv.ms/i/s!AbcXyz → can't be embedded directly,
-    // but https://api.onedrive.com/v1.0/shares/u!<b64>/root/content works.
-    // Simplest: tell the user to use "Download" link directly.
-    // For Google Drive: https://drive.google.com/file/d/ID/view → https://drive.google.com/uc?export=view&id=ID
-    const gdMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-    if(gdMatch) return `https://drive.google.com/uc?export=view&id=${gdMatch[1]}`;
-    return url; // return as-is (Imgur, Dropbox dl=1, etc. work directly)
+    if(!url) return "";
+    url = url.trim();
+
+    // Google Drive: /file/d/ID/view  →  thumbnail (most reliable embed format)
+    const gdMatch = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
+    if(gdMatch) return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w1920`;
+
+    // Google Drive open?id=  →  thumbnail
+    const gdOpen = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+    if(gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w1920`;
+
+    // Dropbox: change dl=0 to raw=1
+    if(url.includes("dropbox.com")){
+      return url.replace(/[?&]dl=\d/,"").replace(/[?&]raw=\d/,"")
+                + (url.includes("?")?"&raw=1":"?raw=1");
+    }
+
+    // OneDrive share links are blocked by CORS — host images on Google Drive,
+    // Imgur, or your own server instead.
+    if(url.includes("1drv.ms") || url.includes("onedrive.live.com")){
+      console.warn("OneDrive share links are blocked by CORS — use Google Drive or Imgur instead");
+    }
+
+    return url; // Imgur, direct CDN links, etc. work as-is
   }
 
   const cinImg  = fixOneDrive(CONFIG.CINEMA_PROMO_IMG  || "");
