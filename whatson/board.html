@@ -1226,6 +1226,101 @@ body.page-switching .stage{will-change:opacity,transform,filter}
   body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
   img{image-rendering:high-quality}
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LANDSCAPE LAYOUT — activated by ?landscape=1 in the URL.
+   Transforms the portrait board into a widescreen display.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Stage — widescreen container ── */
+body.landscape .stage{max-width:1920px;padding:clamp(10px,1.2vh,20px) clamp(16px,1.8vw,40px)}
+
+/* ── Rooms — side-by-side columns instead of stacked ── */
+body.landscape .rooms{flex-direction:row;gap:clamp(10px,1.4vw,24px);padding-top:clamp(6px,1vh,14px)}
+body.landscape .room{flex:1 1 0;min-width:0}
+
+/* ── Cinema — remove all portrait width constraints ── */
+body.landscape .cinema,
+body.landscape .cinmain,
+body.landscape .cinema .cinfo,
+body.landscape .cinema .upnext,
+body.landscape .cinema .un-row{
+  max-width:none !important;width:100%;
+}
+body.landscape .rooms:has(.cinema){
+  padding-top:0;gap:0;flex-direction:column;
+}
+body.landscape .rooms>.cinema{
+  flex:1 1 0;min-width:0;min-height:0;
+  width:100% !important;max-width:none !important;
+}
+
+/* ── Cinema — horizontal layout: poster left, info right ── */
+body.landscape .cinmain{
+  flex-direction:row;align-items:stretch;gap:clamp(16px,2vw,36px);
+  padding:clamp(10px,1.4vh,20px) 0;
+}
+body.landscape .cinema .poster{
+  flex:0 0 auto;width:clamp(200px,22vw,380px);
+  height:auto;max-height:none;
+}
+body.landscape .cinema .poster img{
+  width:100%;height:100%;max-width:none;max-height:none;
+  object-fit:cover;border-radius:6px;
+}
+body.landscape .cinema .cinfo{
+  flex:1 1 auto;text-align:left;align-items:flex-start;
+  justify-content:center;min-height:0;
+}
+body.landscape .cinema .cmeta{justify-content:flex-start}
+body.landscape .cinema .cname{text-align:left}
+body.landscape .cinema .coverview{text-align:left}
+body.landscape .cinema .reel{
+  width:min(46vw,560px);margin-top:clamp(6px,1vh,14px);
+}
+
+/* ── Up Next cards — stretch wider on landscape ── */
+body.landscape .cinema .upnext{
+  width:100%;margin-top:clamp(6px,1vh,14px);
+  padding-top:clamp(6px,1vh,14px);
+}
+body.landscape .cinema .un-card{
+  border-radius:5px;overflow:hidden;
+}
+body.landscape .cinema .un-poster{
+  width:clamp(70px,7vw,120px);
+}
+body.landscape .cinema .un-title{
+  font-size:clamp(14px,1.5vw,28px);
+}
+
+/* ── Promo slides — always cover in landscape ── */
+body.landscape .cpromo-slide img.cpromo-bg{
+  object-fit:cover;
+}
+
+/* ── Shows / slots — tighter on landscape since more horizontal room ── */
+body.landscape .show .body{
+  grid-template-columns:clamp(120px,10vw,220px) 1fr;
+}
+body.landscape .show .title{
+  font-size:clamp(16px,1.6vw,32px);
+}
+body.landscape .show .desc{
+  font-size:clamp(12px,1.2vw,22px);
+}
+
+/* ── Prices board — wider grid on landscape ── */
+body.landscape .prices .pr-list{
+  grid-template-columns:1fr 1fr 1fr;
+}
+
+/* ── Tonight mode — gigs left, cinema right ── */
+body.landscape .tonight{
+  flex-direction:row;gap:clamp(12px,1.6vw,28px);
+}
+body.landscape .tonight>.t-sec{flex:1 1 0;min-width:0}
+
 </style>
 </head>
 <body>
@@ -1474,6 +1569,8 @@ const SAMPLE_CINEMA = [
    STATE
    ===================================================================== */
 const params = new URLSearchParams(location.search);
+const isLandscape = params.has("landscape") && params.get("landscape")!=="0";
+if(isLandscape) document.body.classList.add("landscape");
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
@@ -2268,18 +2365,31 @@ async function renderCinema(now, validDate){
   const film=films[0], data=film._tmdb||{};
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
   const whenTxt=cinemaDateLabel(film._date, now);
-  const timeTxt=film._start!=null?(film._approx?"~":"")+clockLabel(film._start):(film.time||"");
+  // time intentionally omitted per venue preference
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
-  const reel=(data.backdrops&&data.backdrops.length)
-    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
+
+  // Private Booking image handling — portrait only; landscape always uses standard poster
+  const isPrivate=!isLandscape && /^\s*private\s+booking\s*$/i.test(film.title);
+  function toDirectImg(url){
+    if(!url) return "";
+    url=url.trim();
+    const gd=url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
+    if(gd) return `https://drive.google.com/thumbnail?id=${gd[1]}&sz=w1920`;
+    return url;
+  }
+  const customImg=isPrivate?toDirectImg(film.image||""):"";
+  const showPoster = isPrivate ? !!customImg : true;
+  const posterSrc  = isPrivate ? customImg : data.poster;
+
+  const reel=(data.backdrops&&data.backdrops.length&&!isPrivate)
+    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>` ).join("")}</div>`
     : "";
 
   // Up Next (left) and Later (right) — each its own banner with the film's name + a gently-zooming still
   const labels=["Up Next","Later"];
   const upNext=films.slice(1,3).map((f,i)=>{
     const d=f._tmdb||{};
-    const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
-    const when=cinemaDateLabel(f._date,now)+(tt?` · ${tt}`:"");
+    const when=cinemaDateLabel(f._date,now); // time removed per venue preference
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2301,18 +2411,17 @@ async function renderCinema(now, validDate){
   wrap.innerHTML=`
     <div class="cinema">
       <div class="cinmain">
-        <div class="poster">
-          ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
-        </div>
+        ${showPoster?`<div class="poster">
+          ${posterSrc?`<img src="${posterSrc}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+        </div>`:""}
         <div class="cinfo">
           <div class="cmeta">
             <span class="cwhen">${esc(whenTxt)}</span>
-            ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
             ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
             ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
             ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
           </div>
-          <h2 class="cname">${esc(data.title||film.title)}</h2>
+          <h2 class="cname">${esc(isPrivate?film.title:(data.title||film.title))}</h2>
           ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
           ${reel}
         </div>
@@ -2415,7 +2524,7 @@ async function renderTonight(now, validDate){
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${time?esc(time):"tonight"}${f.cert?` · <span class="cert">${esc(f.cert)}</span>`:""}${rt?` · ${rt}`:""}</div>
+        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
