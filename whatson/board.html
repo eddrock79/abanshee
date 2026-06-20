@@ -2268,30 +2268,18 @@ async function renderCinema(now, validDate){
   const film=films[0], data=film._tmdb||{};
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
   const whenTxt=cinemaDateLabel(film._date, now);
-  // time display removed per venue preference
+  const timeTxt=film._start!=null?(film._approx?"~":"")+clockLabel(film._start):(film.time||"");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
-  // Private Booking: show custom image (f.image) if set, otherwise no poster area
-  const isPrivate=/^\s*private\s+booking\s*$/i.test(film.title);
-  function toDirectImg(url){
-    if(!url) return "";
-    url=url.trim();
-    const gd=url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
-    if(gd) return `https://drive.google.com/thumbnail?id=${gd[1]}&sz=w1920`;
-    return url;
-  }
-  const customImg=toDirectImg(film.image||"");
-  const showPoster = isPrivate ? !!customImg : true;
-  const posterSrc  = isPrivate ? customImg : data.poster;
-
-  const reel=(data.backdrops&&data.backdrops.length&&!isPrivate)
-    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>` ).join("")}</div>`
+  const reel=(data.backdrops&&data.backdrops.length)
+    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>`).join("")}</div>`
     : "";
 
   // Up Next (left) and Later (right) — each its own banner with the film's name + a gently-zooming still
   const labels=["Up Next","Later"];
   const upNext=films.slice(1,3).map((f,i)=>{
     const d=f._tmdb||{};
-    const when=cinemaDateLabel(f._date,now); // time removed per venue preference
+    const tt=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):(f.time||"");
+    const when=cinemaDateLabel(f._date,now)+(tt?` · ${tt}`:"");
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2313,17 +2301,18 @@ async function renderCinema(now, validDate){
   wrap.innerHTML=`
     <div class="cinema">
       <div class="cinmain">
-        ${showPoster?`<div class="poster">
-          ${posterSrc?`<img src="${posterSrc}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
-        </div>`:""}
+        <div class="poster">
+          ${data.poster?`<img src="${data.poster}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+        </div>
         <div class="cinfo">
           <div class="cmeta">
             <span class="cwhen">${esc(whenTxt)}</span>
+            ${timeTxt?`<span class="ctime">${esc(timeTxt)}</span>`:""}
             ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
             ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
             ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
           </div>
-          <h2 class="cname">${esc(isPrivate?film.title:(data.title||film.title))}</h2>
+          <h2 class="cname">${esc(data.title||film.title)}</h2>
           ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
           ${reel}
         </div>
@@ -2426,7 +2415,7 @@ async function renderTonight(now, validDate){
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
+        <div class="cine-time">${time?esc(time):"tonight"}${f.cert?` · <span class="cert">${esc(f.cert)}</span>`:""}${rt?` · ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
