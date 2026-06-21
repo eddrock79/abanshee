@@ -974,6 +974,13 @@ input:disabled{opacity:.4}
   font-family:"EB Garamond",serif;font-style:italic;color:var(--bone-faint);font-size:clamp(15px,1.8vw,32px);padding:2em}
 
 /* ---- cinema empty-state promo carousel ---- */
+/* ── Stacked promo: portrait shows both adverts at once ── */
+.cpromo.cpromo-stacked{display:flex;flex-direction:column;gap:clamp(8px,1.4vh,18px);
+  padding:clamp(8px,1.4vh,18px)}
+.cpromo.cpromo-stacked .cpromo-slide{position:relative;flex:1 1 0;min-height:0;
+  opacity:1;border-radius:8px;overflow:hidden}
+.cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{border-radius:8px}
+
 .cpromo{flex:1 1 auto;position:relative;width:100%;min-height:300px;overflow:hidden;background:#05050a}
 .cpromo-slide{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity 1.4s ease;display:flex;flex-direction:column;
   align-items:center;justify-content:flex-end;overflow:hidden}
@@ -2361,16 +2368,23 @@ function renderCinemaPromo(wrap){
     })}
   </div>`;
 
-  /* Alternate between the two slides every 10 seconds */
   const slides = wrap.querySelectorAll(".cpromo-slide");
-  slides[0].classList.add("active");
-  let idx = 0;
-  const timer = setInterval(()=>{
-    if(!document.body.contains(slides[0])){ clearInterval(timer); return; }
-    slides[idx].classList.remove("active");
-    idx = (idx + 1) % slides.length;
-    slides[idx].classList.add("active");
-  }, 10000);
+
+  if(!IS_LANDSCAPE){
+    /* Portrait: stack both adverts so they fill the screen together */
+    wrap.querySelector(".cpromo").classList.add("cpromo-stacked");
+    slides.forEach(s => s.classList.add("active"));
+  } else {
+    /* Landscape: alternate between the two slides every 10 seconds */
+    slides[0].classList.add("active");
+    let idx = 0;
+    const timer = setInterval(()=>{
+      if(!document.body.contains(slides[0])){ clearInterval(timer); return; }
+      slides[idx].classList.remove("active");
+      idx = (idx + 1) % slides.length;
+      slides[idx].classList.add("active");
+    }, 10000);
+  }
 }
 
 /* Films for a given date, enriched from TMDB, with rough start times chained
