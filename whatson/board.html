@@ -934,6 +934,10 @@ input:disabled{opacity:.4}
   text-shadow:0 0 30px rgba(116,227,193,.12)}
 .cinema .coverview{flex-shrink:0;font-family:"EB Garamond",serif;font-size:clamp(14px,1.6vw,30px);line-height:1.4;
   color:var(--bone-dim);max-width:62ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cinema .cprivate-subtitle{font-family:"EB Garamond",serif;font-weight:600;font-size:clamp(24px,3.4vw,60px);line-height:1.15;color:var(--bone);margin:.15em 0 0;text-align:center;max-width:24ch}
+.cinema .cprivate-url{font-family:"Cinzel",serif;font-size:clamp(12px,1.5vw,24px);line-height:1.35;letter-spacing:.04em;color:var(--spectre);margin-top:clamp(10px,1.4vh,16px);text-align:center;max-width:90%;word-break:break-word;overflow-wrap:anywhere}
+body.landscape .cinema .cprivate-subtitle{text-align:left;max-width:none;font-size:clamp(18px,2.2vw,36px)}
+body.landscape .cinema .cprivate-url{text-align:left;max-width:none;font-size:clamp(10px,1.1vw,18px)}
 .cinema .reel{margin-top:clamp(8px,1.4vh,16px);width:min(76vw,440px);aspect-ratio:16/9;border-radius:6px;flex:0 0 auto;
   overflow:hidden;position:relative;background:#05050a;box-shadow:0 22px 54px -26px #000,0 0 0 1px var(--rule)}
 .cinema .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
@@ -2315,6 +2319,23 @@ function gigDateLabel(s, now){
   return lbl;
 }
 function cinemaMsg(text){ return `<div class="cinemaMsg">${esc(text)}</div>`; }
+function firstUrlFrom(){
+  const vals=[...arguments];
+  for(const v of vals){
+    const s=String(v||"").trim();
+    if(!s) continue;
+    if(/^https?:\/\//i.test(s)) return s;
+    const m=s.match(/https?:\/\/\S+/i);
+    if(m) return m[0];
+  }
+  return "";
+}
+function cleanDisplayText(s){
+  return String(s||"")
+    .replace(/https?:\/\/\S+/gi,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
 
 /* ── Cinema promo carousel — shown when no films are scheduled ──────────
    Two alternating slides fill the full board area:
@@ -2488,10 +2509,17 @@ async function renderCinema(now, validDate){
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
   const startTxt=film._start!=null?`${film._approx?"~":""}${clockLabel(film._start)}`:"";
   const whenTxt=[cinemaDateLabel(film._date, now), startTxt].filter(Boolean).join(" · ");
+
+  // Private Booking handling
+  const isPrivate=/^\s*private\s+booking\s*$/i.test(film.title||"");
+  const privateUrl=firstUrlFrom(film.url, film.link, film.eventUrl, film.eventURL, film.website, film.ticketUrl, film.ticketURL, film.bookingUrl, film.bookingURL, film.blurb, film.overview, film.description, film.notes);
+  const privateEventName=cleanDisplayText(film.eventName || film.event || film.name || film.publicTitle || film.displayTitle || film.subtitle || film.subTitle || film.blurb || film.overview || film.description || film.notes || "");
+  const privatePublicEvent=!!(isPrivate && privateUrl && privateEventName);
+  const displayTitle = privatePublicEvent ? privateEventName : (isPrivate ? (film.title||"Private Booking") : (data.title||film.title));
+  const privateSubtitle = isPrivate && !privatePublicEvent ? privateEventName : "";
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
 
   // Private Booking image handling — portrait only; landscape always uses standard poster/backdrops
-  const isPrivate=!IS_LANDSCAPE && /^\s*private\s+booking\s*$/i.test(film.title);
   function toDirectImg(url){
     if(!url) return "";
     url=url.trim();
@@ -2552,12 +2580,14 @@ async function renderCinema(now, validDate){
             <div class="cinfo">
               <div class="cmeta">
                 <span class="cwhen">${esc(whenTxt)}</span>
-                ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-                ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-                ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+                ${!isPrivate && film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+                ${!isPrivate && data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+                ${!isPrivate && runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
               </div>
-              <h2 class="cname">${esc(data.title||film.title)}</h2>
-              ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+              <h2 class="cname">${esc(displayTitle)}</h2>
+              ${privateSubtitle?`<p class="cprivate-subtitle">${esc(privateSubtitle)}</p>`:""}
+              ${isPrivate && privateUrl?`<p class="cprivate-url">${esc(privateUrl)}</p>`:""}
+              ${!isPrivate && overview?`<p class="coverview">${esc(overview)}</p>`:""}
             </div>
           </div>
         </div>
@@ -2575,13 +2605,15 @@ async function renderCinema(now, validDate){
         <div class="cinfo">
           <div class="cmeta">
             <span class="cwhen">${esc(whenTxt)}</span>
-            ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-            ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-            ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+            ${!isPrivate && film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+            ${!isPrivate && data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+            ${!isPrivate && runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
           </div>
-          <h2 class="cname">${esc(isPrivate?film.title:(data.title||film.title))}</h2>
-          ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
-          ${reel}
+          <h2 class="cname">${esc(displayTitle)}</h2>
+          ${privateSubtitle?`<p class="cprivate-subtitle">${esc(privateSubtitle)}</p>`:""}
+          ${isPrivate && privateUrl?`<p class="cprivate-url">${esc(privateUrl)}</p>`:""}
+          ${!isPrivate && overview?`<p class="coverview">${esc(overview)}</p>`:""}
+          ${!isPrivate ? reel : ""}
         </div>
         ${upnextHTML}
       </div>
