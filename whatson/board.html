@@ -2485,8 +2485,8 @@ async function renderCinema(now, validDate){
 
   const film=films[0], data=film._tmdb||{};
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
-  const whenTxt=cinemaDateLabel(film._date, now);
-  // time intentionally omitted per venue preference
+  const startTxt=film._start!=null?`${film._approx?"~":""}${clockLabel(film._start)}`:"";
+  const whenTxt=[cinemaDateLabel(film._date, now), startTxt].filter(Boolean).join(" · ");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
 
   // Private Booking image handling — portrait only; landscape always uses standard poster/backdrops
@@ -2515,7 +2515,8 @@ async function renderCinema(now, validDate){
   const labels=["Up Next","Later"];
   const upNext=films.slice(1,3).map((f,i)=>{
     const d=f._tmdb||{};
-    const when=cinemaDateLabel(f._date,now);
+    const st=f._start!=null?`${f._approx?"~":""}${clockLabel(f._start)}`:"";
+    const when=[cinemaDateLabel(f._date,now), st].filter(Boolean).join(" · ");
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2681,7 +2682,7 @@ async function renderTonight(now, validDate){
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
+        <div class="cine-time">${time?`<span class="ctime">${esc(time)}</span>`:""}${f.cert?`${time?" · ":""}<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
