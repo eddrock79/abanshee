@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Banshee Labyrinth — What's On</title>
+<meta name="theme-color" content="#0a0a0d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500@1,400&display=swap" rel="stylesheet">
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --void: #0a0a0d; --bone: #ece6d6; --bone-dim: #b3ab95;
+    --spectre: #74e3c1; --ember: #e3492f;
+    --font-head: 'Cinzel Decorative', serif;
+    --font-body: 'EB Garamond', serif;
+  }
+  html, body {
+    min-height: 100vh; background: var(--void);
+    color: var(--bone); font-family: var(--font-body);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 32px; padding: 40px 20px;
+  }
+  h1 {
+    font-family: var(--font-head); font-size: clamp(1.4rem, 5vw, 2.6rem);
+    letter-spacing: 0.06em; text-align: center; color: var(--bone);
+  }
+  p { color: var(--bone-dim); font-size: 1.1rem; text-align: center; }
+  .cards {
+    display: flex; flex-wrap: wrap; gap: 20px;
+    justify-content: center; max-width: 700px; width: 100%;
+  }
+  .card {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(236,230,214,0.12);
+    border-radius: 12px; padding: 28px 32px;
+    text-decoration: none; color: var(--bone);
+    transition: background 0.2s, border-color 0.2s;
+    min-width: 180px;
+  }
+  .card:hover { background: rgba(255,255,255,0.09); border-color: var(--spectre); }
+  .card .icon { font-size: 2.2rem; }
+  .card .label {
+    font-family: 'Cinzel', serif; font-size: 0.95rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .card.mgr-only { display: none; }
+  .card.mgr-only.visible { display: flex; }
+</style>
+</head>
+<body>
+
+<h1>What's On</h1>
+<p>The Banshee Labyrinth</p>
+
+<div class="cards">
+  <a class="card" href="board.html">
+    <span class="icon">🎭</span>
+    <span class="label">Display Board</span>
+  </a>
+  <a class="card mgr-only" id="card-settings" href="settings.html">
+    <span class="icon">⚙️</span>
+    <span class="label">Settings</span>
+  </a>
+  <a class="card mgr-only" id="card-cinema" href="cinema-edit.html">
+    <span class="icon">🎬</span>
+    <span class="label">Cinema Editor</span>
+  </a>
+</div>
+
+<script>
+  BLAuth.init({
+    appName: "What's On",
+    require: 'staff',
+    onReady: function(role) {
+      if (role === 'manager' || role === 'master') {
+        document.querySelectorAll('.mgr-only').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }
+    }
+  });
+</script>
+</body>
+</html>
