@@ -1229,22 +1229,30 @@ body.page-switching .stage{will-change:opacity,transform,filter}
 
 /* ══════════════════════════════════════════════════════════════════════
    LANDSCAPE LAYOUT — activated by ?landscape=1 in the URL.
-   Transforms the portrait board into a widescreen display.
+   Transforms the portrait board into a widescreen cinematic display.
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── Stage — widescreen container ── */
-body.landscape .stage{max-width:1920px;padding:clamp(10px,1.2vh,20px) clamp(16px,1.8vw,40px)}
+body.landscape .stage{max-width:1920px;padding:clamp(8px,1vh,16px) clamp(12px,1.4vw,30px)}
 
 /* ── Rooms — side-by-side columns instead of stacked ── */
 body.landscape .rooms{flex-direction:row;gap:clamp(10px,1.4vw,24px);padding-top:clamp(6px,1vh,14px)}
 body.landscape .room{flex:1 1 0;min-width:0}
 
-/* ── Cinema — remove all portrait width constraints ── */
+/* ═══════════════════════════════════════════════════════════
+   Landscape cinema — framed cards, same width,
+   poster left (2:3) + backdrop right, text overlay
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── NUKE all portrait width constraints ── */
 body.landscape .cinema,
+body.landscape .cinema-land-inner,
+body.landscape .cine-section,
 body.landscape .cinmain,
 body.landscape .cinema .cinfo,
 body.landscape .cinema .upnext,
-body.landscape .cinema .un-row{
+body.landscape .cinema .un-row,
+body.landscape .cinema .cin-booking{
   max-width:none !important;width:100%;
 }
 body.landscape .rooms:has(.cinema){
@@ -1254,72 +1262,151 @@ body.landscape .rooms>.cinema{
   flex:1 1 0;min-width:0;min-height:0;
   width:100% !important;max-width:none !important;
 }
+body.landscape .cinema{
+  flex-direction:column;align-items:stretch;
+  height:100%;width:100%;overflow:hidden;
+}
+/* Inner wrapper for padding/gap */
+body.landscape .cinema-land-inner{
+  flex:1 1 auto;display:flex;flex-direction:column;
+  gap:clamp(8px,1.2vh,16px);padding:clamp(6px,.8vh,12px);
+  min-height:0;height:100%;
+}
+/* Each cine-section takes equal height */
+body.landscape .cine-section{
+  flex:1 1 0;min-height:0;
+  display:flex;flex-direction:column;
+  width:100%;max-width:none;
+}
+body.landscape .cine-day-label{display:none}
 
-/* ── Cinema — horizontal layout: poster left, info right ── */
+/* ── Hero card — framed, poster left + backdrop right ── */
 body.landscape .cinmain{
-  flex-direction:row;align-items:stretch;gap:clamp(16px,2vw,36px);
-  padding:clamp(10px,1.4vh,20px) 0;
+  flex:1 1 0;min-height:0;
+  display:flex;flex-direction:row;align-items:stretch;
+  border:1px solid rgba(180,140,100,.3);
+  border-radius:10px;overflow:hidden;
+  background:#08060e;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.7),
+    0 6px 32px rgba(0,0,0,.8),
+    inset 0 0 80px rgba(90,20,20,.08);
+}
+
+/* ── Poster column (left) ── */
+body.landscape .ci-ls-left{
+  flex:0 0 22%;position:relative;overflow:hidden;background:#060410;
 }
 body.landscape .cinema .poster{
-  flex:0 0 auto;width:clamp(200px,22vw,380px);
-  height:auto;max-height:none;
+  width:100%;height:100%;display:flex;align-items:stretch;
 }
 body.landscape .cinema .poster img{
-  width:100%;height:100%;max-width:none;max-height:none;
-  object-fit:cover;border-radius:6px;
+  display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center top;
 }
-body.landscape .cinema .cinfo{
-  flex:1 1 auto;text-align:left;align-items:flex-start;
-  justify-content:center;min-height:0;
+body.landscape .cinema .noposter{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:"Cinzel Decorative","Cinzel",serif;font-size:clamp(14px,1.8vw,28px);
+  color:var(--bone-faint);text-align:center;padding:1em;
+}
+/* Thin right border between poster and backdrop */
+body.landscape .ci-ls-left::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(180,140,100,.35) 30%,rgba(180,140,100,.35) 70%,transparent);
+}
+
+/* ── Backdrop column (right) — reel as full-bleed background ── */
+body.landscape .ci-ls-right{
+  flex:1 1 0;min-width:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(16px,2.2vh,36px) clamp(18px,2.4vw,42px);
+  position:relative;overflow:hidden;background:#08060e;
+}
+body.landscape .ci-ls-right .reel{
+  position:absolute;inset:0;width:100%;height:100%;
+  margin:0;border-radius:0;z-index:0;
+}
+body.landscape .ci-ls-right .reel img{
+  width:100%;height:100%;object-fit:cover;
+}
+/* Poster fallback: blur so it never looks like a cropped poster */
+body.landscape .ci-ls-right .reel.reel-poster-fallback img{
+  filter:blur(22px) saturate(.5) brightness(.4);
+  transform:scale(1.1);
+}
+/* Gradient: dark left + bottom so text is always readable over the backdrop */
+body.landscape .ci-ls-right::after{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(90deg,
+      rgba(8,6,14,.96) 0%,
+      rgba(8,6,14,.88) 22%,
+      rgba(8,6,14,.62) 40%,
+      rgba(8,6,14,.15) 70%,
+      rgba(8,6,14,.05) 100%),
+    linear-gradient(0deg,
+      rgba(8,6,14,.95) 0%,
+      rgba(8,6,14,.6) 25%,
+      transparent 55%);
+}
+/* Text sits above gradient */
+body.landscape .ci-ls-right .cinfo{
+  position:relative;z-index:2;
+  max-width:none;text-align:left;align-items:flex-start;flex-shrink:0;
 }
 body.landscape .cinema .cmeta{justify-content:flex-start}
-body.landscape .cinema .cname{text-align:left}
-body.landscape .cinema .coverview{text-align:left}
-body.landscape .cinema .reel{
-  width:min(46vw,560px);margin-top:clamp(6px,1vh,14px);
+body.landscape .cinema .cname{
+  font-size:clamp(20px,3.6vw,56px);margin:.15em 0 .15em;text-align:left;
+}
+body.landscape .cinema .coverview{
+  max-width:none;text-align:left;-webkit-line-clamp:4;
+  font-size:clamp(13px,1.5vw,26px);
 }
 
-/* ── Up Next cards — stretch wider on landscape ── */
+/* ── Up Next cards — framed, poster + backdrop ── */
 body.landscape .cinema .upnext{
-  width:100%;margin-top:clamp(6px,1vh,14px);
-  padding-top:clamp(6px,1vh,14px);
+  flex:0 0 auto;width:100%;margin-top:0;
+  padding-top:0;border-top:none;
+  min-height:clamp(60px,10vh,120px);
 }
+body.landscape .cinema .un-row{gap:clamp(8px,1.2vw,16px)}
 body.landscape .cinema .un-card{
-  border-radius:5px;overflow:hidden;
+  height:clamp(80px,12vh,140px);
+  border:1px solid rgba(180,140,100,.25);
+  border-radius:8px;overflow:hidden;
+  background:#08060e;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
 }
-body.landscape .cinema .un-poster{
-  width:clamp(70px,7vw,120px);
-}
-body.landscape .cinema .un-title{
-  font-size:clamp(14px,1.5vw,28px);
-}
+body.landscape .cinema .un-poster{width:clamp(50px,7vw,100px)}
+body.landscape .cinema .un-label2{font-size:clamp(10px,1.3vw,18px)}
+body.landscape .cinema .un-title{font-size:clamp(16px,2.4vw,38px)}
+body.landscape .cinema .un-when{font-size:clamp(9px,1.1vw,16px)}
 
 /* ── Promo slides — always cover in landscape ── */
-body.landscape .cpromo-slide img.cpromo-bg{
-  object-fit:cover;
-}
+body.landscape .cpromo-slide img.cpromo-bg{object-fit:cover}
 
-/* ── Shows / slots — tighter on landscape since more horizontal room ── */
-body.landscape .show .body{
-  grid-template-columns:clamp(120px,10vw,220px) 1fr;
-}
-body.landscape .show .title{
-  font-size:clamp(16px,1.6vw,32px);
-}
-body.landscape .show .desc{
-  font-size:clamp(12px,1.2vw,22px);
-}
+/* ── Shows / slots — adjusted for widescreen ── */
+body.landscape .show .body{grid-template-columns:clamp(120px,10vw,220px) 1fr}
+body.landscape .show .title{font-size:clamp(16px,1.6vw,32px)}
+body.landscape .show .desc{font-size:clamp(12px,1.2vw,22px)}
 
 /* ── Prices board — wider grid on landscape ── */
-body.landscape .prices .pr-list{
-  grid-template-columns:1fr 1fr 1fr;
-}
+body.landscape .prices .pr-list{grid-template-columns:1fr 1fr 1fr}
 
 /* ── Tonight mode — gigs left, cinema right ── */
-body.landscape .tonight{
-  flex-direction:row;gap:clamp(12px,1.6vw,28px);
-}
+body.landscape .tonight{flex-direction:row;gap:clamp(12px,1.6vw,28px)}
 body.landscape .tonight>.t-sec{flex:1 1 0;min-width:0}
+
+/* ── Display board: 2-up side by side ── */
+body.landscape .db-stage{
+  flex-direction:row;gap:clamp(4px,.5vw,10px);
+  padding:clamp(4px,.5vw,10px);align-items:stretch;
+}
+body.landscape .db-stage .db-media{
+  flex:1;min-width:0;position:static;border-radius:4px;overflow:hidden;background:#000;
+}
+body.landscape .db-stage .db-img{width:100%;height:100%;object-fit:contain;display:block}
+body.landscape .db-stage .db-counter{top:8px;right:10px}
 
 </style>
 </head>
@@ -1569,8 +1656,8 @@ const SAMPLE_CINEMA = [
    STATE
    ===================================================================== */
 const params = new URLSearchParams(location.search);
-const isLandscape = params.has("landscape") && params.get("landscape")!=="0";
-if(isLandscape) document.body.classList.add("landscape");
+const IS_LANDSCAPE = params.get("landscape") === "1";
+if(IS_LANDSCAPE) document.body.classList.add("landscape");
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
@@ -2368,8 +2455,8 @@ async function renderCinema(now, validDate){
   // time intentionally omitted per venue preference
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
 
-  // Private Booking image handling — portrait only; landscape always uses standard poster
-  const isPrivate=!isLandscape && /^\s*private\s+booking\s*$/i.test(film.title);
+  // Private Booking image handling — portrait only; landscape always uses standard poster/backdrops
+  const isPrivate=!IS_LANDSCAPE && /^\s*private\s+booking\s*$/i.test(film.title);
   function toDirectImg(url){
     if(!url) return "";
     url=url.trim();
@@ -2381,15 +2468,20 @@ async function renderCinema(now, validDate){
   const showPoster = isPrivate ? !!customImg : true;
   const posterSrc  = isPrivate ? customImg : data.poster;
 
-  const reel=(data.backdrops&&data.backdrops.length&&!isPrivate)
-    ? `<div class="reel">${data.backdrops.map((u,i)=>`<img src="${u}" alt=""${i===0?' class="active"':''}>` ).join("")}</div>`
+  // Backdrop reel: use backdrops (landscape stills). If none, use blurred poster as fallback.
+  const reelImgs = (data.backdrops&&data.backdrops.length)
+    ? data.backdrops
+    : (data.poster ? [data.poster] : []);
+  const reelFallback = !data.backdrops?.length;
+  const reel = (reelImgs.length && !isPrivate)
+    ? `<div class="reel${reelFallback?" reel-poster-fallback":""}">${reelImgs.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>` ).join("")}</div>`
     : "";
 
-  // Up Next (left) and Later (right) — each its own banner with the film's name + a gently-zooming still
+  // Up Next cards — poster column + backdrop area for each
   const labels=["Up Next","Later"];
   const upNext=films.slice(1,3).map((f,i)=>{
     const d=f._tmdb||{};
-    const when=cinemaDateLabel(f._date,now); // time removed per venue preference
+    const when=cinemaDateLabel(f._date,now);
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2408,7 +2500,37 @@ async function renderCinema(now, validDate){
   }).join("");
   const upnextHTML=upNext?`<div class="upnext"><div class="un-row">${upNext}</div></div>`:"";
 
-  wrap.innerHTML=`
+  if(IS_LANDSCAPE){
+    // ── LANDSCAPE: poster left (2:3) + backdrop right with text overlay ──
+    wrap.innerHTML=`
+    <div class="cinema"><div class="cinema-land-inner">
+      <div class="cine-section">
+        <div class="cinmain">
+          <div class="ci-ls-left">
+            <div class="poster">
+              ${data.poster?`<img src="${esc(data.poster)}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+            </div>
+          </div>
+          <div class="ci-ls-right">
+            ${reel}
+            <div class="cinfo">
+              <div class="cmeta">
+                <span class="cwhen">${esc(whenTxt)}</span>
+                ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
+                ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
+                ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+              </div>
+              <h2 class="cname">${esc(data.title||film.title)}</h2>
+              ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+            </div>
+          </div>
+        </div>
+      </div>
+      ${upnextHTML}
+    </div></div>`;
+  } else {
+    // ── PORTRAIT: original vertical layout with private booking support ──
+    wrap.innerHTML=`
     <div class="cinema">
       <div class="cinmain">
         ${showPoster?`<div class="poster">
@@ -2428,6 +2550,7 @@ async function renderCinema(now, validDate){
         ${upnextHTML}
       </div>
     </div>`;
+  }
 
   // crossfade the hero backdrop reel (slow dissolve, no video)
   clearInterval(state._reelTimer);
