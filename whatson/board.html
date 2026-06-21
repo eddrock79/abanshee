@@ -1000,6 +1000,20 @@ input:disabled{opacity:.4}
   border:1px solid var(--ember);padding:.4em 1.1em;border-radius:3px;
   box-shadow:0 0 18px rgba(227,73,47,.35)}
 
+/* ── Portrait stacked promo: two background panels, each half the content area ── */
+.cpromo-stack-portrait{
+  display:flex;flex-direction:column;
+  flex:1 1 0;min-height:0;
+  gap:clamp(6px,1vh,14px);
+  padding:clamp(6px,1vh,14px);
+  background:#05050a;
+}
+.csp-panel{
+  flex:1 1 0;min-height:0;
+  border-radius:8px;overflow:hidden;
+  background:#1a0a1a center/cover no-repeat;
+}
+
 /* ── Stacked promo: portrait shows BOTH adverts simultaneously ──
    Overrides come AFTER base rules so higher specificity wins       */
 .cpromo.cpromo-stacked{
@@ -2330,33 +2344,31 @@ function renderCinemaPromo(wrap){
   function fixOneDrive(url){
     if(!url) return "";
     url = url.trim();
-
-    // Google Drive: /file/d/ID/view  →  thumbnail (most reliable embed format)
     const gdMatch = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
     if(gdMatch) return `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w1920`;
-
-    // Google Drive open?id=  →  thumbnail
     const gdOpen = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
     if(gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w1920`;
-
-    // Dropbox: change dl=0 to raw=1
     if(url.includes("dropbox.com")){
       return url.replace(/[?&]dl=\d/,"").replace(/[?&]raw=\d/,"")
                 + (url.includes("?")?"&raw=1":"?raw=1");
     }
-
-    // OneDrive share links are blocked by CORS — host images on Google Drive,
-    // Imgur, or your own server instead.
-    if(url.includes("1drv.ms") || url.includes("onedrive.live.com")){
-      console.warn("OneDrive share links are blocked by CORS — use Google Drive or Imgur instead");
-    }
-
-    return url; // Imgur, direct CDN links, etc. work as-is
+    return url;
   }
 
   const cinImg  = fixOneDrive(CONFIG.CINEMA_PROMO_IMG  || "");
   const caveImg = fixOneDrive(CONFIG.CAVE_PROMO_IMG || "");
 
+  if(!IS_LANDSCAPE){
+    /* ── PORTRAIT: two panels stacked, each exactly half the available height ──
+       Uses background-image divs so sizing is trivial — no position:absolute fight. */
+    wrap.innerHTML = `<div class="cpromo-stack-portrait">
+      <div class="csp-panel" ${cinImg  ? `style="background-image:url('${cinImg}')"` : ""}></div>
+      <div class="csp-panel" ${caveImg ? `style="background-image:url('${caveImg}')"` : ""}></div>
+    </div>`;
+    return;
+  }
+
+  /* ── LANDSCAPE: original alternating slide carousel ── */
   wrap.innerHTML = `<div class="cpromo">
     ${buildPromoSlide({
       id:"cpromo-cinema",
@@ -2379,39 +2391,14 @@ function renderCinemaPromo(wrap){
   </div>`;
 
   const slides = wrap.querySelectorAll(".cpromo-slide");
-
-  if(!IS_LANDSCAPE){
-    /* Portrait: stack both adverts — set explicit pixel heights in JS to guarantee fit */
-    const cpromo = wrap.querySelector(".cpromo");
-    cpromo.classList.add("cpromo-stacked");
-    slides.forEach(s => {
-      s.classList.add("active");
-      /* Force each slide out of absolute positioning entirely */
-      s.style.cssText = "position:relative !important;top:auto;left:auto;right:auto;bottom:auto;opacity:1;flex:1 1 0;min-height:0;border-radius:8px;overflow:hidden;";
-    });
-    /* After render, clamp each slide to half the available room height */
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        const available = cpromo.offsetHeight;
-        const gap = 12;
-        const maxH = Math.floor((available - gap) / 2);
-        slides.forEach(s => {
-          s.style.maxHeight = maxH + "px";
-          s.style.height = maxH + "px";
-        });
-      });
-    });
-  } else {
-    /* Landscape: alternate between the two slides every 10 seconds */
-    slides[0].classList.add("active");
-    let idx = 0;
-    const timer = setInterval(()=>{
-      if(!document.body.contains(slides[0])){ clearInterval(timer); return; }
-      slides[idx].classList.remove("active");
-      idx = (idx + 1) % slides.length;
-      slides[idx].classList.add("active");
-    }, 10000);
-  }
+  slides[0].classList.add("active");
+  let idx = 0;
+  const timer = setInterval(()=>{
+    if(!document.body.contains(slides[0])){ clearInterval(timer); return; }
+    slides[idx].classList.remove("active");
+    idx = (idx + 1) % slides.length;
+    slides[idx].classList.add("active");
+  }, 10000);
 }
 
 /* Films for a given date, enriched from TMDB, with rough start times chained
