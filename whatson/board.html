@@ -975,13 +975,6 @@ input:disabled{opacity:.4}
 
 /* ---- cinema empty-state promo carousel ---- */
 /* ── Stacked promo: portrait shows both adverts at once ── */
-.cpromo.cpromo-stacked{display:flex;flex-direction:column;gap:clamp(6px,1vh,14px);
-  padding:clamp(6px,1vh,14px);flex:1 1 0;min-height:0;overflow:hidden}
-.cpromo.cpromo-stacked .cpromo-slide{position:relative;flex:1 1 0;min-height:0;
-  max-height:calc(50vh - 70px);opacity:1;border-radius:8px;overflow:hidden}
-.cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{border-radius:8px;
-  object-fit:cover;object-position:center center}
-
 .cpromo{flex:1 1 auto;position:relative;width:100%;min-height:300px;overflow:hidden;background:#05050a}
 .cpromo-slide{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity 1.4s ease;display:flex;flex-direction:column;
   align-items:center;justify-content:flex-end;overflow:hidden}
@@ -1006,6 +999,22 @@ input:disabled{opacity:.4}
   letter-spacing:.22em;text-transform:uppercase;color:var(--ember);
   border:1px solid var(--ember);padding:.4em 1.1em;border-radius:3px;
   box-shadow:0 0 18px rgba(227,73,47,.35)}
+
+/* ── Stacked promo: portrait shows BOTH adverts simultaneously ──
+   Overrides come AFTER base rules so higher specificity wins       */
+.cpromo.cpromo-stacked{
+  min-height:0;position:static;
+  display:flex;flex-direction:column;
+  gap:clamp(6px,1vh,14px);padding:clamp(6px,1vh,14px);
+  flex:1 1 0;overflow:hidden}
+.cpromo.cpromo-stacked .cpromo-slide{
+  position:relative !important;
+  top:auto !important;left:auto !important;right:auto !important;bottom:auto !important;
+  flex:1 1 0;min-height:0;max-height:calc(50vh - 70px);
+  opacity:1 !important;border-radius:8px;overflow:hidden}
+.cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  width:100%;height:100%;object-fit:cover;object-position:center center}
 
 /* ---- cinbar: cocktails + shooters strip at bottom of cinema board ---- */
 .cinbar{flex:0 0 auto;border-top:1px solid var(--rule-strong);
