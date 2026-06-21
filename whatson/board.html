@@ -975,11 +975,12 @@ input:disabled{opacity:.4}
 
 /* ---- cinema empty-state promo carousel ---- */
 /* ── Stacked promo: portrait shows both adverts at once ── */
-.cpromo.cpromo-stacked{display:flex;flex-direction:column;gap:clamp(8px,1.4vh,18px);
-  padding:clamp(8px,1.4vh,18px)}
+.cpromo.cpromo-stacked{display:flex;flex-direction:column;gap:clamp(6px,1vh,14px);
+  padding:clamp(6px,1vh,14px);flex:1 1 0;min-height:0;height:100%;overflow:hidden}
 .cpromo.cpromo-stacked .cpromo-slide{position:relative;flex:1 1 0;min-height:0;
   opacity:1;border-radius:8px;overflow:hidden}
-.cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{border-radius:8px}
+.cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{border-radius:8px;
+  object-fit:cover;object-position:center center}
 
 .cpromo{flex:1 1 auto;position:relative;width:100%;min-height:300px;overflow:hidden;background:#05050a}
 .cpromo-slide{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity 1.4s ease;display:flex;flex-direction:column;
