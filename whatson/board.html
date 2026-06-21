@@ -2330,6 +2330,13 @@ function firstUrlFrom(){
   }
   return "";
 }
+function looksLikeImageUrl(url){
+  url=String(url||"").trim();
+  return /\.(png|jpe?g|webp|gif)(?:[?#].*)?$/i.test(url)
+    || /drive\.google\.com\/(?:file\/d\/|open\?id=)/i.test(url)
+    || /dropbox\.com/i.test(url)
+    || /1drv\.ms|onedrive\.live\.com/i.test(url);
+}
 function cleanDisplayText(s){
   return String(s||"")
     .replace(/https?:\/\/\S+/gi,"")
@@ -2512,7 +2519,13 @@ async function renderCinema(now, validDate){
 
   // Private Booking handling
   const isPrivate=/^\s*private\s+booking\s*$/i.test(film.title||"");
-  const privateUrl=firstUrlFrom(film.url, film.link, film.eventUrl, film.eventURL, film.website, film.ticketUrl, film.ticketURL, film.bookingUrl, film.bookingURL, film.blurb, film.overview, film.description, film.notes);
+  const privateUrl=firstUrlFrom(
+    film.url, film.link, film.eventUrl, film.eventURL, film.eventLink, film.eventURLLink,
+    film.website, film.ticketUrl, film.ticketURL, film.ticketLink, film.bookingUrl, film.bookingURL, film.bookingLink,
+    film.facebook, film.fb, film.instagram, film.infoUrl, film.infoURL,
+    film.blurb, film.overview, film.description, film.notes,
+    film.image, film.imageUrl, film.imageURL, film.posterUrl, film.posterURL
+  );
   const privateEventName=cleanDisplayText(film.eventName || film.event || film.name || film.publicTitle || film.displayTitle || film.subtitle || film.subTitle || film.blurb || film.overview || film.description || film.notes || "");
   const privatePublicEvent=!!(isPrivate && privateUrl && privateEventName);
   const displayTitle = privatePublicEvent ? privateEventName : (isPrivate ? (film.title||"Private Booking") : (data.title||film.title));
@@ -2525,9 +2538,16 @@ async function renderCinema(now, validDate){
     url=url.trim();
     const gd=url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
     if(gd) return `https://drive.google.com/thumbnail?id=${gd[1]}&sz=w1920`;
+    const gdOpen=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+    if(gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w1920`;
+    if(url.includes("dropbox.com")){
+      return url.replace(/[?&]dl=\d/,"").replace(/[?&]raw=\d/,"") + (url.includes("?")?"&raw=1":"?raw=1");
+    }
     return url;
   }
-  const customImg=isPrivate?toDirectImg(film.image||""):"";
+  const privateImageSource=firstUrlFrom(film.image, film.imageUrl, film.imageURL, film.poster, film.posterUrl, film.posterURL, film.photo, film.photoUrl, film.thumbnail, film.thumbnailUrl);
+  const privateImageFallback=(!privateImageSource && looksLikeImageUrl(privateUrl)) ? privateUrl : "";
+  const customImg=isPrivate?toDirectImg(privateImageSource || privateImageFallback):"";
   const showPoster = isPrivate ? !!customImg : true;
   const posterSrc  = isPrivate ? customImg : data.poster;
 
