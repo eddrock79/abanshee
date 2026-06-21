@@ -700,7 +700,7 @@ body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
   height:100%;width:100%;
   max-width:min(100vw,1920px);
   margin:0 auto;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;overflow:hidden;
   padding:clamp(18px,2.6vh,60px) clamp(20px,3.2vw,80px) clamp(12px,2vh,42px);
 }
 
@@ -976,9 +976,9 @@ input:disabled{opacity:.4}
 /* ---- cinema empty-state promo carousel ---- */
 /* ── Stacked promo: portrait shows both adverts at once ── */
 .cpromo.cpromo-stacked{display:flex;flex-direction:column;gap:clamp(6px,1vh,14px);
-  padding:clamp(6px,1vh,14px);flex:1 1 0;min-height:0;height:100%;overflow:hidden}
+  padding:clamp(6px,1vh,14px);flex:1 1 0;min-height:0;overflow:hidden}
 .cpromo.cpromo-stacked .cpromo-slide{position:relative;flex:1 1 0;min-height:0;
-  opacity:1;border-radius:8px;overflow:hidden}
+  max-height:calc(50vh - 70px);opacity:1;border-radius:8px;overflow:hidden}
 .cpromo.cpromo-stacked .cpromo-slide img.cpromo-bg{border-radius:8px;
   object-fit:cover;object-position:center center}
 
