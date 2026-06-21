@@ -2324,22 +2324,41 @@ function firstUrlFrom(){
   for(const v of vals){
     const s=String(v||"").trim();
     if(!s) continue;
-    if(/^https?:\/\//i.test(s)) return s;
-    const m=s.match(/https?:\/\/\S+/i);
-    if(m) return m[0];
+    // Normal web URLs, including Google Drive file links.
+    const m=s.match(/https?:\/\/[^\s"'<>]+/i);
+    if(m) return m[0].replace(/[),.;]+$/g,"");
+    // Google Sheets sometimes stores HYPERLINK formulas or quoted URLs.
+    const h=s.match(/HYPERLINK\(["']([^"']+)["']/i);
+    if(h) return h[1];
   }
   return "";
 }
-function valuesForKeys(obj, keyRe){
-  if(!obj || typeof obj!=="object") return [];
-  return Object.keys(obj)
-    .filter(k=>keyRe.test(k))
-    .map(k=>obj[k]);
+function collectValuesDeep(obj, keyRe=/.*/, depth=0, seen=new Set()){
+  if(obj==null || depth>6) return [];
+  if(typeof obj!=="object") return [obj];
+  if(seen.has(obj)) return [];
+  seen.add(obj);
+  const out=[];
+  if(Array.isArray(obj)){
+    obj.forEach(v=>out.push(...collectValuesDeep(v,keyRe,depth+1,seen)));
+    return out;
+  }
+  Object.keys(obj).forEach(k=>{
+    const v=obj[k];
+    if(keyRe.test(k)) out.push(v);
+    // Always recurse: uploaded files / links may arrive nested as attachment.url, file.link, etc.
+    if(v && typeof v==="object") out.push(...collectValuesDeep(v,keyRe,depth+1,seen));
+  });
+  return out;
 }
+function valuesForKeys(obj, keyRe){ return collectValuesDeep(obj,keyRe); }
 function anyUrlInEntry(obj, keyRe){
-  const preferred=firstUrlFrom(...valuesForKeys(obj,keyRe));
+  const preferred=firstUrlFrom(...collectValuesDeep(obj,keyRe));
   if(preferred) return preferred;
-  return firstUrlFrom(...valuesForKeys(obj,/.*/));
+  // Last-resort scan of the whole object catches nested arrays/objects and JSON strings.
+  const any=firstUrlFrom(...collectValuesDeep(obj,/.*/));
+  if(any) return any;
+  try{ return firstUrlFrom(JSON.stringify(obj)); }catch(e){ return ""; }
 }
 function looksLikeImageUrl(url){
   url=String(url||"").trim();
@@ -2368,12 +2387,16 @@ function privateBookingName(film){
 }
 function cinemaEntrySig(f){
   if(!f || typeof f!=="object") return String(f||"");
-  return Object.keys(f).sort().map(k=>{
-    const v=f[k];
-    if(v==null) return k+":";
-    if(typeof v==="object") return k+":"+(Array.isArray(v)?"array":"object");
-    return k+":"+String(v).slice(0,220);
-  }).join("|");
+  const stable=(v,depth=0,seen=new Set())=>{
+    if(v==null) return "";
+    if(typeof v!=="object") return String(v).slice(0,260);
+    if(depth>5) return "…";
+    if(seen.has(v)) return "[circular]";
+    seen.add(v);
+    if(Array.isArray(v)) return "["+v.map(x=>stable(x,depth+1,seen)).join(",")+"]";
+    return "{"+Object.keys(v).sort().map(k=>k+":"+stable(v[k],depth+1,seen)).join("|")+"}";
+  };
+  return stable(f);
 }
 
 /* ── Cinema promo carousel — shown when no films are scheduled ──────────
@@ -2551,7 +2574,7 @@ async function renderCinema(now, validDate){
 
   // Private Booking handling
   const isPrivate=/^\s*private\s+booking\s*$/i.test(film.title||"");
-  const privateUrl=anyUrlInEntry(film,/(^|\b)(url|link|website|ticket|booking|facebook|instagram|info|event|drive)(\b|$)/i);
+  const privateUrl=anyUrlInEntry(film,/(^|)(url|link|website|ticket|booking|facebook|instagram|info|event|drive)(|$)/i);
   const privateEventName=privateBookingName(film);
   const privatePublicEvent=!!(isPrivate && privateUrl && privateEventName);
   const displayTitle = privatePublicEvent ? privateEventName : (isPrivate ? (film.title||"Private Booking") : (data.title||film.title));
@@ -2571,8 +2594,7 @@ async function renderCinema(now, validDate){
     }
     return url;
   }
-  const rawPrivateImageSource=firstUrlFrom(...valuesForKeys(film,/(image|poster|photo|thumbnail|drive|google)/i));
-  const privateImageSource=looksLikeImageUrl(rawPrivateImageSource) ? rawPrivateImageSource : "";
+  const privateImageSource=anyUrlInEntry(film,/(image|poster|photo|thumbnail|drive|google)/i);
   const privateImageFallback=(!privateImageSource && looksLikeImageUrl(privateUrl)) ? privateUrl : "";
   const customImg=isPrivate?toDirectImg(privateImageSource || privateImageFallback):"";
   const showPoster = isPrivate ? !!customImg : true;
