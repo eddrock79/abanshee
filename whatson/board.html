@@ -745,7 +745,7 @@ body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
 @keyframes blink{50%{opacity:.25}}
 
 /* ---------- rooms ---------- */
-.rooms{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;
+.rooms{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden;
   padding-top:clamp(8px,1.4vh,16px);gap:clamp(8px,1.3vh,18px)}
 .room{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
 .room-head{
@@ -2381,9 +2381,26 @@ function renderCinemaPromo(wrap){
   const slides = wrap.querySelectorAll(".cpromo-slide");
 
   if(!IS_LANDSCAPE){
-    /* Portrait: stack both adverts so they fill the screen together */
-    wrap.querySelector(".cpromo").classList.add("cpromo-stacked");
-    slides.forEach(s => s.classList.add("active"));
+    /* Portrait: stack both adverts — set explicit pixel heights in JS to guarantee fit */
+    const cpromo = wrap.querySelector(".cpromo");
+    cpromo.classList.add("cpromo-stacked");
+    slides.forEach(s => {
+      s.classList.add("active");
+      /* Force each slide out of absolute positioning entirely */
+      s.style.cssText = "position:relative !important;top:auto;left:auto;right:auto;bottom:auto;opacity:1;flex:1 1 0;min-height:0;border-radius:8px;overflow:hidden;";
+    });
+    /* After render, clamp each slide to half the available room height */
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        const available = cpromo.offsetHeight;
+        const gap = 12;
+        const maxH = Math.floor((available - gap) / 2);
+        slides.forEach(s => {
+          s.style.maxHeight = maxH + "px";
+          s.style.height = maxH + "px";
+        });
+      });
+    });
   } else {
     /* Landscape: alternate between the two slides every 10 seconds */
     slides[0].classList.add("active");
