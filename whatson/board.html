@@ -1015,13 +1015,7 @@ body.landscape .cinema .cprivate-url{text-align:left;max-width:none;font-size:cl
 .csp-panel{
   flex:1 1 0;min-height:0;
   border-radius:8px;overflow:hidden;
-  /* Show the whole Google Drive advert image instead of cropping it.
-     The empty space becomes a dark letterbox, which keeps the full poster visible
-     on the portrait cinema board. */
-  background-color:#05050a;
-  background-position:center center;
-  background-size:contain;
-  background-repeat:no-repeat;
+  background:#1a0a1a center/cover no-repeat;
 }
 
 /* ── Stacked promo: portrait shows BOTH adverts simultaneously ──
@@ -2449,8 +2443,8 @@ function renderCinemaPromo(wrap){
   const caveImg = fixOneDrive(CONFIG.CAVE_PROMO_IMG || "");
 
   if(!IS_LANDSCAPE){
-    /* ── PORTRAIT: two panels stacked. The CSS uses background-size:contain
-       so the full advert image is visible instead of cropped. */
+    /* ── PORTRAIT: two panels stacked, each exactly half the available height ──
+       Uses background-image divs so sizing is trivial — no position:absolute fight. */
     wrap.innerHTML = `<div class="cpromo-stack-portrait">
       <div class="csp-panel" ${cinImg  ? `style="background-image:url('${cinImg}')"` : ""}></div>
       <div class="csp-panel" ${caveImg ? `style="background-image:url('${caveImg}')"` : ""}></div>
