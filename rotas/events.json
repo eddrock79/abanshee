@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-22T08:00:07",
+  "generated": "2026-06-22T20:38:55",
   "events": [
     {
       "date": "2026-06-22",
@@ -60,6 +60,66 @@
       "date": "2026-06-28",
       "room": "Cinema",
       "what": "Sound scape"
+    },
+    {
+      "date": "2026-06-29",
+      "room": "Cinema",
+      "what": "EDINBURGH B-TEAM 19:00-23:00"
+    },
+    {
+      "date": "2026-06-30",
+      "room": "Chamber Room",
+      "what": "KARAOKE 19:00-02:45\nPrivate Booking 19:00-22:00"
+    },
+    {
+      "date": "2026-06-30",
+      "room": "Cinema",
+      "what": "Booking 19:00-00:00"
+    },
+    {
+      "date": "2026-07-01",
+      "room": "Chamber Room",
+      "what": "TAKE THE STAGE"
+    },
+    {
+      "date": "2026-07-01",
+      "room": "Cinema",
+      "what": "Skeptics 19:00-21:00"
+    },
+    {
+      "date": "2026-07-02",
+      "room": "Bar 13",
+      "what": "LARP EVENT - MAUSOLEUM"
+    },
+    {
+      "date": "2026-07-02",
+      "room": "Chamber Room",
+      "what": "LARP EVENT - MAUSOLEUM"
+    },
+    {
+      "date": "2026-07-03",
+      "room": "Chamber Room",
+      "what": "Deadwave Records\nDJ LUKE 23:00-02:45"
+    },
+    {
+      "date": "2026-07-03",
+      "room": "Cinema",
+      "what": "Clowns 19:00-22:00"
+    },
+    {
+      "date": "2026-07-04",
+      "room": "Chamber Room",
+      "what": "Girl Germs DJ Set\nKurnel Fist + Indica + Acidsaurus Bong"
+    },
+    {
+      "date": "2026-07-04",
+      "room": "Cinema",
+      "what": "Black Sabbath 01:00-02:00\nEDINBURGH HORROR FESTIVAL"
+    },
+    {
+      "date": "2026-07-05",
+      "room": "Chamber Room",
+      "what": "KARAOKE 23:00-02:30"
     }
   ]
 }
