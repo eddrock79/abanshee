@@ -1701,7 +1701,7 @@ const MODES = {
     foot:"Poster display · live from What’s On",
     testDefault:"2026-06-11T20:00", layout:"display", keepAllDay:true,
     rooms:[],
-    source:{kind:"cinema"}   // reads the same manager entries and shows rows marked Poster / Display Board
+    source:{kind:"displayboard"}   // reads Display Board posters saved from settings.html (action=db_list)
   },
   prices: {
     label:"Prices", eyebrow:"The Banshee Labyrinth · Bar", title:"RIP Members' Prices",
@@ -1778,6 +1778,7 @@ const state = {
   simStr: params.get("now") || MODES[initMode].testDefault || "2025-08-08T12:05",
   rows: [],
   cinema: [],
+  displayFiles: [],    // Display Board poster rows from settings.html / Apps Script db_list
   prices: [],          // members'-price rows (from the prices sheet, or fallback)
   pricesNote: "",      // caption under the prices title
   _cinemaSig: "",
@@ -2066,6 +2067,40 @@ function fmtClock(d){
   return `${hh}<span class="c">:</span>${mm}`;
 }
 
+
+/* =====================================================================
+   DISPLAY BOARD URL NORMALISER
+   The Settings page saves Display Board rows with action=db_save and the
+   board must read them with action=db_list. These helpers convert Google
+   Drive / Dropbox share links into image URLs that can be shown directly.
+   ===================================================================== */
+function dbGDriveId(url){
+  url=String(url||"");
+  let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]{20,})/);
+  if(m) return m[1];
+  m=url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+  if(m) return m[1];
+  return null;
+}
+function dbDirectUrl(url){
+  if(!url) return "";
+  url=String(url).trim();
+  if(!url) return "";
+
+  // Dropbox share link → raw/direct link
+  if(/dropbox\.com/i.test(url)){
+    if(/[?&](dl|raw)=\d/i.test(url)) return url.replace(/([?&])(dl|raw)=\d/ig,"$1raw=1");
+    return url + (url.includes("?") ? "&raw=1" : "?raw=1");
+  }
+
+  // Google Drive share link → public thumbnail/content endpoint.
+  // This is the same store used by settings.html for the poster thumbnails.
+  const gdId=dbGDriveId(url);
+  if(gdId) return `https://lh3.googleusercontent.com/d/${gdId}`;
+
+  return url;
+}
+
 /* =====================================================================
    DATA LOAD
    ===================================================================== */
@@ -2125,6 +2160,33 @@ async function loadData(){
     state.dataStatus=(gigOK&&cinOK)?"live":"sample"; paintSrc();
     setStatus((gigOK&&cinOK)?"Live · gigs + cinema loaded.":("Showing some sample — "+msgs.join("; ")));
     state._cinemaSig=""; render(); return;
+  }
+  if(src.kind==="displayboard"){
+    if(!CONFIG.CINEMA_API){
+      state.displayFiles=[]; state.dataStatus="stub"; paintSrc();
+      setStatus("No API set — add CONFIG.CINEMA_API to board.html.");
+      render(); return;
+    }
+    try{
+      const r=await fetch(CONFIG.CINEMA_API+"?action=db_list&t="+Date.now(),{cache:"no-store"});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j=await r.json();
+      state.displayFiles=Array.isArray(j)?j.map(it=>({
+        name: String(it.name||it.label||it.title||""),
+        url:  dbDirectUrl(it.url||it.link||it.src||it.image||""),
+        raw:  String(it.url||it.link||it.src||it.image||""),
+        on:   it.on
+      })).filter(it=>it.url && it.on!==false):[];
+      state.dataStatus=state.displayFiles.length?"live":"stub"; paintSrc();
+      setStatus(state.displayFiles.length
+        ? `${state.displayFiles.length} poster(s) loaded from Display Board.`
+        : "No posters added yet — go to Settings → Posters / Display Board.");
+    }catch(err){
+      state.displayFiles=[]; state.dataStatus="error"; paintSrc();
+      setStatus("Couldn't load Display Board posters ("+err.message+").");
+    }
+    state._displaySig="";
+    render(); return;
   }
   if(src.kind==="cinema"){
     try{
@@ -2609,6 +2671,21 @@ function posterUrlFromRow(row){
   return "";
 }
 function collectDisplayPosters(now){
+  // First preference: the dedicated poster list saved by settings.html
+  // via action=db_save and loaded here via action=db_list.
+  if(Array.isArray(state.displayFiles) && state.displayFiles.length){
+    return state.displayFiles
+      .filter(f=>f && f.url && f.on!==false)
+      .map((f,idx)=>({
+        src: dbDirectUrl(f.url),
+        title: String(f.name||f.label||f.title||"Poster").trim(),
+        date: "",
+        idx
+      }));
+  }
+
+  // Backwards compatibility: older test versions tried to find poster rows
+  // inside the cinema list. Keep this as a fallback only.
   const today = isoDate(now);
   const rows = Array.isArray(state.cinema) ? state.cinema : [];
   return rows.map((r,idx)=>{
@@ -2647,7 +2724,7 @@ function renderDisplayBoard(now, validDate){
   if(state._displayTimer){ clearInterval(state._displayTimer); state._displayTimer=null; }
 
   if(!items.length){
-    wrap.innerHTML=`<div class="db-empty">No poster URLs found yet.<br>Add a What’s On row marked “Poster” or “Display Board”, with the image URL saved in the image/poster/url field.</div>`;
+    wrap.innerHTML=`<div class="db-empty">No posters loaded yet.<br>Go to Settings → Posters, add/select a poster, then refresh this board.</div>`;
     return;
   }
 
