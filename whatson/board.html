@@ -2545,6 +2545,8 @@ async function renderCinema(now, validDate){
     const fPrivate=/^\s*private\s+booking\s*$/i.test(f.title);
     const fHasUrl=!!((f.url||f.link||"").trim());
     const cardTitle=fPrivate && fHasUrl ? (f.blurb||f.title) : (d.title||f.title);
+    const fTime=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
+    const whenTime=when+(fTime?" · "+fTime:"");
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2557,7 +2559,7 @@ async function renderCinema(now, validDate){
         <div class="un-overlay">
           <div class="un-label2">${labels[i]}</div>
           <div class="un-title">${esc(cardTitle)}</div>
-          <div class="un-when">${esc(when)}</div>
+          <div class="un-when">${esc(whenTime)}</div>
         </div>
       </div></div>`;
   }).join("");
@@ -2718,7 +2720,7 @@ async function renderTonight(now, validDate){
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
+        <div class="cine-time">${time?`<span class="start">${esc(time)}</span>`:""} ${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
