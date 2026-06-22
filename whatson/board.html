@@ -1317,6 +1317,11 @@ body.page-switching .stage{will-change:opacity,transform,filter}
 .db-fade{animation:dbFade .55s ease}
 @keyframes dbFade{from{opacity:.12;filter:blur(12px) brightness(.55);transform:scale(1.015)}to{opacity:1;filter:none;transform:none}}
 
+/* Display Board page polish */
+body.display-mode .masthead h1{display:none}
+body.display-mode .masthead{padding-bottom:clamp(6px,1vh,12px)}
+body.display-mode .rooms{padding-top:clamp(4px,.7vh,10px)}
+
 
 /* ══════════════════════════════════════════════════════════════════════
    LANDSCAPE LAYOUT — activated by ?landscape=1 in the URL.
@@ -2237,6 +2242,7 @@ function render(){
   document.getElementById("eyebrow").textContent=mode.eyebrow;
   document.getElementById("title").textContent=mode.title;
   document.getElementById("footNote").textContent=mode.foot;
+  document.body.classList.toggle("display-mode", mode.layout==="display");
 
   const validDate=!isNaN(now.date.getTime());
   document.getElementById("whenLabel").textContent = validDate
@@ -2734,10 +2740,10 @@ function renderDisplayBoard(now, validDate){
     const cells=[];
     for(let i=0;i<count;i++){
       const it=items[(page+i)%items.length];
-      const label = items.length>1 ? `${((page+i)%items.length)+1} / ${items.length}` : "Poster";
-      const cap = it.title && !/^\s*poster\s*$/i.test(it.title)
-        ? `<div class="db-caption"><span class="db-title">${esc(it.title)}</span><span>${esc(label)}</span></div>`
-        : `<div class="db-counter">${esc(label)}</div>`;
+      const label = `${((page+i)%items.length)+1} / ${items.length}`;
+      const cap = items.length>1
+        ? `<div class="db-counter">${esc(label)}</div>`
+        : ``;
       cells.push(`<div class="db-media db-fade">
         <img class="db-img" src="${esc(it.src)}" alt="" onerror="this.closest('.db-media').innerHTML='<div class=&quot;db-empty&quot;>Poster image could not load</div>'">
         ${cap}
