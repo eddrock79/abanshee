@@ -1265,6 +1265,59 @@ body.page-switching .stage{will-change:opacity,transform,filter}
   img{image-rendering:high-quality}
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   DISPLAY BOARD / POSTER MODE
+   Shows poster URLs from the What’s On manager sheet.
+   ══════════════════════════════════════════════════════════════════════ */
+.db-stage{
+  flex:1 1 auto;min-height:0;width:100%;height:100%;
+  display:flex;flex-direction:column;gap:clamp(6px,.8vh,14px);
+  padding:clamp(6px,.8vh,16px);
+  border:1px solid var(--rule);border-radius:6px;overflow:hidden;
+  background:
+    radial-gradient(120% 120% at 50% 0%,rgba(116,227,193,.05),transparent 46%),
+    #030306;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.db-media{
+  flex:1 1 auto;min-height:0;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:5px;background:#000;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.db-img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;
+}
+.db-caption{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:clamp(8px,1.2vh,18px) clamp(12px,1.6vw,28px);
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));
+  font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.16em;
+  font-size:clamp(10px,1.2vw,20px);color:var(--bone-dim);
+  display:flex;justify-content:space-between;gap:1em;align-items:flex-end;
+}
+.db-title{color:var(--bone);font-weight:700}
+.db-counter{
+  position:absolute;top:clamp(8px,1vh,14px);right:clamp(8px,1vw,16px);
+  z-index:3;font-family:"Cinzel",serif;font-size:clamp(8px,.9vw,14px);
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(236,230,214,.7);
+  background:rgba(0,0,0,.55);border:1px solid rgba(236,230,214,.16);
+  border-radius:999px;padding:.28em .7em;
+}
+.db-empty{
+  flex:1 1 auto;display:flex;align-items:center;justify-content:center;text-align:center;
+  border:1px dashed var(--rule);border-radius:6px;
+  font-family:"EB Garamond",serif;font-style:italic;
+  font-size:clamp(18px,2.4vw,40px);color:var(--bone-faint);
+  padding:1.5em;
+}
+.db-fade{animation:dbFade .55s ease}
+@keyframes dbFade{from{opacity:.12;filter:blur(12px) brightness(.55);transform:scale(1.015)}to{opacity:1;filter:none;transform:none}}
+
+
 /* ══════════════════════════════════════════════════════════════════════
    LANDSCAPE LAYOUT — activated by ?landscape=1 in the URL.
    Transforms the portrait board into a widescreen cinematic display.
@@ -1643,6 +1696,13 @@ const MODES = {
     rooms:[ {key:"cinema", name:"The Cinema", match:/.*/} ],
     source:{kind:"cinema"}   // reads CONFIG.CINEMA_API (manager entries), enriched via TMDB
   },
+  display: {
+    label:"Display Board", eyebrow:"The Banshee Labyrinth", title:"Display Board",
+    foot:"Poster display · live from What’s On",
+    testDefault:"2026-06-11T20:00", layout:"display", keepAllDay:true,
+    rooms:[],
+    source:{kind:"cinema"}   // reads the same manager entries and shows rows marked Poster / Display Board
+  },
   prices: {
     label:"Prices", eyebrow:"The Banshee Labyrinth · Bar", title:"RIP Members' Prices",
     foot:"Members' prices",
@@ -1696,7 +1756,21 @@ const SAMPLE_CINEMA = [
 const params = new URLSearchParams(location.search);
 const IS_LANDSCAPE = params.get("landscape") === "1";
 if(IS_LANDSCAPE) document.body.classList.add("landscape");
-const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
+const MODE_ALIASES = {
+  "displayboard":"display",
+  "display-board":"display",
+  "display_board":"display",
+  "display board":"display",
+  "poster":"display",
+  "posters":"display",
+  "board":"display"
+};
+function normaliseModeKey(k){
+  k = String(k||"").trim().toLowerCase();
+  return MODE_ALIASES[k] || k;
+}
+const requestedMode = normaliseModeKey(params.get("mode"));
+const initMode = (requestedMode in MODES) ? requestedMode : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
 const state = {
   mode: initMode,
@@ -1709,6 +1783,8 @@ const state = {
   _cinemaSig: "",
   _tonightSig: "",   // flash guard for renderTonight
   _pricesSig: "",    // flash guard for renderPrices
+  _displaySig: "",   // flash guard for renderDisplayBoard
+  _displayTimer: null,
   dataStatus: "loading", // loading | live | sample | stub | error
   lastKey: "",
 };
@@ -1998,6 +2074,7 @@ function gviz(id,tab){
 }
 async function loadData(){
   const mode=MODES[state.mode], src=mode.source;
+  if(mode.layout!=="display" && state._displayTimer){ clearInterval(state._displayTimer); state._displayTimer=null; state._displaySig=""; }
   setStatus("Loading…"); state.dataStatus="loading"; paintSrc();
 
   if(src.kind==="stub"){
@@ -2105,6 +2182,7 @@ function render(){
   document.getElementById("clock").innerHTML = validDate ? fmtClock(now.date) : "--<span class='c'>:</span>--";
 
   if(mode.layout==="cinema"){ renderCinema(now, validDate); return; }
+  if(mode.layout==="display"){ renderDisplayBoard(now, validDate); return; }
   if(mode.layout==="tonight"){ renderTonight(now, validDate); return; }
   if(mode.layout==="prices"){ renderPrices(); return; }
 
@@ -2483,6 +2561,121 @@ function buildCinBar(){
       <div class="cb-items">${S.map(row).join("")}</div>
     </div>
   </div>`;
+}
+
+
+/* =====================================================================
+   DISPLAY BOARD  — poster-only display from the What’s On manager sheet.
+   The manager can save image URLs; this board finds rows marked Poster /
+   Display Board and fills the screen with the uploaded artwork.
+   ===================================================================== */
+function toDirectImageUrl(url){
+  if(!url) return "";
+  url = String(url).trim();
+  if(!url) return "";
+  const gdFile = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/i);
+  if(gdFile) return `https://drive.google.com/thumbnail?id=${gdFile[1]}&sz=w1920`;
+  const gdOpen = url.match(/drive\.google\.com\/open\?id=([^&#]+)/i);
+  if(gdOpen) return `https://drive.google.com/thumbnail?id=${gdOpen[1]}&sz=w1920`;
+  const gdUc = url.match(/drive\.google\.com\/uc\?[^#]*id=([^&#]+)/i);
+  if(gdUc) return `https://drive.google.com/thumbnail?id=${gdUc[1]}&sz=w1920`;
+  if(/dropbox\.com/i.test(url)){
+    return url.replace(/[?&](dl|raw)=\d/ig,"") + (url.includes("?") ? "&raw=1" : "?raw=1");
+  }
+  return url;
+}
+function looksLikeImageUrl(url){
+  if(!url) return false;
+  url = String(url).trim();
+  return /\.(png|jpe?g|gif|webp|avif|svg)(\?|#|$)/i.test(url)
+    || /drive\.google\.com|dropbox\.com|onedrive\.live\.com|1drv\.ms|imgur\.com|cloudinary\.com|googleusercontent\.com/i.test(url);
+}
+function posterUrlFromRow(row){
+  const imageFields = ["image","poster","posterUrl","poster_url","imageUrl","image_url","img","photo","picture","artwork"];
+  for(const k of imageFields){
+    if(row[k] && looksLikeImageUrl(row[k])) return toDirectImageUrl(row[k]);
+  }
+
+  const hay = [row.type,row.kind,row.category,row.board,row.page,row.title,row.name]
+    .map(v=>String(v||"")).join(" ");
+  const markedPoster = /\b(poster|posters|display\s*board|display-board|advert|advertisement|ad board|screen)\b/i.test(hay);
+
+  if(markedPoster){
+    const linkFields = ["url","link","href","src"];
+    for(const k of linkFields){
+      if(row[k]) return toDirectImageUrl(row[k]);
+    }
+  }
+  return "";
+}
+function collectDisplayPosters(now){
+  const today = isoDate(now);
+  const rows = Array.isArray(state.cinema) ? state.cinema : [];
+  return rows.map((r,idx)=>{
+    const src = posterUrlFromRow(r);
+    if(!src) return null;
+
+    const hay = [r.type,r.kind,r.category,r.board,r.page,r.title,r.name]
+      .map(v=>String(v||"")).join(" ");
+    const markedPoster = /\b(poster|posters|display\s*board|display-board|advert|advertisement|ad board|screen)\b/i.test(hay);
+
+    // Keep this board poster-only. A normal cinema film with a TMDB/booking URL
+    // should not accidentally become a poster slide.
+    if(!markedPoster && (r.title || r.year || r.cert || r.time)) return null;
+
+    const d = normDate(r.date || r.startDate || r.start_date || "");
+    if(d && d < today) return null;
+
+    return {
+      src,
+      title: String(r.blurb || r.caption || r.name || r.title || "Poster").trim(),
+      date: d || "",
+      idx
+    };
+  }).filter(Boolean);
+}
+function renderDisplayBoard(now, validDate){
+  const wrap=document.getElementById("rooms");
+  if(!validDate){ wrap.innerHTML=`<div class="db-empty">Choose a date to show poster artwork.</div>`; state._displaySig=""; return; }
+
+  const items=collectDisplayPosters(now);
+  const perPage=IS_LANDSCAPE ? 2 : 1;
+  const sig="display|"+(IS_LANDSCAPE?"landscape":"portrait")+"|"+items.map(x=>x.src+"|"+x.title+"|"+x.date).join("||");
+
+  if(sig===state._displaySig && wrap.querySelector(".db-stage")) return;
+  state._displaySig=sig;
+  if(state._displayTimer){ clearInterval(state._displayTimer); state._displayTimer=null; }
+
+  if(!items.length){
+    wrap.innerHTML=`<div class="db-empty">No poster URLs found yet.<br>Add a What’s On row marked “Poster” or “Display Board”, with the image URL saved in the image/poster/url field.</div>`;
+    return;
+  }
+
+  let page=0;
+  function draw(){
+    const count = Math.min(perPage, items.length);
+    const cells=[];
+    for(let i=0;i<count;i++){
+      const it=items[(page+i)%items.length];
+      const label = items.length>1 ? `${((page+i)%items.length)+1} / ${items.length}` : "Poster";
+      const cap = it.title && !/^\s*poster\s*$/i.test(it.title)
+        ? `<div class="db-caption"><span class="db-title">${esc(it.title)}</span><span>${esc(label)}</span></div>`
+        : `<div class="db-counter">${esc(label)}</div>`;
+      cells.push(`<div class="db-media db-fade">
+        <img class="db-img" src="${esc(it.src)}" alt="" onerror="this.closest('.db-media').innerHTML='<div class=&quot;db-empty&quot;>Poster image could not load</div>'">
+        ${cap}
+      </div>`);
+    }
+    wrap.innerHTML=`<div class="db-stage">${cells.join("")}</div>`;
+  }
+  draw();
+
+  if(items.length>perPage){
+    state._displayTimer=setInterval(()=>{
+      page=(page+perPage)%items.length;
+      draw();
+    }, 12000);
+  }
 }
 
 async function renderCinema(now, validDate){
@@ -3025,12 +3218,12 @@ const SHOW = (function(){
   // each board token may carry its own dwell: "cinema:20"
   const perSecs = {};
   let seq = (params.get("boards")||"").split(",").map(s=>s.trim()).filter(Boolean)
-    .map(tok=>{ const [k,s]=tok.split(":"); const n=parseFloat(s); if(!isNaN(n)&&n>0) perSecs[k.trim()]=n; return k.trim(); })
+    .map(tok=>{ const [raw,s]=tok.split(":"); const k=normaliseModeKey(raw); const n=parseFloat(s); if(!isNaN(n)&&n>0) perSecs[k]=n; return k; })
     .filter(k=> k in MODES);
-  if(!seq.length) seq = ["normal","cinema","prices"];
+  if(!seq.length) seq = ["normal","cinema","display","prices"];
   const u = parseFloat(params.get("secs"));
   const uniform = (!isNaN(u) && u>0) ? u : null;   // a global ?secs= wins over per-board
-  const DEF = { fringe:22, normal:18, gigs:18, cinema:20, prices:14 };  // per-board defaults
+  const DEF = { fringe:22, normal:18, gigs:18, cinema:20, display:18, prices:14 };  // per-board defaults
   // Default to random horror transitions. Use ?fx=1..10 to force one style, or ?fx=0 for random.
   const fxVal = params.has("fx") ? parseInt(params.get("fx"), 10) : 0;
   return { on, seq, idx:0, timer:null, paused:false, fx:Number.isFinite(fxVal) ? fxVal : 0,
