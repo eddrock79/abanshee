@@ -1637,7 +1637,7 @@ const MODES = {
     source:{kind:"gcal", sheetId:CONFIG.GIGS_SHEET_ID, tab:CONFIG.GIGS_TAB, calMatch:/mollys chamber|stage bar/i}
   },
   cinema: {
-    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"Tonight's Movies",
+    label:"Cinema", eyebrow:"The Banshee Labyrinth · Cinema", title:"Tonight in our Cinema",
     foot:"Free cinema · Cinema 1",
     testDefault:"2026-06-11T20:00", layout:"cinema", keepAllDay:true,
     rooms:[ {key:"cinema", name:"The Cinema", match:/.*/} ],
@@ -2392,7 +2392,7 @@ function renderCinemaPromo(wrap){
       img: cinImg,
       illus: "🎬",
       eyebrow: "The Banshee Labyrinth · Free Cinema",
-      title: "Tonight's Movies",
+      title: "Tonight in our Cinema",
       sub: "Watch horror classics and cult films underground in Edinburgh's haunted vaults. Pop in to see what's on, or book the cinema for your own private screening — completely free.",
       tag: "Available 7:00 PM – 2:30 AM · 18+ Only"
     })}
@@ -2695,7 +2695,7 @@ async function renderTonight(now, validDate){
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
-  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>Tonight's Movies<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
+  csec.innerHTML=`<header class="t-head"><span class="t-glyph">▦</span>Tonight in our Cinema<span class="t-line"></span></header><div class="t-cine-body" id="tCineBody"><div class="t-empty">Checking…</div></div>`;
   container.appendChild(csec);
   wrap.appendChild(container);
 
