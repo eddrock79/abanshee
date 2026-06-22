@@ -201,6 +201,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
         <label>Poster image URL <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">optional — paste a Google Drive share link</span></label>
         <input type="text" id="pb_image" placeholder="https://drive.google.com/file/d/…/view" autocomplete="off">
       </div>
+      <div class="field">
+        <label>Event / booking URL <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">optional — makes this a public event on the board</span></label>
+        <input type="text" id="pb_url" placeholder="https://tickets.example.com/…" autocomplete="off">
+      </div>
       <div class="btn-row">
         <button class="btn teal-btn" onclick="saveBooking()">Add booking slot</button>
       </div>
@@ -376,17 +380,18 @@ async function saveBooking(){
   const duration=$("pb_duration").value.trim();
   const note=$("pb_note").value.trim();
   const image=$("pb_image").value.trim();
+  const url=$("pb_url").value.trim();
   if(!date){ flash("pbMsg","Pick a date first.",true); return; }
   if(!time){ flash("pbMsg","Add a start time — it shows on the board.",true); return; }
   const rec={ action:"save", pin:CINEMA_WRITE_KEY, by:"manager",
-    date, time, title:"PRIVATE BOOKING", year:"", cert:duration, blurb:note||"", image:image||"" };
+    date, time, title:"PRIVATE BOOKING", year:"", cert:duration, blurb:note||"", image:image||"", url:url||"" };
   flash("pbMsg","Saving…");
   try{
     const r=await fetch(CINEMA_API,{method:"POST",body:JSON.stringify(rec)});
     const j=await r.json();
     if(j.ok){
       flash("pbMsg","Booking slot added ✓ — showing "+time+(duration?" · "+duration:"")+" on the board.","ok");
-      $("pb_time").value=""; $("pb_duration").value=""; $("pb_note").value=""; $("pb_image").value="";
+      $("pb_time").value=""; $("pb_duration").value=""; $("pb_note").value=""; $("pb_image").value=""; $("pb_url").value="";
       loadEntries();
     } else { flash("pbMsg","Save failed: "+(j.error||"unknown"),true); }
   }catch(e){ flash("pbMsg","Save failed: "+e.message,true); }

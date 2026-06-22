@@ -926,7 +926,7 @@ input:disabled{opacity:.4}
 .cinema .cmeta{display:flex;gap:clamp(8px,1.4vw,16px);align-items:center;flex-wrap:wrap;justify-content:center;
   font-family:"Cinzel",serif;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(11px,1.3vw,22px)}
 .cinema .ctime{color:var(--spectre);font-weight:700}
-.cinema .cwhen{color:var(--spectre);font-weight:700}
+.cinema .cwhen{color:var(--spectre);font-weight:700;font-size:clamp(20px,2.8vw,44px)}
 .cinema .cert{border:1px solid var(--ember);color:#ffb9ab;border-radius:3px;padding:.1em .5em;font-weight:600}
 .cinema .cyear,.cinema .cruntime{color:var(--bone-faint)}
 .cinema .cname{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;
@@ -944,6 +944,13 @@ input:disabled{opacity:.4}
 @keyframes reelKen{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.14) translate(-2.5%,-1.5%)}}
 .cinema .later{margin-top:12px;font-family:"Cinzel",serif;font-size:clamp(10px,1.1vw,18px);
   letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint)}
+/* private booking: large blurb text when no URL */
+.cinema .cprivate-blurb{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;
+  font-size:clamp(22px,3.5vw,56px);line-height:1.15;color:var(--spectre);text-align:center;
+  margin-top:clamp(8px,1.2vh,16px)}
+/* private booking: URL line underneath event name */
+.cinema .cbooking-url{font-family:"EB Garamond",serif;font-size:clamp(12px,1.4vw,22px);
+  color:var(--bone-dim);word-break:break-all;text-align:center;margin-top:clamp(6px,1vh,14px)}
 /* ---- Up Next / Later banners ---- */
 .cinema .upnext{flex:0 0 auto;width:min(94vw,820px);margin-top:clamp(8px,1.6vh,18px);padding-top:clamp(8px,1.4vh,16px);
   border-top:1px solid var(--rule)}
@@ -1011,7 +1018,7 @@ input:disabled{opacity:.4}
 .csp-panel{
   flex:1 1 0;min-height:0;
   border-radius:8px;overflow:hidden;
-  background:#1a0a1a center/cover no-repeat;
+  background-color:#1a0a1a;background-size:contain;background-repeat:no-repeat;background-position:center;
 }
 
 /* ── Stacked promo: portrait shows BOTH adverts simultaneously ──
@@ -1679,8 +1686,8 @@ const SAMPLE_GIGS_ROWS = [
 /* Sample cinema entries (what the manager page will write), used as fallback
    until CONFIG.CINEMA_API points at your deployed Apps Script. Dates are ISO. */
 const SAMPLE_CINEMA = [
- { id:"s1", date:"2026-06-07", time:"20:00", title:"The Wicker Man", year:"1973", cert:"15", blurb:"" },
- { id:"s2", date:"2026-06-11", time:"20:00", title:"Hereditary",     year:"2018", cert:"15", blurb:"" },
+ { id:"s1", date:"2026-06-07", time:"20:00", title:"The Wicker Man", year:"1973", cert:"15", blurb:"", url:"", link:"", image:"" },
+ { id:"s2", date:"2026-06-11", time:"20:00", title:"Hereditary",     year:"2018", cert:"15", blurb:"", url:"", link:"", image:"" },
 ];
 
 /* =====================================================================
@@ -2296,6 +2303,16 @@ function normDate(s){ // accept ISO, DD/MM/YYYY, or a Sheets date-object/timesta
   return s;
 }
 function parseClock(s){ const m=String(s||"").match(/(\d{1,2}):(\d{2})/); return m?(+m[1])*60+(+m[2]):null; }
+/* cleanTime — normalise any time value to "HH:MM" or "".
+   Handles: "20:00", "Sat Dec 30 1899 20:00:00 GMT+0000", Date objects, blanks. */
+function cleanTime(s){
+  if(!s) return "";
+  if(s instanceof Date && !isNaN(s)) return ("0"+s.getHours()).slice(-2)+":"+("0"+s.getMinutes()).slice(-2);
+  s=String(s).trim();
+  const m=s.match(/(\d{1,2}):(\d{2})/);
+  if(m) return ("0"+m[1]).slice(-2)+":"+m[2];
+  return "";
+}
 function clockLabel(mins){ if(mins==null) return ""; mins=((Math.round(mins)%1440)+1440)%1440; return `${String(Math.floor(mins/60)).padStart(2,"0")}:${String(mins%60).padStart(2,"0")}`; }
 function gigDateLabel(s, now){
   const d=new Date(s.y, s.mo-1, s.day), today=new Date(now.y, now.mo-1, now.day);
@@ -2479,12 +2496,23 @@ async function renderCinema(now, validDate){
 
   const film=films[0], data=film._tmdb||{};
   const runtimeTxt=data.runtime?`${Math.floor(data.runtime/60)}h ${data.runtime%60}m`:"";
-  const whenTxt=cinemaDateLabel(film._date, now);
-  // time intentionally omitted per venue preference
+  const timeTxt=cleanTime(film.time);
+  const whenTxt=cinemaDateLabel(film._date, now) + (timeTxt ? " · " + timeTxt : "");
   const overview=(film.blurb&&film.blurb.trim())?film.blurb:data.overview;
 
-  // Private Booking image handling — portrait only; landscape always uses standard poster/backdrops
-  const isPrivate=!IS_LANDSCAPE && /^\s*private\s+booking\s*$/i.test(film.title);
+  // Private Booking detection + URL awareness
+  const isPrivate=/^\s*private\s+booking\s*$/i.test(film.title);
+  const hasUrl=!!((film.url||film.link||"").trim());
+  // PRIVATE BOOKING + URL → show blurb as title; PRIVATE BOOKING + no URL → show "PRIVATE BOOKING"
+  const displayTitle=isPrivate
+    ? (hasUrl ? (film.blurb||film.title) : film.title)
+    : (data.title||film.title);
+  // For private bookings, blurb is either used as title (has URL) or shown as big subtitle (no URL)
+  const privateBlurb=isPrivate && !hasUrl ? (film.blurb||"") : "";
+  // For private bookings with URL, show the URL line
+  const privateUrl=isPrivate && hasUrl ? (film.url||film.link||"") : "";
+  // Don't show cert for private bookings (it contains duration like "1:20", not a film rating)
+  const showCert=!isPrivate && film.cert;
   function toDirectImg(url){
     if(!url) return "";
     url=url.trim();
@@ -2505,11 +2533,18 @@ async function renderCinema(now, validDate){
     ? `<div class="reel${reelFallback?" reel-poster-fallback":""}">${reelImgs.map((u,i)=>`<img src="${esc(u)}" alt=""${i===0?' class="active"':''}>` ).join("")}</div>`
     : "";
 
-  // Up Next cards — poster column + backdrop area for each
+  // Up Next cards — exclude private bookings without a public URL
   const labels=["Up Next","Later"];
-  const upNext=films.slice(1,3).map((f,i)=>{
+  const upNextPool=films.slice(1).filter(f=>{
+    const fp=/^\s*private\s+booking\s*$/i.test(f.title);
+    return !fp || !!((f.url||f.link||"").trim());
+  });
+  const upNext=upNextPool.slice(0,2).map((f,i)=>{
     const d=f._tmdb||{};
     const when=cinemaDateLabel(f._date,now);
+    const fPrivate=/^\s*private\s+booking\s*$/i.test(f.title);
+    const fHasUrl=!!((f.url||f.link||"").trim());
+    const cardTitle=fPrivate && fHasUrl ? (f.blurb||f.title) : (d.title||f.title);
     const posterHTML=d.poster
       ? `<img class="un-poster" src="${esc(d.poster)}" alt="">`
       : `<div class="un-poster un-nopost">▦</div>`;
@@ -2521,7 +2556,7 @@ async function renderCinema(now, validDate){
         ${backImgs}
         <div class="un-overlay">
           <div class="un-label2">${labels[i]}</div>
-          <div class="un-title">${esc(d.title||f.title)}</div>
+          <div class="un-title">${esc(cardTitle)}</div>
           <div class="un-when">${esc(when)}</div>
         </div>
       </div></div>`;
@@ -2530,13 +2565,15 @@ async function renderCinema(now, validDate){
 
   if(IS_LANDSCAPE){
     // ── LANDSCAPE: poster left (2:3) + backdrop right with text overlay ──
+    const lsOverview = isPrivate ? "" : overview;
+    const lsPosterSrc = isPrivate ? toDirectImg(film.image||"") : data.poster;
     wrap.innerHTML=`
     <div class="cinema"><div class="cinema-land-inner">
       <div class="cine-section">
         <div class="cinmain">
           <div class="ci-ls-left">
             <div class="poster">
-              ${data.poster?`<img src="${esc(data.poster)}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+              ${lsPosterSrc?`<img src="${esc(lsPosterSrc)}" alt="">`:`<div class="noposter">${esc(displayTitle)}</div>`}
             </div>
           </div>
           <div class="ci-ls-right">
@@ -2544,12 +2581,14 @@ async function renderCinema(now, validDate){
             <div class="cinfo">
               <div class="cmeta">
                 <span class="cwhen">${esc(whenTxt)}</span>
-                ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-                ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-                ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+                ${showCert?`<span class="cert">${esc(film.cert)}</span>`:""}
+                ${(!isPrivate&&data.year)?`<span class="cyear">${esc(data.year)}</span>`:""}
+                ${(!isPrivate&&runtimeTxt)?`<span class="cruntime">${runtimeTxt}</span>`:""}
               </div>
-              <h2 class="cname">${esc(data.title||film.title)}</h2>
-              ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+              <h2 class="cname">${esc(displayTitle)}</h2>
+              ${privateBlurb?`<div class="cprivate-blurb">${esc(privateBlurb)}</div>`:""}
+              ${privateUrl?`<div class="cbooking-url">${esc(privateUrl)}</div>`:""}
+              ${lsOverview?`<p class="coverview">${esc(lsOverview)}</p>`:""}
             </div>
           </div>
         </div>
@@ -2558,21 +2597,25 @@ async function renderCinema(now, validDate){
     </div></div>`;
   } else {
     // ── PORTRAIT: original vertical layout with private booking support ──
+    // For private bookings, don't repeat blurb as both title and overview
+    const displayOverview = isPrivate ? "" : overview;
     wrap.innerHTML=`
     <div class="cinema">
       <div class="cinmain">
         ${showPoster?`<div class="poster">
-          ${posterSrc?`<img src="${posterSrc}" alt="">`:`<div class="noposter">${esc(data.title||film.title)}</div>`}
+          ${posterSrc?`<img src="${posterSrc}" alt="">`:`<div class="noposter">${esc(displayTitle)}</div>`}
         </div>`:""}
         <div class="cinfo">
           <div class="cmeta">
             <span class="cwhen">${esc(whenTxt)}</span>
-            ${film.cert?`<span class="cert">${esc(film.cert)}</span>`:""}
-            ${data.year?`<span class="cyear">${esc(data.year)}</span>`:""}
-            ${runtimeTxt?`<span class="cruntime">${runtimeTxt}</span>`:""}
+            ${showCert?`<span class="cert">${esc(film.cert)}</span>`:""}
+            ${(!isPrivate&&data.year)?`<span class="cyear">${esc(data.year)}</span>`:""}
+            ${(!isPrivate&&runtimeTxt)?`<span class="cruntime">${runtimeTxt}</span>`:""}
           </div>
-          <h2 class="cname">${esc(isPrivate?film.title:(data.title||film.title))}</h2>
-          ${overview?`<p class="coverview">${esc(overview)}</p>`:""}
+          <h2 class="cname">${esc(displayTitle)}</h2>
+          ${privateBlurb?`<div class="cprivate-blurb">${esc(privateBlurb)}</div>`:""}
+          ${privateUrl?`<div class="cbooking-url">${esc(privateUrl)}</div>`:""}
+          ${displayOverview?`<p class="coverview">${esc(displayOverview)}</p>`:""}
           ${reel}
         </div>
         ${upnextHTML}
