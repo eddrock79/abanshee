@@ -1,66 +1,6 @@
 {
-  "generated": "2026-06-29T12:43:22",
+  "generated": "2026-07-06T08:00:10",
   "events": [
-    {
-      "date": "2026-06-29",
-      "room": "Cinema",
-      "what": "EDINBURGH B-TEAM 19:00-23:00"
-    },
-    {
-      "date": "2026-06-30",
-      "room": "Chamber Room",
-      "what": "KARAOKE 19:00-02:45\nPrivate Booking 19:00-22:00"
-    },
-    {
-      "date": "2026-06-30",
-      "room": "Cinema",
-      "what": "Booking 19:00-00:00"
-    },
-    {
-      "date": "2026-07-01",
-      "room": "Chamber Room",
-      "what": "TAKE THE STAGE"
-    },
-    {
-      "date": "2026-07-01",
-      "room": "Cinema",
-      "what": "Skeptics 19:00-21:00"
-    },
-    {
-      "date": "2026-07-02",
-      "room": "Bar 13",
-      "what": "LARP EVENT - MAUSOLEUM"
-    },
-    {
-      "date": "2026-07-02",
-      "room": "Chamber Room",
-      "what": "LARP EVENT - MAUSOLEUM"
-    },
-    {
-      "date": "2026-07-03",
-      "room": "Chamber Room",
-      "what": "Deadwave Records\nDJ LUKE 23:00-02:45"
-    },
-    {
-      "date": "2026-07-03",
-      "room": "Cinema",
-      "what": "Clowns 19:00-22:00"
-    },
-    {
-      "date": "2026-07-04",
-      "room": "Chamber Room",
-      "what": "Girl Germs DJ Set\nKurnel Fist + Indica + Acidsaurus Bong"
-    },
-    {
-      "date": "2026-07-04",
-      "room": "Cinema",
-      "what": "Black Sabbath 01:00-02:00\nEDINBURGH HORROR FESTIVAL"
-    },
-    {
-      "date": "2026-07-05",
-      "room": "Chamber Room",
-      "what": "KARAOKE 23:00-02:30"
-    },
     {
       "date": "2026-07-06",
       "room": "Chamber Room",
@@ -130,6 +70,76 @@
       "date": "2026-07-12",
       "room": "Chamber Room",
       "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-07-13",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-07-14",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-07-14",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-15",
+      "room": "Chamber Room",
+      "what": "Booking + Open Mic"
+    },
+    {
+      "date": "2026-07-15",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-16",
+      "room": "Chamber Room",
+      "what": "Wildcard"
+    },
+    {
+      "date": "2026-07-16",
+      "room": "Cinema",
+      "what": "Braw"
+    },
+    {
+      "date": "2026-07-17",
+      "room": "Chamber Room",
+      "what": "Gig + DJ Gale"
+    },
+    {
+      "date": "2026-07-17",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-17",
+      "room": "Other",
+      "what": "Maja's Last Day :("
+    },
+    {
+      "date": "2026-07-18",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-07-18",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-19",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-07-19",
+      "room": "Cinema",
+      "what": "Booking"
     }
   ]
 }
