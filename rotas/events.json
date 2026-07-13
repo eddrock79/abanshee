@@ -1,76 +1,6 @@
 {
-  "generated": "2026-07-10T08:00:18",
+  "generated": "2026-07-13T08:00:08",
   "events": [
-    {
-      "date": "2026-07-06",
-      "room": "Chamber Room",
-      "what": "Magic Test show"
-    },
-    {
-      "date": "2026-07-06",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-07-06",
-      "room": "Other",
-      "what": "Stock count"
-    },
-    {
-      "date": "2026-07-07",
-      "room": "Chamber Room",
-      "what": "Karaoke - Gig"
-    },
-    {
-      "date": "2026-07-07",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-08",
-      "room": "Chamber Room",
-      "what": "Open Mic"
-    },
-    {
-      "date": "2026-07-08",
-      "room": "Cinema",
-      "what": "Improv"
-    },
-    {
-      "date": "2026-07-09",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-07-10",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-10",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-07-10",
-      "room": "Cinema",
-      "what": "Booking 9pm"
-    },
-    {
-      "date": "2026-07-11",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-07-11",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-12",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
     {
       "date": "2026-07-13",
       "room": "Cinema",
@@ -140,6 +70,66 @@
       "date": "2026-07-19",
       "room": "Cinema",
       "what": "Booking"
+    },
+    {
+      "date": "2026-07-20",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-07-21",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-07-21",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-22",
+      "room": "Chamber Room",
+      "what": "Open Mic"
+    },
+    {
+      "date": "2026-07-22",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-23",
+      "room": "Chamber Room",
+      "what": "Gig"
+    },
+    {
+      "date": "2026-07-23",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-24",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-07-24",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-25",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-07-25",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-26",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
     }
   ]
 }
