@@ -1,76 +1,6 @@
 {
-  "generated": "2026-07-13T08:00:08",
+  "generated": "2026-07-20T08:00:09",
   "events": [
-    {
-      "date": "2026-07-13",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-07-14",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-07-14",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-15",
-      "room": "Chamber Room",
-      "what": "Booking + Open Mic"
-    },
-    {
-      "date": "2026-07-15",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-16",
-      "room": "Chamber Room",
-      "what": "Wildcard"
-    },
-    {
-      "date": "2026-07-16",
-      "room": "Cinema",
-      "what": "Braw"
-    },
-    {
-      "date": "2026-07-17",
-      "room": "Chamber Room",
-      "what": "Gig + DJ Gale"
-    },
-    {
-      "date": "2026-07-17",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-17",
-      "room": "Other",
-      "what": "Maja's Last Day :("
-    },
-    {
-      "date": "2026-07-18",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-07-18",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-19",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
-    {
-      "date": "2026-07-19",
-      "room": "Cinema",
-      "what": "Booking"
-    },
     {
       "date": "2026-07-20",
       "room": "Cinema",
@@ -128,6 +58,71 @@
     },
     {
       "date": "2026-07-26",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-07-27",
+      "room": "Cinema",
+      "what": "B-team"
+    },
+    {
+      "date": "2026-07-27",
+      "room": "Other",
+      "what": "Staff meeting (Management - 4pm / Staff - 5pm)"
+    },
+    {
+      "date": "2026-07-28",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-07-28",
+      "room": "Cinema",
+      "what": "Anime Soc"
+    },
+    {
+      "date": "2026-07-29",
+      "room": "Chamber Room",
+      "what": "Open Mic"
+    },
+    {
+      "date": "2026-07-29",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-30",
+      "room": "Chamber Room",
+      "what": "Goblinsmoker"
+    },
+    {
+      "date": "2026-07-30",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-07-31",
+      "room": "Chamber Room",
+      "what": "Gig + Luke"
+    },
+    {
+      "date": "2026-07-31",
+      "room": "Cinema",
+      "what": "Improv"
+    },
+    {
+      "date": "2026-08-01",
+      "room": "Chamber Room",
+      "what": "Gig + DJ"
+    },
+    {
+      "date": "2026-08-01",
+      "room": "Cinema",
+      "what": "EHF"
+    },
+    {
+      "date": "2026-08-02",
       "room": "Chamber Room",
       "what": "Gig + Karaoke"
     }
