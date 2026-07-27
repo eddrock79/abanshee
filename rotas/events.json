@@ -1,66 +1,6 @@
 {
-  "generated": "2026-07-20T08:00:09",
+  "generated": "2026-07-27T08:00:08",
   "events": [
-    {
-      "date": "2026-07-20",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-07-21",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-07-21",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-22",
-      "room": "Chamber Room",
-      "what": "Open Mic"
-    },
-    {
-      "date": "2026-07-22",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-23",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-07-23",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-24",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-07-24",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-25",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-07-25",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-26",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
     {
       "date": "2026-07-27",
       "room": "Cinema",
@@ -125,6 +65,26 @@
       "date": "2026-08-02",
       "room": "Chamber Room",
       "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-08-06",
+      "room": "Other",
+      "what": "Staff tech day"
+    },
+    {
+      "date": "2026-08-07",
+      "room": "Other",
+      "what": "Fringe get in day"
+    },
+    {
+      "date": "2026-08-08",
+      "room": "Other",
+      "what": "Fringe starts"
+    },
+    {
+      "date": "2026-08-09",
+      "room": "Other",
+      "what": "Hannah's Last shift"
     }
   ]
 }
