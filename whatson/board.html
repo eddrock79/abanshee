@@ -1616,16 +1616,16 @@ const CONFIG = {
   PRICES: {
     note:"",
     items:[
-      {name:"Tennent's",      price:"5.00"},
-      {name:"Strongbow",      price:"5.00"},
-      {name:"Red Stripe",     price:"4.70", price2:"5.20", note:"two sizes"},
-      {name:"Vodka + Mixer",  price:"4.70"},
-      {name:"JD + Mixer",     price:"5.20"},
-      {name:"VK",             price:"3.70"},
-      {name:"Jägermeister",   price:"3.20"},
-      {name:"Jäger Bomb",     price:"3.70"},
-      {name:"Fireball",       price:"3.20"},
-      {name:"Red Bull",       price:"3.40"},
+      {name:"Tennent's",      price:"5.50"},
+      {name:"Strongbow",      price:"5.50"},
+      {name:"Red Stripe",     price:"5.00", price2:"5.50", note:"two sizes"},
+      {name:"Vodka + Mixer",  price:"5.00"},
+      {name:"JD + Mixer",     price:"6.00"},
+      {name:"VK",             price:"4.00"},
+      {name:"Jägermeister",   price:"3.50"},
+      {name:"Jäger Bomb",     price:"4.500"},
+      {name:"Fireball",       price:"3.50"},
+      {name:"Red Bull",       price:"3.90"},
     ]
   },
 
@@ -1639,7 +1639,7 @@ const CONFIG = {
   CINEMA_PROMO_IMG: "https://drive.google.com/thumbnail?id=12JcpsDu7KHGLkTscvPpvaRiKUmNpgXHq&sz=w1920",
   CAVE_PROMO_IMG:  "https://drive.google.com/thumbnail?id=1lNlTK2OT23p9jnfDQC34h-cyOuRMYT5y&sz=w1920",
 
-  COCKTAIL_PRICE:"7.50", COCKTAIL_PITCHER:"19",
+  COCKTAIL_PRICE:"8.50", COCKTAIL_PITCHER:"22",
   COCKTAILS:[
     {name:"Devil's Candy",       ing:"JD, Amaretto & Pepsi",                          glyph:"flame"},
     {name:"Zombie",              ing:"Peach Schnapps, Vodka, OJ & Cranberry",         glyph:"skull-sway"},
@@ -1650,7 +1650,7 @@ const CONFIG = {
     {name:"Tsunami",             ing:"Blue Curaçao, Cherry Sours, Lemonade & Cranberry", glyph:"wave"},
     {name:"Ghostbuster",         ing:"Baileys, Amaretto, Kahlua, Vodka, Choc & Milk", glyph:"ghost"},
   ],
-  SHOOTER_PRICE:"3.75",
+  SHOOTER_PRICE:"4.25",
   SHOOTERS:[
     {name:"Blackdeath",          ing:"Absinthe, Tequila, Black Sambuca, Aftershock",  glyph:"skull-bones"},
     {name:"Flatliner",           ing:"White Sambuca, Tequila & Tabasco",              glyph:"syringe"},
@@ -2384,7 +2384,7 @@ function renderPrices(){
   state._pricesSig=sig;
 
   let html=`<div class="prices">`;
-  html+=`<div class="pr-member-card">💀 Member Cards <span class="pr-mc-price">£2</span></div>`;
+  html+=`<div class="pr-member-card">💀 Member Cards <span class="pr-mc-price">£4</span></div>`;
   if(note) html+=`<div class="pr-note">${esc(note)}</div>`;
   html+=`<div class="pr-list">`;
   if(!items.length){
