@@ -1,71 +1,6 @@
 {
-  "generated": "2026-07-27T08:00:08",
+  "generated": "2026-08-03T08:00:10",
   "events": [
-    {
-      "date": "2026-07-27",
-      "room": "Cinema",
-      "what": "B-team"
-    },
-    {
-      "date": "2026-07-27",
-      "room": "Other",
-      "what": "Staff meeting (Management - 4pm / Staff - 5pm)"
-    },
-    {
-      "date": "2026-07-28",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-07-28",
-      "room": "Cinema",
-      "what": "Anime Soc"
-    },
-    {
-      "date": "2026-07-29",
-      "room": "Chamber Room",
-      "what": "Open Mic"
-    },
-    {
-      "date": "2026-07-29",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-30",
-      "room": "Chamber Room",
-      "what": "Goblinsmoker"
-    },
-    {
-      "date": "2026-07-30",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-07-31",
-      "room": "Chamber Room",
-      "what": "Gig + Luke"
-    },
-    {
-      "date": "2026-07-31",
-      "room": "Cinema",
-      "what": "Improv"
-    },
-    {
-      "date": "2026-08-01",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-08-01",
-      "room": "Cinema",
-      "what": "EHF"
-    },
-    {
-      "date": "2026-08-02",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
     {
       "date": "2026-08-06",
       "room": "Other",
@@ -85,6 +20,21 @@
       "date": "2026-08-09",
       "room": "Other",
       "what": "Hannah's Last shift"
+    },
+    {
+      "date": "2026-08-10",
+      "room": "Other",
+      "what": "PLEASE DOUBLE CHECK SHIFTS"
+    },
+    {
+      "date": "2026-08-11",
+      "room": "Other",
+      "what": "ROTA NAMES HAVE MOVED UP"
+    },
+    {
+      "date": "2026-08-12",
+      "room": "Other",
+      "what": "R.I.P. HANNAH"
     }
   ]
 }
