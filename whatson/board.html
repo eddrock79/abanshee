@@ -786,6 +786,8 @@ body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
 @keyframes rise{to{opacity:1;transform:none}}
 
 .show .time{font-family:"Cinzel",serif;line-height:1.05;padding-top:.18em}
+.show .time .daytag{display:block;font-size:clamp(9px,1.05vw,12px);font-weight:700;color:var(--spectre);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:.2em}
 .show .time .start{display:block;font-size:clamp(18px,2.4vw,46px);font-weight:700;color:var(--bone);letter-spacing:.02em}
 .show .time .end{display:block;font-size:clamp(10px,1.15vw,20px);color:var(--bone-faint);font-weight:500;margin-top:.15em;letter-spacing:.1em}
 .show .time .price{display:inline-block;margin-top:.4em;font-family:"Cinzel",serif;font-weight:700;
@@ -889,7 +891,7 @@ body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
 .modeset button:hover{border-color:var(--rule-strong);color:var(--bone)}
 .modeset button.on{border-color:var(--spectre);color:var(--spectre);background:var(--spectre-soft)}
 .row{display:flex;align-items:center;gap:10px;margin-top:6px}
-.switch{position:relative;width:46px;height:24px;flex:0 0 auto}
+.switch{position:relative;width:46px;height:24px;flex:0 0 auto;cursor:pointer;display:inline-block}
 .switch input{opacity:0;width:0;height:0}
 .slider{position:absolute;inset:0;background:rgba(255,255,255,.08);border:1px solid var(--rule);
   border-radius:24px;cursor:pointer;transition:.25s}
@@ -1498,7 +1500,7 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 
   <label>Time</label>
   <div class="row">
-    <span class="switch"><input type="checkbox" id="realtime"><span class="slider"></span></span>
+    <label class="switch"><input type="checkbox" id="realtime"><span class="slider"></span></label>
     <span class="rl" id="rtLabel">Use real time (live)</span>
   </div>
   <div style="margin-top:12px">
@@ -1525,8 +1527,8 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
    CONFIG  — edit these for your venue / season
    ===================================================================== */
 const CONFIG = {
-  SHEET_ID : "1-sCiak77cJg5QNqiW4MBg6HMTZ8UAyYNWkr_M6hx7fo", // the 2025 Free Fringe sheet
-  SHEET_TAB: "by_time",   // the tab to read (sorted by start time)
+  SHEET_ID : "1tzT1xGauy1guCUOZnAFgN02ksZdttdCPxaMfFCwd7uA", // this year's Free Fringe listings sheet
+  SHEET_TAB: "by_time",   // the tab to read (sorted by start time) — blank reads the first tab
   VENUE_MATCH: /banshee/i, // which Fringe rows belong to us
 
   GIGS_SHEET_ID: "170lfqgVTY2JRou-44NMlGR80BtvQDR7GBQZRlUmbYqQ", // the Google-Calendar export sheet
@@ -1603,7 +1605,7 @@ const MODES = {
   fringe: {
     label:"Fringe", eyebrow:"The Banshee Labyrinth · Free Fringe", title:"What's On Today",
     foot:"Free Fringe · all shows free, all day",
-    testDefault:"2025-08-08T12:05", perRoom:3, minSlots:3, keepAllDay:false,
+    testDefault:"2026-08-15T12:00", perRoom:3, minSlots:3, keepAllDay:false, rollForward:true,
     emptyText:"Dark in here tonight — no shows scheduled.",
     rooms:[
       {key:"cinema",     name:"Cinema",         match:/cinema/i},
@@ -1795,6 +1797,7 @@ function buildShows(rows, modeDef){
     out.push({ roomKey, title:name, genre, desc,
       startMin:when.startMin, endMin:when.endMin,
       startLabel:when.startLabel, endLabel:when.endLabel, noTime:false,
+      month, days,
       onDate:(now)=> month===now.mo && days.has(now.day) });
   });
   return out;
@@ -2108,10 +2111,29 @@ function render(){
   const minSlots=(mode.minSlots!=null)?mode.minSlots:3;
   const keepAll=!!mode.keepAllDay;
   const isStub=mode.source.kind==="stub";
+  const nowAbs = validDate ? dayAbs(now.y,now.mo,now.day)*1440 + now.min : 0;
 
   mode.rooms.forEach((rm,ri)=>{
     let list=[];
-    if(!isStub && validDate){
+    if(!isStub && validDate && mode.rollForward){
+      // rolling look-ahead: each show's SOONEST occurrence still to come (rolls past midnight into later days)
+      list=state.rows
+        .filter(s=> s.roomKey===rm.key && s.days && s.days.size)
+        .map(s=>{
+          const em = (s.endMin!=null? s.endMin : s.startMin+150);
+          let best=null;
+          s.days.forEach(d=>{
+            const base=dayAbs(now.y, s.month, d)*1440;
+            const startAbs=base+s.startMin;
+            let endAbs=base+em; if(em<=s.startMin) endAbs+=1440;   // show runs past midnight
+            if(endAbs>nowAbs && (best===null || startAbs<best.startAbs)) best={startAbs,endAbs};
+          });
+          return best ? {...s,_startAbs:best.startAbs,_endAbs:best.endAbs,_end:em} : null;
+        })
+        .filter(Boolean)
+        .sort((a,b)=> a._startAbs-b._startAbs)
+        .slice(0,perRoom);
+    } else if(!isStub && validDate){
       list=state.rows
         .filter(s=> s.roomKey===rm.key && s.onDate(now))
         .map(s=>{ let _end=null; if(s.startMin!=null){ _end=(s.endMin!=null?s.endMin:s.startMin+150); if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
@@ -2144,13 +2166,16 @@ function render(){
       slots.appendChild(e);
     } else {
       list.forEach((s,i)=>{
-        const live = s.startMin!=null && s.startMin<=now.min && (s._end==null || now.min<s._end);
+        const live = s._startAbs!=null
+          ? (s._startAbs<=nowAbs && nowAbs<s._endAbs)
+          : (s.startMin!=null && s.startMin<=now.min && (s._end==null || now.min<s._end));
+        const dayTag = s._startAbs!=null ? fringeDayTag(s._startAbs, now) : "";
         const el=document.createElement("div");
         el.className="show"+(live?" live":"");
         el.style.animationDelay=(ri*.18 + i*.09)+"s";
         const startStyle = s.noTime ? ' style="font-size:clamp(13px,1.6vw,18px);letter-spacing:.03em"' : '';
         el.innerHTML=`
-          <div class="time"><span class="start"${startStyle}>${esc(s.startLabel)}</span>${s.endLabel?`<span class="end">til ${esc(s.endLabel)}</span>`:""}</div>
+          <div class="time">${dayTag?`<span class="daytag">${esc(dayTag)}</span>`:""}<span class="start"${startStyle}>${esc(s.startLabel)}</span>${s.endLabel?`<span class="end">til ${esc(s.endLabel)}</span>`:""}</div>
           <div class="body">
             <div class="titleline">
               <span class="name">${esc(s.title)}</span>
@@ -2164,7 +2189,7 @@ function render(){
       for(let i=list.length;i<minSlots;i++){
         const g=document.createElement("div"); g.className="ghostslot";
         g.style.animationDelay=(ri*.18 + i*.09)+"s";
-        g.innerHTML=`<span class="g">⌁</span><span>${keepAll?"no more tonight":"nothing further today"}</span>`;
+        g.innerHTML=`<span class="g">⌁</span><span>${mode.rollForward?"nothing further scheduled":(keepAll?"no more tonight":"nothing further today")}</span>`;
         slots.appendChild(g);
       }
     }
@@ -2285,6 +2310,13 @@ async function tmdbLookup(title,year){
   tmdbCache[ck]=out; return out;
 }
 function isoDate(now){ return `${now.y}-${String(now.mo).padStart(2,"0")}-${String(now.day).padStart(2,"0")}`; }
+function dayAbs(y,mo,day){ return Math.floor(Date.UTC(y,mo-1,day)/86400000); }   // whole days since epoch
+function fringeDayTag(startAbs, now){                                            // "", "Tomorrow", or "Sun 16"
+  const diff = Math.floor(startAbs/1440) - dayAbs(now.y,now.mo,now.day);
+  if(diff<=0) return "";
+  if(diff===1) return "Tomorrow";
+  return new Date(Math.floor(startAbs/1440)*86400000).toLocaleDateString("en-GB",{weekday:"short",day:"numeric"});
+}
 function ymdLocal(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 function normDate(s){ // accept ISO, DD/MM/YYYY, or a Sheets date-object/timestamp string
   s=String(s||"").trim();
