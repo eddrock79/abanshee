@@ -820,6 +820,16 @@ body.dead-blink .stage{animation:deadBlink .36s steps(1,end)}
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
 
+/* Festival board: give the show name the space previously used by the
+   description while retaining the compact genre label. */
+.show.festival-show{align-items:center}
+.show.festival-show .body{display:flex;align-items:center;min-width:0}
+.show.festival-show .titleline{display:flex;align-items:center;gap:clamp(10px,1.2vw,18px);width:100%;min-width:0}
+.show.festival-show .name{
+  display:block;flex:1 1 auto;min-width:0;
+  font-size:clamp(26px,3vw,56px);line-height:1.04;font-weight:600;
+}
+
 /* live now */
 .show.live{--row-accent:var(--ember);
   background:linear-gradient(100deg,var(--ember-soft),rgba(227,73,47,.02));
@@ -2166,12 +2176,13 @@ function render(){
       slots.appendChild(e);
     } else {
       list.forEach((s,i)=>{
+        const isFestival=state.mode==="fringe";
         const live = s._startAbs!=null
           ? (s._startAbs<=nowAbs && nowAbs<s._endAbs)
           : (s.startMin!=null && s.startMin<=now.min && (s._end==null || now.min<s._end));
         const dayTag = s._startAbs!=null ? fringeDayTag(s._startAbs, now) : "";
         const el=document.createElement("div");
-        el.className="show"+(live?" live":"");
+        el.className="show"+(isFestival?" festival-show":"")+(live?" live":"");
         el.style.animationDelay=(ri*.18 + i*.09)+"s";
         const startStyle = s.noTime ? ' style="font-size:clamp(13px,1.6vw,18px);letter-spacing:.03em"' : '';
         el.innerHTML=`
@@ -2181,7 +2192,7 @@ function render(){
               <span class="name">${esc(s.title)}</span>
               ${s.genre?`<span class="genre">${esc(s.genre)}</span>`:""}
             </div>
-            ${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}
+            ${!isFestival && s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}
           </div>
           <div class="nowtag"><span class="dot"></span>On Now</div>`;
         slots.appendChild(el);
