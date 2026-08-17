@@ -1,20 +1,4 @@
 {
-  "generated": "2026-08-10T08:00:10",
-  "events": [
-    {
-      "date": "2026-08-10",
-      "room": "Other",
-      "what": "PLEASE DOUBLE CHECK SHIFTS"
-    },
-    {
-      "date": "2026-08-11",
-      "room": "Other",
-      "what": "ROTA NAMES HAVE MOVED UP"
-    },
-    {
-      "date": "2026-08-12",
-      "room": "Other",
-      "what": "R.I.P. HANNAH"
-    }
-  ]
+  "generated": "2026-08-17T08:00:10",
+  "events": []
 }
