@@ -1,4 +1,55 @@
 {
-  "generated": "2026-08-17T08:00:10",
-  "events": []
+  "generated": "2026-08-24T08:00:10",
+  "events": [
+    {
+      "date": "2026-08-31",
+      "room": "Cinema",
+      "what": "B-- Teaam"
+    },
+    {
+      "date": "2026-08-31",
+      "room": "Other",
+      "what": "Fringe Clear up"
+    },
+    {
+      "date": "2026-09-01",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-09-02",
+      "room": "Chamber Room",
+      "what": "Gig + Open Mic"
+    },
+    {
+      "date": "2026-09-03",
+      "room": "Chamber Room",
+      "what": "Gig"
+    },
+    {
+      "date": "2026-09-04",
+      "room": "Chamber Room",
+      "what": "Gig + Luke"
+    },
+    {
+      "date": "2026-09-05",
+      "room": "Cave Bar",
+      "what": "Bar Booking"
+    },
+    {
+      "date": "2026-09-05",
+      "room": "Chamber Room",
+      "what": "Gig+DJ"
+    },
+    {
+      "date": "2026-09-05",
+      "room": "Cinema",
+      "what": "EHF"
+    },
+    {
+      "date": "2026-09-06",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    }
+  ]
 }
