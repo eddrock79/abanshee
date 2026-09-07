@@ -1,56 +1,6 @@
 {
-  "generated": "2026-08-31T08:00:10",
+  "generated": "2026-09-07T08:00:09",
   "events": [
-    {
-      "date": "2026-08-31",
-      "room": "Cinema",
-      "what": "B-- Teaam"
-    },
-    {
-      "date": "2026-08-31",
-      "room": "Other",
-      "what": "Fringe Clear up"
-    },
-    {
-      "date": "2026-09-01",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-09-02",
-      "room": "Chamber Room",
-      "what": "Gig + Open Mic"
-    },
-    {
-      "date": "2026-09-03",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-09-04",
-      "room": "Chamber Room",
-      "what": "Gig + Luke"
-    },
-    {
-      "date": "2026-09-05",
-      "room": "Cave Bar",
-      "what": "Bar Booking"
-    },
-    {
-      "date": "2026-09-05",
-      "room": "Chamber Room",
-      "what": "Gig+DJ"
-    },
-    {
-      "date": "2026-09-05",
-      "room": "Cinema",
-      "what": "EHF"
-    },
-    {
-      "date": "2026-09-06",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
     {
       "date": "2026-09-07",
       "room": "Cinema",
@@ -115,6 +65,71 @@
       "date": "2026-09-13",
       "room": "Cinema",
       "what": "Booking"
+    },
+    {
+      "date": "2026-09-14",
+      "room": "Cinema",
+      "what": "EDINBURGH B-TEAM 19:00-23:00"
+    },
+    {
+      "date": "2026-09-15",
+      "room": "Chamber Room",
+      "what": "KARAOKE 23:00-02:45"
+    },
+    {
+      "date": "2026-09-15",
+      "room": "Cinema",
+      "what": "VCR Trash 19:00-23:00"
+    },
+    {
+      "date": "2026-09-16",
+      "room": "Chamber Room",
+      "what": "TAKE THE STAGE"
+    },
+    {
+      "date": "2026-09-17",
+      "room": "Chamber Room",
+      "what": "Banshee's Introducing\nBOOKED 12:00-17:00"
+    },
+    {
+      "date": "2026-09-17",
+      "room": "Cinema",
+      "what": "BRAW CINEMA CLUB 19:30-21:30"
+    },
+    {
+      "date": "2026-09-18",
+      "room": "Chamber Room",
+      "what": "Tequila Dave\nThe Chunks, Olivia Furey, Depeche Choad, Vibrator"
+    },
+    {
+      "date": "2026-09-18",
+      "room": "Cinema",
+      "what": "Private Booking 18:00-22:00"
+    },
+    {
+      "date": "2026-09-19",
+      "room": "Cave Bar",
+      "what": "Booking 18:30-01:00"
+    },
+    {
+      "date": "2026-09-19",
+      "room": "Chamber Room",
+      "what": "The Movement: Paeizi - Revelation 23 - Insulin pump\nGirl Germs - DJ Set 23:00-02:30"
+    },
+    {
+      "date": "2026-09-19",
+      "room": "Cinema",
+      "what": "EDINBURGH HORROR FESTIVAL"
+    },
+    {
+      "date": "2026-09-20",
+      "room": "Chamber Room",
+      "what": "KARAOKE 23:00-02:30"
+    },
+    {
+      "date": "2026-09-20",
+      "room": "Cinema",
+      "what": "booking"
     }
   ]
 }
