@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-07T08:00:10",
+  "generated": "2026-09-11T08:00:11",
   "days": {
     "2026-09-07": [
       {
@@ -185,32 +185,188 @@
         "end": "4:00 AM"
       }
     ],
+    "2026-09-14": [
+      {
+        "name": "Craig",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Blue",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
     "2026-09-15": [
       {
         "name": "Connor",
-        "start": "HOLIDAY",
-        "end": ""
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Alix",
+        "start": "7:00 PM",
+        "end": "1:00 AM"
+      },
+      {
+        "name": "Hannah",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
       }
     ],
     "2026-09-16": [
       {
-        "name": "Connor",
-        "start": "HOLIDAY",
-        "end": ""
+        "name": "Ryan",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Alix",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Sam",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
       }
     ],
     "2026-09-17": [
       {
-        "name": "Connor",
-        "start": "HOLIDAY",
-        "end": ""
+        "name": "Ryan",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Sam",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
       }
     ],
     "2026-09-18": [
       {
         "name": "Connor",
-        "start": "HOLIDAY",
-        "end": ""
+        "start": "5:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Craig",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Ryan",
+        "start": "4:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Theresa",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Blue",
+        "start": "8:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Alix",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "9:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Sam",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Noob",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2026-09-19": [
+      {
+        "name": "Connor",
+        "start": "5:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Craig",
+        "start": "4:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Ryan",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Kat",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Alix",
+        "start": "8:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Sam",
+        "start": "9:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Noob",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2026-09-20": [
+      {
+        "name": "Connor",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Theresa",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Alix",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
       }
     ]
   }
