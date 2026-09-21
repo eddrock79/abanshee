@@ -1,11 +1,8 @@
 {
   "thisWeek": {
-    "label": "Sun 20 Sep 2026",
+    "label": "Sun 27 Sep 2026",
     "file": "this-week.html"
   },
-  "nextWeek": {
-    "label": "Sun 27 Sep 2026",
-    "file": "next-week.html"
-  },
-  "generated": "2026-09-14T08:00:09"
+  "nextWeek": null,
+  "generated": "2026-09-21T08:00:06"
 }
