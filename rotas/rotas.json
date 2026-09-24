@@ -3,6 +3,9 @@
     "label": "Sun 27 Sep 2026",
     "file": "this-week.html"
   },
-  "nextWeek": null,
-  "generated": "2026-09-21T08:00:06"
+  "nextWeek": {
+    "label": "Sun 04 Oct 2026",
+    "file": "next-week.html"
+  },
+  "generated": "2026-09-24T09:34:20"
 }
