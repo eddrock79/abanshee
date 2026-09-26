@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-24T09:34:22",
+  "generated": "2026-09-26T08:00:09",
   "events": [
     {
       "date": "2026-09-21",
@@ -115,6 +115,11 @@
       "date": "2026-10-02",
       "room": "Chamber Room",
       "what": "GIG + LUKE"
+    },
+    {
+      "date": "2026-10-02",
+      "room": "Other",
+      "what": "Kat's last shift :("
     },
     {
       "date": "2026-10-03",
