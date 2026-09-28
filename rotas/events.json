@@ -1,81 +1,6 @@
 {
-  "generated": "2026-09-26T08:00:09",
+  "generated": "2026-09-28T08:00:11",
   "events": [
-    {
-      "date": "2026-09-21",
-      "room": "Cinema",
-      "what": "Edinburgh B-Team"
-    },
-    {
-      "date": "2026-09-22",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-09-22",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-09-23",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-09-23",
-      "room": "Chamber Room",
-      "what": "Gig + Take the stage"
-    },
-    {
-      "date": "2026-09-24",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-09-24",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-09-25",
-      "room": "Chamber Room",
-      "what": "Gig + DJ"
-    },
-    {
-      "date": "2026-09-25",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-09-26",
-      "room": "Cave Bar",
-      "what": "MR. MARK'S BDAY PARTY (Maja to work)"
-    },
-    {
-      "date": "2026-09-26",
-      "room": "Chamber Room",
-      "what": "Gig + DJ Cat"
-    },
-    {
-      "date": "2026-09-26",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-09-27",
-      "room": "Cave Bar",
-      "what": "James wilson Booking"
-    },
-    {
-      "date": "2026-09-27",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-09-27",
-      "room": "Cinema",
-      "what": "Sound Scape"
-    },
     {
       "date": "2026-09-28",
       "room": "Cinema",
@@ -135,6 +60,81 @@
       "date": "2026-10-04",
       "room": "Chamber Room",
       "what": "GIG + Karaoke"
+    },
+    {
+      "date": "2026-10-05",
+      "room": "Cinema",
+      "what": "Edinburgh B-Team"
+    },
+    {
+      "date": "2026-10-05",
+      "room": "Other",
+      "what": "Stock Take"
+    },
+    {
+      "date": "2026-10-06",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-10-06",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-07",
+      "room": "Chamber Room",
+      "what": "Take the stage"
+    },
+    {
+      "date": "2026-10-07",
+      "room": "Cinema",
+      "what": "Filmsoc"
+    },
+    {
+      "date": "2026-10-08",
+      "room": "Chamber Room",
+      "what": "Gig"
+    },
+    {
+      "date": "2026-10-08",
+      "room": "Cinema",
+      "what": "Fleshmarket"
+    },
+    {
+      "date": "2026-10-09",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-09",
+      "room": "Chamber Room",
+      "what": "gig - DJ"
+    },
+    {
+      "date": "2026-10-09",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-10",
+      "room": "Chamber Room",
+      "what": "Gig - Tension"
+    },
+    {
+      "date": "2026-10-10",
+      "room": "Cinema",
+      "what": "booking"
+    },
+    {
+      "date": "2026-10-11",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-10-11",
+      "room": "Cinema",
+      "what": "booking"
     }
   ]
 }
