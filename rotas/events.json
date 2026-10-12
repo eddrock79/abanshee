@@ -1,81 +1,6 @@
 {
-  "generated": "2026-10-05T08:00:13",
+  "generated": "2026-10-12T08:00:13",
   "events": [
-    {
-      "date": "2026-10-05",
-      "room": "Cinema",
-      "what": "Edinburgh B-Team"
-    },
-    {
-      "date": "2026-10-05",
-      "room": "Other",
-      "what": "Stock Take"
-    },
-    {
-      "date": "2026-10-06",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-10-06",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-10-07",
-      "room": "Chamber Room",
-      "what": "Take the stage"
-    },
-    {
-      "date": "2026-10-07",
-      "room": "Cinema",
-      "what": "Filmsoc"
-    },
-    {
-      "date": "2026-10-08",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-10-08",
-      "room": "Cinema",
-      "what": "Fleshmarket"
-    },
-    {
-      "date": "2026-10-09",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-10-09",
-      "room": "Chamber Room",
-      "what": "gig - DJ"
-    },
-    {
-      "date": "2026-10-09",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-10-10",
-      "room": "Chamber Room",
-      "what": "Gig - Tension"
-    },
-    {
-      "date": "2026-10-10",
-      "room": "Cinema",
-      "what": "booking"
-    },
-    {
-      "date": "2026-10-11",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-10-11",
-      "room": "Cinema",
-      "what": "booking"
-    },
     {
       "date": "2026-10-12",
       "room": "Cinema",
@@ -148,6 +73,76 @@
     },
     {
       "date": "2026-10-18",
+      "room": "Cinema",
+      "what": "booking"
+    },
+    {
+      "date": "2026-10-19",
+      "room": "Cinema",
+      "what": "Edinburgh B-Team"
+    },
+    {
+      "date": "2026-10-20",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-10-20",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-21",
+      "room": "Chamber Room",
+      "what": "Take the stage"
+    },
+    {
+      "date": "2026-10-21",
+      "room": "Cinema",
+      "what": "booking?"
+    },
+    {
+      "date": "2026-10-22",
+      "room": "Chamber Room",
+      "what": "Gig"
+    },
+    {
+      "date": "2026-10-22",
+      "room": "Cinema",
+      "what": "Flesh"
+    },
+    {
+      "date": "2026-10-23",
+      "room": "Chamber Room",
+      "what": "gig - Dave"
+    },
+    {
+      "date": "2026-10-23",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-24",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-10-24",
+      "room": "Chamber Room",
+      "what": "Gig - Germ"
+    },
+    {
+      "date": "2026-10-24",
+      "room": "Cinema",
+      "what": "booking"
+    },
+    {
+      "date": "2026-10-25",
+      "room": "Chamber Room",
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-10-25",
       "room": "Cinema",
       "what": "booking"
     }
