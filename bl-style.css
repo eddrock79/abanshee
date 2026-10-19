@@ -1,0 +1,24 @@
+/* Staff Hub - dashboard look. Loaded last on every page so it overrides each page's own colours.
+   To undo: remove the <link href="../bl-style.css"> line from the pages (or restore branch backup-before-dashboard-style). */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap');
+:root{
+  --bg:#0e1012;--surface:#17191c;--surface2:#121417;--border:#272b30;
+  --accent:#4fb8a8;--accent-dim:rgba(79,184,168,.14);
+  --text:#d6d9de;--muted:#8a919b;
+  --dash-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+}
+html,body{background:var(--bg)!important;color:var(--text)}
+body{font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif!important;font-size:16px;line-height:1.4}
+/* header */
+.topbar{background:transparent!important;border-bottom:1px solid var(--border)!important;margin:0 16px;padding-left:0!important;padding-right:0!important;position:static!important}
+/* tabs */
+.nav-bar{background:transparent!important;border:0!important;padding:6px 16px 8px!important;gap:6px!important}
+.nav-btn{font-family:Barlow,sans-serif!important;font-size:15px!important;line-height:1.4!important;padding:7px 16px!important;border-radius:6px!important;background:var(--surface2)!important;border:1px solid var(--border)!important}
+.nav-btn.current{background:var(--accent)!important;color:#0e1012!important;border-color:var(--accent)!important}
+.nav-btn.mgr{background:var(--surface2)!important}
+/* cards */
+.card{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:8px!important;padding:11px 13px!important}
+.card-title,.section-title,.card h2{font-family:var(--dash-display)!important;font-weight:600!important;font-size:16px!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:var(--text)!important}
+.ticker{background:var(--surface)!important;border-radius:8px!important}
+/* inputs / buttons keep working, just match the palette */
+input,select,textarea{font-family:Barlow,sans-serif}

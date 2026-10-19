@@ -53,11 +53,11 @@
       font-family:'DM Sans',system-ui,sans-serif;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:26px;padding:24px}
     #bl-auth-overlay.hidden{display:none}
-    .bla-logo{font-family:'Bebas Neue','DM Sans',sans-serif;font-size:38px;letter-spacing:3px;color:#e8b84b;text-align:center}
+    .bla-logo{font-family:''Barlow Condensed','Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#4fb8a8;text-align:center}
     .bla-sub{font-size:12px;color:#6b6b78;letter-spacing:2px;text-transform:uppercase;margin-top:-18px}
     .bla-dots{display:flex;gap:16px}
     .bla-dot{width:16px;height:16px;border-radius:50%;border:2px solid #2a2a30;background:transparent;transition:.15s}
-    .bla-dot.filled{background:#e8b84b;border-color:#e8b84b}
+    .bla-dot.filled{background:#4fb8a8;border-color:#4fb8a8}
     .bla-dot.error{background:#e85d5d;border-color:#e85d5d}
     .bla-msg{font-size:13px;height:18px;text-align:center;color:#6b6b78}
     .bla-msg.err{color:#e85d5d}
@@ -69,14 +69,14 @@
     .bla-key.zero{grid-column:2}
     .bla-key.del{font-size:16px;color:#6b6b78}
     .bla-pad.disabled{opacity:.35;pointer-events:none}
-    .bla-retry{padding:11px 22px;border-radius:10px;border:1px solid #e8b84b;background:rgba(232,184,75,.12);
-      color:#e8b84b;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+    .bla-retry{padding:11px 22px;border-radius:10px;border:1px solid #4fb8a8;background:rgba(79,184,168,.12);
+      color:#4fb8a8;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
     .bla-cancel{padding:9px 18px;border-radius:8px;border:1px solid #2a2a30;background:#1f1f24;color:#e8e8ec;
       font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
     .bla-chip{position:fixed;bottom:14px;left:14px;z-index:9000;display:flex;align-items:center;gap:8px;
       background:#1f1f24;border:1px solid #2a2a30;border-radius:20px;padding:5px 6px 5px 12px;
       font-family:'DM Sans',sans-serif;font-size:12px;color:#6b6b78;box-shadow:0 4px 14px rgba(0,0,0,.4)}
-    .bla-chip b{color:#e8b84b;font-weight:600}
+    .bla-chip b{color:#4fb8a8;font-weight:600}
     .bla-chip.mgr b{color:#a78bfa}
     .bla-logout{border:1px solid #2a2a30;background:#17171a;color:#e8e8ec;border-radius:14px;
       padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
@@ -95,7 +95,7 @@
     o = document.createElement('div');
     o.id = 'bl-auth-overlay';
     o.innerHTML = `
-      <div class="bla-logo" id="bla-logo">⚡ Banshee Labyrinth Labyrinth</div>
+      <div class="bla-logo" id="bla-logo">Banshee Labyrinth</div>
       <div class="bla-sub" id="bla-sub">Staff Sign-In</div>
       <div class="bla-dots">
         <div class="bla-dot" id="bla-d0"></div><div class="bla-dot" id="bla-d1"></div>
@@ -200,7 +200,7 @@
   async function startManager(reason){
     mode='manager'; entry='';
     const o=buildOverlay(); o.classList.remove('hidden');
-    document.getElementById('bla-logo').textContent='⚡ Manager Access';
+    document.getElementById('bla-logo').textContent='Manager Access';
     document.getElementById('bla-sub').textContent= reason || 'Manager PIN required';
     setDots();
     document.getElementById('bla-extra').innerHTML='<button class="bla-cancel" id="bla-cancel">Cancel</button>';
