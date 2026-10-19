@@ -8,7 +8,8 @@
    '.topbar .bl-brand{align-items:baseline;flex-wrap:wrap}'+
    '.topbar .bl-brand img{height:78px;max-width:100%;width:auto;display:block;mix-blend-mode:screen}'+
    '.topbar .bl-tag{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:#4fb8a8;white-space:nowrap}'+
-   '.topbar .bl-date{font-size:12px;color:var(--muted);white-space:nowrap}'+
+   '.topbar .bl-date{font-size:15px;color:var(--muted);white-space:nowrap}'+
+   '.topbar .bl-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-start}.topbar .bl-rrow{display:flex;align-items:center;gap:10px}'+
    '@media(max-width:640px){.topbar .bl-tag{display:none}.topbar .bl-brand img{height:56px}}';
   var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&display=swap';document.head.appendChild(fl);
   document.head.appendChild(css);
@@ -23,11 +24,16 @@
     if(old) old.replaceWith(brand); else tb.insertBefore(brand,tb.firstChild);
     var right=tb.querySelector('.topbar-right');
     if(!right){right=document.createElement('div');right.className='topbar-right';tb.appendChild(right);}
-    if(!right.querySelector('#topbar-date')){
-      var d=document.createElement('div'); d.className='bl-date';
-      d.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-      right.appendChild(d);
-    }
+    right.classList.add('bl-right');
+    var row=document.createElement('div');row.className='bl-rrow';
+    while(right.firstChild) row.appendChild(right.firstChild);
+    var od=row.querySelector('#topbar-date'); if(od) od.style.display='none';
+    var d=document.createElement('div'); d.className='bl-date';
+    var dt=new Date(),n=dt.getDate(),v=n%100,sfx=['th','st','nd','rd'][(v-20)%10]||['th','st','nd','rd'][v]||'th';
+    d.textContent=dt.toLocaleDateString('en-GB',{weekday:'long'})+' '+n+sfx+' '+dt.toLocaleDateString('en-GB',{month:'long'});
+    row.appendChild(d); right.appendChild(row);
+    var nl=document.querySelector('.nav-bar a[href*="eddrock79nas"]');
+    if(nl){nl.className='bl-xlink';nl.removeAttribute('id');right.appendChild(nl);}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();

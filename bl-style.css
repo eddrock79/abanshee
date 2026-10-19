@@ -22,6 +22,5 @@ body{font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif!important;
 .ticker{background:var(--surface)!important;border-radius:8px!important}
 /* inputs / buttons keep working, just match the palette */
 input,select,textarea{font-family:Barlow,sans-serif}
-/* link out to the pub dashboard: own row, right-aligned, dashed so it reads as "leaves the hub" */
-.nav-bar::after{content:"";order:99;flex-basis:100%;height:0}
-.nav-bar a[href*="eddrock79nas"]{order:100;margin-left:auto;border-style:dashed!important}
+/* link out to the pub dashboard (sits in the header, top right, under the date) */
+.bl-xlink{font-family:Barlow,sans-serif;font-size:15px;font-weight:600;line-height:1.4;padding:5px 14px;border:1px dashed var(--border);border-radius:6px;background:var(--surface2);color:var(--muted);text-decoration:none;white-space:nowrap}
