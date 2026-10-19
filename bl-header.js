@@ -4,10 +4,13 @@
   var css=document.createElement('style');
   css.textContent=
    '.topbar .bl-brand{display:flex;align-items:center;gap:14px;min-width:0}'+
-   '.topbar .bl-brand img{height:46px;width:auto;display:block;mix-blend-mode:screen}'+
-   '.topbar .bl-tag{color:var(--muted);font-size:13px;white-space:nowrap}'+
+   '.topbar{height:auto!important;min-height:56px;padding-top:10px!important;padding-bottom:10px!important}'+
+   '.topbar .bl-brand{align-items:baseline;flex-wrap:wrap}'+
+   '.topbar .bl-brand img{height:78px;max-width:100%;width:auto;display:block;mix-blend-mode:screen}'+
+   '.topbar .bl-tag{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:#4fb8a8;white-space:nowrap}'+
    '.topbar .bl-date{font-size:12px;color:var(--muted);white-space:nowrap}'+
-   '@media(max-width:640px){.topbar .bl-tag{display:none}.topbar .bl-brand img{height:38px}}';
+   '@media(max-width:640px){.topbar .bl-tag{display:none}.topbar .bl-brand img{height:56px}}';
+  var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&display=swap';document.head.appendChild(fl);
   document.head.appendChild(css);
   function run(){
     var tb=document.querySelector('.topbar'); if(!tb||tb.dataset.blHeader) return;
