@@ -53,7 +53,7 @@
       font-family:'DM Sans',system-ui,sans-serif;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:26px;padding:24px}
     #bl-auth-overlay.hidden{display:none}
-    .bla-logo{font-family:''Barlow Condensed','Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#4fb8a8;text-align:center}
+    .bla-logo{font-family:'Barlow Condensed','Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#4fb8a8;text-align:center}
     .bla-sub{font-size:12px;color:#6b6b78;letter-spacing:2px;text-transform:uppercase;margin-top:-18px}
     .bla-dots{display:flex;gap:16px}
     .bla-dot{width:16px;height:16px;border-radius:50%;border:2px solid #2a2a30;background:transparent;transition:.15s}
