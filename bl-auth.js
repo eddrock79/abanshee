@@ -144,7 +144,7 @@
     const msg = document.getElementById('bla-msg');
     if (mode==='manager'){
       if (pins && ((v === (pins.manager||'').trim()) || (pins.master && v === (pins.master||'').trim()))){
-        setAuth('manager'); entry=''; teardown(); refreshChip();
+        setAuth(isMaster()||(pins.master&&v===(pins.master||'').trim())?'master':'manager'); entry=''; teardown(); refreshChip();
         const cb=onManagerOk; onManagerOk=null; if(cb) cb(); 
         return;
       }
@@ -254,7 +254,7 @@
       buildOverlay();
       if (auth){
         // already signed in somewhere
-        if (opts.require==='manager' && auth.role!=='manager'){
+        if (opts.require==='manager' && auth.role!=='manager' && auth.role!=='master'){
           // manager-only app, currently only staff → ask to upgrade
           onManagerOk = () => { if(opts.onReady) opts.onReady('manager'); };
           startManager('This screen is manager-only');
