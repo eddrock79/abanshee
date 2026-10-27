@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26T08:00:15",
+  "generated": "2026-10-27T08:00:13",
   "days": {
     "2026-10-26": [
       {
@@ -182,13 +182,13 @@
         "end": "4:00 AM"
       },
       {
-        "name": "Lex",
-        "start": "7:00 PM",
+        "name": "Rory",
+        "start": "10:00 PM",
         "end": "4:00 AM"
       },
       {
-        "name": "Hannah",
-        "start": "10:00 PM",
+        "name": "Lex",
+        "start": "7:00 PM",
         "end": "4:00 AM"
       }
     ],
@@ -297,13 +297,8 @@
         "end": "4:00 AM"
       },
       {
-        "name": "Blue",
+        "name": "Theresa",
         "start": "8:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Eva",
-        "start": "9:00 PM",
         "end": "4:00 AM"
       },
       {
@@ -314,6 +309,11 @@
       {
         "name": "Franek",
         "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Lachlann cover",
+        "start": "10:00 PM",
         "end": "4:00 AM"
       }
     ],
