@@ -1539,10 +1539,10 @@ body.lay-tonight .masthead .clock{font-family:var(--evf)}
 .t-gigs{padding-bottom:6px}
 /* v4: logo masthead, date + time bottom-right */
 .bl-logo{display:none}
-body.lay-tonight .bl-logo{display:block;margin:0 auto;width:clamp(300px,90vw,1700px);height:auto;padding:clamp(6px,1.2vh,16px) 0;
-  filter:drop-shadow(0 0 28px rgba(227,73,47,.18))}
+body.lay-tonight .bl-logo{display:block;margin:clamp(2px,.6vh,10px) auto 0;width:100%;height:auto;border-radius:clamp(10px,1.6vw,26px);
+  filter:brightness(1.18) drop-shadow(0 12px 26px rgba(0,0,0,.75))}
 body.lay-tonight .masthead .eyebrow,body.lay-tonight .masthead h1{display:none}
-body.lay-tonight .masthead{padding-bottom:0}
+body.lay-tonight .masthead{padding-bottom:clamp(8px,1.2vh,16px);border-bottom:0}
 body.lay-tonight .masthead .sub{position:fixed;right:clamp(18px,3.4vw,44px);bottom:clamp(46px,5.6vh,84px);z-index:6;
   display:flex;flex-direction:column;align-items:flex-end;gap:.05em;margin:0;text-align:right}
 body.lay-tonight .masthead .clock{order:-1;font-size:clamp(30px,5vw,92px);font-weight:700;color:var(--bone);line-height:1;letter-spacing:.04em}
@@ -1592,7 +1592,7 @@ body.lay-tonight .masthead h1{font-size:clamp(46px,8.2vw,150px);line-height:1}
 
 <main class="stage">
   <header class="masthead">
-    <img class="bl-logo" src="logo-board-wide.png" alt="The Banshee Labyrinth">
+    <img class="bl-logo" src="logo-board-3d.png" alt="The Banshee Labyrinth">
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
     <h1 id="title">What's On</h1>
     <div class="sub">
