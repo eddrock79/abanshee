@@ -2929,7 +2929,7 @@ async function renderTonight(now, validDate){
     // spare room? grow the rows (text, tags, QR) in steps until the screen is full, then spread any last gap evenly
     const fits=()=>list.scrollHeight<=list.clientHeight+1;
     let best=1;
-    for(const z of [1.1,1.2,1.3,1.4,1.5,1.6]){ zoomAll(z); if(fits()) best=z; else break; }
+    for(let z=1.04;z<=1.8;z+=0.04){ zoomAll(z); if(fits()) best=z; else break; }
     zoomAll(best);
     if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
   }
