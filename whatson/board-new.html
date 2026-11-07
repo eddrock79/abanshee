@@ -1525,21 +1525,21 @@ body.lay-tonight .footer{border:0;padding:0;margin:0;min-height:0}
 body.lay-tonight .footer .src:not(.sample):not(.error){display:none}
 .ev-price.free{color:#5df2a6;text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 14px rgba(93,242,166,.55)}
 /* very faint stage spotlights at the top of the page, lighting the logo and EVENTS */
-.spots{display:none;position:fixed;left:0;top:0;width:100%;height:30vh;z-index:0;pointer-events:none;overflow:hidden}
+.spots{display:none;position:fixed;left:0;top:0;width:100%;height:var(--hero-top,28vh);z-index:0;pointer-events:none;overflow:hidden}
 body.lay-tonight .spots{display:block}
-.spots::before,.spots::after{content:"";position:absolute;top:-4%;height:118%;width:58%;mix-blend-mode:screen}
-.spots::before{left:-4%;transform-origin:20% 0;background:radial-gradient(ellipse 13% 6% at 20% 4%,rgba(255,236,190,.18),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.07),rgba(255,222,160,0) 90%);clip-path:polygon(15% 0,25% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
-.spots::after{right:-4%;transform-origin:80% 0;background:radial-gradient(ellipse 13% 6% at 80% 4%,rgba(190,255,236,.18),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.07),rgba(116,227,193,0) 90%);clip-path:polygon(75% 0,85% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
+.spots::before,.spots::after{content:"";position:absolute;bottom:-14%;height:125%;width:58%;mix-blend-mode:screen}
+.spots::before{left:-4%;transform-origin:20% 100%;background:radial-gradient(ellipse 13% 7% at 20% 97%,rgba(255,236,190,.30),transparent 100%),linear-gradient(0deg,rgba(255,222,160,.10),rgba(255,222,160,0) 92%);clip-path:polygon(15% 100%,25% 100%,100% 0,0 0);animation:beamL 11s ease-in-out infinite alternate}
+.spots::after{right:-4%;transform-origin:80% 100%;background:radial-gradient(ellipse 13% 7% at 80% 97%,rgba(190,255,236,.30),transparent 100%),linear-gradient(0deg,rgba(116,227,193,.10),rgba(116,227,193,0) 92%);clip-path:polygon(75% 100%,85% 100%,100% 0,0 0);animation:beamR 13s ease-in-out infinite alternate}
 .spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.045),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
 /* faint smoke: slow haze drifting through the spotlights at the top, and ground fog along the bottom — all behind the content */
 .smoke{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 body.lay-tonight .smoke{display:block}
 .smoke b{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
-.smoke .t1{left:-20vw;top:-2vh;width:85vw;height:20vh;background:radial-gradient(closest-side,rgba(205,235,225,.075),transparent);animation:smokeR 70s ease-in-out infinite alternate}
-.smoke .t2{right:-25vw;top:5vh;width:80vw;height:17vh;background:radial-gradient(closest-side,rgba(215,225,235,.06),transparent);animation:smokeL 85s ease-in-out infinite alternate}
-.smoke .t3{left:10vw;top:11vh;width:70vw;height:14vh;background:radial-gradient(closest-side,rgba(205,235,225,.05),transparent);animation:smokeR 100s ease-in-out infinite alternate-reverse}
-.smoke .f1{left:-30vw;bottom:-5vh;width:110vw;height:22vh;background:radial-gradient(closest-side,rgba(190,215,205,.06),transparent);animation:smokeR 90s ease-in-out infinite alternate}
-.smoke .f2{right:-35vw;bottom:-8vh;width:105vw;height:20vh;background:radial-gradient(closest-side,rgba(200,210,220,.05),transparent);animation:smokeL 110s ease-in-out infinite alternate}
+.smoke .t1{left:-20vw;top:-2vh;width:85vw;height:20vh;background:radial-gradient(closest-side,rgba(205,235,225,.17),transparent);animation:smokeR 70s ease-in-out infinite alternate}
+.smoke .t2{right:-25vw;top:5vh;width:80vw;height:17vh;background:radial-gradient(closest-side,rgba(215,225,235,.14),transparent);animation:smokeL 85s ease-in-out infinite alternate}
+.smoke .t3{left:10vw;top:11vh;width:70vw;height:14vh;background:radial-gradient(closest-side,rgba(205,235,225,.12),transparent);animation:smokeR 100s ease-in-out infinite alternate-reverse}
+.smoke .f1{left:-30vw;bottom:-5vh;width:110vw;height:22vh;background:radial-gradient(closest-side,rgba(190,215,205,.15),transparent);animation:smokeR 90s ease-in-out infinite alternate}
+.smoke .f2{right:-35vw;bottom:-8vh;width:105vw;height:20vh;background:radial-gradient(closest-side,rgba(200,210,220,.12),transparent);animation:smokeL 110s ease-in-out infinite alternate}
 @keyframes smokeR{from{transform:translateX(-8vw) scale(1)}to{transform:translateX(30vw) scale(1.18)}}
 @keyframes smokeL{from{transform:translateX(8vw) scale(1.1)}to{transform:translateX(-30vw) scale(.95)}}
 @media (prefers-reduced-motion:reduce){.smoke b{animation:none}}
@@ -2948,6 +2948,7 @@ async function renderTonight(now, validDate){
     let best=1;
     for(let z=1.04;z<=1.8;z+=0.04){ zoomAll(z); if(fits()) best=z; else break; }
     zoomAll(best);
+    try{ const h=sec.querySelector(".ev-hero"); if(h) document.documentElement.style.setProperty("--hero-top", Math.round(h.getBoundingClientRect().top)+"px"); }catch(e){}
     if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
   }
 
