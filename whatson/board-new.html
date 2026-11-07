@@ -1455,7 +1455,7 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 /* ===== Events board v2 — bigger, bolder, fills the screen ===== */
 .tonight{gap:clamp(10px,1.6vh,22px)}
 .t-gigs{flex:1 1 0;max-height:none;min-height:0;display:flex;flex-direction:column;gap:clamp(10px,1.6vh,22px);overflow:hidden}
-.t-gigs .ev-list{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(6px,1vh,14px)}
+.t-gigs .ev-list{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,.7vh,10px)}
 .t-cine{flex:0 0 auto}
 .ev-empty{flex:1;display:flex;align-items:center;justify-content:center;font-style:italic;color:var(--bone-faint);font-size:clamp(18px,2.4vw,44px);border:1px dashed var(--rule);border-radius:6px}
 
@@ -1490,10 +1490,10 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-price{font-family:var(--evf);font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
 
 .ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:var(--evf);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-  font-size:clamp(18px,2.7vw,48px);color:var(--spectre);padding-top:clamp(4px,.8vh,12px)}
+  font-size:clamp(18px,2.7vw,48px);color:var(--spectre);padding-top:clamp(2px,.4vh,6px)}
 .ev-day::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule-strong),transparent)}
 .ev-row{flex:0 0 auto;display:grid;grid-template-columns:clamp(86px,11vw,200px) 1fr auto;align-items:center;gap:clamp(10px,1.6vw,28px);
-  padding:clamp(10px,1.5vh,20px) clamp(14px,2vw,30px);border:1px solid var(--rule);border-radius:6px;position:relative;
+  padding:clamp(6px,.9vh,13px) clamp(14px,2vw,30px);border:1px solid var(--rule);border-radius:6px;position:relative;
   background:linear-gradient(100deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}
 .ev-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor;opacity:.8}
 .ev-row.k-karaoke{color:#ff6fb8}.ev-row.k-dj-set{color:#74e3c1}.ev-row.k-open-mic{color:var(--gold)}.ev-row.k-quiz{color:#9db8ff}.ev-row.k-live{color:#ff8a6b}
@@ -1615,7 +1615,7 @@ body.lay-tonight .rooms{margin-bottom:clamp(80px,10.5vh,190px)}
 /* v3: type under the time, bigger heading, roomier descriptions */
 .ev-row,.ev-row.no-time{grid-template-columns:clamp(130px,17vw,300px) 1fr auto;align-items:start}
 .ev-row .ev-side{align-self:center}
-.ev-when{display:flex;flex-direction:column;align-items:flex-start;gap:.3em}
+.ev-when{display:flex;flex-direction:column;align-items:flex-start;gap:.12em}
 .ev-when .ev-chip{font-size:clamp(11px,1.5vw,28px)}
 .ev-hero-meta{align-items:center}
 body:not(.f-garamond) .ev-desc,.ev-desc{font-size:clamp(17px,2.4vw,44px);line-height:1.2;-webkit-line-clamp:2}
@@ -2945,21 +2945,24 @@ async function renderTonight(now, validDate){
   // trim whatever doesn't fit so the screen is full but nothing is cut off mid-row
   function fitEvents(sec){
     const list=sec.querySelector(".ev-list"); if(!list) return;
-    const zoomAll=z=>Array.from(list.children).forEach(c=>{ c.style.zoom=z>1?z:""; });
-    zoomAll(1); list.style.justifyContent="";
-    let guard=60;
+    const zoomAll=z=>Array.from(list.children).forEach(c=>{ c.style.zoom=Math.abs(z-1)<.001?"":z; });
+    const MINZ=0.84;   // rows may shrink a little so more events fit
+    list.style.justifyContent="";
+    zoomAll(MINZ);
+    let guard=80;
     while(list.scrollHeight>list.clientHeight+1 && list.lastElementChild && guard--){ list.lastElementChild.remove(); }
     while(list.lastElementChild && list.lastElementChild.classList.contains("ev-day")) list.lastElementChild.remove();
-    // spare room? grow the rows (text, tags, QR) in steps until the screen is full, then spread any last gap evenly
+    // with that many events settled, grow the rows (text, tags, QR) in fine steps until the screen is full
     const fits=()=>list.scrollHeight<=list.clientHeight+1;
-    let best=1;
-    for(let z=1.04;z<=1.8;z+=0.04){ zoomAll(z); if(fits()) best=z; else break; }
+    let best=MINZ;
+    for(let z=MINZ+0.03;z<=1.45;z+=0.03){ zoomAll(z); if(fits()) best=z; else break; }
     zoomAll(best);
+    if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
     try{ const h=sec.querySelector(".ev-hero"); if(h) document.documentElement.style.setProperty("--hero-top", Math.round(h.getBoundingClientRect().top)+"px"); }catch(e){}
     if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(14);
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(24);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
@@ -2974,9 +2977,9 @@ async function renderTonight(now, validDate){
   if(!films.length){
     csec.remove();
     gsec.classList.add("solo");
-    gsec.innerHTML=gigSectionHTML(14);
+    gsec.innerHTML=gigSectionHTML(24);
     fitEvents(gsec);
-    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ gsec.innerHTML=gigSectionHTML(14); fitEvents(gsec); });
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ gsec.innerHTML=gigSectionHTML(24); fitEvents(gsec); });
     return;
   }
 
