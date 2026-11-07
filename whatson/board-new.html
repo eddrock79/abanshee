@@ -1560,6 +1560,12 @@ body.lay-tonight .masthead h1{font-size:clamp(46px,8.2vw,150px);line-height:1}
 
 /* rows with no time: drop the empty time column */
 .ev-row.no-time{grid-template-columns:1fr auto}
+
+/* v5: date + time on one quiet line, bottom-right */
+body.lay-tonight .masthead .sub{flex-direction:row;align-items:baseline;gap:.7em;bottom:clamp(40px,4.6vh,70px)}
+body.lay-tonight .masthead .clock{order:0;font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-dim);letter-spacing:.12em;line-height:1}
+body.lay-tonight .masthead .when{font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-faint);letter-spacing:.12em;text-transform:uppercase;line-height:1}
+body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
 </style>
 </head>
 <body>
