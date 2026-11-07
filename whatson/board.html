@@ -1451,6 +1451,72 @@ body.landscape .db-stage .db-media{
 body.landscape .db-stage .db-img{width:100%;height:100%;object-fit:contain;display:block}
 body.landscape .db-stage .db-counter{top:8px;right:10px}
 
+
+/* ===== Events board v2 — bigger, bolder, fills the screen ===== */
+.tonight{gap:clamp(10px,1.6vh,22px)}
+.t-gigs{flex:1 1 0;max-height:none;min-height:0;display:flex;flex-direction:column;gap:clamp(10px,1.6vh,22px);overflow:hidden}
+.t-gigs .ev-list{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(6px,1vh,14px)}
+.t-cine{flex:0 0 auto}
+.ev-empty{flex:1;display:flex;align-items:center;justify-content:center;font-style:italic;color:var(--bone-faint);font-size:clamp(18px,2.4vw,44px);border:1px dashed var(--rule);border-radius:6px}
+
+.ev-hero{position:relative;flex:0 0 auto;border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;
+  padding:clamp(16px,2.4vh,34px) clamp(18px,2.6vw,40px);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(116,227,193,.13),transparent 60%),linear-gradient(110deg,rgba(255,255,255,.05),rgba(255,255,255,.012));
+  box-shadow:var(--shadow)}
+.ev-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--spectre);box-shadow:0 0 22px var(--spectre)}
+.ev-hero.live{background:radial-gradient(120% 140% at 0% 0%,rgba(227,73,47,.22),transparent 60%),linear-gradient(110deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border-color:rgba(227,73,47,.5)}
+.ev-hero.live::before{background:var(--ember);box-shadow:0 0 22px var(--ember)}
+.ev-hero-top{display:flex;justify-content:space-between;align-items:center;gap:1em}
+.ev-hero-tag{display:inline-flex;align-items:center;gap:.55em;font-family:"Cinzel",serif;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  font-size:clamp(14px,1.9vw,34px);color:var(--spectre)}
+.ev-hero.live .ev-hero-tag{color:#ff9a86}
+.ev-hero-tag .dot{width:.6em;height:.6em;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.ev-hero.live .ev-hero-tag .dot{animation:blink 1.4s steps(1) infinite}
+.ev-hero-name{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;line-height:1.06;color:var(--bone);
+  font-size:clamp(30px,6vw,112px);margin:.22em 0 .12em;text-shadow:0 0 40px rgba(116,227,193,.18);overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ev-hero-meta{display:flex;align-items:baseline;gap:1em;flex-wrap:wrap}
+.ev-hero-time{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(24px,4vw,76px);color:var(--bone);letter-spacing:.03em}
+.ev-hero-desc{margin-top:.5em;font-size:clamp(17px,2.2vw,40px);line-height:1.28;color:var(--bone-dim);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.ev-chip{font-family:"Cinzel",serif;font-weight:700;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+  font-size:clamp(11px,1.45vw,26px);padding:.28em .7em;border-radius:3px;border:1px solid currentColor;color:var(--spectre)}
+.ev-chip.k-karaoke{color:#ff6fb8}
+.ev-chip.k-dj-set{color:#74e3c1}
+.ev-chip.k-open-mic{color:var(--gold)}
+.ev-chip.k-quiz{color:#9db8ff}
+.ev-chip.k-live{color:#ff8a6b}
+.ev-price{font-family:"Cinzel",serif;font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
+
+.ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:"Cinzel",serif;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  font-size:clamp(14px,1.9vw,34px);color:var(--spectre);padding-top:clamp(4px,.8vh,12px)}
+.ev-day::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule-strong),transparent)}
+.ev-row{flex:0 0 auto;display:grid;grid-template-columns:clamp(86px,11vw,200px) 1fr auto;align-items:center;gap:clamp(10px,1.6vw,28px);
+  padding:clamp(10px,1.5vh,20px) clamp(14px,2vw,30px);border:1px solid var(--rule);border-radius:6px;position:relative;
+  background:linear-gradient(100deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}
+.ev-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor;opacity:.8}
+.ev-row.k-karaoke{color:#ff6fb8}.ev-row.k-dj-set{color:#74e3c1}.ev-row.k-open-mic{color:var(--gold)}.ev-row.k-quiz{color:#9db8ff}.ev-row.k-live{color:#ff8a6b}
+.ev-row.live{border-color:rgba(227,73,47,.55);background:linear-gradient(100deg,rgba(227,73,47,.16),rgba(227,73,47,.02))}
+.ev-time{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(20px,3vw,56px);color:var(--bone);letter-spacing:.02em}
+.ev-main{min-width:0}
+.ev-name{font-family:"EB Garamond",serif;font-weight:600;font-size:clamp(22px,3.5vw,66px);line-height:1.06;color:var(--bone);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-desc{font-size:clamp(14px,1.8vw,32px);line-height:1.25;color:var(--bone-dim);margin-top:.15em;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:.3em}
+
+/* cinema cards — big posters, two at most */
+.t-cine .t-head{padding-top:0}
+.t-cine .t-cine-body{flex:0 0 auto;display:grid;grid-template-columns:1fr;gap:clamp(8px,1.2vh,16px)}
+.t-cine .cine-row{flex:0 0 auto;gap:clamp(14px,2vw,30px);padding:clamp(10px,1.4vh,18px);border-radius:8px}
+.t-cine .cine-thumb{height:clamp(120px,19vh,360px);border-radius:4px;box-shadow:0 10px 30px -10px #000}
+.t-cine .cine-thumb .noimg{background:linear-gradient(160deg,#1b1420,#0a0a0d);font-size:3.2em;color:var(--ember)}
+.t-cine .cine-start{color:var(--bone);font-size:1.5em;margin-right:.5em}
+.t-cine .cine-time{font-size:clamp(15px,2vw,36px)}
+.t-cine .cine-title{font-size:clamp(26px,4vw,76px)}
+.t-cine .cine-blurb{font-size:clamp(14px,1.8vw,32px);-webkit-line-clamp:3}
+body.landscape .t-gigs{flex:1 1 0}
 </style>
 </head>
 <body>
@@ -2672,26 +2738,52 @@ async function renderTonight(now, validDate){
   wrap.innerHTML="";
   const container=document.createElement("div"); container.className="tonight";
 
+  function evDayLabel(dkey){
+    if(dkey===todayKey) return "Tonight";
+    const t=new Date(now.y,now.mo-1,now.day); t.setDate(t.getDate()+1);
+    if(dkey===ymdLocal(t)) return "Tomorrow";
+    const d=new Date(+dkey.slice(0,4),+dkey.slice(5,7)-1,+dkey.slice(8,10));
+    return DAYNAMES[d.getDay()]+" "+d.getDate()+" "+MONNAMES[d.getMonth()+1];
+  }
+  function evNorm(t){ return String(t||"").toLowerCase().replace(/\b(price|otd|bands?)\b.*$/,"").replace(/[^a-z0-9]+/g," ").trim(); }
+  function evDesc(g){ const d=evNorm(g.desc), t=evNorm(g.title); return (!d || d===t || t.includes(d) || d.includes(t) && d.length-t.length<8) ? "" : g.desc; }
+  function evKind(g){ return "k-"+String(g||"live").toLowerCase().replace(/[^a-z]+/g,"-"); }
+  function evIsLive(s){ return s.dkey===todayKey && s.startMin!=null && s.startMin<=now.min && now.min<s._end; }
   function gigSectionHTML(limit){
-    let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
     const list=allGigs.slice(0,limit);
-    if(!list.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
-    else list.forEach(s=>{
-      const isToday=s.dkey===todayKey;
-      const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
-      const dlabel=gigDateLabel(s, now);
-      const timeTxt=s.noTime?"":s.startLabel;
-      const kindLabel = s.genre ? esc(s.genre) : "";
-      gh+=`<div class="show${live?" live":""}">
-        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}${s.price?`<span class="price">${esc(s.price)}</span>`:""}</div>
-        <div class="body"><span class="kind">${kindLabel}</span><span class="name">${esc(s.title)}</span>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
-        <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
+    if(!list.length) return `<div class="ev-empty">Quiet in the Stage Bar — no gigs listed yet.</div>`;
+    const hero=list[0], rest=list.slice(1);
+    const hLive=evIsLive(hero);
+    const hTag=hLive?"On now":(hero.dkey===todayKey?"Tonight":"Next up · "+evDayLabel(hero.dkey));
+    const hTime=hero.noTime?"":hero.startLabel;
+    let h=`<article class="ev-hero ${evKind(hero.genre)}${hLive?" live":""}">
+      <div class="ev-hero-top"><span class="ev-hero-tag"><i class="dot"></i>${esc(hTag)}</span><span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span></div>
+      <div class="ev-hero-name">${esc(hero.title)}</div>
+      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}${hero.price?`<span class="ev-price">${esc(hero.price)} on the door</span>`:""}</div>
+      ${evDesc(hero)?`<div class="ev-hero-desc">${esc(evDesc(hero))}</div>`:""}
+    </article><div class="ev-list">`;
+    let last=hero.dkey;
+    rest.forEach(g=>{
+      if(g.dkey!==last){ h+=`<div class="ev-day">${esc(evDayLabel(g.dkey))}</div>`; last=g.dkey; }
+      else if(last===hero.dkey && !h.includes('class="ev-day"') && g.dkey===todayKey){ h+=`<div class="ev-day">Later tonight</div>`; }
+      const tm=g.noTime?"":g.startLabel;
+      h+=`<div class="ev-row${evIsLive(g)?" live":""} ${evKind(g.genre)}">
+        <span class="ev-time">${esc(tm)}</span>
+        <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}</div>
+        <div class="ev-side"><span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span>${g.price?`<span class="ev-price">${esc(g.price)}</span>`:""}</div>
+      </div>`;
     });
-    gh+=`</div>`;
-    return gh;
+    return h+`</div>`;
+  }
+  // trim whatever doesn't fit so the screen is full but nothing is cut off mid-row
+  function fitEvents(sec){
+    const list=sec.querySelector(".ev-list"); if(!list) return;
+    let guard=60;
+    while(list.scrollHeight>list.clientHeight+1 && list.lastElementChild && guard--){ list.lastElementChild.remove(); }
+    while(list.lastElementChild && list.lastElementChild.classList.contains("ev-day")) list.lastElementChild.remove();
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(12);
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(14);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
@@ -2706,23 +2798,26 @@ async function renderTonight(now, validDate){
   if(!films.length){
     csec.remove();
     gsec.classList.add("solo");
-    gsec.innerHTML=gigSectionHTML(11);
+    gsec.innerHTML=gigSectionHTML(14);
+    fitEvents(gsec);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ gsec.innerHTML=gigSectionHTML(14); fitEvents(gsec); });
     return;
   }
 
   const body=document.getElementById("tCineBody"); if(!body) return;
-  body.innerHTML=films.slice(0,3).map(f=>{
+  body.innerHTML=films.slice(0,2).map(f=>{
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
     const poster=t.poster?`<img src="${t.poster}" alt="">`:`<div class="noimg">▦</div>`;
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
+        <div class="cine-time">${time?`<b class="cine-start">${time}</b> `:""}${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
   }).join("");
+  requestAnimationFrame(()=>fitEvents(gsec));
 }
 
 /* =====================================================================
