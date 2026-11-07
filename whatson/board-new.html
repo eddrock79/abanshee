@@ -1515,6 +1515,13 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-hero.has-qr{padding-right:calc(clamp(110px,14vw,250px) + 3vw)}
 .ev-hero .ev-qr{position:absolute;right:clamp(16px,2.4vw,44px);top:50%;transform:translateY(-50%);width:clamp(110px,14vw,250px)}
 .ev-hero-tags{display:flex;flex-direction:column;align-items:flex-start;gap:.15em}
+/* hero card: centred content (QR stays far right, so pad both sides equally to keep the text truly centred) */
+.ev-hero{text-align:center}
+.ev-hero.has-qr{padding-left:calc(clamp(110px,14vw,250px) + 3vw)}
+.ev-hero-meta{justify-content:center}
+.ev-hero-top{display:flex;justify-content:center}
+.ev-hero-tags{align-items:center}
+.ev-hero-desc,.ev-hero-name,.ev-hero .ev-bands{margin-left:auto;margin-right:auto}
 .ev-when .ev-price{font-size:clamp(14px,1.9vw,34px)}
 .ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:.3em}
 
