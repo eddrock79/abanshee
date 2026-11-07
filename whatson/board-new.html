@@ -1519,27 +1519,19 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 @keyframes ghostBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
 @keyframes ghostGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(116,227,193,.18))}50%{filter:drop-shadow(0 0 16px rgba(116,227,193,.42))}}
 @media (prefers-reduced-motion:reduce){.ev-qr,.ev-qr svg.ghost,.ev-qr .eye{animation:none}}
-.ev-hero{position:relative;isolation:isolate}
-/* very faint stage spotlights sweeping the hero card */
-.ev-hero::before,.ev-hero::after{content:"";position:absolute;top:-6%;height:130%;width:62%;z-index:-1;pointer-events:none;mix-blend-mode:screen}
-.ev-hero::before{left:-6%;transform-origin:18% 0;background:radial-gradient(ellipse 14% 7% at 18% 4%,rgba(255,236,190,.22),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.085),rgba(255,222,160,0) 88%);clip-path:polygon(14% 0,23% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
-.ev-hero::after{right:-6%;transform-origin:82% 0;background:radial-gradient(ellipse 14% 7% at 82% 4%,rgba(190,255,236,.22),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.085),rgba(116,227,193,0) 88%);clip-path:polygon(77% 0,86% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
+.ev-hero{position:relative}
+/* very faint stage spotlights at the top of the page, lighting the logo and EVENTS */
+.spots{display:none;position:fixed;left:0;top:0;width:100%;height:30vh;z-index:0;pointer-events:none;overflow:hidden}
+body.lay-tonight .spots{display:block}
+.spots::before,.spots::after{content:"";position:absolute;top:-4%;height:118%;width:58%;mix-blend-mode:screen}
+.spots::before{left:-4%;transform-origin:20% 0;background:radial-gradient(ellipse 13% 6% at 20% 4%,rgba(255,236,190,.30),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.12),rgba(255,222,160,0) 90%);clip-path:polygon(15% 0,25% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
+.spots::after{right:-4%;transform-origin:80% 0;background:radial-gradient(ellipse 13% 6% at 80% 4%,rgba(190,255,236,.30),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.12),rgba(116,227,193,0) 90%);clip-path:polygon(75% 0,85% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
+.spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.075),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
 @keyframes beamL{from{transform:rotate(-5deg)}to{transform:rotate(7deg)}}
 @keyframes beamR{from{transform:rotate(5deg)}to{transform:rotate(-7deg)}}
-@media (prefers-reduced-motion:reduce){.ev-hero::before,.ev-hero::after{animation:none}}
-/* ghosts that drift slowly across the whole screen, behind the content */
-.drift-ghost{display:none;position:fixed;z-index:0;left:0;top:0;pointer-events:none;color:#f4efe2;opacity:0}
-body.lay-tonight .drift-ghost{display:block}
-.drift-ghost i{display:block;width:100%;height:100%}
-.drift-ghost svg{display:block;width:100%;height:100%;filter:blur(.6px) drop-shadow(0 0 22px rgba(116,227,193,.5))}
-.drift-ghost.g1{width:17vw;height:22vw;top:34vh;animation:driftA 120s linear infinite}
-.drift-ghost.g1 i{animation:driftBob 7s ease-in-out infinite}
-.drift-ghost.g2{width:10vw;height:13vw;top:66vh;animation:driftB 150s linear infinite;animation-delay:-75s}
-.drift-ghost.g2 i{animation:driftBob 5s ease-in-out infinite reverse}
-@keyframes driftA{0%{transform:translateX(-22vw);opacity:0}4%{opacity:.09}36%{opacity:.09}40%,100%{transform:translateX(104vw);opacity:0}}
-@keyframes driftB{0%{transform:translateX(104vw) scaleX(-1);opacity:0}4%{opacity:.07}36%{opacity:.07}40%,100%{transform:translateX(-14vw) scaleX(-1);opacity:0}}
-@keyframes driftBob{0%,100%{transform:translateY(-2.5vh) rotate(-3deg)}50%{transform:translateY(2.5vh) rotate(3deg)}}
-@media (prefers-reduced-motion:reduce){.drift-ghost{display:none!important}}
+@keyframes poolBreath{from{opacity:.55}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.spots::before,.spots::after,.spots i{animation:none}}
+
 .ev-hero.has-qr{padding-right:calc(clamp(120px,16vw,280px) + 3vw)}
 .ev-hero .ev-qr{position:absolute;right:clamp(16px,2.4vw,44px);top:50%;transform:translateY(-50%);width:clamp(120px,16vw,280px)}
 .ev-hero-tags{display:flex;flex-direction:column;align-items:flex-start;gap:.15em}
@@ -1625,7 +1617,7 @@ body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
   <div class="grain"></div>
 </div>
 <div class="motes" id="motes" aria-hidden="true"></div>
-<div class="drift-ghost g1" aria-hidden="true"><i><svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg"><path d="M10 56 C10 22 28 6 50 6 C72 6 90 22 90 56 L90 110 Q83.4 124 76.7 110 Q70 94 63.3 110 Q56.6 124 50 110 Q43.4 94 36.7 110 Q30 124 23.3 110 Q16.6 94 10 110 Z" fill="currentColor"/><ellipse cx="38" cy="30" rx="4.2" ry="6" fill="#0b0b0d"/><ellipse cx="62" cy="30" rx="4.2" ry="6" fill="#0b0b0d"/><ellipse cx="50" cy="50" rx="5" ry="7" fill="#0b0b0d"/></svg></i></div><div class="drift-ghost g2" aria-hidden="true"><i><svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg"><path d="M10 56 C10 22 28 6 50 6 C72 6 90 22 90 56 L90 110 Q83.4 124 76.7 110 Q70 94 63.3 110 Q56.6 124 50 110 Q43.4 94 36.7 110 Q30 124 23.3 110 Q16.6 94 10 110 Z" fill="currentColor"/><ellipse cx="38" cy="30" rx="4.2" ry="6" fill="#0b0b0d"/><ellipse cx="62" cy="30" rx="4.2" ry="6" fill="#0b0b0d"/><ellipse cx="50" cy="50" rx="5" ry="7" fill="#0b0b0d"/></svg></i></div>
+<div class="spots" aria-hidden="true"><i></i></div>
 <div id="pageBorder" aria-hidden="true"></div>
 <div class="creep left" aria-hidden="true"></div>
 <div class="creep right" aria-hidden="true"></div>
