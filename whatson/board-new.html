@@ -1531,6 +1531,18 @@ body.lay-tonight .spots{display:block}
 .spots::before{left:-4%;transform-origin:20% 0;background:radial-gradient(ellipse 13% 6% at 20% 4%,rgba(255,236,190,.18),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.07),rgba(255,222,160,0) 90%);clip-path:polygon(15% 0,25% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
 .spots::after{right:-4%;transform-origin:80% 0;background:radial-gradient(ellipse 13% 6% at 80% 4%,rgba(190,255,236,.18),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.07),rgba(116,227,193,0) 90%);clip-path:polygon(75% 0,85% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
 .spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.045),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
+/* faint smoke: slow haze drifting through the spotlights at the top, and ground fog along the bottom — all behind the content */
+.smoke{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+body.lay-tonight .smoke{display:block}
+.smoke b{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.smoke .t1{left:-20vw;top:-2vh;width:85vw;height:20vh;background:radial-gradient(closest-side,rgba(205,235,225,.075),transparent);animation:smokeR 70s ease-in-out infinite alternate}
+.smoke .t2{right:-25vw;top:5vh;width:80vw;height:17vh;background:radial-gradient(closest-side,rgba(215,225,235,.06),transparent);animation:smokeL 85s ease-in-out infinite alternate}
+.smoke .t3{left:10vw;top:11vh;width:70vw;height:14vh;background:radial-gradient(closest-side,rgba(205,235,225,.05),transparent);animation:smokeR 100s ease-in-out infinite alternate-reverse}
+.smoke .f1{left:-30vw;bottom:-5vh;width:110vw;height:22vh;background:radial-gradient(closest-side,rgba(190,215,205,.06),transparent);animation:smokeR 90s ease-in-out infinite alternate}
+.smoke .f2{right:-35vw;bottom:-8vh;width:105vw;height:20vh;background:radial-gradient(closest-side,rgba(200,210,220,.05),transparent);animation:smokeL 110s ease-in-out infinite alternate}
+@keyframes smokeR{from{transform:translateX(-8vw) scale(1)}to{transform:translateX(30vw) scale(1.18)}}
+@keyframes smokeL{from{transform:translateX(8vw) scale(1.1)}to{transform:translateX(-30vw) scale(.95)}}
+@media (prefers-reduced-motion:reduce){.smoke b{animation:none}}
 @keyframes beamL{from{transform:rotate(-5deg)}to{transform:rotate(7deg)}}
 @keyframes beamR{from{transform:rotate(5deg)}to{transform:rotate(-7deg)}}
 @keyframes poolBreath{from{opacity:.55}to{opacity:1}}
@@ -1622,6 +1634,7 @@ body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
 </div>
 <div class="motes" id="motes" aria-hidden="true"></div>
 <div class="spots" aria-hidden="true"><i></i></div>
+<div class="smoke" aria-hidden="true"><b class="t1"></b><b class="t2"></b><b class="t3"></b><b class="f1"></b><b class="f2"></b></div>
 <div id="pageBorder" aria-hidden="true"></div>
 <div class="creep left" aria-hidden="true"></div>
 <div class="creep right" aria-hidden="true"></div>
