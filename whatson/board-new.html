@@ -1980,7 +1980,7 @@ function stripHTML(s){
 }
 function parseDMY(s){ const m=(s||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m?{day:+m[1],mo:+m[2],y:+m[3]}:null; }
 function parseDoorTime(text){
-  const m=text.match(/doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
+  const m=text.match(/(?:doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?|start\s*time)\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
   if(!m) return null;
   let h=+m[1]; const mn=m[2]?+m[2]:0; const ap=(m[3]||"").toLowerCase();
   if(ap==="pm"&&h<12) h+=12;
@@ -2011,7 +2011,7 @@ function extractBlurb(plain){
   return b;
 }
 // labels the board recognises in a description — used as boundaries so values don't bleed into each other
-const NOTE_LABELS="bands|line ?up|support|djs?|blurb|about|info|details?|doors? ?open(?:s|ing)?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|entry ?cost|entry ?price|entry ?fee|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
+const NOTE_LABELS="event ?type|start ?time|band ?names?|website|web ?site|web|bands|line ?up|support|djs?|blurb|about|info|details?|doors? ?open(?:s|ing)?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|entry ?cost|entry ?price|entry ?fee|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
 // time-style labels staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
 const TIME_LABELS="doors? ?open(?:s|ing)?|doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
 function noteField(plain,label){
@@ -2031,7 +2031,7 @@ function noteField(plain,label){
 }
 function parsePrice(plain){
   // public entry price only — must be explicitly labelled; £30+ is treated as venue hire and hidden
-  const m=plain.match(/\b(?:otd|on the door|door price|entry(?: ?cost| ?price| ?fee)?|adv(?:ance)?|price)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
+  const m=plain.match(/\b(?:otd|on the door|door price|entry(?: ?cost| ?price| ?fee)?|adv(?:ance)?|price|cost)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
   if(!m) return "";
   let v=m[1].trim();
   if(/free/i.test(v)) return "Free";
@@ -2041,7 +2041,7 @@ function parsePrice(plain){
 }
 function parseGigNotes(plain){
   const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
-  let bands=noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
+  let bands=noteField(plain,"band ?names?")||noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
   if(!bands){ const f=noteField(plain,"ffo"); if(f) bands="FFO: "+f; }
   const dj=noteField(plain,"djs?");
   const parts=[];
@@ -2052,6 +2052,17 @@ function parseGigNotes(plain){
   if(desc.length>200) desc=desc.slice(0,197).trim()+"…";
   return { desc, price:parsePrice(plain) };
 }
+function normType(v){
+  const t=(v||"").toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
+  if(!t) return "";
+  if(/karaoke/.test(t)) return "Karaoke";
+  if(/\bdj\b|club night|disco|techno/.test(t)) return "DJ Set";
+  if(/open ?mic|take the stage|jam/.test(t)) return "Open Mic";
+  if(/quiz/.test(t)) return "Quiz";
+  if(/comedy/.test(t)) return "Comedy";
+  if(/^(live|gig|band|bands|live music|live band)$/.test(t)) return "Live";
+  return t.replace(/\b\w/g,c=>c.toUpperCase()).slice(0,16);
+}
 function guessType(title){
   const t=title.toLowerCase();
   if(/karaoke/.test(t)) return "Karaoke";
@@ -2061,7 +2072,7 @@ function guessType(title){
   return "Live";
 }
 // drop private/admin entries entirely
-const BOOKING_BLOCK=/^\s*(private\s+booking|possible\s+booking|potential\s+booking|booking(?:\s+tbc)?|booked|tbc|hold)\s*$/i;
+const BOOKING_BLOCK=/^\s*(template\b.*|private\s+booking|possible\s+booking|potential\s+booking|booking(?:\s+tbc)?|booked|tbc|hold)\s*$/i;
 function buildEventsFromCalendar(rows, modeDef){
   if(!rows || !rows.length) return [];
   let hi=rows.findIndex(r=> r.some(c=>/event title/i.test(c)) && r.some(c=>/start date/i.test(c)));
@@ -2079,7 +2090,10 @@ function buildEventsFromCalendar(rows, modeDef){
     const title=(r[ci.title]||"").trim();
     if(!title || BOOKING_BLOCK.test(title) || /rehearsal/i.test(title)) continue;
     const d=parseDMY(r[ci.sdate]); if(!d) continue;
-    const plain=stripHTML(r[ci.desc]||"");
+    const fullText=stripHTML(r[ci.desc]||"");
+    // everything below a divider line (____ ---- ====) is private and is never read
+    const cut=fullText.search(/_{3,}|-{5,}|={5,}|[—–]{3,}/);
+    const plain=(cut>=0?fullText.slice(0,cut):fullText).trim();
     const isAllDay=/^(true|yes|1)$/i.test((r[ci.allday]||"").trim());
     // door time: a "Doors:" line in the notes wins; otherwise fall back to the event's own start time
     let door=parseDoorTime(plain);
@@ -2089,7 +2103,7 @@ function buildEventsFromCalendar(rows, modeDef){
     const notes=parseGigNotes(plain);
     out.push({
       roomKey: modeDef.rooms[0].key,
-      title, genre:guessType(title), desc:notes.desc, price:notes.price,
+      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, price:notes.price,
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
       noTime: !door, y, mo, day, dkey,
