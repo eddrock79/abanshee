@@ -6,7 +6,7 @@
 <title>The Banshee Labyrinth — What's On</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
 <!-- ===================================================================
      THE BANSHEE LABYRINTH — "WHAT'S ON" PORTRAIT DISPLAY
@@ -1467,29 +1467,29 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-hero.live{background:radial-gradient(120% 140% at 0% 0%,rgba(227,73,47,.22),transparent 60%),linear-gradient(110deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border-color:rgba(227,73,47,.5)}
 .ev-hero.live::before{background:var(--ember);box-shadow:0 0 22px var(--ember)}
 .ev-hero-top{display:flex;justify-content:space-between;align-items:center;gap:1em}
-.ev-hero-tag{display:inline-flex;align-items:center;gap:.55em;font-family:"Cinzel",serif;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+.ev-hero-tag{display:inline-flex;align-items:center;gap:.55em;font-family:var(--evf);font-weight:700;letter-spacing:.22em;text-transform:uppercase;
   font-size:clamp(14px,1.9vw,34px);color:var(--spectre)}
 .ev-hero.live .ev-hero-tag{color:#ff9a86}
 .ev-hero-tag .dot{width:.6em;height:.6em;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
 .ev-hero.live .ev-hero-tag .dot{animation:blink 1.4s steps(1) infinite}
-.ev-hero-name{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:900;line-height:1.06;color:var(--bone);
+.ev-hero-name{font-family:var(--evf);font-weight:900;line-height:1.06;color:var(--bone);
   font-size:clamp(30px,6vw,112px);margin:.22em 0 .12em;text-shadow:0 0 40px rgba(116,227,193,.18);overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ev-hero-meta{display:flex;align-items:baseline;gap:1em;flex-wrap:wrap}
-.ev-hero-time{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(24px,4vw,76px);color:var(--bone);letter-spacing:.03em}
+.ev-hero-time{font-family:var(--evf);font-weight:700;font-size:clamp(24px,4vw,76px);color:var(--bone);letter-spacing:.03em}
 .ev-hero-desc{margin-top:.5em;font-size:clamp(17px,2.2vw,40px);line-height:1.28;color:var(--bone-dim);
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
-.ev-chip{font-family:"Cinzel",serif;font-weight:700;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+.ev-chip{font-family:var(--evf);font-weight:700;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
   font-size:clamp(11px,1.45vw,26px);padding:.28em .7em;border-radius:3px;border:1px solid currentColor;color:var(--spectre)}
 .ev-chip.k-karaoke{color:#ff6fb8}
 .ev-chip.k-dj-set{color:#74e3c1}
 .ev-chip.k-open-mic{color:var(--gold)}
 .ev-chip.k-quiz{color:#9db8ff}
 .ev-chip.k-live{color:#ff8a6b}
-.ev-price{font-family:"Cinzel",serif;font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
+.ev-price{font-family:var(--evf);font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
 
-.ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:"Cinzel",serif;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+.ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:var(--evf);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
   font-size:clamp(14px,1.9vw,34px);color:var(--spectre);padding-top:clamp(4px,.8vh,12px)}
 .ev-day::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule-strong),transparent)}
 .ev-row{flex:0 0 auto;display:grid;grid-template-columns:clamp(86px,11vw,200px) 1fr auto;align-items:center;gap:clamp(10px,1.6vw,28px);
@@ -1498,9 +1498,9 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor;opacity:.8}
 .ev-row.k-karaoke{color:#ff6fb8}.ev-row.k-dj-set{color:#74e3c1}.ev-row.k-open-mic{color:var(--gold)}.ev-row.k-quiz{color:#9db8ff}.ev-row.k-live{color:#ff8a6b}
 .ev-row.live{border-color:rgba(227,73,47,.55);background:linear-gradient(100deg,rgba(227,73,47,.16),rgba(227,73,47,.02))}
-.ev-time{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(20px,3vw,56px);color:var(--bone);letter-spacing:.02em}
+.ev-time{font-family:var(--evf);font-weight:700;font-size:clamp(20px,3vw,56px);color:var(--bone);letter-spacing:.02em}
 .ev-main{min-width:0}
-.ev-name{font-family:"EB Garamond",serif;font-weight:600;font-size:clamp(22px,3.5vw,66px);line-height:1.06;color:var(--bone);
+.ev-name{font-family:var(--evf);font-weight:600;font-size:clamp(22px,3.5vw,66px);line-height:1.06;color:var(--bone);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev-desc{font-size:clamp(14px,1.8vw,32px);line-height:1.25;color:var(--bone-dim);margin-top:.15em;
   display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -1517,6 +1517,24 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .t-cine .cine-title{font-size:clamp(26px,4vw,76px)}
 .t-cine .cine-blurb{font-size:clamp(14px,1.8vw,32px);-webkit-line-clamp:3}
 body.landscape .t-gigs{flex:1 1 0}
+
+.t-gigs,.t-cine{--evf:"Barlow Condensed","Arial Narrow",sans-serif}
+body.f-garamond .t-gigs,body.f-garamond .t-cine{--evf:"EB Garamond",Georgia,serif}
+body.f-oswald .t-gigs,body.f-oswald .t-cine{--evf:"Oswald","Arial Narrow",sans-serif}
+.ev-hero-name,.ev-name,.ev-time,.ev-hero-time,.cine-title{letter-spacing:.01em}
+.ev-hero-name{font-weight:700;text-transform:uppercase}
+/* condensed faces run small — scale up so they read from across the bar */
+body:not(.f-garamond) .ev-hero-name{font-size:clamp(34px,7.4vw,136px);line-height:1}
+body:not(.f-garamond) .ev-hero-time{font-size:clamp(28px,4.8vw,90px)}
+body:not(.f-garamond) .ev-hero-desc{font-size:clamp(18px,2.5vw,46px)}
+body:not(.f-garamond) .ev-name{font-size:clamp(26px,4.2vw,78px);font-weight:600}
+body:not(.f-garamond) .ev-time{font-size:clamp(22px,3.5vw,64px)}
+body:not(.f-garamond) .ev-desc{font-size:clamp(15px,2.1vw,38px)}
+body:not(.f-garamond) .ev-chip,body:not(.f-garamond) .ev-day,body:not(.f-garamond) .ev-hero-tag{font-weight:600}
+body:not(.f-garamond) .cine-title{font-size:clamp(30px,4.6vw,86px)}
+body.f-oswald .ev-hero-name{font-size:clamp(30px,6.4vw,118px)}
+/* rows with no time: drop the empty time column */
+.ev-row.no-time{grid-template-columns:1fr auto}
 </style>
 </head>
 <body>
@@ -1766,6 +1784,7 @@ const SAMPLE_CINEMA = [
    ===================================================================== */
 const params = new URLSearchParams(location.search);
 const IS_LANDSCAPE = params.get("landscape") === "1";
+document.body.classList.add("f-"+(["garamond","oswald","barlow"].includes(params.get("font"))?params.get("font"):"barlow"));
 if(IS_LANDSCAPE) document.body.classList.add("landscape");
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
@@ -2010,7 +2029,7 @@ function guessType(title){
   return "Live";
 }
 // drop private/admin entries entirely
-const BOOKING_BLOCK=/^\s*(private\s+booking|possible\s+booking|potential\s+booking|booking|booked|tbc|hold)\s*$/i;
+const BOOKING_BLOCK=/^\s*(private\s+booking|possible\s+booking|potential\s+booking|booking(?:\s+tbc)?|booked|tbc|hold)\s*$/i;
 function buildEventsFromCalendar(rows, modeDef){
   if(!rows || !rows.length) return [];
   let hi=rows.findIndex(r=> r.some(c=>/event title/i.test(c)) && r.some(c=>/start date/i.test(c)));
@@ -2725,6 +2744,7 @@ async function renderTonight(now, validDate){
   const allGigs=state.rows
     .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
+    .filter((g,i,arr)=> arr.findIndex(o=>o.dkey===g.dkey && o.title.toLowerCase()===g.title.toLowerCase() && o.startMin===g.startMin)===i)
     .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
   const hasGigToday=allGigs.some(g=>g.dkey===todayKey);
@@ -2767,8 +2787,8 @@ async function renderTonight(now, validDate){
       if(g.dkey!==last){ h+=`<div class="ev-day">${esc(evDayLabel(g.dkey))}</div>`; last=g.dkey; }
       else if(last===hero.dkey && !h.includes('class="ev-day"') && g.dkey===todayKey){ h+=`<div class="ev-day">Later tonight</div>`; }
       const tm=g.noTime?"":g.startLabel;
-      h+=`<div class="ev-row${evIsLive(g)?" live":""} ${evKind(g.genre)}">
-        <span class="ev-time">${esc(tm)}</span>
+      h+=`<div class="ev-row${evIsLive(g)?" live":""}${tm?"":" no-time"} ${evKind(g.genre)}">
+        ${tm?`<span class="ev-time">${esc(tm)}</span>`:""}
         <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}</div>
         <div class="ev-side"><span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span>${g.price?`<span class="ev-price">${esc(g.price)}</span>`:""}</div>
       </div>`;
