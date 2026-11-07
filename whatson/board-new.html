@@ -2145,7 +2145,7 @@ function parseGigNotes(plain){
   if(bands.length>140) bands=bands.slice(0,137).trim()+"…";
   let web="";
   const wm=!newFmt?null:plain.match(/web\s?site\s*:?\s*(?:https?:\/\/)?(?:www\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s,;]*)?)/i);
-  if(wm) web="https://"+wm[1].replace(/\/+$/,"").toLowerCase();
+  if(wm){ const u=wm[1].replace(/\/+$/,""), i=u.indexOf("/"); web="https://"+(i<0?u.toLowerCase():u.slice(0,i).toLowerCase()+u.slice(i)); }   // host lower-cased, path left exactly as typed
   // new template (has an "Event type:" line): the Cost: line is the public price, always shown — hire fees live below the divider.
   // old-format notes: keep the cautious rules (explicit price words only, £30+ hidden).
   return { desc, bands, web, newFmt, price:newFmt?parseCostField(plain):parsePrice(plain) };
