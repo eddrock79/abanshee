@@ -1595,6 +1595,12 @@ body.lay-tonight .masthead .clock{font-family:var(--evf)}
 .t-gigs{padding-bottom:6px}
 /* v4: logo masthead, date + time bottom-right */
 .bl-logo{display:none}
+/* the two lamps below cast the logo's shadow up and outward; it shifts as the beams sweep */
+body.lay-tonight .bl-logo{animation:logoShade 12s ease-in-out infinite alternate}
+@keyframes logoShade{
+  from{filter:drop-shadow(3px -6px 4px rgba(0,0,0,.65)) drop-shadow(-9px -6px 4px rgba(0,0,0,.65))}
+  to{filter:drop-shadow(9px -6px 4px rgba(0,0,0,.65)) drop-shadow(-3px -6px 4px rgba(0,0,0,.65))}}
+@media (prefers-reduced-motion:reduce){body.lay-tonight .bl-logo{animation:none;filter:drop-shadow(4px -6px 4px rgba(0,0,0,.6)) drop-shadow(-4px -6px 4px rgba(0,0,0,.6))}}
 body.lay-tonight .bl-logo{display:block;width:calc(100% + 40px);max-width:none;margin:clamp(-76px,-3.8vh,-20px) -20px clamp(-46px,-2.1vh,-12px);height:auto;pointer-events:none}
 body.lay-tonight .masthead .eyebrow,body.lay-tonight .masthead h1{display:none}
 body.lay-tonight .masthead{padding-bottom:clamp(8px,1.2vh,16px);border-bottom:0}
