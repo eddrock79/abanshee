@@ -1511,6 +1511,14 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-hero .ev-web{font-size:clamp(16px,2.2vw,40px)}
 .ev-qr{width:clamp(96px,14vw,250px);aspect-ratio:100/130;filter:drop-shadow(0 0 10px rgba(116,227,193,.28))}
 .ev-qr svg{display:block;width:100%;height:100%}
+/* friendly ghost: slow bob and sway, a blink now and then, a soft breathing glow (small movements so the code still scans) */
+.ev-qr svg.ghost{transform-origin:50% 90%;animation:ghostFloat 5s ease-in-out infinite}
+.ev-qr .eye{transform-box:fill-box;transform-origin:center;animation:ghostBlink 6s infinite}
+.ev-qr{animation:ghostGlow 4s ease-in-out infinite}
+@keyframes ghostFloat{0%,100%{transform:translateY(0) rotate(-1.6deg)}50%{transform:translateY(-6px) rotate(1.6deg)}}
+@keyframes ghostBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes ghostGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(116,227,193,.18))}50%{filter:drop-shadow(0 0 16px rgba(116,227,193,.42))}}
+@media (prefers-reduced-motion:reduce){.ev-qr,.ev-qr svg.ghost,.ev-qr .eye{animation:none}}
 .ev-hero{position:relative}
 .ev-hero.has-qr{padding-right:calc(clamp(120px,16vw,280px) + 3vw)}
 .ev-hero .ev-qr{position:absolute;right:clamp(16px,2.4vw,44px);top:50%;transform:translateY(-50%);width:clamp(120px,16vw,280px)}
@@ -2080,7 +2088,7 @@ function qrHTML(url){
     const lobes=[[76.7,124],[63.3,94],[50,124],[36.7,94],[23.3,124],[10,94]];
     let hem=""; lobes.forEach(([x,cy],k)=>{ hem+=` Q${(x+(k?lobes[k-1][0]:90))/2} ${cy} ${x} 110`; });
     const ghost=`M10 56 C10 22 28 6 50 6 C72 6 90 22 90 56 L90 110${hem} Z`;
-    return `<svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg"><path d="${ghost}" fill="#f4efe2"/><ellipse cx="38" cy="21" rx="3.6" ry="5" fill="#0b0b0d"/><ellipse cx="62" cy="21" rx="3.6" ry="5" fill="#0b0b0d"/><svg x="17" y="32" width="66" height="66" viewBox="0 0 ${t} ${t}" shape-rendering="crispEdges"><rect width="${t}" height="${t}" fill="#f4efe2"/><path d="${d}" fill="#0b0b0d"/></svg></svg>`;
+    return `<svg class="ghost" style="animation-delay:-${(Math.random()*5).toFixed(2)}s" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg"><path d="${ghost}" fill="#f4efe2"/><ellipse class="eye" cx="38" cy="21" rx="3.6" ry="5" fill="#0b0b0d"/><ellipse class="eye" cx="62" cy="21" rx="3.6" ry="5" fill="#0b0b0d"/><svg x="17" y="32" width="66" height="66" viewBox="0 0 ${t} ${t}" shape-rendering="crispEdges"><rect width="${t}" height="${t}" fill="#f4efe2"/><path d="${d}" fill="#0b0b0d"/></svg></svg>`;
   }catch(e){ return ""; }
 }
 function parseGigNotes(plain){
