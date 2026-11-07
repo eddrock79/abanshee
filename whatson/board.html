@@ -6,7 +6,7 @@
 <title>The Banshee Labyrinth — What's On</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
 <!-- ===================================================================
      THE BANSHEE LABYRINTH — "WHAT'S ON" PORTRAIT DISPLAY
@@ -1451,6 +1451,185 @@ body.landscape .db-stage .db-media{
 body.landscape .db-stage .db-img{width:100%;height:100%;object-fit:contain;display:block}
 body.landscape .db-stage .db-counter{top:8px;right:10px}
 
+
+/* ===== Events board v2 — bigger, bolder, fills the screen ===== */
+.tonight{gap:clamp(10px,1.6vh,22px)}
+.t-gigs{flex:1 1 0;max-height:none;min-height:0;display:flex;flex-direction:column;gap:clamp(10px,1.6vh,22px);overflow:hidden}
+.t-gigs .ev-list{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,.7vh,10px)}
+.t-cine{flex:0 0 auto}
+.ev-empty{flex:1;display:flex;align-items:center;justify-content:center;font-style:italic;color:var(--bone-faint);font-size:clamp(18px,2.4vw,44px);border:1px dashed var(--rule);border-radius:6px}
+
+.ev-hero{position:relative;flex:0 0 auto;border:1px solid var(--rule-strong);border-radius:8px;overflow:hidden;
+  padding:clamp(16px,2.4vh,34px) clamp(18px,2.6vw,40px);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(116,227,193,.13),transparent 60%),linear-gradient(110deg,rgba(255,255,255,.05),rgba(255,255,255,.012));
+  box-shadow:var(--shadow)}
+.ev-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--spectre);box-shadow:0 0 22px var(--spectre)}
+.ev-hero.live{background:radial-gradient(120% 140% at 0% 0%,rgba(227,73,47,.22),transparent 60%),linear-gradient(110deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border-color:rgba(227,73,47,.5)}
+.ev-hero.live::before{background:var(--ember);box-shadow:0 0 22px var(--ember)}
+.ev-hero-top{display:flex;justify-content:space-between;align-items:center;gap:1em}
+.ev-hero-tag{display:inline-flex;align-items:center;gap:.55em;font-family:var(--evf);font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  font-size:clamp(14px,1.9vw,34px);color:var(--spectre)}
+.ev-hero.live .ev-hero-tag{color:#ff9a86}
+.ev-hero-tag .dot{width:.6em;height:.6em;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.ev-hero.live .ev-hero-tag .dot{animation:blink 1.4s steps(1) infinite}
+.ev-hero-name{font-family:var(--evf);font-weight:900;line-height:1.06;color:var(--bone);
+  font-size:clamp(30px,6vw,112px);margin:.22em 0 .12em;text-shadow:0 0 40px rgba(116,227,193,.18);overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ev-hero-meta{display:flex;align-items:baseline;gap:1em;flex-wrap:wrap}
+.ev-hero-time{font-family:var(--evf);font-weight:700;font-size:clamp(24px,4vw,76px);color:var(--bone);letter-spacing:.03em}
+.ev-hero-desc{margin-top:.5em;font-size:clamp(17px,2.2vw,40px);line-height:1.28;color:var(--bone-dim);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.ev-chip{font-family:var(--evf);font-weight:700;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+  font-size:clamp(11px,1.45vw,26px);padding:.28em .7em;border-radius:3px;border:1px solid currentColor;color:var(--spectre)}
+.ev-chip.k-karaoke{color:#ff6fb8}
+.ev-chip.k-dj-set{color:#74e3c1}
+.ev-chip.k-open-mic{color:var(--gold)}
+.ev-chip.k-quiz{color:#9db8ff}
+.ev-chip.k-live{color:#ff8a6b}
+.ev-price{font-family:var(--evf);font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
+
+.ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:var(--evf);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  font-size:clamp(18px,2.7vw,48px);color:var(--spectre);padding-top:clamp(2px,.4vh,6px)}
+.ev-day::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule-strong),transparent)}
+.ev-row{flex:0 0 auto;display:grid;grid-template-columns:clamp(86px,11vw,200px) 1fr auto;align-items:center;gap:clamp(10px,1.6vw,28px);
+  padding:clamp(6px,.9vh,13px) clamp(14px,2vw,30px);border:1px solid var(--rule);border-radius:6px;position:relative;
+  background:linear-gradient(100deg,rgba(255,255,255,.035),rgba(255,255,255,.008))}
+.ev-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor;opacity:.8}
+.ev-row.k-karaoke{color:#ff6fb8}.ev-row.k-dj-set{color:#74e3c1}.ev-row.k-open-mic{color:var(--gold)}.ev-row.k-quiz{color:#9db8ff}.ev-row.k-live{color:#ff8a6b}
+.ev-row.live{border-color:rgba(227,73,47,.55);background:linear-gradient(100deg,rgba(227,73,47,.16),rgba(227,73,47,.02))}
+.ev-time{font-family:var(--evf);font-weight:700;font-size:clamp(20px,3vw,56px);color:var(--bone);letter-spacing:.02em}
+.ev-main{min-width:0}
+.ev-name{font-family:var(--evf);font-weight:600;font-size:clamp(22px,3.5vw,66px);line-height:1.06;color:var(--bone);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-desc{font-size:clamp(14px,1.8vw,32px);line-height:1.25;color:var(--bone-dim);margin-top:.15em;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.ev-bands{font-family:var(--evf);font-weight:600;font-size:clamp(17px,2.4vw,44px);line-height:1.2;color:var(--bone);margin-top:.2em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev-web{font-family:var(--evf);font-size:clamp(15px,2vw,36px);letter-spacing:.06em;color:var(--spectre);opacity:.85;margin-top:.15em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-hero .ev-bands{font-size:clamp(19px,2.7vw,50px);margin-top:.45em}
+.ev-hero .ev-web{font-size:clamp(16px,2.2vw,40px)}
+.ev-qr{width:clamp(84px,11.5vw,210px);aspect-ratio:100/120;filter:drop-shadow(0 0 10px rgba(116,227,193,.28))}
+.ev-qr svg{display:block;width:100%;height:100%}
+/* friendly ghost: slow bob and sway, a blink now and then, a soft breathing glow (small movements so the code still scans) */
+.ev-qr svg.ghost{transform-origin:50% 90%;animation:ghostFloat 5s ease-in-out infinite}
+.ev-qr .eye{transform-box:fill-box;transform-origin:center;animation:ghostBlink 6s infinite}
+.ev-qr{animation:ghostGlow 4s ease-in-out infinite}
+@keyframes ghostFloat{0%,100%{transform:translateY(0) rotate(-1.6deg)}50%{transform:translateY(-6px) rotate(1.6deg)}}
+@keyframes ghostBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes ghostGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(116,227,193,.18))}50%{filter:drop-shadow(0 0 16px rgba(116,227,193,.42))}}
+@media (prefers-reduced-motion:reduce){.ev-qr,.ev-qr svg.ghost,.ev-qr .eye{animation:none}}
+.ev-hero{position:relative}
+body.lay-tonight #footNote{display:none}
+body.lay-tonight .rooms{margin-bottom:clamp(30px,3.5vh,68px)!important}   /* footer is gone: let the list run down to just above the date line */
+body.lay-tonight .footer{border:0;padding:0;margin:0;min-height:0}
+body.lay-tonight .footer .src:not(.sample):not(.error){display:none}
+.ev-price.free{color:#5df2a6;text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 14px rgba(93,242,166,.55)}
+/* very faint stage spotlights at the top of the page, lighting the logo and EVENTS */
+.spots{display:none;position:fixed;left:0;top:0;width:100%;height:var(--hero-top,28vh);z-index:0;pointer-events:none;overflow:hidden}
+body.lay-tonight .spots{display:block}
+.spots::before,.spots::after{content:"";position:absolute;bottom:-14%;height:125%;width:58%;mix-blend-mode:screen}
+.spots::before{left:-4%;transform-origin:20% 100%;background:radial-gradient(ellipse 13% 7% at 20% 97%,rgba(255,236,190,.30),transparent 100%),linear-gradient(0deg,rgba(255,222,160,.10),rgba(255,222,160,0) 92%);clip-path:polygon(15% 100%,25% 100%,100% 0,0 0);animation:beamL 7s ease-in-out infinite alternate}
+.spots::after{right:-4%;transform-origin:80% 100%;background:radial-gradient(ellipse 13% 7% at 80% 97%,rgba(190,255,236,.30),transparent 100%),linear-gradient(0deg,rgba(116,227,193,.10),rgba(116,227,193,0) 92%);clip-path:polygon(75% 100%,85% 100%,100% 0,0 0);animation:beamR 8.5s ease-in-out infinite alternate}
+.spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.045),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
+/* faint smoke: slow haze drifting through the spotlights at the top, and ground fog along the bottom — all behind the content */
+.smoke{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+body.lay-tonight .smoke{display:block}
+.smoke b{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.smoke .t1{left:-20vw;top:-2vh;width:85vw;height:20vh;background:radial-gradient(closest-side,rgba(205,235,225,.17),transparent);animation:smokeR 70s ease-in-out infinite alternate}
+.smoke .t2{right:-25vw;top:5vh;width:80vw;height:17vh;background:radial-gradient(closest-side,rgba(215,225,235,.14),transparent);animation:smokeL 85s ease-in-out infinite alternate}
+.smoke .t3{left:10vw;top:11vh;width:70vw;height:14vh;background:radial-gradient(closest-side,rgba(205,235,225,.12),transparent);animation:smokeR 100s ease-in-out infinite alternate-reverse}
+.smoke .f1{left:-30vw;bottom:-5vh;width:110vw;height:22vh;background:radial-gradient(closest-side,rgba(190,215,205,.15),transparent);animation:smokeR 90s ease-in-out infinite alternate}
+.smoke .f2{right:-35vw;bottom:-8vh;width:105vw;height:20vh;background:radial-gradient(closest-side,rgba(200,210,220,.12),transparent);animation:smokeL 110s ease-in-out infinite alternate}
+@keyframes smokeR{from{transform:translateX(-8vw) scale(1)}to{transform:translateX(30vw) scale(1.18)}}
+@keyframes smokeL{from{transform:translateX(8vw) scale(1.1)}to{transform:translateX(-30vw) scale(.95)}}
+@media (prefers-reduced-motion:reduce){.smoke b{animation:none}}
+@keyframes beamL{from{transform:rotate(-17deg)}to{transform:rotate(19deg)}}
+@keyframes beamR{from{transform:rotate(18deg)}to{transform:rotate(-16deg)}}
+@keyframes poolBreath{from{opacity:.55}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.spots::before,.spots::after,.spots i{animation:none}}
+
+.ev-hero.has-qr{padding-right:calc(clamp(110px,14vw,250px) + 3vw)}
+.ev-hero .ev-qr{position:absolute;right:clamp(16px,2.4vw,44px);top:50%;transform:translateY(-50%);width:clamp(110px,14vw,250px)}
+.ev-hero-tags{display:flex;flex-direction:column;align-items:flex-start;gap:.15em}
+/* hero card: centred content (QR stays far right, so pad both sides equally to keep the text truly centred) */
+.ev-hero{text-align:center}
+.ev-hero.has-qr{padding-left:calc(clamp(110px,14vw,250px) + 3vw)}
+.ev-hero-meta{justify-content:center}
+.ev-hero-top{display:flex;justify-content:center}
+.ev-hero-tags{align-items:center}
+.ev-hero-desc,.ev-hero-name,.ev-hero .ev-bands{margin-left:auto;margin-right:auto}
+.ev-when .ev-price{font-size:clamp(18px,2.7vw,50px);line-height:1.1}
+.ev-hero-tags .ev-price{font-size:clamp(22px,3.2vw,60px);line-height:1.1}
+.ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:.3em}
+
+/* cinema cards — big posters, two at most */
+.t-cine .t-head{padding-top:0}
+.t-cine .t-cine-body{flex:0 0 auto;display:grid;grid-template-columns:1fr;gap:clamp(8px,1.2vh,16px)}
+.t-cine .cine-row{flex:0 0 auto;gap:clamp(14px,2vw,30px);padding:clamp(10px,1.4vh,18px);border-radius:8px}
+.t-cine .cine-thumb{height:clamp(120px,19vh,360px);border-radius:4px;box-shadow:0 10px 30px -10px #000}
+.t-cine .cine-thumb .noimg{background:linear-gradient(160deg,#1b1420,#0a0a0d);font-size:3.2em;color:var(--ember)}
+.t-cine .cine-start{color:var(--bone);font-size:1.5em;margin-right:.5em}
+.t-cine .cine-time{font-size:clamp(15px,2vw,36px)}
+.t-cine .cine-title{font-size:clamp(26px,4vw,76px)}
+.t-cine .cine-blurb{font-size:clamp(14px,1.8vw,32px);-webkit-line-clamp:3}
+body.landscape .t-gigs{flex:1 1 0}
+
+body{--evf:"Barlow Condensed","Arial Narrow",sans-serif}
+body.f-garamond{--evf:"EB Garamond",Georgia,serif}
+body.f-oswald{--evf:"Oswald","Arial Narrow",sans-serif}
+.ev-hero-name,.ev-name,.ev-time,.ev-hero-time,.cine-title{letter-spacing:.01em}
+.ev-hero-name{font-weight:700;text-transform:uppercase}
+/* condensed faces run small — scale up so they read from across the bar */
+body:not(.f-garamond) .ev-hero-name{font-size:clamp(34px,7.4vw,136px);line-height:1}
+body:not(.f-garamond) .ev-hero-time{font-size:clamp(28px,4.8vw,90px)}
+body:not(.f-garamond) .ev-hero-desc{font-size:clamp(18px,2.5vw,46px)}
+body:not(.f-garamond) .ev-name{font-size:clamp(26px,4.2vw,78px);font-weight:600}
+body:not(.f-garamond) .ev-time{font-size:clamp(22px,3.5vw,64px)}
+body:not(.f-garamond) .ev-chip,body:not(.f-garamond) .ev-day,body:not(.f-garamond) .ev-hero-tag{font-weight:600}
+body:not(.f-garamond) .cine-title{font-size:clamp(30px,4.6vw,86px)}
+body.f-oswald .ev-hero-name{font-size:clamp(30px,6.4vw,118px)}
+body.lay-tonight .masthead h1{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+body.lay-tonight .masthead .when{font-family:var(--evf);font-style:normal;letter-spacing:.08em}
+body.lay-tonight .masthead .clock{font-family:var(--evf)}
+.ev-desc,.ev-hero-desc,.cine-blurb{font-family:var(--evf)}
+.t-gigs{padding-bottom:6px}
+/* v4: logo masthead, date + time bottom-right */
+.bl-logo{display:none}
+/* the two lamps below cast the logo's shadow up and outward; it shifts as the beams sweep */
+body.lay-tonight .bl-logo{animation:logoShade 7.5s ease-in-out infinite alternate}
+@keyframes logoShade{
+  from{filter:drop-shadow(2px -5px 4px rgba(0,0,0,.7)) drop-shadow(-18px -10px 6px rgba(0,0,0,.7))}
+  to{filter:drop-shadow(18px -10px 6px rgba(0,0,0,.7)) drop-shadow(-2px -5px 4px rgba(0,0,0,.7))}}
+@media (prefers-reduced-motion:reduce){body.lay-tonight .bl-logo{animation:none;filter:drop-shadow(4px -6px 4px rgba(0,0,0,.6)) drop-shadow(-4px -6px 4px rgba(0,0,0,.6))}}
+body.lay-tonight .bl-logo{display:block;width:calc(100% + 40px);max-width:none;margin:clamp(-76px,-3.8vh,-20px) -20px clamp(-46px,-2.1vh,-12px);height:auto;pointer-events:none}
+body.lay-tonight .masthead .eyebrow,body.lay-tonight .masthead h1{display:none}
+body.lay-tonight .masthead{padding-bottom:clamp(8px,1.2vh,16px);border-bottom:0}
+body.lay-tonight .masthead .sub{position:fixed;right:clamp(18px,3.4vw,44px);bottom:clamp(46px,5.6vh,84px);z-index:6;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.05em;margin:0;text-align:right}
+body.lay-tonight .masthead .clock{order:-1;font-size:clamp(30px,5vw,92px);font-weight:700;color:var(--bone);line-height:1;letter-spacing:.04em}
+body.lay-tonight .masthead .when{font-size:clamp(16px,2.3vw,42px);color:var(--bone-dim);letter-spacing:.1em;text-transform:uppercase}
+body.lay-tonight .rooms{margin-bottom:clamp(80px,10.5vh,190px)}
+/* names wrap to two lines instead of being cut off */
+.ev-name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}
+/* v3: type under the time, bigger heading, roomier descriptions */
+.ev-row,.ev-row.no-time{grid-template-columns:clamp(130px,17vw,300px) 1fr auto;align-items:start}
+.ev-row .ev-side{align-self:center}
+.ev-when{display:flex;flex-direction:column;align-items:flex-start;gap:.12em}
+.ev-when .ev-chip{font-size:clamp(11px,1.5vw,28px)}
+.ev-hero-meta{align-items:center}
+body:not(.f-garamond) .ev-desc,.ev-desc{font-size:clamp(17px,2.4vw,44px);line-height:1.2;-webkit-line-clamp:2}
+.ev-hero-desc{font-size:clamp(19px,2.7vw,50px)}
+body.lay-tonight .masthead h1{font-size:clamp(46px,8.2vw,150px);line-height:1}
+
+/* rows with no time: drop the empty time column */
+.ev-row.no-time{grid-template-columns:1fr auto}
+
+/* v5: date + time on one quiet line, bottom-right */
+body.lay-tonight .masthead .sub{flex-direction:row;align-items:baseline;gap:.7em;bottom:clamp(40px,4.6vh,70px)}
+body.lay-tonight .masthead .clock{order:0;font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-dim);letter-spacing:.12em;line-height:1}
+body.lay-tonight .masthead .when{font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-faint);letter-spacing:.12em;text-transform:uppercase;line-height:1}
+body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
 </style>
 </head>
 <body>
@@ -1461,6 +1640,8 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
   <div class="grain"></div>
 </div>
 <div class="motes" id="motes" aria-hidden="true"></div>
+<div class="spots" aria-hidden="true"><i></i></div>
+<div class="smoke" aria-hidden="true"><b class="t1"></b><b class="t2"></b><b class="t3"></b><b class="f1"></b><b class="f2"></b></div>
 <div id="pageBorder" aria-hidden="true"></div>
 <div class="creep left" aria-hidden="true"></div>
 <div class="creep right" aria-hidden="true"></div>
@@ -1482,6 +1663,7 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 
 <main class="stage">
   <header class="masthead">
+    <img class="bl-logo" src="logo-board-3d.png" alt="The Banshee Labyrinth">
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
     <h1 id="title">What's On</h1>
     <div class="sub">
@@ -1532,6 +1714,9 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
   <div class="status" id="status">—</div>
 </aside>
 
+<script>/* QR Code Generator (c) Kazuhiko Arase, MIT licence — http://www.d-project.com/ */
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+</script>
 <script>
 /* =====================================================================
    CONFIG  — edit these for your venue / season
@@ -1700,6 +1885,7 @@ const SAMPLE_CINEMA = [
    ===================================================================== */
 const params = new URLSearchParams(location.search);
 const IS_LANDSCAPE = params.get("landscape") === "1";
+document.body.classList.add("f-"+(["garamond","oswald","barlow"].includes(params.get("font"))?params.get("font"):"barlow"));
 if(IS_LANDSCAPE) document.body.classList.add("landscape");
 const initMode = (params.get("mode") in MODES) ? params.get("mode") : "fringe";
 const wantSim = params.has("now") || params.get("test")==="1";  // only freeze time for explicit testing
@@ -1863,7 +2049,7 @@ function stripHTML(s){
 }
 function parseDMY(s){ const m=(s||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m?{day:+m[1],mo:+m[2],y:+m[3]}:null; }
 function parseDoorTime(text){
-  const m=text.match(/doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
+  const m=text.match(/(?:doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?|start\s*time)\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
   if(!m) return null;
   let h=+m[1]; const mn=m[2]?+m[2]:0; const ap=(m[3]||"").toLowerCase();
   if(ap==="pm"&&h<12) h+=12;
@@ -1894,7 +2080,7 @@ function extractBlurb(plain){
   return b;
 }
 // labels the board recognises in a description — used as boundaries so values don't bleed into each other
-const NOTE_LABELS="bands|line ?up|support|djs?|blurb|about|info|details?|doors? ?open(?:s|ing)?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|entry ?cost|entry ?price|entry ?fee|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
+const NOTE_LABELS="event ?type|start ?time|band ?names?|website|web ?site|web|bands|line ?up|support|djs?|blurb|about|info|details?|doors? ?open(?:s|ing)?|doors?|eta|end ?time|ends?|finish(?:es)?|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew|contact(?: number)?|phone|tel|mob(?:ile)?|promoter|entry ?cost|entry ?price|entry ?fee|price|otd|on the door|adv(?:ance)?|entry|fee|cost|hire|tickets?|event ?link|link|facebook|fb|insta(?:gram)?|poster|name|ffo";
 // time-style labels staff often write WITHOUT a colon (e.g. "Doors 8pm", "Load in 5pm")
 const TIME_LABELS="doors? ?open(?:s|ing)?|doors?|eta|end ?time|load ?-? ?in|get ?in|sound ?check|stage ?times?|set ?times?|change ?over|curfew";
 function noteField(plain,label){
@@ -1914,7 +2100,7 @@ function noteField(plain,label){
 }
 function parsePrice(plain){
   // public entry price only — must be explicitly labelled; £30+ is treated as venue hire and hidden
-  const m=plain.match(/\b(?:otd|on the door|door price|entry(?: ?cost| ?price| ?fee)?|adv(?:ance)?|price)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
+  const m=plain.match(/\b(?:otd|on the door|door price|entry(?: ?cost| ?price| ?fee)?|adv(?:ance)?|price|cost)\b\s*:?\s*(free|£\s?\d+(?:\.\d{2})?|\d+(?:\.\d{2})?)/i);
   if(!m) return "";
   let v=m[1].trim();
   if(/free/i.test(v)) return "Free";
@@ -1922,18 +2108,58 @@ function parsePrice(plain){
   if(isNaN(num)||num>=30) return "";   // £30+ = internal venue-hire cost, not entry → hide
   return "£"+(Number.isInteger(num)?num:num.toFixed(2));
 }
+function parseCostField(plain){
+  let v=noteField(plain,"cost");
+  if(!v) return "";
+  if(/^free\b/i.test(v)) return "Free";
+  const n=v.match(/^£?\s?(\d+(?:\.\d{1,2})?)$/);
+  if(n){ const num=parseFloat(n[1]); return num===0?"Free":"£"+(Number.isInteger(num)?num:num.toFixed(2)); }
+  return v.length>24?v.slice(0,23).trim()+"…":v;
+}
+function qrHTML(url){
+  try{
+    const q=qrcode(0,"M"); q.addData(url); q.make();
+    const n=q.getModuleCount(), m=2; let d="";
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) d+=`M${c+m} ${r+m}h1v1h-1z`;
+    const t=n+m*2;
+    const lobes=[[76.7,122],[63.3,96],[50,122],[36.7,96],[23.3,122],[10,96]];
+    let hem=""; lobes.forEach(([x,cy],k)=>{ hem+=` Q${(x+(k?lobes[k-1][0]:90))/2} ${cy} ${x} 108`; });
+    const ghost=`M10 56 C10 22 28 6 50 6 C72 6 90 22 90 56 L90 108${hem} Z`;
+    return `<svg class="ghost" style="animation-delay:-${(Math.random()*5).toFixed(2)}s" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"><path d="${ghost}" fill="#f4efe2"/><ellipse class="eye" cx="38" cy="17" rx="3.4" ry="4.6" fill="#0b0b0d"/><ellipse class="eye" cx="62" cy="17" rx="3.4" ry="4.6" fill="#0b0b0d"/><svg x="15" y="29" width="70" height="70" viewBox="0 0 ${t} ${t}" shape-rendering="crispEdges"><rect width="${t}" height="${t}" fill="#f4efe2"/><path d="${d}" fill="#0b0b0d"/></svg></svg>`;
+  }catch(e){ return ""; }
+}
 function parseGigNotes(plain){
   const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
-  let bands=noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
+  let bands=noteField(plain,"band ?names?")||noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
   if(!bands){ const f=noteField(plain,"ffo"); if(f) bands="FFO: "+f; }
   const dj=noteField(plain,"djs?");
+  const newFmt=/\bevent ?type\s*:/i.test(plain);
   const parts=[];
   if(blurb) parts.push(blurb);
-  if(bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);
-  if(dj && !/dj\b/i.test(parts.join(" "))) parts.push("DJ "+dj);
+  if(!newFmt && bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);   // old notes: one merged line, as before
+  if(dj && !/dj\b/i.test(parts.join(" ")+" "+bands)) parts.push("DJ "+dj);
   let desc=parts.join(" — ");
-  if(desc.length>200) desc=desc.slice(0,197).trim()+"…";
-  return { desc, price:parsePrice(plain) };
+  if(desc.length>160) desc=desc.slice(0,157).trim()+"…";
+  if(!newFmt || bands.toLowerCase()===blurb.toLowerCase()) bands="";
+  bands=bands.replace(/\s*(?:,|;|\/|\s&\s|\+)\s*/g," · ");
+  if(bands.length>140) bands=bands.slice(0,137).trim()+"…";
+  let web="";
+  const wm=!newFmt?null:plain.match(/web\s?site\s*:?\s*(?:https?:\/\/)?(?:www\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s,;]*)?)/i);
+  if(wm){ const u=wm[1].replace(/\/+$/,""), i=u.indexOf("/"); web="https://"+(i<0?u.toLowerCase():u.slice(0,i).toLowerCase()+u.slice(i)); }   // host lower-cased, path left exactly as typed
+  // new template (has an "Event type:" line): the Cost: line is the public price, always shown — hire fees live below the divider.
+  // old-format notes: keep the cautious rules (explicit price words only, £30+ hidden).
+  return { desc, bands, web, newFmt, price:newFmt?parseCostField(plain):parsePrice(plain) };
+}
+function normType(v){
+  const t=(v||"").toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
+  if(!t) return "";
+  if(/karaoke/.test(t)) return "Karaoke";
+  if(/\bdj\b|club night|disco|techno/.test(t)) return "DJ Set";
+  if(/open ?mic|take the stage|jam/.test(t)) return "Open Mic";
+  if(/quiz/.test(t)) return "Quiz";
+  if(/comedy/.test(t)) return "Comedy";
+  if(/^(live|gig|band|bands|live music|live band)$/.test(t)) return "Live";
+  return t.replace(/\b\w/g,c=>c.toUpperCase()).slice(0,16);
 }
 function guessType(title){
   const t=title.toLowerCase();
@@ -1944,7 +2170,7 @@ function guessType(title){
   return "Live";
 }
 // drop private/admin entries entirely
-const BOOKING_BLOCK=/^\s*(private\s+booking|possible\s+booking|potential\s+booking|booking|booked|tbc|hold)\s*$/i;
+const BOOKING_BLOCK=/^\s*(template\b.*|private\s+booking|possible\s+booking|potential\s+booking|booking(?:\s+tbc)?|booked|tbc|hold)\s*$/i;
 function buildEventsFromCalendar(rows, modeDef){
   if(!rows || !rows.length) return [];
   let hi=rows.findIndex(r=> r.some(c=>/event title/i.test(c)) && r.some(c=>/start date/i.test(c)));
@@ -1962,7 +2188,10 @@ function buildEventsFromCalendar(rows, modeDef){
     const title=(r[ci.title]||"").trim();
     if(!title || BOOKING_BLOCK.test(title) || /rehearsal/i.test(title)) continue;
     const d=parseDMY(r[ci.sdate]); if(!d) continue;
-    const plain=stripHTML(r[ci.desc]||"");
+    const fullText=stripHTML(r[ci.desc]||"");
+    // everything below a divider line (____ ---- ====) is private and is never read
+    const cut=fullText.search(/_{3,}|-{5,}|={5,}|[—–]{3,}/);
+    const plain=(cut>=0?fullText.slice(0,cut):fullText).trim();
     const isAllDay=/^(true|yes|1)$/i.test((r[ci.allday]||"").trim());
     // door time: a "Doors:" line in the notes wins; otherwise fall back to the event's own start time
     let door=parseDoorTime(plain);
@@ -1972,7 +2201,7 @@ function buildEventsFromCalendar(rows, modeDef){
     const notes=parseGigNotes(plain);
     out.push({
       roomKey: modeDef.rooms[0].key,
-      title, genre:guessType(title), desc:notes.desc, price:notes.price,
+      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, bands:notes.bands, web:notes.web, newFmt:notes.newFmt, price:notes.price,
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
       noTime: !door, y, mo, day, dkey,
@@ -2111,6 +2340,7 @@ function render(){
   document.getElementById("clock").innerHTML = validDate ? fmtClock(now.date) : "--<span class='c'>:</span>--";
 
   if(mode.layout==="cinema"){ renderCinema(now, validDate); return; }
+  document.body.classList.toggle("lay-tonight", mode.layout==="tonight");
   if(mode.layout==="tonight"){ renderTonight(now, validDate); return; }
   if(mode.layout==="prices"){ renderPrices(); return; }
 
@@ -2659,6 +2889,7 @@ async function renderTonight(now, validDate){
   const allGigs=state.rows
     .filter(s=> s.roomKey==="molly" && s.dkey && s.dkey>=todayKey)
     .map(s=>{ let _end=null; if(s.startMin!=null){ _end=s.startMin+150; if(_end<=s.startMin)_end+=1440; } return {...s,_end}; })
+    .filter((g,i,arr)=> arr.findIndex(o=>o.dkey===g.dkey && o.title.toLowerCase()===g.title.toLowerCase() && o.startMin===g.startMin)===i)
     .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
   const hasGigToday=allGigs.some(g=>g.dkey===todayKey);
@@ -2672,26 +2903,66 @@ async function renderTonight(now, validDate){
   wrap.innerHTML="";
   const container=document.createElement("div"); container.className="tonight";
 
+  function evDayLabel(dkey){
+    if(dkey===todayKey) return "Tonight";
+    const t=new Date(now.y,now.mo-1,now.day); t.setDate(t.getDate()+1);
+    if(dkey===ymdLocal(t)) return "Tomorrow";
+    const d=new Date(+dkey.slice(0,4),+dkey.slice(5,7)-1,+dkey.slice(8,10));
+    return DAYNAMES[d.getDay()]+" "+d.getDate()+" "+MONNAMES[d.getMonth()+1];
+  }
+  function evNorm(t){ return String(t||"").toLowerCase().replace(/\b(price|otd|bands?)\b.*$/,"").replace(/[^a-z0-9]+/g," ").trim(); }
+  function evDesc(g){ const d=evNorm(g.desc), t=evNorm(g.title); return (!d || d===t || t.includes(d) || d.includes(t) && d.length-t.length<8) ? "" : String(g.desc).replace(/\s*\b(price|otd|on the door)\b\s*:?\s*$/i,"").trim(); }
+  function evKind(g){ return "k-"+String(g||"live").toLowerCase().replace(/[^a-z]+/g,"-"); }
+  function evIsLive(s){ return s.dkey===todayKey && s.startMin!=null && s.startMin<=now.min && now.min<s._end; }
   function gigSectionHTML(limit){
-    let gh=`<header class="t-head"><span class="t-glyph">♪</span>Coming Up in Molly's Chamber<span class="t-line"></span></header><div class="t-rows">`;
     const list=allGigs.slice(0,limit);
-    if(!list.length){ gh+=`<div class="t-empty">No upcoming gigs listed.</div>`; }
-    else list.forEach(s=>{
-      const isToday=s.dkey===todayKey;
-      const live=isToday && s.startMin!=null && s.startMin<=now.min && now.min<s._end;
-      const dlabel=gigDateLabel(s, now);
-      const timeTxt=s.noTime?"":s.startLabel;
-      const kindLabel = s.genre ? esc(s.genre) : "";
-      gh+=`<div class="show${live?" live":""}">
-        <div class="time"><span class="start" style="font-size:clamp(14px,1.8vw,20px);letter-spacing:.02em">${esc(dlabel)}</span>${timeTxt?`<span class="end">${esc(timeTxt)}</span>`:""}${s.price?`<span class="price">${esc(s.price)}</span>`:""}</div>
-        <div class="body"><span class="kind">${kindLabel}</span><span class="name">${esc(s.title)}</span>${s.desc?`<div class="desc">${esc(s.desc)}</div>`:""}</div>
-        <div class="nowtag"><span class="dot"></span>On Now</div></div>`;
+    if(!list.length) return `<div class="ev-empty">Quiet in the Stage Bar — no gigs listed yet.</div>`;
+    const hero=list[0], rest=list.slice(1);
+    const hLive=evIsLive(hero);
+    const hTag=hLive?"On now":(hero.dkey===todayKey?"Tonight":"Next up · "+evDayLabel(hero.dkey));
+    const hTime=hero.noTime?"":hero.startLabel;
+    let h=`<article class="ev-hero ${evKind(hero.genre)}${hLive?" live":""}${hero.web?" has-qr":""}">
+      <div class="ev-hero-top"><span class="ev-hero-tag"><i class="dot"></i>${esc(hTag)}</span></div>
+      <div class="ev-hero-name">${esc(hero.title)}</div>
+      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-hero-tags"><span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price${hero.price==="Free"?" free":""}">${esc(hero.price)}${hero.newFmt?"":" on the door"}</span>`:""}</span></div>
+      ${evDesc(hero)?`<div class="ev-hero-desc">${esc(evDesc(hero))}</div>`:""}
+      ${hero.bands?`<div class="ev-bands">${esc(hero.bands)}</div>`:""}
+      ${hero.web&&qrHTML(hero.web)?`<div class="ev-qr">${qrHTML(hero.web)}</div>`:""}
+    </article><div class="ev-list">`;
+    let last=hero.dkey;
+    rest.forEach(g=>{
+      if(g.dkey!==last){ h+=`<div class="ev-day">${esc(evDayLabel(g.dkey))}</div>`; last=g.dkey; }
+      else if(last===hero.dkey && !h.includes('class="ev-day"') && g.dkey===todayKey){ h+=`<div class="ev-day">Later tonight</div>`; }
+      const tm=g.noTime?"":g.startLabel;
+      h+=`<div class="ev-row${evIsLive(g)?" live":""} ${evKind(g.genre)}">
+        <div class="ev-when">${tm?`<span class="ev-time">${esc(tm)}</span>`:""}<span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span>${g.price?`<span class="ev-price${g.price==="Free"?" free":""}">${esc(g.price)}</span>`:""}</div>
+        <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}${g.bands?`<div class="ev-bands">${esc(g.bands)}</div>`:""}</div>
+        ${g.web&&qrHTML(g.web)?`<div class="ev-side"><div class="ev-qr">${qrHTML(g.web)}</div></div>`:""}
+      </div>`;
     });
-    gh+=`</div>`;
-    return gh;
+    return h+`</div>`;
+  }
+  // trim whatever doesn't fit so the screen is full but nothing is cut off mid-row
+  function fitEvents(sec){
+    const list=sec.querySelector(".ev-list"); if(!list) return;
+    const zoomAll=z=>Array.from(list.children).forEach(c=>{ c.style.zoom=Math.abs(z-1)<.001?"":z; });
+    const MINZ=0.84;   // rows may shrink a little so more events fit
+    list.style.justifyContent="";
+    zoomAll(MINZ);
+    let guard=80;
+    while(list.scrollHeight>list.clientHeight+1 && list.lastElementChild && guard--){ list.lastElementChild.remove(); }
+    while(list.lastElementChild && list.lastElementChild.classList.contains("ev-day")) list.lastElementChild.remove();
+    // with that many events settled, grow the rows (text, tags, QR) in fine steps until the screen is full
+    const fits=()=>list.scrollHeight<=list.clientHeight+1;
+    let best=MINZ;
+    for(let z=MINZ+0.03;z<=1.45;z+=0.03){ zoomAll(z); if(fits()) best=z; else break; }
+    zoomAll(best);
+    if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
+    try{ const h=sec.querySelector(".ev-hero"); if(h) document.documentElement.style.setProperty("--hero-top", Math.round(h.getBoundingClientRect().top)+"px"); }catch(e){}
+    if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
   }
 
-  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(12);
+  const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(24);
   container.appendChild(gsec);
 
   const csec=document.createElement("section"); csec.className="t-sec t-cine";
@@ -2706,23 +2977,26 @@ async function renderTonight(now, validDate){
   if(!films.length){
     csec.remove();
     gsec.classList.add("solo");
-    gsec.innerHTML=gigSectionHTML(11);
+    gsec.innerHTML=gigSectionHTML(24);
+    fitEvents(gsec);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ gsec.innerHTML=gigSectionHTML(24); fitEvents(gsec); });
     return;
   }
 
   const body=document.getElementById("tCineBody"); if(!body) return;
-  body.innerHTML=films.slice(0,3).map(f=>{
+  body.innerHTML=films.slice(0,2).map(f=>{
     const t=f._tmdb||{}; const rt=t.runtime?`${Math.floor(t.runtime/60)}h ${t.runtime%60}m`:"";
     const time=f._start!=null?(f._approx?"~":"")+clockLabel(f._start):"";
     const poster=t.poster?`<img src="${t.poster}" alt="">`:`<div class="noimg">▦</div>`;
     return `<div class="cine-row">
       <div class="cine-thumb">${poster}</div>
       <div class="cine-meta">
-        <div class="cine-time">${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
+        <div class="cine-time">${time?`<b class="cine-start">${time}</b> `:""}${f.cert?`<span class="cert">${esc(f.cert)}</span>`:""}${rt?` ${rt}`:""}</div>
         <div class="cine-title">${esc(t.title||f.title)}${(t.year||f.year)?` <span class="cine-year">(${esc(t.year||f.year)})</span>`:""}</div>
         ${(f.blurb||t.overview)?`<div class="cine-blurb">${esc(f.blurb||t.overview)}</div>`:""}
       </div></div>`;
   }).join("");
+  requestAnimationFrame(()=>fitEvents(gsec));
 }
 
 /* =====================================================================
