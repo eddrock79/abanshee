@@ -1490,7 +1490,7 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .ev-price{font-family:var(--evf);font-weight:700;color:var(--gold);font-size:clamp(14px,1.9vw,34px);letter-spacing:.06em}
 
 .ev-day{flex:0 0 auto;display:flex;align-items:center;gap:.7em;font-family:var(--evf);font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-  font-size:clamp(14px,1.9vw,34px);color:var(--spectre);padding-top:clamp(4px,.8vh,12px)}
+  font-size:clamp(18px,2.7vw,48px);color:var(--spectre);padding-top:clamp(4px,.8vh,12px)}
 .ev-day::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rule-strong),transparent)}
 .ev-row{flex:0 0 auto;display:grid;grid-template-columns:clamp(86px,11vw,200px) 1fr auto;align-items:center;gap:clamp(10px,1.6vw,28px);
   padding:clamp(10px,1.5vh,20px) clamp(14px,2vw,30px);border:1px solid var(--rule);border-radius:6px;position:relative;
@@ -1520,13 +1520,17 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 @keyframes ghostGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(116,227,193,.18))}50%{filter:drop-shadow(0 0 16px rgba(116,227,193,.42))}}
 @media (prefers-reduced-motion:reduce){.ev-qr,.ev-qr svg.ghost,.ev-qr .eye{animation:none}}
 .ev-hero{position:relative}
+body.lay-tonight #footNote{display:none}
+body.lay-tonight .footer{border:0;padding:0;margin:0;min-height:0}
+body.lay-tonight .footer .src:not(.sample):not(.error){display:none}
+.ev-price.free{color:#5df2a6;text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 14px rgba(93,242,166,.55)}
 /* very faint stage spotlights at the top of the page, lighting the logo and EVENTS */
 .spots{display:none;position:fixed;left:0;top:0;width:100%;height:30vh;z-index:0;pointer-events:none;overflow:hidden}
 body.lay-tonight .spots{display:block}
 .spots::before,.spots::after{content:"";position:absolute;top:-4%;height:118%;width:58%;mix-blend-mode:screen}
-.spots::before{left:-4%;transform-origin:20% 0;background:radial-gradient(ellipse 13% 6% at 20% 4%,rgba(255,236,190,.30),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.12),rgba(255,222,160,0) 90%);clip-path:polygon(15% 0,25% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
-.spots::after{right:-4%;transform-origin:80% 0;background:radial-gradient(ellipse 13% 6% at 80% 4%,rgba(190,255,236,.30),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.12),rgba(116,227,193,0) 90%);clip-path:polygon(75% 0,85% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
-.spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.075),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
+.spots::before{left:-4%;transform-origin:20% 0;background:radial-gradient(ellipse 13% 6% at 20% 4%,rgba(255,236,190,.18),transparent 100%),linear-gradient(180deg,rgba(255,222,160,.07),rgba(255,222,160,0) 90%);clip-path:polygon(15% 0,25% 0,100% 100%,0 100%);animation:beamL 11s ease-in-out infinite alternate}
+.spots::after{right:-4%;transform-origin:80% 0;background:radial-gradient(ellipse 13% 6% at 80% 4%,rgba(190,255,236,.18),transparent 100%),linear-gradient(180deg,rgba(116,227,193,.07),rgba(116,227,193,0) 90%);clip-path:polygon(75% 0,85% 0,100% 100%,0 100%);animation:beamR 13s ease-in-out infinite alternate}
+.spots i{position:absolute;left:50%;top:0;width:80%;height:100%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 60% at 50% 38%,rgba(244,239,226,.045),transparent 100%);animation:poolBreath 8s ease-in-out infinite alternate}
 @keyframes beamL{from{transform:rotate(-5deg)}to{transform:rotate(7deg)}}
 @keyframes beamR{from{transform:rotate(5deg)}to{transform:rotate(-7deg)}}
 @keyframes poolBreath{from{opacity:.55}to{opacity:1}}
@@ -2900,7 +2904,7 @@ async function renderTonight(now, validDate){
     let h=`<article class="ev-hero ${evKind(hero.genre)}${hLive?" live":""}${hero.web?" has-qr":""}">
       <div class="ev-hero-top"><span class="ev-hero-tag"><i class="dot"></i>${esc(hTag)}</span></div>
       <div class="ev-hero-name">${esc(hero.title)}</div>
-      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-hero-tags"><span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price">${esc(hero.price)}${hero.newFmt?"":" on the door"}</span>`:""}</span></div>
+      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-hero-tags"><span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price${hero.price==="Free"?" free":""}">${esc(hero.price)}${hero.newFmt?"":" on the door"}</span>`:""}</span></div>
       ${evDesc(hero)?`<div class="ev-hero-desc">${esc(evDesc(hero))}</div>`:""}
       ${hero.bands?`<div class="ev-bands">${esc(hero.bands)}</div>`:""}
       ${hero.web&&qrHTML(hero.web)?`<div class="ev-qr">${qrHTML(hero.web)}</div>`:""}
@@ -2911,7 +2915,7 @@ async function renderTonight(now, validDate){
       else if(last===hero.dkey && !h.includes('class="ev-day"') && g.dkey===todayKey){ h+=`<div class="ev-day">Later tonight</div>`; }
       const tm=g.noTime?"":g.startLabel;
       h+=`<div class="ev-row${evIsLive(g)?" live":""} ${evKind(g.genre)}">
-        <div class="ev-when">${tm?`<span class="ev-time">${esc(tm)}</span>`:""}<span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span>${g.price?`<span class="ev-price">${esc(g.price)}</span>`:""}</div>
+        <div class="ev-when">${tm?`<span class="ev-time">${esc(tm)}</span>`:""}<span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span>${g.price?`<span class="ev-price${g.price==="Free"?" free":""}">${esc(g.price)}</span>`:""}</div>
         <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}${g.bands?`<div class="ev-bands">${esc(g.bands)}</div>`:""}</div>
         ${g.web&&qrHTML(g.web)?`<div class="ev-side"><div class="ev-qr">${qrHTML(g.web)}</div></div>`:""}
       </div>`;
