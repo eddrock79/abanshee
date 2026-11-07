@@ -1504,11 +1504,11 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev-desc{font-size:clamp(14px,1.8vw,32px);line-height:1.25;color:var(--bone-dim);margin-top:.15em;
   display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-.ev-bands{font-family:var(--evf);font-weight:600;font-size:clamp(15px,2vw,36px);line-height:1.2;color:var(--bone);margin-top:.2em;
+.ev-bands{font-family:var(--evf);font-weight:600;font-size:clamp(17px,2.4vw,44px);line-height:1.2;color:var(--bone);margin-top:.2em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ev-web{font-family:var(--evf);font-size:clamp(13px,1.6vw,28px);letter-spacing:.06em;color:var(--spectre);opacity:.85;margin-top:.15em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ev-hero .ev-bands{font-size:clamp(18px,2.4vw,44px);margin-top:.45em}
-.ev-hero .ev-web{font-size:clamp(15px,1.9vw,34px)}
+.ev-web{font-family:var(--evf);font-size:clamp(15px,2vw,36px);letter-spacing:.06em;color:var(--spectre);opacity:.85;margin-top:.15em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-hero .ev-bands{font-size:clamp(19px,2.7vw,50px);margin-top:.45em}
+.ev-hero .ev-web{font-size:clamp(16px,2.2vw,40px)}
 .ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:.3em}
 
 /* cinema cards — big posters, two at most */
@@ -2044,23 +2044,35 @@ function parsePrice(plain){
   if(isNaN(num)||num>=30) return "";   // £30+ = internal venue-hire cost, not entry → hide
   return "£"+(Number.isInteger(num)?num:num.toFixed(2));
 }
+function parseCostField(plain){
+  let v=noteField(plain,"cost");
+  if(!v) return "";
+  if(/^free\b/i.test(v)) return "Free";
+  const n=v.match(/^£?\s?(\d+(?:\.\d{1,2})?)$/);
+  if(n){ const num=parseFloat(n[1]); return num===0?"Free":"£"+(Number.isInteger(num)?num:num.toFixed(2)); }
+  return v.length>24?v.slice(0,23).trim()+"…":v;
+}
 function parseGigNotes(plain){
   const blurb=noteField(plain,"blurb")||noteField(plain,"about")||noteField(plain,"info")||noteField(plain,"details?");
   let bands=noteField(plain,"band ?names?")||noteField(plain,"bands")||noteField(plain,"line ?up")||noteField(plain,"support");
   if(!bands){ const f=noteField(plain,"ffo"); if(f) bands="FFO: "+f; }
   const dj=noteField(plain,"djs?");
+  const newFmt=/\bevent ?type\s*:/i.test(plain);
   const parts=[];
   if(blurb) parts.push(blurb);
+  if(!newFmt && bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);   // old notes: one merged line, as before
   if(dj && !/dj\b/i.test(parts.join(" ")+" "+bands)) parts.push("DJ "+dj);
   let desc=parts.join(" — ");
   if(desc.length>160) desc=desc.slice(0,157).trim()+"…";
-  if(bands && bands.toLowerCase()===blurb.toLowerCase()) bands="";
+  if(!newFmt || bands.toLowerCase()===blurb.toLowerCase()) bands="";
   bands=bands.replace(/\s*(?:,|;|\/|\s&\s|\+)\s*/g," · ");
   if(bands.length>140) bands=bands.slice(0,137).trim()+"…";
   let web="";
-  const wm=plain.match(/web\s?site\s*:?\s*(?:https?:\/\/)?(?:www\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s,;]*)?)/i);
+  const wm=!newFmt?null:plain.match(/web\s?site\s*:?\s*(?:https?:\/\/)?(?:www\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s,;]*)?)/i);
   if(wm) web=wm[1].replace(/\/+$/,"").toLowerCase();
-  return { desc, bands, web, price:parsePrice(plain) };
+  // new template (has an "Event type:" line): the Cost: line is the public price, always shown — hire fees live below the divider.
+  // old-format notes: keep the cautious rules (explicit price words only, £30+ hidden).
+  return { desc, bands, web, newFmt, price:newFmt?parseCostField(plain):parsePrice(plain) };
 }
 function normType(v){
   const t=(v||"").toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
@@ -2113,7 +2125,7 @@ function buildEventsFromCalendar(rows, modeDef){
     const notes=parseGigNotes(plain);
     out.push({
       roomKey: modeDef.rooms[0].key,
-      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, bands:notes.bands, web:notes.web, price:notes.price,
+      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, bands:notes.bands, web:notes.web, newFmt:notes.newFmt, price:notes.price,
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
       noTime: !door, y, mo, day, dkey,
@@ -2836,7 +2848,7 @@ async function renderTonight(now, validDate){
     let h=`<article class="ev-hero ${evKind(hero.genre)}${hLive?" live":""}">
       <div class="ev-hero-top"><span class="ev-hero-tag"><i class="dot"></i>${esc(hTag)}</span></div>
       <div class="ev-hero-name">${esc(hero.title)}</div>
-      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price">${esc(hero.price)} on the door</span>`:""}</div>
+      <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price">${esc(hero.price)}${hero.newFmt?"":" on the door"}</span>`:""}</div>
       ${evDesc(hero)?`<div class="ev-hero-desc">${esc(evDesc(hero))}</div>`:""}
       ${hero.bands?`<div class="ev-bands">${esc(hero.bands)}</div>`:""}
       ${hero.web?`<div class="ev-web">${esc(hero.web)}</div>`:""}
