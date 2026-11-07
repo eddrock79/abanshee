@@ -1504,6 +1504,11 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev-desc{font-size:clamp(14px,1.8vw,32px);line-height:1.25;color:var(--bone-dim);margin-top:.15em;
   display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.ev-bands{font-family:var(--evf);font-weight:600;font-size:clamp(15px,2vw,36px);line-height:1.2;color:var(--bone);margin-top:.2em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev-web{font-family:var(--evf);font-size:clamp(13px,1.6vw,28px);letter-spacing:.06em;color:var(--spectre);opacity:.85;margin-top:.15em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-hero .ev-bands{font-size:clamp(18px,2.4vw,44px);margin-top:.45em}
+.ev-hero .ev-web{font-size:clamp(15px,1.9vw,34px)}
 .ev-side{display:flex;flex-direction:column;align-items:flex-end;gap:.3em}
 
 /* cinema cards — big posters, two at most */
@@ -2046,11 +2051,16 @@ function parseGigNotes(plain){
   const dj=noteField(plain,"djs?");
   const parts=[];
   if(blurb) parts.push(blurb);
-  if(bands && bands.toLowerCase()!==blurb.toLowerCase()) parts.push(bands);
-  if(dj && !/dj\b/i.test(parts.join(" "))) parts.push("DJ "+dj);
+  if(dj && !/dj\b/i.test(parts.join(" ")+" "+bands)) parts.push("DJ "+dj);
   let desc=parts.join(" — ");
-  if(desc.length>200) desc=desc.slice(0,197).trim()+"…";
-  return { desc, price:parsePrice(plain) };
+  if(desc.length>160) desc=desc.slice(0,157).trim()+"…";
+  if(bands && bands.toLowerCase()===blurb.toLowerCase()) bands="";
+  bands=bands.replace(/\s*(?:,|;|\/|\s&\s|\+)\s*/g," · ");
+  if(bands.length>140) bands=bands.slice(0,137).trim()+"…";
+  let web="";
+  const wm=plain.match(/web\s?site\s*:?\s*(?:https?:\/\/)?(?:www\.)?([a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s,;]*)?)/i);
+  if(wm) web=wm[1].replace(/\/+$/,"").toLowerCase();
+  return { desc, bands, web, price:parsePrice(plain) };
 }
 function normType(v){
   const t=(v||"").toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
@@ -2103,7 +2113,7 @@ function buildEventsFromCalendar(rows, modeDef){
     const notes=parseGigNotes(plain);
     out.push({
       roomKey: modeDef.rooms[0].key,
-      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, price:notes.price,
+      title, genre:(normType(noteField(plain,"event ?type"))||guessType(title)), desc:notes.desc, bands:notes.bands, web:notes.web, price:notes.price,
       startMin: door?door.min:null, endMin:null,
       startLabel: door?door.label:"Tonight", endLabel:null,
       noTime: !door, y, mo, day, dkey,
@@ -2828,6 +2838,8 @@ async function renderTonight(now, validDate){
       <div class="ev-hero-name">${esc(hero.title)}</div>
       <div class="ev-hero-meta">${hTime?`<span class="ev-hero-time">${esc(hTime)}</span>`:""}<span class="ev-chip ${evKind(hero.genre)}">${esc(hero.genre||"Live")}</span>${hero.price?`<span class="ev-price">${esc(hero.price)} on the door</span>`:""}</div>
       ${evDesc(hero)?`<div class="ev-hero-desc">${esc(evDesc(hero))}</div>`:""}
+      ${hero.bands?`<div class="ev-bands">${esc(hero.bands)}</div>`:""}
+      ${hero.web?`<div class="ev-web">${esc(hero.web)}</div>`:""}
     </article><div class="ev-list">`;
     let last=hero.dkey;
     rest.forEach(g=>{
@@ -2836,7 +2848,7 @@ async function renderTonight(now, validDate){
       const tm=g.noTime?"":g.startLabel;
       h+=`<div class="ev-row${evIsLive(g)?" live":""} ${evKind(g.genre)}">
         <div class="ev-when">${tm?`<span class="ev-time">${esc(tm)}</span>`:""}<span class="ev-chip ${evKind(g.genre)}">${esc(g.genre||"Live")}</span></div>
-        <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}</div>
+        <div class="ev-main"><div class="ev-name">${esc(g.title)}</div>${evDesc(g)?`<div class="ev-desc">${esc(evDesc(g))}</div>`:""}${g.bands?`<div class="ev-bands">${esc(g.bands)}</div>`:""}${g.web?`<div class="ev-web">${esc(g.web)}</div>`:""}</div>
         ${g.price?`<div class="ev-side"><span class="ev-price">${esc(g.price)}</span></div>`:""}
       </div>`;
     });
