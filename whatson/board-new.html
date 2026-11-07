@@ -1518,9 +1518,9 @@ body.landscape .db-stage .db-counter{top:8px;right:10px}
 .t-cine .cine-blurb{font-size:clamp(14px,1.8vw,32px);-webkit-line-clamp:3}
 body.landscape .t-gigs{flex:1 1 0}
 
-.t-gigs,.t-cine{--evf:"Barlow Condensed","Arial Narrow",sans-serif}
-body.f-garamond .t-gigs,body.f-garamond .t-cine{--evf:"EB Garamond",Georgia,serif}
-body.f-oswald .t-gigs,body.f-oswald .t-cine{--evf:"Oswald","Arial Narrow",sans-serif}
+body{--evf:"Barlow Condensed","Arial Narrow",sans-serif}
+body.f-garamond{--evf:"EB Garamond",Georgia,serif}
+body.f-oswald{--evf:"Oswald","Arial Narrow",sans-serif}
 .ev-hero-name,.ev-name,.ev-time,.ev-hero-time,.cine-title{letter-spacing:.01em}
 .ev-hero-name{font-weight:700;text-transform:uppercase}
 /* condensed faces run small — scale up so they read from across the bar */
@@ -1533,6 +1533,11 @@ body:not(.f-garamond) .ev-desc{font-size:clamp(15px,2.1vw,38px)}
 body:not(.f-garamond) .ev-chip,body:not(.f-garamond) .ev-day,body:not(.f-garamond) .ev-hero-tag{font-weight:600}
 body:not(.f-garamond) .cine-title{font-size:clamp(30px,4.6vw,86px)}
 body.f-oswald .ev-hero-name{font-size:clamp(30px,6.4vw,118px)}
+body.lay-tonight .masthead h1{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+body.lay-tonight .masthead .when{font-family:var(--evf);font-style:normal;letter-spacing:.08em}
+body.lay-tonight .masthead .clock{font-family:var(--evf)}
+.ev-desc,.ev-hero-desc,.cine-blurb{font-family:var(--evf)}
+.t-gigs{padding-bottom:6px}
 /* rows with no time: drop the empty time column */
 .ev-row.no-time{grid-template-columns:1fr auto}
 </style>
@@ -2196,6 +2201,7 @@ function render(){
   document.getElementById("clock").innerHTML = validDate ? fmtClock(now.date) : "--<span class='c'>:</span>--";
 
   if(mode.layout==="cinema"){ renderCinema(now, validDate); return; }
+  document.body.classList.toggle("lay-tonight", mode.layout==="tonight");
   if(mode.layout==="tonight"){ renderTonight(now, validDate); return; }
   if(mode.layout==="prices"){ renderPrices(); return; }
 
