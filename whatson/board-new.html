@@ -1537,6 +1537,17 @@ body.lay-tonight .masthead .when{font-family:var(--evf);font-style:normal;letter
 body.lay-tonight .masthead .clock{font-family:var(--evf)}
 .ev-desc,.ev-hero-desc,.cine-blurb{font-family:var(--evf)}
 .t-gigs{padding-bottom:6px}
+/* v4: logo masthead, date + time bottom-right */
+.bl-logo{display:none}
+body.lay-tonight .bl-logo{display:block;margin:0 auto;width:clamp(240px,38vw,700px);height:auto;
+  filter:drop-shadow(0 0 28px rgba(227,73,47,.18))}
+body.lay-tonight .masthead .eyebrow,body.lay-tonight .masthead h1{display:none}
+body.lay-tonight .masthead{padding-bottom:0}
+body.lay-tonight .masthead .sub{position:fixed;right:clamp(18px,3.4vw,44px);bottom:clamp(46px,5.6vh,84px);z-index:6;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.05em;margin:0;text-align:right}
+body.lay-tonight .masthead .clock{order:-1;font-size:clamp(30px,5vw,92px);font-weight:700;color:var(--bone);line-height:1;letter-spacing:.04em}
+body.lay-tonight .masthead .when{font-size:clamp(16px,2.3vw,42px);color:var(--bone-dim);letter-spacing:.1em;text-transform:uppercase}
+body.lay-tonight .rooms{margin-bottom:clamp(80px,10.5vh,190px)}
 /* names wrap to two lines instead of being cut off */
 .ev-name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}
 /* v3: type under the time, bigger heading, roomier descriptions */
@@ -1547,7 +1558,7 @@ body.lay-tonight .masthead .clock{font-family:var(--evf)}
 body:not(.f-garamond) .ev-desc,.ev-desc{font-size:clamp(17px,2.4vw,44px);line-height:1.2;-webkit-line-clamp:2}
 .ev-hero-desc{font-size:clamp(19px,2.7vw,50px)}
 body.lay-tonight .masthead h1{font-size:clamp(46px,8.2vw,150px);line-height:1}
-body.lay-tonight .masthead .when,body.lay-tonight .masthead .clock{font-size:clamp(15px,2.2vw,40px)}
+
 /* rows with no time: drop the empty time column */
 .ev-row.no-time{grid-template-columns:1fr auto}
 </style>
@@ -1581,6 +1592,7 @@ body.lay-tonight .masthead .when,body.lay-tonight .masthead .clock{font-size:cla
 
 <main class="stage">
   <header class="masthead">
+    <img class="bl-logo" src="logo-board.png" alt="The Banshee Labyrinth">
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
     <h1 id="title">What's On</h1>
     <div class="sub">
