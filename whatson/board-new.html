@@ -2908,9 +2908,17 @@ async function renderTonight(now, validDate){
   // trim whatever doesn't fit so the screen is full but nothing is cut off mid-row
   function fitEvents(sec){
     const list=sec.querySelector(".ev-list"); if(!list) return;
+    const zoomAll=z=>Array.from(list.children).forEach(c=>{ c.style.zoom=z>1?z:""; });
+    zoomAll(1); list.style.justifyContent="";
     let guard=60;
     while(list.scrollHeight>list.clientHeight+1 && list.lastElementChild && guard--){ list.lastElementChild.remove(); }
     while(list.lastElementChild && list.lastElementChild.classList.contains("ev-day")) list.lastElementChild.remove();
+    // spare room? grow the rows (text, tags, QR) in steps until the screen is full, then spread any last gap evenly
+    const fits=()=>list.scrollHeight<=list.clientHeight+1;
+    let best=1;
+    for(const z of [1.1,1.2,1.3,1.4,1.5,1.6]){ zoomAll(z); if(fits()) best=z; else break; }
+    zoomAll(best);
+    if(list.clientHeight-list.scrollHeight>12) list.style.justifyContent="space-between";
   }
 
   const gsec=document.createElement("section"); gsec.className="t-sec t-gigs"; gsec.innerHTML=gigSectionHTML(14);
