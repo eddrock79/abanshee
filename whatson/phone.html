@@ -1680,9 +1680,13 @@ body.phone .ev-desc,body.phone .ev-hero-desc,body.phone .ev-bands{color:#dfe5dc}
 body.phone .links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:26px 0 6px}
 body.phone .links a{padding:11px 16px;border:1px solid rgba(116,227,193,.55);border-radius:8px;color:#eef3ec;background:rgba(116,227,193,.06);font-family:var(--evf);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;box-shadow:0 0 14px rgba(116,227,193,.08)}
 body.phone .links a.main{flex:1 0 100%;text-align:center;background:rgba(116,227,193,.14)}
+
+body.phone .links.top{flex-wrap:nowrap;gap:8px;margin:2px 0 18px}
+body.phone .links.top a,body.phone .links.top a.main{flex:1 1 0;padding:10px 6px;text-align:center;font-size:13px;letter-spacing:.1em;background:rgba(116,227,193,.06)}
+body.phone .ph-load{padding:60px 0;text-align:center;font-family:var(--evf);letter-spacing:.14em;text-transform:uppercase;color:#9fb5ad;font-size:14px}
 </style>
 </head>
-<body>
+<body class="phone lay-tonight">
 
 <div class="atmos">
   <div class="vignette"></div>
@@ -1715,16 +1719,16 @@ body.phone .links a.main{flex:1 0 100%;text-align:center;background:rgba(116,227
   <header class="masthead">
     <img class="bl-logo" src="logo-phone-white.png" alt="The Banshee Labyrinth">
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
-    <h1 id="title">What's On</h1>
+    <h1 id="title">Events</h1>
     <div class="sub">
-      <span class="when" id="whenLabel">—</span>
+      <span class="when" id="whenLabel"></span>
       <span class="clock" id="clock">--<span class="c">:</span>--</span>
     </div>
   </header>
+  <nav class="links top" aria-label="Find us online" ><a class="main" href="https://www.thebansheelabyrinth.com" target="_blank" rel="noopener">Website</a><a href="https://www.facebook.com/group.php?gid=285133171280" target="_blank" rel="noopener">Facebook</a><a href="https://www.instagram.com/banshee_labyrinth" target="_blank" rel="noopener">Instagram</a></nav>
 
-  <section class="rooms" id="rooms"><!-- rendered --></section>
+  <section class="rooms" id="rooms"><div class="ph-load">Summoning tonight's events…</div></section>
 
-  <nav class="links" aria-label="Find us online" ><a class="main" href="https://www.thebansheelabyrinth.com" target="_blank" rel="noopener">Visit our website</a><a href="https://www.facebook.com/group.php?gid=285133171280" target="_blank" rel="noopener">Facebook</a><a href="https://www.instagram.com/banshee_labyrinth" target="_blank" rel="noopener">Instagram</a></nav>
   <footer class="footer">
     <span id="footNote">Scotland's most haunted bar · Niddry Street</span>
     <span class="src" id="srcTag"><span class="pip"></span><span id="srcText">connecting…</span></span>
