@@ -1671,6 +1671,15 @@ body.phone .t-cine .cine-blurb{font-size:15px}
 body.phone .footer{display:block;text-align:center;margin-top:22px;padding:0}
 body.phone .footer .src:not(.sample):not(.error){display:none}
 body.phone.lay-tonight #footNote{display:block;font-size:13px;opacity:.7}
+
+/* ghostly white header for the phone (no spotlights to light it) */
+body.phone.lay-tonight .bl-logo{filter:drop-shadow(0 0 10px rgba(200,235,225,.35));opacity:.97}
+body.phone.lay-tonight .masthead .when{color:#eef3ec;text-shadow:0 0 12px rgba(200,235,225,.4)}
+body.phone .ev-name,body.phone .ev-time,body.phone .ev-hero-name,body.phone .ev-hero-time{color:#f6f8f3}
+body.phone .ev-desc,body.phone .ev-hero-desc,body.phone .ev-bands{color:#dfe5dc}
+body.phone .links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:26px 0 6px}
+body.phone .links a{padding:11px 16px;border:1px solid rgba(116,227,193,.55);border-radius:8px;color:#eef3ec;background:rgba(116,227,193,.06);font-family:var(--evf);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;box-shadow:0 0 14px rgba(116,227,193,.08)}
+body.phone .links a.main{flex:1 0 100%;text-align:center;background:rgba(116,227,193,.14)}
 </style>
 </head>
 <body>
@@ -1704,7 +1713,7 @@ body.phone.lay-tonight #footNote{display:block;font-size:13px;opacity:.7}
 
 <main class="stage">
   <header class="masthead">
-    <img class="bl-logo" src="logo-board-3d.png" alt="The Banshee Labyrinth">
+    <img class="bl-logo" src="logo-phone-white.png" alt="The Banshee Labyrinth">
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
     <h1 id="title">What's On</h1>
     <div class="sub">
@@ -1715,6 +1724,7 @@ body.phone.lay-tonight #footNote{display:block;font-size:13px;opacity:.7}
 
   <section class="rooms" id="rooms"><!-- rendered --></section>
 
+  <nav class="links" aria-label="Find us online" ><a class="main" href="https://www.thebansheelabyrinth.com" target="_blank" rel="noopener">Visit our website</a><a href="https://www.facebook.com/group.php?gid=285133171280" target="_blank" rel="noopener">Facebook</a><a href="https://www.instagram.com/banshee_labyrinth" target="_blank" rel="noopener">Instagram</a></nav>
   <footer class="footer">
     <span id="footNote">Scotland's most haunted bar · Niddry Street</span>
     <span class="src" id="srcTag"><span class="pip"></span><span id="srcText">connecting…</span></span>
