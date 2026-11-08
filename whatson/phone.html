@@ -2947,6 +2947,7 @@ async function renderTonight(now, validDate){
     .filter((g,i,arr)=> arr.findIndex(o=>o.dkey===g.dkey && o.title.toLowerCase()===g.title.toLowerCase() && o.startMin===g.startMin)===i)
     .sort((a,b)=> a.dkey.localeCompare(b.dkey) || ((a.startMin==null?1e9:a.startMin)-(b.startMin==null?1e9:b.startMin)));
 
+  if(state.dataStatus==="loading" && !state.rows.length) return;   // first load: wait for the calendar, never flash "no gigs"
   const hasGigToday=allGigs.some(g=>g.dkey===todayKey);
   const setTitle=()=>{ const t=document.getElementById("title"); if(t) t.textContent="Events"; };
 
