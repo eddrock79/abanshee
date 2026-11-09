@@ -2247,6 +2247,8 @@ function buildEventsFromCalendar(rows, modeDef){
     // everything below a divider line (____ ---- ====) is private and is never read
     const cut=fullText.search(/_{3,}|-{5,}|={5,}|[—–]{3,}/);
     const plain=(cut>=0?fullText.slice(0,cut):fullText).trim();
+    // HOLD: if the description's first word is "Hold", keep this event off the board and the phone page
+    if(/^hold\b/i.test(plain)) continue;
     const isAllDay=/^(true|yes|1)$/i.test((r[ci.allday]||"").trim());
     // door time: a "Doors:" line in the notes wins; otherwise fall back to the event's own start time
     let door=parseDoorTime(plain);
