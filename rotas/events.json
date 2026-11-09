@@ -1,75 +1,35 @@
 {
-  "generated": "2026-11-02T08:00:16",
+  "generated": "2026-11-09T08:00:14",
   "events": [
     {
-      "date": "2026-11-02",
+      "date": "2016-11-16",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2016-11-16",
       "room": "Cinema",
       "what": "Edinburgh B-Team"
     },
     {
-      "date": "2026-11-02",
-      "room": "Other",
-      "what": "Stock Count"
-    },
-    {
-      "date": "2026-11-03",
+      "date": "2016-11-17",
       "room": "Chamber Room",
       "what": "Karaoke"
     },
     {
-      "date": "2026-11-03",
-      "room": "Cinema",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-11-04",
+      "date": "2016-11-18",
       "room": "Chamber Room",
       "what": "Take the stage"
     },
     {
-      "date": "2026-11-04",
-      "room": "Cinema",
-      "what": "Anime Soc"
-    },
-    {
-      "date": "2026-11-05",
-      "room": "Chamber Room",
-      "what": "Gig"
-    },
-    {
-      "date": "2026-11-05",
-      "room": "Cinema",
-      "what": "Fleshmarket"
-    },
-    {
-      "date": "2026-11-06",
-      "room": "Chamber Room",
-      "what": "Gig + Luke"
-    },
-    {
-      "date": "2026-11-06",
-      "room": "Cinema",
+      "date": "2016-11-21",
+      "room": "Cave Bar",
       "what": "Booking"
     },
     {
-      "date": "2026-11-07",
+      "date": "2016-11-22",
       "room": "Chamber Room",
-      "what": "Gig + DJ Germ"
-    },
-    {
-      "date": "2026-11-07",
-      "room": "Cinema",
-      "what": "EHF"
-    },
-    {
-      "date": "2026-11-08",
-      "room": "Chamber Room",
-      "what": "Gig + Karaoke"
-    },
-    {
-      "date": "2026-11-08",
-      "room": "Cinema",
-      "what": "SoundScape"
+      "what": "Karaoke"
     },
     {
       "date": "2026-11-09",
