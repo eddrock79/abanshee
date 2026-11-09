@@ -1,165 +1,6 @@
 {
-  "generated": "2026-11-02T08:00:18",
+  "generated": "2026-11-09T08:00:16",
   "days": {
-    "2026-11-02": [
-      {
-        "name": "Craig",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Rory",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Lex",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-03": [
-      {
-        "name": "Ryan",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Rory",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Lex",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-04": [
-      {
-        "name": "Connor",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Ryan",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Rory",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-05": [
-      {
-        "name": "Connor",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Theresa",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "James",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-06": [
-      {
-        "name": "Connor",
-        "start": "4:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Craig",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Ryan",
-        "start": "5:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Blue",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Eva",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Levi",
-        "start": "9:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Franek",
-        "start": "8:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-07": [
-      {
-        "name": "Connor",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Craig",
-        "start": "4:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Ryan",
-        "start": "5:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Theresa",
-        "start": "8:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Levi",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Franek",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Lachlann cover",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
-    "2026-11-08": [
-      {
-        "name": "Craig",
-        "start": "7:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "Theresa",
-        "start": "6:00 PM",
-        "end": "4:00 AM"
-      },
-      {
-        "name": "James",
-        "start": "10:00 PM",
-        "end": "4:00 AM"
-      }
-    ],
     "2026-11-09": [
       {
         "name": "Craig",
@@ -321,6 +162,185 @@
       {
         "name": "Eva",
         "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-16": [
+      {
+        "name": "Ryan",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "7:00 PM",
+        "end": "2:00 AM"
+      },
+      {
+        "name": "Hannah",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-17": [
+      {
+        "name": "Craig",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Blue",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-18": [
+      {
+        "name": "Connor",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Lex",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-19": [
+      {
+        "name": "Connor",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Blue",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Eva",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-20": [
+      {
+        "name": "Craig",
+        "start": "4:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Ryan",
+        "start": "5:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Theresa",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Lex",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "James",
+        "start": "8:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Levi",
+        "start": "9:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Franek",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-21": [
+      {
+        "name": "Connor",
+        "start": "4:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Craig",
+        "start": "5:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Ryan",
+        "start": "6:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Theresa",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Rory",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Blue",
+        "start": "8:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Lex",
+        "start": "9:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Levi",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Franek",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      }
+    ],
+    "2016-11-22": [
+      {
+        "name": "Connor",
+        "start": "7:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Craig",
+        "start": "10:00 PM",
+        "end": "4:00 AM"
+      },
+      {
+        "name": "Ryan",
+        "start": "6:00 PM",
         "end": "4:00 AM"
       }
     ]
