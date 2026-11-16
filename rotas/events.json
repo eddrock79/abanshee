@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09T08:00:14",
+  "generated": "2026-11-16T08:00:16",
   "events": [
     {
       "date": "2016-11-16",
@@ -32,32 +32,22 @@
       "what": "Karaoke"
     },
     {
-      "date": "2026-11-09",
+      "date": "2026-11-23",
       "room": "Cinema",
       "what": "Edinburgh B-Team"
     },
     {
-      "date": "2026-11-10",
+      "date": "2026-11-24",
       "room": "Chamber Room",
       "what": "Karaoke"
     },
     {
-      "date": "2026-11-11",
+      "date": "2026-11-25",
       "room": "Chamber Room",
       "what": "Take the stage"
     },
     {
-      "date": "2026-11-12",
-      "room": "Other",
-      "what": "Craigs Birthday/public holiday"
-    },
-    {
-      "date": "2026-11-14",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-11-15",
+      "date": "2026-11-29",
       "room": "Chamber Room",
       "what": "Karaoke"
     }
