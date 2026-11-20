@@ -694,18 +694,39 @@ const NX_HOLD=3500, nxRecent={};
 function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
   const j=state.jobs.find(x=>x.id===id);if(!j)return;
   if(nxRecent[id]&&nxRecent[id]>Date.now()){nxUndo(id);return;}
-  j.assignedTo=me;j.done=true;j.timestamp=new Date().toISOString();nxRecent[id]=Date.now()+NX_HOLD;
+  j.assignedTo=me;j.done=true;j.timestamp=new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';nxRecent[id]=Date.now()+NX_HOLD;
   saveState();renderMonth(j.month);queueSheetSync();
   setTimeout(()=>{if(nxRecent[id]&&nxRecent[id]<=Date.now()+50){delete nxRecent[id];nxRedraw(j.month);}},NX_HOLD+60);}
 function nxUndo(id){const j=state.jobs.find(x=>x.id===id);if(!j)return;delete nxRecent[id];j.assignedTo='';j.done=false;j.timestamp='';
   saveState();renderMonth(j.month);queueSheetSync();nxToast('Unticked');}
-function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();}else{j.assignedTo='';j.done=false;j.timestamp='';}
+function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';}else{j.assignedTo='';j.done=false;j.timestamp='';}
   saveState();renderMonth(j.month);queueSheetSync();}
 function nxMenu(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();const j=state.jobs.find(x=>x.id===id);if(!j)return;
   const m=document.createElement('div');m.className='nx-menu';
   m.innerHTML=nxCrew().map(n=>`<button type="button" class="${j.assignedTo===n?'on':''}" data-n="${escHtml(n)}">Done by ${escHtml(n)}</button>`).join('')+'<button type="button" data-n="">Not done (untick)</button>';
   const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-220,r.right+scrollX-200))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
   m.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;m.remove();nxSet(id,b.getAttribute('data-n'));};}
+// "can't do it": the reason goes in the job's Notes column (and the time in Timestamp) so it reaches the sheet
+const NX_REASONS=['Ran out of time','Area still in use','Broken or needs fixing','Out of stock or supplies'];
+function nxReason(j){if(!j||j.done||!/^Not done:/i.test(j.notes||''))return '';
+  if(j.timestamp){const t=new Date(j.timestamp),s=nxStart(j.month),e=new Date(s);if(NX_KIND==='day')e.setDate(e.getDate()+7);else e.setFullYear(e.getFullYear()+1);
+    if(!isNaN(t)&&(t<s||t>=e))return '';}
+  return j.notes.replace(/^Not done:\s*/i,'');}
+function nxSetReason(id,txt){const j=state.jobs.find(x=>x.id===id);if(!j)return;const me=nxMe();
+  txt=(txt||'').replace(/[\r\n,]+/g,' ').trim().slice(0,120);
+  j.done=false;j.assignedTo='';j.notes=txt?'Not done: '+txt+(me?' ('+me+')':''):'';j.timestamp=txt?new Date().toISOString():'';
+  saveState();renderMonth(j.month);queueSheetSync();nxToast(txt?'Reason saved':'Reason cleared');}
+function nxFlag(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();
+  if(!nxMe()){nxToast('Tap your name at the top first');return;}
+  const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  if(nxReason(j)){nxSetReason(id,'');return;}
+  const m=document.createElement('div');m.className='nx-menu';
+  m.innerHTML='<div class="nx-menu-h">Why can’t it be done?</div>'+NX_REASONS.map(r=>`<button type="button" data-r="${escHtml(r)}">${escHtml(r)}</button>`).join('')+'<button type="button" data-r="*">Something else…</button>';
+  const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-240,r.right+scrollX-230))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
+  m.onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;m.remove();let t=b.getAttribute('data-r');
+    if(t==='*'){t=prompt('Why can’t "'+j.job+'" be done?');if(!t)return;}nxSetReason(id,t);};}
+function nxJump(pk){const sec=document.querySelector('#page-'+pk+' .notes-section');if(!sec)return;sec.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{const ta=document.getElementById('ho-ta-'+pk);if(ta)ta.focus({preventScroll:true});},500);}
 document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
 
 function renderMonth(p){
@@ -723,7 +744,7 @@ function renderMonth(p){
   const cols=[[],[]],h=[0,0];groups.forEach(g=>{const c=h[0]<=h[1]?0:1;cols[c].push(g);h[c]+=g.all.length+1;});
   const showJob=j=>{const just=nxRecent[j.id]&&nxRecent[j.id]>nowMs&&nxIsDone(j);
     return just?`<button type="button" class="nx-job just" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}<small>✓ Ticked for ${escHtml(j.assignedTo)}. Tap to undo</small></span></button>`
-      :`<button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}</span></button>`;};
+      :(r=>`<div class="nx-jrow${r?' flagged':''}"><button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}${r?`<small class="nx-why">⚑ Not done: ${escHtml(r)}</small>`:''}</span></button><button type="button" class="nx-flag" aria-label="${r?'Clear the reason':'Can’t do it'}" onclick="nxFlag(${j.id},this,event)">${r?'✕':'⚑'}</button></div>`)(nxReason(j));};
   const grpHtml=g=>{const js=g.all.filter(j=>!isDone(j)||(nxRecent[j.id]&&nxRecent[j.id]>nowMs));
     return `<div class="nx-grp"><div class="nx-area">${g.a} · ${g.all.filter(isDone).length}/${g.all.length}</div>${js.length?js.map(showJob).join(''):'<div class="nx-grp-done">✓ All done</div>'}</div>`;};
   const todo=left.length||Object.keys(nxRecent).length?`<div class="nx-cols2">${cols.map(c=>`<div class="nx-c">${c.map(grpHtml).join('')}</div>`).join('')}</div>`:'';
@@ -733,7 +754,7 @@ function renderMonth(p){
       js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(j.job)}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
   const pct=jobs.length?Math.round(doneJobs.length/jobs.length*100):0;
   el.innerHTML=`
-    <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${pk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
+    <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${pk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${pk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
     ${whoHtml}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
