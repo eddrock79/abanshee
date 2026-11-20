@@ -34,7 +34,7 @@
     row.appendChild(d); right.appendChild(row);
     var nl=document.querySelector('.nav-bar a[href*="eddrock79nas"]');
     // Front page: back to this pub's board on the NAS (target _top also leaves the board's viewer)
-    var fp=document.createElement('a');fp.className='bl-xlink bl-front';fp.href=window.BL_FRONT||'http://100.90.189.89/pub-report/start-bl.html';fp.target='_top';fp.textContent='⌂ Front page';
+    var fp=document.createElement('a');fp.className='bl-xlink bl-front';fp.href=window.BL_FRONT||'http://100.90.189.89:8114/board/bl';fp.target='_top';fp.textContent='⌂ Front page';
     var lr=document.createElement('div');lr.className='bl-lrow';lr.appendChild(fp);
     if(nl){nl.className='bl-xlink';nl.removeAttribute('id');lr.appendChild(nl);}
     right.appendChild(lr);
