@@ -222,6 +222,10 @@
 .nx-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--accent);color:#06221e;font:700 15px 'DM Sans',sans-serif;padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px #000a;z-index:70}
 .nx-manage{margin-top:16px}
 .nx-manage summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0}
+.nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
+.nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
+.nx-edit{font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #7d4bb8;background:rgba(125,75,184,.18);color:#c9a7ff;cursor:pointer;white-space:nowrap}
+.nx-jump+.nx-edit{margin-left:0}.nx-head>.nx-edit:first-of-type{margin-left:auto}
 @media(max-width:900px){.nx-board{grid-template-columns:1fr}}
 @media(max-width:560px){.nx-todo .nx-list{grid-template-columns:1fr}.nx-chip{font-size:16px;padding:10px 16px;min-width:0}}
 
@@ -235,6 +239,11 @@
 .nx-grp-done{color:var(--accent);font-size:14px;font-weight:600;padding:6px 6px 4px}
 /* just ticked: stays put for a few seconds so the next tap can't land on the wrong job */
 .nx-job.just{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.nx-jrow{display:flex;gap:6px;align-items:stretch;margin-bottom:8px}.nx-jrow .nx-job{flex:1;min-width:0;margin-bottom:0}
+.nx-flag{flex:none;width:46px;border-radius:12px;border:1px solid #2c3766;background:#141d40;color:#ff6b8b;font-size:17px;cursor:pointer}
+.nx-jrow.flagged .nx-job{border-color:#ff6b8b88}.nx-why{display:block;color:#ff6b8b!important;font-weight:600;margin-top:3px}
+.nx-menu-h{font:700 12px "Signika",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#a9b0cc;padding:6px 10px 4px}
+.nx-jump{margin-left:auto;font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #b7dc35;background:rgba(183,220,53,.08);color:#b7dc35;cursor:pointer;white-space:nowrap}
 .nx-job.just .nx-box{background:var(--accent);border-color:var(--accent);position:relative}
 .nx-job.just .nx-box::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#04102c;font-weight:700}
 .nx-job.just small{display:block;font-size:12px;opacity:.85;margin-top:2px}
@@ -724,11 +733,11 @@ function renderMonth(p){
       js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(j.job)}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
   const pct=jobs.length?Math.round(doneJobs.length/jobs.length*100):0;
   el.innerHTML=`
-    <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div></div>
+    <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${pk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
     ${whoHtml}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
-    ${isManager?`<details class="nx-manage"><summary>Manage ${p}'s job list (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,pk)).join('')}</div>
+    ${isManager?`<details class="nx-manage"><summary>✎ Add or remove ${p}'s jobs (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,pk)).join('')}</div>
       <div class="add-job-row"><input class="add-job-input" id="new-job-${pk}" placeholder="Add a job for ${p}…" onkeydown="if(event.key==='Enter')addJob('${p}','${pk}')"/><button class="btn btn-accent" onclick="addJob('${p}','${pk}')">+ Add</button></div></details>`:''}
     <div class="notes-section">
       <div class="notes-title">📝 Handover Notes</div>

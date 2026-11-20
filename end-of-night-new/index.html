@@ -224,6 +224,10 @@
 .nx-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--accent);color:#06221e;font:700 15px 'DM Sans',sans-serif;padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px #000a;z-index:70}
 .nx-manage{margin-top:16px}
 .nx-manage summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0}
+.nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
+.nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
+.nx-edit{font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #7d4bb8;background:rgba(125,75,184,.18);color:#c9a7ff;cursor:pointer;white-space:nowrap}
+.nx-jump+.nx-edit{margin-left:0}.nx-head>.nx-edit:first-of-type{margin-left:auto}
 @media(max-width:900px){.nx-board{grid-template-columns:1fr}}
 @media(max-width:560px){.nx-todo .nx-list{grid-template-columns:1fr}.nx-chip{font-size:16px;padding:10px 16px;min-width:0}}
 
@@ -945,12 +949,12 @@ function renderDay(day){
     :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick'+(left.filter(j=>!nxReason(j)).length?' · '+left.filter(j=>!nxReason(j)).length+' without a reason':' · all have a reason'):'All ticked, ready to sign off'}</div></div>
        <div class="job-controls"><select class="assign-select" onchange="nxSignOff('${day}','${dk}',this.value)"><option value="">— Duty manager —</option>${onShift.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></div>`;
   el.innerHTML=`
-    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${dk}')">📝 Write a handover note ↓</button></div>
+    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${dk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${dk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
     ${lastHtml}${whoHtml}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked. The duty manager can sign off.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
     ${signOffCard}
-    ${isManager?`<details class="nx-manage"><summary>Manage ${day}'s job list (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,dk)).join('')}</div>
+    ${isManager?`<details class="nx-manage"><summary>✎ Add or remove ${day}'s jobs (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,dk)).join('')}</div>
       <div class="add-job-row"><input class="add-job-input" id="new-job-${dk}" placeholder="Add a job for ${day}…" onkeydown="if(event.key==='Enter')addJob('${day}','${dk}')"/><button class="btn btn-accent" onclick="addJob('${day}','${dk}')">+ Add</button></div></details>`:''}
     <div class="notes-section">
       <div class="notes-title">📝 Handover Notes</div>
