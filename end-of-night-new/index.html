@@ -825,6 +825,7 @@ function applyRotaCrew(replace){
 }
 async function maybeSeedShifts(){
   await loadShifts();
+  if(DAY_KEYS.includes(currentTab)) renderDay(DAYS[DAY_KEYS.indexOf(currentTab)]);
   if(tonightCrew().length && !state.staff.some(s=>s.onShift)) applyRotaCrew(true);  // auto-fill only when nobody is on yet
 }
 function addStaffMember(){
