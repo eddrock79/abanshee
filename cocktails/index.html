@@ -54,6 +54,10 @@
     display:flex;flex-direction:column}
   .card h3{font-family:'Bebas Neue';letter-spacing:1.5px;font-size:21px;margin:0;padding:14px 16px;
     background:linear-gradient(180deg,#241019,#1a0c11);color:#fff;border-bottom:2px solid var(--red)}
+  .grp-title{font-family:'Bevan',Georgia,serif;font-size:22px;margin:18px 0 10px;color:#fff;text-shadow:2px 2px 0 #3a1d63}
+  .grp-title:first-child{margin-top:4px}.grp-title small{font:600 14px 'Signika',sans-serif;color:var(--accent,#b7dc35);margin-left:6px;text-shadow:none}
+  .src-note{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;opacity:.7;margin-left:8px}
+  .card.off{opacity:.55}.off-tag{float:right;font:700 12px 'Signika',sans-serif;letter-spacing:.06em;color:#ff6b8b;border:1px solid #ff6b8b88;border-radius:999px;padding:2px 8px;margin-top:3px}
   .card .body{padding:14px 16px;white-space:pre-wrap;line-height:1.5;font-size:15px;color:#d9d6e0}
  
   .state{text-align:center;padding:46px 20px;color:var(--muted)}
@@ -173,14 +177,12 @@
  
   <div id="lib-results"></div>
  
-  <div class="section-label">Our Cocktails</div>
+  <div class="section-label">Our Cocktails &amp; Shooters <span class="src-note">live from the drinks menu</span></div>
   <div class="controls">
     <button class="btn" onclick="loadRecipes()">↻ Refresh</button>
   </div>
   <div id="recipes"><div class="state"><div class="spinner"></div>Loading recipes…</div></div>
  
-  <div class="section-label">Recipe Cards (photos)</div>
-  <div class="photos" id="photos"></div>
  
 </div>
  
@@ -211,7 +213,26 @@
     return rows;
   }
  
+  // ---- live Cocktails + Shooters from the drinks menu (same database the menu site uses) ----
+  const MENU_DOC='https://firestore.googleapis.com/v1/projects/rockboard-2b240/databases/(default)/documents/banshee/drinks-menu';
+  function fixText(t){return String(t||'').replace(/Kahl\uFFFDa/g,'Kahlúa').replace(/cr\uFFFDme/gi,'crème').replace(/Passo\uFFFD/g,'Passoã').replace(/\uFFFD/g,'').replace(/\s+/g,' ').trim();}
   async function loadRecipes(){
+    const host=document.getElementById('recipes');
+    host.innerHTML='<div class="state"><div class="spinner"></div>Loading the menu…</div>';
+    try{
+      const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+      const res=await fetch(MENU_DOC+'?t='+Date.now(),{signal:ctrl.signal,cache:'no-store'}); clearTimeout(t);
+      if(!res.ok) throw new Error('menu not reachable');
+      const doc=await res.json(); const m=JSON.parse(doc.fields.json.stringValue);
+      const pick=(id,re)=>(m.categories||[]).find(c=>c.id===id)||(m.categories||[]).find(c=>re.test(c.name||''));
+      const groups=[['Cocktails',pick('cocktails',/cocktail/i)],['Shooters',pick('shooters',/shooter|shot/i)]].filter(g=>g[1]&&(g[1].items||[]).length);
+      if(!groups.length) throw new Error('no cocktails on the menu');
+      host.innerHTML=groups.map(([title,c])=>
+        `<div class="grp-title">${title} <small>${c.items.length}</small></div><div class="cards">${c.items.map(i=>
+          `<div class="card${i.unavailable?' off':''}"><h3>${esc(fixText(i.name))}${i.unavailable?'<span class="off-tag">86’d</span>':''}</h3><div class="body">${esc(fixText(i.desc))}</div></div>`).join('')}</div>`).join('');
+    }catch(err){ loadSheetRecipes(); }
+  }
+  async function loadSheetRecipes(){
     const host=document.getElementById('recipes');
     host.innerHTML='<div class="state"><div class="spinner"></div>Loading recipes…</div>';
     try{
@@ -233,6 +254,7 @@
           return !(n==='name'||n==='cocktail'||n==='drink');              // drop the header row
         });
       render(recipes);
+      host.insertAdjacentHTML('afterbegin','<div class="state" style="padding:8px 0">Couldn’t reach the drinks menu, so this is the older recipe sheet.</div>');
     }catch(err){
       host.innerHTML='<div class="state">Couldn’t load recipes.<br><small>'+err+'</small>'+
         '<br><button class="retry" onclick="loadRecipes()">↻ Retry</button></div>';
@@ -259,7 +281,8 @@
   let lbIndex=0;
  
   function buildPhotos(){
-    document.getElementById('photos').innerHTML=PHOTOS.map((p,i)=>
+    const host=document.getElementById('photos'); if(!host) return;
+    host.innerHTML=PHOTOS.map((p,i)=>
       `<div class="photo" onclick="openLB(${i})">
         <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
         <div class="zoom">⛶</div>
