@@ -81,3 +81,7 @@ input,select,textarea,button{font-family:"Signika",sans-serif}
 .gs-status{font:600 13px "Signika",sans-serif!important;padding:5px 12px!important;border-radius:999px!important;background:#141d40!important;border:1px solid #2c3766!important;color:#d9ddf0!important;white-space:nowrap}
 .gs-status.connected{color:#b7dc35!important;border-color:#b7dc3588!important}
 .gs-status.error{color:#ff6b8b!important;border-color:#ff6b8b88!important}
+
+/* Front page button beside Pub Dashboard */
+.bl-lrow{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.bl-front::after{content:none!important}

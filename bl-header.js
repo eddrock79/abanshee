@@ -33,7 +33,11 @@
     d.textContent=dt.toLocaleDateString('en-GB',{weekday:'long'})+' '+n+sfx+' '+dt.toLocaleDateString('en-GB',{month:'long'});
     row.appendChild(d); right.appendChild(row);
     var nl=document.querySelector('.nav-bar a[href*="eddrock79nas"]');
-    if(nl){nl.className='bl-xlink';nl.removeAttribute('id');right.appendChild(nl);}
+    // Front page: back to this pub's board on the NAS (target _top also leaves the board's viewer)
+    var fp=document.createElement('a');fp.className='bl-xlink bl-front';fp.href=window.BL_FRONT||'http://100.90.189.89/pub-report/start-bl.html';fp.target='_top';fp.textContent='⌂ Front page';
+    var lr=document.createElement('div');lr.className='bl-lrow';lr.appendChild(fp);
+    if(nl){nl.className='bl-xlink';nl.removeAttribute('id');lr.appendChild(nl);}
+    right.appendChild(lr);
     // Pub Dashboard stands out on the Home page
     if(nl&&/\/home\/?$/.test(location.pathname)) nl.classList.add('hot');
     // Switch Venue and Log Out move up beside the role chip so the tab row fits on one line
