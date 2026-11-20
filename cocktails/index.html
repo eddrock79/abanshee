@@ -54,6 +54,10 @@
     display:flex;flex-direction:column}
   .card h3{font-family:'Bebas Neue';letter-spacing:1.5px;font-size:21px;margin:0;padding:14px 16px;
     background:linear-gradient(180deg,#241019,#1a0c11);color:#fff;border-bottom:2px solid var(--red)}
+  .grp-title{font-family:'Bevan',Georgia,serif;font-size:22px;margin:18px 0 10px;color:#fff;text-shadow:2px 2px 0 #3a1d63}
+  .grp-title:first-child{margin-top:4px}.grp-title small{font:600 14px 'Signika',sans-serif;color:var(--accent,#b7dc35);margin-left:6px;text-shadow:none}
+  .src-note{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;opacity:.7;margin-left:8px}
+  .card.off{opacity:.55}.off-tag{float:right;font:700 12px 'Signika',sans-serif;letter-spacing:.06em;color:#ff6b8b;border:1px solid #ff6b8b88;border-radius:999px;padding:2px 8px;margin-top:3px}
   .card .body{padding:14px 16px;white-space:pre-wrap;line-height:1.5;font-size:15px;color:#d9d6e0}
  
   .state{text-align:center;padding:46px 20px;color:var(--muted)}
@@ -115,6 +119,31 @@
     width:54px;height:80px;display:grid;place-items:center;user-select:none}
   .lb .arrow:hover{background:rgba(255,255,255,.08)}
   .lb .prev{left:8px} .lb .next{right:8px}
+  /* ---- Banshee look: navy, purple, lime ---- */
+  .card{background:#0e1838!important;border-color:#2c3766!important}
+  .card h3,.recipe-detail .rd-head{background:linear-gradient(180deg,#1b2552,#141d40)!important;border-bottom:2px solid #7d4bb8!important;font-family:'Bevan',Georgia,serif!important;letter-spacing:.01em!important;font-size:18px!important}
+  .recipe-detail{background:#0e1838!important;border-color:#2c3766!important}
+  .recipe-detail .rd-head .meta{color:#a9b0cc!important}
+  .card .body,.recipe-detail .method{color:#d9ddf0!important}
+  .lib-tab.active{background:rgba(183,220,53,.12)!important;border-color:#b7dc35!important;color:#b7dc35!important}
+  .chip{background:rgba(125,75,184,.18)!important;border-color:#7d4bb8!important}
+  .chip .rm{background:rgba(125,75,184,.35)!important}
+  .section-label{color:#b7dc35!important}
+  .section-label::after{background:#2c3766!important}
+  .btn:hover{border-color:#b7dc35!important;color:#b7dc35!important}
+  .ing-line .miss,.badge.miss{color:#ff8fa8!important}
+  /* menu list: Cocktails and Shooters side by side, one compact row per drink */
+  .mx-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media(max-width:700px){.mx-cols{grid-template-columns:1fr}}
+  .mx-grp .grp-title{margin:0 0 8px}
+  .mx-list{background:#0e1838;border:1px solid #2c3766;border-radius:12px;overflow:hidden}
+  .mx-row{padding:9px 14px;border-bottom:1px solid #1f2a52}
+  .mx-row:last-child{border-bottom:0}
+  .mx-row:nth-child(even){background:#111b40}
+  .mx-name{font:600 16px 'Signika',sans-serif;color:#fff}
+  .mx-desc{font:400 14px/1.35 'Signika',sans-serif;color:#a9b0cc;margin-top:1px}
+  .mx-row.off{opacity:.5}.mx-row.off .mx-name{text-decoration:line-through;text-decoration-color:#ff6b8b}
+  .off-tag{float:right;font:700 11px 'Signika',sans-serif;letter-spacing:.06em;color:#ff6b8b;border:1px solid #ff6b8b88;border-radius:999px;padding:1px 8px;margin-top:2px;text-decoration:none}
 </style>
 <script src="../bl-config.js"></script>
 <script src="../bl-header.js" defer></script>
@@ -173,14 +202,12 @@
  
   <div id="lib-results"></div>
  
-  <div class="section-label">Our Cocktails</div>
+  <div class="section-label">Our Cocktails &amp; Shooters <span class="src-note">live from the drinks menu</span></div>
   <div class="controls">
     <button class="btn" onclick="loadRecipes()">↻ Refresh</button>
   </div>
   <div id="recipes"><div class="state"><div class="spinner"></div>Loading recipes…</div></div>
  
-  <div class="section-label">Recipe Cards (photos)</div>
-  <div class="photos" id="photos"></div>
  
 </div>
  
@@ -211,7 +238,26 @@
     return rows;
   }
  
+  // ---- live Cocktails + Shooters from the drinks menu (same database the menu site uses) ----
+  const MENU_DOC='https://firestore.googleapis.com/v1/projects/rockboard-2b240/databases/(default)/documents/banshee/drinks-menu';
+  function fixText(t){return String(t||'').replace(/Kahl\uFFFDa/g,'Kahlúa').replace(/cr\uFFFDme/gi,'crème').replace(/Passo\uFFFD/g,'Passoã').replace(/\uFFFD/g,'').replace(/\s+/g,' ').trim();}
   async function loadRecipes(){
+    const host=document.getElementById('recipes');
+    host.innerHTML='<div class="state"><div class="spinner"></div>Loading the menu…</div>';
+    try{
+      const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+      const res=await fetch(MENU_DOC+'?t='+Date.now(),{signal:ctrl.signal,cache:'no-store'}); clearTimeout(t);
+      if(!res.ok) throw new Error('menu not reachable');
+      const doc=await res.json(); const m=JSON.parse(doc.fields.json.stringValue);
+      const pick=(id,re)=>(m.categories||[]).find(c=>c.id===id)||(m.categories||[]).find(c=>re.test(c.name||''));
+      const groups=[['Cocktails',pick('cocktails',/cocktail/i)],['Shooters',pick('shooters',/shooter|shot/i)]].filter(g=>g[1]&&(g[1].items||[]).length);
+      if(!groups.length) throw new Error('no cocktails on the menu');
+      host.innerHTML='<div class="mx-cols">'+groups.map(([title,c])=>
+        `<section class="mx-grp"><div class="grp-title">${title} <small>${c.items.length}</small></div><div class="mx-list">${c.items.map(i=>
+          `<div class="mx-row${i.unavailable?' off':''}"><div class="mx-name">${esc(fixText(i.name))}${i.unavailable?'<span class="off-tag">86’d</span>':''}</div><div class="mx-desc">${esc(fixText(i.desc))}</div></div>`).join('')}</div></section>`).join('')+'</div>';
+    }catch(err){ loadSheetRecipes(); }
+  }
+  async function loadSheetRecipes(){
     const host=document.getElementById('recipes');
     host.innerHTML='<div class="state"><div class="spinner"></div>Loading recipes…</div>';
     try{
@@ -233,6 +279,7 @@
           return !(n==='name'||n==='cocktail'||n==='drink');              // drop the header row
         });
       render(recipes);
+      host.insertAdjacentHTML('afterbegin','<div class="state" style="padding:8px 0">Couldn’t reach the drinks menu, so this is the older recipe sheet.</div>');
     }catch(err){
       host.innerHTML='<div class="state">Couldn’t load recipes.<br><small>'+err+'</small>'+
         '<br><button class="retry" onclick="loadRecipes()">↻ Retry</button></div>';
@@ -259,7 +306,8 @@
   let lbIndex=0;
  
   function buildPhotos(){
-    document.getElementById('photos').innerHTML=PHOTOS.map((p,i)=>
+    const host=document.getElementById('photos'); if(!host) return;
+    host.innerHTML=PHOTOS.map((p,i)=>
       `<div class="photo" onclick="openLB(${i})">
         <img src="${p.src}" alt="${esc(p.cap)}" loading="lazy">
         <div class="zoom">⛶</div>

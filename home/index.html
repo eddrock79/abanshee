@@ -91,6 +91,21 @@
   .event-desc{font-size:11px;color:var(--muted);margin-top:2px;}
   .crew-chip{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;margin:3px 5px 0 0;font-size:13px;color:var(--text);}
   .crew-time{color:var(--muted);font-size:11px;}
+  .tn-card{margin-bottom:14px}
+  .tn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tn-wx{font-size:15px;color:var(--text);white-space:nowrap}.tn-wx small{color:var(--muted);font-size:13px}.tn-wxi{font-size:18px;margin-right:6px}
+  .tn-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .tn-lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .tn-ev{padding:6px 0;border-bottom:1px solid var(--border);font-size:15px}.tn-ev:last-child{border-bottom:0}.tn-ev b{color:var(--accent);margin-right:6px}.tn-ev small{display:block;color:var(--muted);font-size:12px}
+  .tn-eon{display:block;margin-top:14px;text-align:center;padding:13px;border-radius:10px;background:var(--accent);color:#04102c;font-weight:700;font-size:17px;text-decoration:none}
+  .tn-sub{font-family:inherit;font-size:13px;letter-spacing:0;color:var(--muted);text-shadow:none;text-transform:none;font-weight:400;margin-left:6px}
+  @media(max-width:640px){.tn-grid{grid-template-columns:1fr}.tn-wx small{display:none}}
+  .tn-eon small{display:block;font-size:13px;font-weight:600;margin-top:3px;opacity:.85}.tn-eon small:empty{display:none}
+  .tn-eon .tn-warn{color:#7a0f2b}
+  .tn-wj{display:flex;justify-content:space-between;gap:10px;margin-top:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:15px}
+  .tn-wj b{color:var(--accent)}.tn-wj .tn-open{color:var(--muted)}
+  .hm-cols{display:grid;grid-template-columns:1fr;gap:14px}.hm-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+  @media(min-width:1000px){.main{max-width:1180px}.hm-cols{grid-template-columns:1.15fr 1fr;align-items:start}}
 
   /* Notice board */
   .notice-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -184,40 +199,42 @@
       <div class="win"><div class="track" id="ticker-track"></div></div>
     </div>
 
-    <!-- On Tonight + Weather (weather hides on busy nights) -->
-    <div class="top-row" id="top-row">
-      <div class="card" id="tonight-card" style="display:none">
-        <div class="card-title" id="tonight-title">🌙 On Tonight</div>
-        <div id="tonight-content"></div>
+    <!-- Tonight: who's on, what's on, the weather in one line, and the closing jobs button -->
+    <div class="card tn-card" id="tonight-card">
+      <div class="tn-head"><div class="card-title" id="tonight-title" style="margin-bottom:0">Tonight</div><div class="tn-wx" id="wx-content"></div></div>
+      <div class="tn-grid">
+        <div><div class="tn-lbl">On shift</div><div id="tonight-content"><div class="muted-text">Loading the rota…</div></div></div>
+        <div><div class="tn-lbl">On tonight</div><div id="tonight-events"><div class="muted-text">Loading…</div></div></div>
       </div>
-      <div class="card" id="weather-card">
-        <div class="card-title">🌤 Edinburgh</div>
-        <div id="wx-content"><div class="muted-text">Loading…</div></div>
-      </div>
+      <a class="tn-eon" href="../end-of-night/">✓ Tick tonight's closing jobs<small id="tn-eon-prog"></small></a>
+      <a class="tn-wj" href="../weekly-cleaning/" id="tn-wj" style="display:none"></a>
     </div>
 
+    <div class="hm-cols"><div class="hm-col">
     <!-- Notice Board -->
     <div class="card">
       <div class="notice-header">
-        <div class="card-title" style="margin-bottom:0">📋 Notice Board</div>
+        <div class="card-title" style="margin-bottom:0">📋 Duty Manager Messages</div>
         <button class="notice-edit-btn" id="notice-edit-btn" onclick="requestNoticeEdit()" style="display:none">✏ Edit</button>
       </div>
       <div class="notice-content" id="notice-content"></div>
-      <textarea class="notice-textarea" id="notice-textarea" placeholder="Type a message for staff here…"></textarea>
+      <textarea class="notice-textarea" id="notice-textarea" placeholder="Type a message for the team…"></textarea>
       <button class="notice-save-btn" id="notice-save-btn" onclick="saveNotice()">Save Notice</button>
     </div>
 
     <!-- Handover Notes -->
     <div class="card">
-      <div class="card-title">📝 Handover Notes</div>
-      <div id="handover-content"><div class="muted-text">No handover notes yet.</div></div>
+      <div class="card-title">📝 Staff Messages <span class="tn-sub">from the daily handover notes</span></div>
+      <div id="handover-content"><div class="muted-text">No staff messages yet.</div></div>
     </div>
 
+    </div><div class="hm-col">
     <!-- Upcoming Events -->
     <div class="card">
-      <div class="card-title">📅 Upcoming Events</div>
+      <div class="card-title">📅 Coming Up</div>
       <div id="events-content"></div>
     </div>
+    </div></div>
 
   </div>
 </div>
@@ -281,21 +298,82 @@ const NOTICE_CACHE='bl_notice_list';     // cached JSON of the notice entries
 const HANDOVER_CACHE='bl_handover_list'; // cached JSON of the handover entries
 let sharedSyncFailed=false;
 
-// ── EVENTS — auto-fed from the rota's room rows (events.json, published by the NAS) ──
-const EVENTS_URL='../rotas/events.json';
-const EVENTS_CACHE='bl_events';
+// ── EVENTS — the same listings as the What's On screens: Molly's Chamber gigs (venue calendar) + cinema listings ──
+// Rules copied from whatson/board.html: booking/hold rows are skipped, and anything below a divider line in the notes is private and never read.
+const WO_GIGS_CSV='https://docs.google.com/spreadsheets/d/170lfqgVTY2JRou-44NMlGR80BtvQDR7GBQZRlUmbYqQ/gviz/tq?tqx=out:csv';
+const WO_CINEMA_API='https://script.google.com/macros/s/AKfycbzj8sdKBSn9Kfc5o5_Aoj07q62VxGGtIvW5Mt4Y6MfjkDxqUaLq5ckKzb8eYUlKQACv/exec';
+const WO_GIG_CAL=/mollys chamber|stage bar/i;
+const WO_BLOCK=/^\s*(template\b.*|private\s+booking|possible\s+booking|potential\s+booking|booking(?:\s+tbc)?|booked|tbc|hold)\s*$/i;
+const EVENTS_CACHE='bl_events_wo';
 let eventsFailed=false;
 function cachedEvents(){ try{return JSON.parse(localStorage.getItem(EVENTS_CACHE)||'[]');}catch(e){return [];} }
+function woCSV(t){const rows=[];let r=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+  else if(c==='"')q=true;else if(c===','){r.push(f);f='';}else if(c==='\n'){r.push(f);rows.push(r);r=[];f='';}else if(c!=='\r')f+=c;}
+  if(f||r.length){r.push(f);rows.push(r);}return rows;}
+function woPlain(s){return String(s||'').replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&#39;|&rsquo;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g,' ').trim();}
+function woTime(text,cell){
+  let m=text.match(/(?:doors?\s*(?:open(?:s|ing)?)?(?:\s*at)?|start\s*time)\s*:?\.?\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i),bare=true;
+  if(!m){m=String(cell||'').match(/(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm)?/i);bare=false;}
+  if(!m)return '';let h=+m[1];const mn=m[2]?+m[2]:0,ap=(m[3]||'').toLowerCase();
+  if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;if(bare&&!ap&&h>=1&&h<=11)h+=12;
+  if(h>23||mn>59)return '';return String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0');}
+function woType(plain,title){const m=plain.match(/event ?type\s*:?\s*([a-z &]+?)(?=\s+(?:start|blurb|band|doors|cost|web|ffo|dj)\b|$)/i);const t=((m&&m[1])||title).toLowerCase();
+  if(/karaoke/.test(t))return 'Karaoke';if(/\bdj\b|techno|disco|club night/.test(t))return 'DJ set';if(/open ?mic|take the stage|jam/.test(t))return 'Open mic';
+  if(/quiz/.test(t))return 'Quiz';if(/comedy/.test(t))return 'Comedy';if(/live|gig|band/.test(t))return 'Live music';return '';}
+function woGigs(text){const rows=woCSV(text);let hi=rows.findIndex(r=>r.some(c=>/event title/i.test(c))&&r.some(c=>/start date/i.test(c)));if(hi<0)return [];
+  const H=rows[hi].map(c=>(c||'').trim().toLowerCase()),col=n=>H.indexOf(n);
+  const C={cal:col('calendar name'),title:col('event title'),desc:col('description'),date:col('start date'),time:col('start time'),all:col('all day')};const out=[];
+  for(const r of rows.slice(hi+1)){
+    if(!WO_GIG_CAL.test(r[C.cal]||''))continue;const title=(r[C.title]||'').trim();
+    if(!title||WO_BLOCK.test(title)||/rehearsal/i.test(title)||/^\s*(booked|booking|private|possible|potential|hold)\b/i.test(title))continue;
+    const d=(r[C.date]||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!d)continue;
+    let plain=woPlain(r[C.desc]);const cut=plain.search(/_{3,}|-{5,}|={5,}|[—–]{3,}/);if(cut>=0)plain=plain.slice(0,cut).trim();
+    if(/^hold\b/i.test(plain))continue;
+    const allDay=/^(true|yes|1)$/i.test((r[C.all]||'').trim());
+    out.push({date:d[3]+'-'+d[2].padStart(2,'0')+'-'+d[1].padStart(2,'0'),what:title,room:"Molly's Chamber",time:woTime(plain,allDay?'':r[C.time]),type:woType(plain,title)});}
+  return out;}
+function woFilms(list){return (Array.isArray(list)?list:[]).map(f=>{const d=new Date(f.date);const t=f.time?new Date(f.time):null;
+  if(isNaN(d)||!f.title||WO_BLOCK.test(f.title)||/private/i.test(f.title))return null;
+  return {date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),what:f.title.replace(/\b\w/g,c=>c.toUpperCase())+(f.year?' ('+f.year+')':''),
+    room:'Cinema',time:(t&&!isNaN(t))?String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0'):'',type:'Film'};}).filter(Boolean);}
 async function loadEvents(){
-  renderEvents();                                   // show cached copy immediately
-  try{
-    const res=await fetch(EVENTS_URL+'?t='+Date.now());
-    if(!res.ok) throw new Error('http '+res.status);
-    const data=await res.json();
-    localStorage.setItem(EVENTS_CACHE,JSON.stringify(data.events||[]));
-    eventsFailed=false;
-  }catch(e){ eventsFailed=true; }
+  renderEvents();                                   // show the saved copy straight away
+  const got=await Promise.allSettled([
+    fetch(WO_GIGS_CSV+'&t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.text();}).then(woGigs),
+    fetch(WO_CINEMA_API+'?action=list&t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(woFilms)]);
+  const ok=got.filter(g=>g.status==='fulfilled');
+  if(ok.length){const all=[].concat(...ok.map(g=>g.value)).sort((x,y)=>(x.date+(x.time||'99')).localeCompare(y.date+(y.time||'99')));
+    try{localStorage.setItem(EVENTS_CACHE,JSON.stringify(all));}catch(e){}}
+  eventsFailed=ok.length<got.length;
   renderEvents();
+}
+
+// ── JOB PROGRESS: closing jobs (last night and tonight) and today's weekly jobs, read from the same sheets the job pages save to ──
+function jpCSV(t){const rows=[];let r=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+  else if(c==='"')q=true;else if(c===','){r.push(f);f='';}else if(c==='\n'){r.push(f);rows.push(r);r=[];f='';}else if(c!=='\r')f+=c;}
+  if(f||r.length){r.push(f);rows.push(r);}const H=(rows.shift()||[]).map(h=>h.trim().toLowerCase());
+  return rows.map(x=>{const o={};H.forEach((h,i)=>o[h]=(x[i]||'').trim());return o;});}
+function jpTime(v){if(!v)return null;const m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(m)return new Date(+m[3],m[2]-1,+m[1],+(m[4]||0),+(m[5]||0));const d=new Date(v);return isNaN(d)?null:d;}
+function jpDone(j){return /^(true|yes|1|done)$/i.test(j.done||'')||!!(j.assignedto&&j.timestamp);}
+function jpCount(rows,day,from,to){const js=rows.filter(j=>(j.day||'').toLowerCase()===day.toLowerCase());
+  return {n:js.filter(j=>{if(!jpDone(j))return false;const t=jpTime(j.timestamp);return !t||(t>=from&&t<to);}).length,of:js.length};}
+async function jpSheet(id){const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Jobs&t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;return jpCSV(await r.text());}
+async function loadJobProgress(){
+  const n=new Date(),night=new Date(n);if(n.getHours()<7)night.setDate(night.getDate()-1);night.setHours(0,0,0,0);
+  const last=new Date(night);last.setDate(last.getDate()-1);
+  const at=(d,h)=>{const x=new Date(d);x.setHours(h,0,0,0);return x;},plus=(d,k)=>{const x=new Date(d);x.setDate(x.getDate()+k);return x;};
+  const p=document.getElementById('tn-eon-prog'),w=document.getElementById('tn-wj');
+  try{ if(!BL_CFG.endOfNight)throw 0; const rows=await jpSheet(BL_CFG.endOfNight);
+    const a=jpCount(rows,DOW_FULL[last.getDay()],at(last,12),at(plus(last,1),14)),b=jpCount(rows,DOW_FULL[night.getDay()],at(night,12),at(plus(night,1),14));
+    if(p) p.innerHTML='<span class="'+(a.of&&a.n<a.of?'tn-warn':'')+'">Last night: '+a.n+' of '+a.of+' ticked</span> · Tonight: '+b.n+' of '+b.of;
+  }catch(e){ if(p) p.textContent=''; }
+  try{ if(!BL_CFG.weeklyJobs)throw 0; const rows=await jpSheet(BL_CFG.weeklyJobs);
+    const c=jpCount(rows,DOW_FULL[night.getDay()],night,plus(night,7));
+    if(w){ w.style.display=c.of?'':'none'; w.innerHTML='<span>'+DOW_FULL[night.getDay()]+"'s weekly jobs: <b>"+c.n+' of '+c.of+' done</b></span><span class="tn-open">Open ›</span>'; }
+  }catch(e){ if(w) w.style.display='none'; }
 }
 
 // ── ON TONIGHT (rota crew, 7am-aware: a night counts until 7am next morning) ──
@@ -309,6 +387,8 @@ function rotaDayInfo(){
   return {iso, name:DOW_FULL[d.getDay()]};
 }
 function cachedShifts(){ try{return JSON.parse(localStorage.getItem(SHIFTS_CACHE)||'{}');}catch(e){return {};} }
+function tonightCrewRows(){ const days=cachedShifts()||{}, iso=rotaDayInfo().iso;   // the rota sometimes has the wrong year: match on day and month
+  const k=days[iso]?iso:Object.keys(days).filter(x=>x.slice(5)===iso.slice(5)).pop(); return (k&&days[k])||[]; }
 async function loadTonight(){
   renderTonight();
   try{
@@ -319,22 +399,13 @@ async function loadTonight(){
 }
 const HIDE_WEATHER_CREW=7;   // busy night: this many+ rota'd hides weather & lets On Tonight fill the row
 function renderTonight(){
-  const card=document.getElementById('tonight-card');
-  const el=document.getElementById('tonight-content');
-  const wx=document.getElementById('weather-card');
-  const row=document.getElementById('top-row');
-  if(!card||!el) return;
-  const info=rotaDayInfo();
-  const crew=(cachedShifts()||{})[info.iso]||[];
-  const hasCrew=crew.length>0;
-  const busy=crew.length>=HIDE_WEATHER_CREW;
-  card.style.display=hasCrew?'':'none';
-  if(wx) wx.style.display=(hasCrew&&busy)?'none':'';
-  if(row) row.classList.toggle('solo',(!hasCrew)||busy);   // single column when only one card shows
-  if(hasCrew){
-    document.getElementById('tonight-title').textContent='🌙 On Tonight — '+info.name;
-    el.innerHTML=crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join('');
-  }
+  const el=document.getElementById('tonight-content'), ev=document.getElementById('tonight-events');
+  if(!el) return;
+  const info=rotaDayInfo(), crew=tonightCrewRows();
+  document.getElementById('tonight-title').textContent='Tonight · '+info.name;
+  el.innerHTML=crew.length?crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join(''):'<div class="muted-text">Nobody on the rota for tonight yet.</div>';
+  if(ev){ const list=cachedEvents().filter(e=>e.date===info.iso).sort((x,y)=>(x.time||'99').localeCompare(y.time||'99'));
+    ev.innerHTML=list.length?list.map(e=>`<div class="tn-ev"><b>${escHtml(e.time||'Tonight')}</b> ${escHtml(e.what||'Event')}<small>${escHtml([e.room,e.type].filter(Boolean).join(' · '))}</small></div>`).join(''):'<div class="muted-text">Nothing listed in Molly’s Chamber or the cinema.</div>'; }
 }
 
 let livePin=null, liveSuper=null, liveMaster=null, pinEntry='', superEntry='', sheetId='', isManager=false;
@@ -434,9 +505,10 @@ function showApp(){
 
   loadNotice();
   renderHandover();
-  loadEvents().then(buildTicker);
+  loadEvents().then(()=>{renderTonight();buildTicker();});
   loadTonight().then(buildTicker);
   loadWeather();
+  loadJobProgress();
   buildTicker();
   // pull the shared notice + handover from the sheet, then re-render
   fetchShared().then(()=>{ loadNotice(); renderHandover(); buildTicker(); });
@@ -483,7 +555,7 @@ function cachedNotice(){ try{return JSON.parse(localStorage.getItem(NOTICE_CACHE
 function cachedHandover(){ try{return JSON.parse(localStorage.getItem(HANDOVER_CACHE)||'[]');}catch(e){return [];} }
 
 function loadNotice(){
-  document.getElementById('notice-content').innerHTML=fmtList(cachedNotice(),'No notices in the last 10 days.');
+  document.getElementById('notice-content').innerHTML=fmtList(cachedNotice(),'No messages from the duty manager in the last 10 days.');
 }
 function openNoticeEdit(){
   document.getElementById('notice-textarea').value='';
@@ -522,7 +594,7 @@ function renderHandover(){
   const el=document.getElementById('handover-content');
   const notes=cachedHandover().filter(n=>n && (n.note||n.text));
   if(!notes.length){
-    el.innerHTML='<div class="muted-text">No handover notes'+(sharedSyncFailed?' (offline — showing last saved)':'')+'.</div>';
+    el.innerHTML='<div class="muted-text">No staff messages in the handover notes yet'+(sharedSyncFailed?' (offline — showing last saved)':'')+'.</div>';
     return;
   }
   const banner=sharedSyncFailed?'<div class="muted-text" style="color:var(--red);margin-bottom:6px">⚠ Couldn’t sync — showing last saved copy</div>':'';
@@ -549,10 +621,10 @@ function renderEvents(){
   const upcoming=cachedEvents().map(e=>{
     const p=(e.date||'').split('-');                 // YYYY-MM-DD
     return {...e, d:new Date(+p[0],(+p[1])-1,+p[2])};
-  }).filter(e=>!isNaN(e.d) && e.d>=today).sort((a,b)=>a.d-b.d).slice(0,12);
+  }).filter(e=>!isNaN(e.d) && e.d>today).sort((a,b)=>a.d-b.d||(a.time||'99').localeCompare(b.time||'99')).slice(0,12);
 
   if(!upcoming.length){
-    el.innerHTML='<div class="muted-text">No upcoming events'+(eventsFailed?' (offline — showing last saved)':'')+'.</div>';
+    el.innerHTML='<div class="muted-text">Nothing listed for the coming days'+(eventsFailed?' (offline — showing last saved)':'')+'.</div>';
     return;
   }
 
@@ -564,7 +636,7 @@ function renderEvents(){
       <div class="event-date" style="${isToday?'color:var(--accent)':''}">${lbl}</div>
       <div>
         <div class="event-name">${escHtml(e.what||'Event')}</div>
-        <div class="event-desc">${escHtml(e.room||'')}</div>
+        <div class="event-desc">${escHtml([e.room,e.time,e.type].filter(Boolean).join(' · '))}</div>
       </div>
     </div>`;
   }).join('');
@@ -580,13 +652,8 @@ async function loadWeather(){
     if(!res.ok)throw new Error();
     const d=await res.json();
     const c=d.current;
-    el.innerHTML=`
-      <div class="wx-icon">${WX_ICONS[c.weathercode]||'🌡'}</div>
-      <div class="wx-temp">${Math.round(c.temperature_2m)}°C</div>
-      <div class="wx-desc">${WX_DESC[c.weathercode]||'Variable'}</div>
-      <div class="wx-meta">Feels <span>${Math.round(c.apparent_temperature)}°</span></div>
-      <div class="wx-meta">💨 <span>${Math.round(c.windspeed_10m)} km/h</span></div>`;
-  }catch(e){el.innerHTML='<div class="muted-text">Unavailable</div>';}
+    el.innerHTML=`<span class="tn-wxi">${WX_ICONS[c.weathercode]||'🌡'}</span><b>${Math.round(c.temperature_2m)}°C</b> ${WX_DESC[c.weathercode]||''}<small> · feels ${Math.round(c.apparent_temperature)}° · wind ${Math.round(c.windspeed_10m)} km/h</small>`;
+  }catch(e){el.innerHTML='';}
 }
 
 function logOut(){
@@ -654,7 +721,7 @@ function noticeBit(){
   const n0=list[0];
   const txt=(typeof n0==='string')?n0:(n0.note||n0.text||n0.message||'');
   if(!txt) return '';
-  return `<b>📋 Notice:</b> ${escHtml(String(txt).split('\n')[0]).slice(0,140)}`;
+  return `<b>📋 Duty manager:</b> ${escHtml(String(txt).split('\n')[0]).slice(0,140)}`;
 }
 function nextEventBit(){
   const today=new Date(new Date().toDateString());
@@ -670,7 +737,7 @@ async function buildTicker(){
   if(!bar||!track) return;
   await ensureJokes();
   const bits=[];
-  const info=rotaDayInfo(); const crew=(cachedShifts()||{})[info.iso]||[];
+  const info=rotaDayInfo(); const crew=tonightCrewRows();
   if(crew.length) bits.push(`<b>🎬 On tonight:</b> ${crew.map(c=>escHtml(c.name)).join(', ')}`);
   const nb=noticeBit(); if(nb) bits.push(nb);
   const eb=nextEventBit(); if(eb) bits.push(eb);

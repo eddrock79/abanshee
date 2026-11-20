@@ -180,11 +180,103 @@
   .modal p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
   .modal-buttons{display:flex;gap:10px;justify-content:flex-end;}
   @media(max-width:500px){.job-card{flex-wrap:wrap}.assign-select{max-width:100%}}
+
+/* ===== new day page: pick your name, tap the jobs you've done ===== */
+.nx-trial{background:#4fb8a81f;border-bottom:1px solid #4fb8a855;color:var(--accent);font-size:13px;text-align:center;padding:7px 12px}
+.nx-trial a{color:var(--accent);text-decoration:underline}
+.nx-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.nx-head .section-title{margin:0}
+.nx-sub{color:var(--muted);font-size:14px;margin-top:2px}
+.nx-prog{flex:1;min-width:160px;height:10px;border-radius:5px;background:#ffffff12;overflow:hidden}
+.nx-prog i{display:block;height:100%;background:var(--green);border-radius:5px}
+.nx-last{background:var(--red-dim);border:1px solid #e85d5d66;border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.nx-last b{color:var(--red)}
+.nx-who{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 12px;margin-bottom:8px;border-bottom:1px solid var(--border)}
+.nx-who p{margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.nx-who p b{color:var(--accent)}
+.nx-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nx-chip{font:600 18px 'DM Sans',sans-serif;padding:12px 22px;border-radius:999px;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;min-width:92px}
+.nx-chip.on{background:var(--accent);border-color:var(--accent);color:#06221e}
+.nx-other{font:500 15px 'DM Sans',sans-serif;padding:12px 14px;border-radius:999px;border:2px dashed var(--border);background:transparent;color:var(--muted)}
+.nx-board{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:14px;align-items:start}
+.nx-col{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.nx-col h3{margin:0;padding:12px 14px;display:flex;align-items:center;gap:10px;font:400 22px/1 'Bebas Neue',sans-serif;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.nx-col h3 small{margin-left:auto;font:600 13px 'DM Sans',sans-serif;color:var(--muted);letter-spacing:0}
+.nx-col.me{border-color:var(--accent)}
+.nx-av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 13px 'DM Sans',sans-serif;background:var(--accent-dim);color:var(--accent)}
+.nx-list{padding:8px 10px 10px}
+.nx-todo .nx-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.nx-area{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:8px 4px 0}
+.nx-job{display:flex;gap:12px;align-items:center;min-height:64px;padding:12px;border-radius:12px;background:#1f1f24;border:1px solid var(--border);font:500 15px/1.3 'DM Sans',sans-serif;cursor:pointer;text-align:left;color:var(--text);width:100%}
+.nx-job:active{transform:scale(.98)}
+.nx-box{flex:none;width:28px;height:28px;border-radius:8px;border:2px solid #55555f}
+.nx-people{display:grid;gap:12px}
+.nx-done{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:10px;background:var(--done-bg);border:1px solid #3ecf6e44;font-size:14px;margin-bottom:6px}
+.nx-done .nx-tick{flex:none;width:22px;height:22px;border-radius:7px;background:var(--green);display:grid;place-items:center;font-size:12px;color:#062a12}
+.nx-done small{display:block;font-size:11px;color:var(--muted)}
+.nx-grab{margin-left:auto;padding:6px 10px;border-radius:6px;color:#88888f;font-size:18px;background:none;border:0;cursor:pointer}
+.nx-empty{color:var(--muted);font-size:13px;padding:6px 4px}
+.nx-menu{position:absolute;z-index:60;background:#1f1f24;border:1px solid #3a3a44;border-radius:12px;padding:6px;box-shadow:0 10px 30px #000a;min-width:200px}
+.nx-menu button{display:block;width:100%;text-align:left;font:600 16px 'DM Sans',sans-serif;padding:12px 14px;border:0;background:none;color:var(--text);border-radius:8px;cursor:pointer}
+.nx-menu button.on,.nx-menu button:hover{background:var(--accent-dim);color:var(--accent)}
+.nx-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--accent);color:#06221e;font:700 15px 'DM Sans',sans-serif;padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px #000a;z-index:70}
+.nx-manage{margin-top:16px}
+.nx-manage summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0}
+.nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
+.nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
+.nx-edit{font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #7d4bb8;background:rgba(125,75,184,.18);color:#c9a7ff;cursor:pointer;white-space:nowrap}
+.nx-jump+.nx-edit{margin-left:0}.nx-head>.nx-edit:first-of-type{margin-left:auto}
+@media(max-width:900px){.nx-board{grid-template-columns:1fr}}
+@media(max-width:560px){.nx-todo .nx-list{grid-template-columns:1fr}.nx-chip{font-size:16px;padding:10px 16px;min-width:0}}
+
+/* areas as whole columns: each area block stays in its column all night */
+.nx-todo .nx-list{display:block}
+.nx-cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.nx-c{display:grid;gap:12px;align-content:start}
+.nx-grp{background:#0a1330;border:1px solid var(--border);border-radius:12px;padding:8px}
+.nx-grp .nx-area{margin:2px 4px 8px}
+.nx-grp .nx-job{margin-bottom:8px}.nx-grp .nx-job:last-child{margin-bottom:0}
+.nx-grp-done{color:var(--accent);font-size:14px;font-weight:600;padding:6px 6px 4px}
+/* just ticked: stays put for a few seconds so the next tap can't land on the wrong job */
+.nx-job.just{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.nx-jrow{display:flex;gap:6px;align-items:stretch;margin-bottom:8px}.nx-jrow .nx-job{flex:1;min-width:0;margin-bottom:0}
+.nx-flag{flex:none;width:46px;border-radius:12px;border:1px solid #2c3766;background:#141d40;color:#ff6b8b;font-size:17px;cursor:pointer}
+.nx-jrow.flagged .nx-job{border-color:#ff6b8b88}.nx-why{display:block;color:#ff6b8b!important;font-weight:600;margin-top:3px}
+.nx-menu-h{font:700 12px "Signika",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#a9b0cc;padding:6px 10px 4px}
+.nx-jump{margin-left:auto;font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #b7dc35;background:rgba(183,220,53,.08);color:#b7dc35;cursor:pointer;white-space:nowrap}
+.nx-job.just .nx-box{background:var(--accent);border-color:var(--accent);position:relative}
+.nx-job.just .nx-box::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#04102c;font-weight:700}
+.nx-job.just small{display:block;font-size:12px;opacity:.85;margin-top:2px}
+@media(max-width:700px){.nx-cols2{grid-template-columns:1fr}}
+
+/* ===== Banshee look (navy, purple, lime) to match the Banshee board ===== */
+html:root{--bg:#04102c;--surface:#0b1533;--border:#26305a;--text:#ffffff;--muted:#a9b0cc;--accent:#b7dc35;--accent-dim:rgba(183,220,53,.14);
+ --green:#b7dc35;--green-dim:rgba(183,220,53,.12);--done-bg:rgba(183,220,53,.08);--purple:#7d4bb8;--purple-dim:rgba(125,75,184,.2);--red:#ff6b8b;--red-dim:rgba(255,107,139,.1)}
+html body{background:radial-gradient(900px 420px at 85% -5%,#5c2e9155 0,transparent 65%),repeating-linear-gradient(135deg,#ffffff03 0 2px,transparent 2px 14px),#04102c!important;font-family:"Signika",system-ui,sans-serif!important}
+.section-title,.nx-col h3,.notes-title{font-family:"Bevan",Georgia,serif!important;text-transform:uppercase;letter-spacing:.01em;text-shadow:2px 2px 0 #3a1d63}
+.nx-col h3{font-size:18px}
+.nx-col{background:linear-gradient(180deg,#0e1838,#0a1330);border-color:#2c3766}
+.nx-col.me{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.nx-job{background:#141d40;border-color:#2c3766;font-family:"Signika",sans-serif}
+.nx-box{border-color:#4a5590}
+.nx-chip{font-family:"Signika",sans-serif;background:#141d40;border-color:#2c3766}
+.nx-chip.on{color:#04102c}
+.nx-other{font-family:"Signika",sans-serif;border-color:#2c3766}
+.nx-who{background:#04102cf2;border-bottom:2px solid #5c2e91}
+.nx-av{background:#5c2e9166;color:#fff}
+.nx-done{border-color:#b7dc3555}
+.nx-done .nx-tick{color:#04102c}
+.nx-prog{background:#ffffff14}.nx-prog i{background:linear-gradient(90deg,#5c2e91,#b7dc35)}
+.nx-menu{background:#141d40;border-color:#2c3766}
+.nx-toast{color:#04102c}
+.nx-trial{background:#5c2e9133;border-bottom-color:#5c2e91;color:#e4d6ff}
+.nx-last{background:#ff6b8b14;border-color:#ff6b8b66}
 </style>
 <script src="../bl-config.js"></script>
 <script src="../bl-auth.js"></script>
 <script src="../bl-header.js" defer></script>
 <link rel="stylesheet" href="../bl-style.css">
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Signika:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -575,34 +667,108 @@ function removeStaff(i){
 }
 
 // ── JOBS ──
-function renderMonth(month){
-  const mk=month.toLowerCase(),el=document.getElementById('page-'+mk);
-  const jobs=state.jobs.filter(j=>j.month===month);
-  const onShift=state.staff.filter(s=>s.onShift).map(s=>s.name);
-  const done=jobs.filter(j=>j.done).length;
+// ── NEW PAGE: pick your name, tap the jobs you've done ──
+const NX_AREAS=[["Safety checks",/fire|pat\b|safety|extinguisher|alarm|first aid|electric|gas/i],["Deep cleans",/clean|descale|degrease|fridge|freezer|polish/i],["Checks and maintenance",/inspect|check|review|service|repair|test|replace/i]];
+const NX_LIST=MONTHS, NX_KEYS=MONTH_KEYS, NX_KIND='month';
+function nxArea(job){for(const a of NX_AREAS){if(a[1].test(job))return a[0];}return "Other jobs";}
+function nxNow(){const d=new Date();if(NX_KIND==='day'&&d.getHours()<7)d.setDate(d.getDate()-1);return d;}
+function nxStamp(){const d=nxNow();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(NX_KIND==='day'?d.getDate():1);}
+function nxCur(){const d=nxNow();return NX_KIND==='day'?NX_LIST[(d.getDay()+6)%7]:NX_LIST[d.getMonth()];}
+function nxStart(p){const now=nxNow();let s;
+  if(NX_KIND==='day'){s=new Date(now);s.setHours(0,0,0,0);const back=(((s.getDay()+6)%7)-NX_LIST.indexOf(p)+7)%7;s.setDate(s.getDate()-back);}
+  else{s=new Date(now.getFullYear(),NX_LIST.indexOf(p),1);if(s>now)s.setFullYear(s.getFullYear()-1);}
+  return s;}
+function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t=new Date(j.timestamp),s=nxStart(j.month),e=new Date(s);
+  if(NX_KIND==='day')e.setDate(e.getDate()+7);else e.setFullYear(e.getFullYear()+1);return isNaN(t)||(t>=s&&t<e);}
+function nxMe(){try{const m=JSON.parse(localStorage.getItem('mj_new_me')||'null');return m&&m.d===nxStamp()?m.n:'';}catch(e){return '';}}
+function nxSetMe(n){localStorage.setItem('mj_new_me',JSON.stringify({d:nxStamp(),n:n}));}
+function nxCrew(){const set=[];const rota=(NX_KIND==='day'&&typeof tonightCrew==='function')?tonightCrew():[];
+  rota.concat(state.staff.filter(s=>s.onShift).map(s=>s.name)).forEach(n=>{if(n&&!set.some(x=>x.toLowerCase()===n.toLowerCase()))set.push(n);});
+  const me=nxMe();if(me&&!set.includes(me))set.push(me);return set;}
+function nxToast(t){const o=document.querySelector('.nx-toast');if(o)o.remove();const d=document.createElement('div');d.className='nx-toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800);}
+function nxRedraw(p){if(currentTab===String(p).toLowerCase())renderMonth(p);}
+function nxPick(n){if(!n)return;nxSetMe(n);const s=state.staff.find(x=>x.name.toLowerCase()===n.toLowerCase());if(s&&!s.onShift){s.onShift=true;saveState();queueSheetSync();}
+  const i=NX_KEYS.indexOf(currentTab);renderMonth(i>=0?NX_LIST[i]:nxCur());}
+const NX_HOLD=3500, nxRecent={};
+function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
+  const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  if(nxRecent[id]&&nxRecent[id]>Date.now()){nxUndo(id);return;}
+  j.assignedTo=me;j.done=true;j.timestamp=new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';nxRecent[id]=Date.now()+NX_HOLD;
+  saveState();renderMonth(j.month);queueSheetSync();
+  setTimeout(()=>{if(nxRecent[id]&&nxRecent[id]<=Date.now()+50){delete nxRecent[id];nxRedraw(j.month);}},NX_HOLD+60);}
+function nxUndo(id){const j=state.jobs.find(x=>x.id===id);if(!j)return;delete nxRecent[id];j.assignedTo='';j.done=false;j.timestamp='';
+  saveState();renderMonth(j.month);queueSheetSync();nxToast('Unticked');}
+function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';}else{j.assignedTo='';j.done=false;j.timestamp='';}
+  saveState();renderMonth(j.month);queueSheetSync();}
+function nxMenu(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  const m=document.createElement('div');m.className='nx-menu';
+  m.innerHTML=nxCrew().map(n=>`<button type="button" class="${j.assignedTo===n?'on':''}" data-n="${escHtml(n)}">Done by ${escHtml(n)}</button>`).join('')+'<button type="button" data-n="">Not done (untick)</button>';
+  const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-220,r.right+scrollX-200))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
+  m.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;m.remove();nxSet(id,b.getAttribute('data-n'));};}
+// "can't do it": the reason goes in the job's Notes column (and the time in Timestamp) so it reaches the sheet
+const NX_REASONS=['Ran out of time','Area still in use','Broken or needs fixing','Out of stock or supplies'];
+function nxReason(j){if(!j||j.done||!/^Not done:/i.test(j.notes||''))return '';
+  if(j.timestamp){const t=new Date(j.timestamp),s=nxStart(j.month),e=new Date(s);if(NX_KIND==='day')e.setDate(e.getDate()+7);else e.setFullYear(e.getFullYear()+1);
+    if(!isNaN(t)&&(t<s||t>=e))return '';}
+  return j.notes.replace(/^Not done:\s*/i,'');}
+function nxSetReason(id,txt){const j=state.jobs.find(x=>x.id===id);if(!j)return;const me=nxMe();
+  txt=(txt||'').replace(/[\r\n,]+/g,' ').trim().slice(0,120);
+  j.done=false;j.assignedTo='';j.notes=txt?'Not done: '+txt+(me?' ('+me+')':''):'';j.timestamp=txt?new Date().toISOString():'';
+  saveState();renderMonth(j.month);queueSheetSync();nxToast(txt?'Reason saved':'Reason cleared');}
+function nxFlag(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();
+  if(!nxMe()){nxToast('Tap your name at the top first');return;}
+  const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  if(nxReason(j)){nxSetReason(id,'');return;}
+  const m=document.createElement('div');m.className='nx-menu';
+  m.innerHTML='<div class="nx-menu-h">Why can’t it be done?</div>'+NX_REASONS.map(r=>`<button type="button" data-r="${escHtml(r)}">${escHtml(r)}</button>`).join('')+'<button type="button" data-r="*">Something else…</button>';
+  const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-240,r.right+scrollX-230))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
+  m.onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;m.remove();let t=b.getAttribute('data-r');
+    if(t==='*'){t=prompt('Why can’t "'+j.job+'" be done?');if(!t)return;}nxSetReason(id,t);};}
+function nxJump(pk){const sec=document.querySelector('#page-'+pk+' .notes-section');if(!sec)return;sec.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{const ta=document.getElementById('ho-ta-'+pk);if(ta)ta.focus({preventScroll:true});},500);}
+document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
+
+function renderMonth(p){
+  const pk=p.toLowerCase(),el=document.getElementById('page-'+pk);
+  const jobs=state.jobs.filter(j=>j.month===p),isDone=nxIsDone;
+  const doneJobs=jobs.filter(isDone),left=jobs.filter(j=>!isDone(j)),me=nxMe(),crew=nxCrew();
+  const onShift=crew.length?crew:state.staff.filter(s=>s.onShift).map(s=>s.name);
+  const cur=p===nxCur();
+  const others=state.staff.map(s=>s.name).filter(n=>!crew.includes(n));
+  const whoHtml=`<section class="nx-who"><p>${me?`Ticking as <b>${escHtml(me)}</b>. Tap the jobs you've finished`:'Who are you? Tap your name first'}</p><div class="nx-chips">
+    ${crew.map(n=>`<button type="button" class="nx-chip${n===me?' on':''}" onclick="nxPick(this.dataset.n)" data-n="${escHtml(n)}">${escHtml(n)}</button>`).join('')}
+    <select class="nx-other" onchange="nxPick(this.value)"><option value="">＋ ${crew.length?'Someone else':'Pick your name'}…</option>${others.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></section>`;
+  const order=NX_AREAS.map(a=>a[0]).concat(['Other jobs']),nowMs=Date.now();
+  const groups=order.map(a=>({a,all:jobs.filter(j=>nxArea(j.job)===a)})).filter(g=>g.all.length);
+  const cols=[[],[]],h=[0,0];groups.forEach(g=>{const c=h[0]<=h[1]?0:1;cols[c].push(g);h[c]+=g.all.length+1;});
+  const showJob=j=>{const just=nxRecent[j.id]&&nxRecent[j.id]>nowMs&&nxIsDone(j);
+    return just?`<button type="button" class="nx-job just" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}<small>✓ Ticked for ${escHtml(j.assignedTo)}. Tap to undo</small></span></button>`
+      :(r=>`<div class="nx-jrow${r?' flagged':''}"><button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}${r?`<small class="nx-why">⚑ Not done: ${escHtml(r)}</small>`:''}</span></button><button type="button" class="nx-flag" aria-label="${r?'Clear the reason':'Can’t do it'}" onclick="nxFlag(${j.id},this,event)">${r?'✕':'⚑'}</button></div>`)(nxReason(j));};
+  const grpHtml=g=>{const js=g.all.filter(j=>!isDone(j)||(nxRecent[j.id]&&nxRecent[j.id]>nowMs));
+    return `<div class="nx-grp"><div class="nx-area">${g.a} · ${g.all.filter(isDone).length}/${g.all.length}</div>${js.length?js.map(showJob).join(''):'<div class="nx-grp-done">✓ All done</div>'}</div>`;};
+  const todo=left.length||Object.keys(nxRecent).length?`<div class="nx-cols2">${cols.map(c=>`<div class="nx-c">${c.map(grpHtml).join('')}</div>`).join('')}</div>`:'';
+  const names=[];doneJobs.forEach(j=>{const n=j.assignedTo||'Someone';if(!names.includes(n))names.push(n);});crew.forEach(n=>{if(!names.includes(n))names.push(n);});
+  const people=names.map(n=>{const js=doneJobs.filter(j=>(j.assignedTo||'Someone')===n).sort((x,y)=>(y.timestamp||'').localeCompare(x.timestamp||''));
+    return `<section class="nx-col${n===me?' me':''}"><h3><span class="nx-av">${escHtml(n[0]||'?')}</span>${escHtml(n)}<small>${js.length} done</small></h3><div class="nx-list">${
+      js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(j.job)}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
+  const pct=jobs.length?Math.round(doneJobs.length/jobs.length*100):0;
   el.innerHTML=`
-    <div class="jobs-header">
-      <div class="section-title">${month}</div>
-      <div class="jobs-meta"><div class="pill todo">${jobs.length-done} to do</div><div class="pill done">${done} done</div></div>
-    </div>
-    <div class="job-list">${jobs.map(j=>jobCard(j,onShift,mk)).join('')}</div>
-    ${isManager?`<div class="add-job-row">
-      <input class="add-job-input" id="new-job-${mk}" placeholder="Add a job for ${month}…" onkeydown="if(event.key==='Enter')addJob('${month}','${mk}')"/>
-      <button class="btn btn-accent" onclick="addJob('${month}','${mk}')">+ Add</button>
-    </div>`:''}
+    <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${pk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${pk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
+    ${whoHtml}
+    <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked.</div>'}</div></section>
+      <div class="nx-people">${people}</div></div>
+    ${isManager?`<details class="nx-manage"><summary>✎ Add or remove ${p}'s jobs (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,pk)).join('')}</div>
+      <div class="add-job-row"><input class="add-job-input" id="new-job-${pk}" placeholder="Add a job for ${p}…" onkeydown="if(event.key==='Enter')addJob('${p}','${pk}')"/><button class="btn btn-accent" onclick="addJob('${p}','${pk}')">+ Add</button></div></details>`:''}
     <div class="notes-section">
-      <div class="notes-title">📝 Notes</div>
-      <div id="handover-list-${mk}" class="ho-list"><div class="muted-text" style="font-size:13px">Loading…</div></div>
+      <div class="notes-title">📝 Handover Notes</div>
+      <div id="handover-list-${pk}" class="ho-list"><div class="muted-text" style="font-size:13px">Loading…</div></div>
       <div class="ho-add">
-        <select class="assign-select" id="ho-author-${mk}"><option value="">— Your name —</option>${onShift.map(n=>`<option value="${n}">${n}</option>`).join('')}</select>
-        <textarea class="notes-textarea" id="ho-ta-${mk}" placeholder="Add a note for ${month}…"></textarea>
-        <div class="notes-save-row">
-          <button class="btn btn-accent" onclick="addHandover('${month}','${mk}')">Add Note</button>
-          <span class="notes-saved" id="ho-saved-${mk}">✓ Added</span>
-        </div>
+        <select class="assign-select" id="ho-author-${pk}"><option value="">— Your name —</option>${onShift.map(n=>`<option value="${escHtml(n)}"${n===me?' selected':''}>${escHtml(n)}</option>`).join('')}</select>
+        <textarea class="notes-textarea" id="ho-ta-${pk}" placeholder="Add a handover note…"></textarea>
+        <div class="notes-save-row"><button class="btn btn-accent" onclick="addHandover('${p}','${pk}')">Add Note</button><span class="notes-saved" id="ho-saved-${pk}">✓ Added</span></div>
       </div>
     </div>`;
-  loadHandover(month);
+  loadHandover(p);
 }
 
 function jobCard(j,onShift,mk){

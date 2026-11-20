@@ -34,6 +34,16 @@
     row.appendChild(d); right.appendChild(row);
     var nl=document.querySelector('.nav-bar a[href*="eddrock79nas"]');
     if(nl){nl.className='bl-xlink';nl.removeAttribute('id');right.appendChild(nl);}
+    // Pub Dashboard stands out on the Home page
+    if(nl&&/\/home\/?$/.test(location.pathname)) nl.classList.add('hot');
+    // Switch Venue and Log Out move up beside the role chip so the tab row fits on one line
+    var acts=document.createElement('div');acts.className='bl-acts';
+    Array.prototype.slice.call(document.querySelectorAll('.nav-bar .nav-btn')).forEach(function(b){
+      var t=(b.textContent||'').trim().toLowerCase();
+      if(t==='switch venue'||t==='log out'||t==='logout'){b.classList.remove('nav-btn');b.classList.add('bl-mini');if(t!=='switch venue')b.classList.add('out');
+        b.removeAttribute('style');if(b.id==='nav-logout'){var keep=b;keep.dataset.blMoved='1';}acts.appendChild(b);}
+    });
+    if(acts.children.length) row.insertBefore(acts,row.firstChild);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
