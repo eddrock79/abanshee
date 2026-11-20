@@ -332,6 +332,247 @@ async function loadEvents(){
   renderEvents();
 }
 
+// ── ON TONIGHT (rota crew, 7am-aware: a night counts until 7am next morning) ──
+const SHIFTS_URL='../rotas/shifts.json';
+const SHIFTS_CACHE='bl_shifts';
+const DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function rotaDayInfo(){
+  const n=new Date(); const d=new Date(n);
+  if(n.getHours()<7) d.setDate(d.getDate()-1);
+  const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return {iso, name:DOW_FULL[d.getDay()]};
+}
+function cachedShifts(){ try{return JSON.parse(localStorage.getItem(SHIFTS_CACHE)||'{}');}catch(e){return {};} }
+async function loadTonight(){
+  renderTonight();
+  try{
+    const res=await fetch(SHIFTS_URL+'?t='+Date.now());
+    if(res.ok){ const data=await res.json(); localStorage.setItem(SHIFTS_CACHE,JSON.stringify(data.days||{})); }
+  }catch(e){}
+  renderTonight();
+}
+const HIDE_WEATHER_CREW=7;   // busy night: this many+ rota'd hides weather & lets On Tonight fill the row
+function renderTonight(){
+  const card=document.getElementById('tonight-card');
+  const el=document.getElementById('tonight-content');
+  const wx=document.getElementById('weather-card');
+  const row=document.getElementById('top-row');
+  if(!card||!el) return;
+  const info=rotaDayInfo();
+  const crew=(cachedShifts()||{})[info.iso]||[];
+  const hasCrew=crew.length>0;
+  const busy=crew.length>=HIDE_WEATHER_CREW;
+  card.style.display=hasCrew?'':'none';
+  if(wx) wx.style.display=(hasCrew&&busy)?'none':'';
+  if(row) row.classList.toggle('solo',(!hasCrew)||busy);   // single column when only one card shows
+  if(hasCrew){
+    document.getElementById('tonight-title').textContent='🌙 On Tonight — '+info.name;
+    el.innerHTML=crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join('');
+  }
+}
+
+let livePin=null, liveSuper=null, liveMaster=null, pinEntry='', superEntry='', sheetId='', isManager=false;
+
+// ── CSV / HELPERS ──
+function parseCSV(line){const cols=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){cols.push(cur.trim());cur='';}else{cur+=c;}}cols.push(cur.trim());return cols;}
+function clean(s){return(s||'').replace(/^"|"$/g,'').trim();}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── LOAD PINS — same logic as original, reads B1/B2 ──
+async function loadPINFromSheet(id){
+  // Always use BL_CFG pins — hardcoded and reliable, never affected by cache
+  livePin    = (BL_CFG.staffPin   || '1234').trim();
+  liveSuper  = (BL_CFG.managerPin || '1111').trim();
+  liveMaster = (BL_CFG.masterPin  || '8350').trim();
+}
+
+// ── BOOT ──
+(async function boot(){
+  if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
+  await loadPINFromSheet(); // always loads from BL_CFG now
+  const urlParams=new URLSearchParams(window.location.search);
+  const urlSheet=urlParams.get('sheet');
+  if(urlSheet)localStorage.setItem(SHEET_ID_KEY,urlSheet);
+  const cfg=BL_CFG.weeklyJobs;
+  sheetId=(cfg && (''+cfg).indexOf('PUT_')!==0) ? cfg : (localStorage.getItem(SHEET_ID_KEY)||'');
+  BLAuth.init({appName:'Staff Hub', require:'staff', onReady:function(){ showApp(); }});
+})();
+
+// ── PIN ──
+function pinKey(d){if(pinEntry.length>=4)return;pinEntry+=d;updateDots('pd',pinEntry);if(pinEntry.length===4)setTimeout(checkPIN,120);}
+function pinDel(){pinEntry=pinEntry.slice(0,-1);updateDots('pd',pinEntry);document.getElementById('pin-error').textContent='';}
+function updateDots(prefix,entry){for(let i=0;i<4;i++)document.getElementById(prefix+i).className='pin-dot'+(i<entry.length?' filled':'');}
+function checkPIN(){
+  const v = pinEntry.trim();
+  if(v===(liveMaster||'').trim()||v===(liveSuper||'').trim()){
+    isManager=true;
+    sessionStorage.setItem('bl_home_unlocked','yes');
+    sessionStorage.setItem('bl_home_super','yes');
+    showApp();
+  } else if(v===(livePin||'').trim()){
+    isManager=false;
+    sessionStorage.setItem('bl_home_unlocked','yes');
+    sessionStorage.removeItem('bl_home_super');
+    showApp();
+  } else {
+    for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pin-dot error';
+    document.getElementById('pin-error').textContent='Incorrect PIN';
+    setTimeout(()=>{pinEntry='';updateDots('pd',pinEntry);document.getElementById('pin-error').textContent='';},900);
+  }
+}
+
+// ── SUPERVISOR MODAL ──
+function requestNoticeEdit(){
+  BLAuth.requireManager(function(){ isManager=true; openNoticeEdit(); }, 'Manager PIN to edit the notice board');
+}
+function superKey(d){if(superEntry.length>=4)return;superEntry+=d;updateDots('spd',superEntry);if(superEntry.length===4)setTimeout(checkSuper,120);}
+function superDel(){superEntry=superEntry.slice(0,-1);updateDots('spd',superEntry);document.getElementById('super-error').textContent='';}
+function checkSuper(){
+  if(superEntry.trim()===(liveSuper||'').trim()){
+    sessionStorage.setItem('bl_home_super','yes');
+    isManager=true;closeSuperModal();openNoticeEdit();
+  } else {
+    for(let i=0;i<4;i++)document.getElementById('spd'+i).className='pin-dot error';
+    document.getElementById('super-error').textContent='Incorrect password';
+    setTimeout(()=>{superEntry='';updateDots('spd',superEntry);document.getElementById('super-error').textContent='';},900);
+  }
+}
+function closeSuperModal(){document.getElementById('super-modal').style.display='none';superEntry='';}
+
+// ── SHOW APP ──
+function showApp(){
+  isManager=BLAuth.isManager();
+  checkHolidayBadge();
+  document.getElementById('pin-screen').classList.add('hidden');
+  document.getElementById('app').style.display='block';
+  document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+
+  // Role badge — only show for manager
+  if(isManager){
+    const r=document.getElementById('topbar-role');
+    r.textContent='⭐ Manager';r.className='topbar-role manager';r.style.display='inline-block';
+    document.getElementById('nav-dash').style.display='inline-block';
+    document.getElementById('nav-whatson').style.display='inline-block';
+    document.getElementById('notice-edit-btn').style.display='inline-block';
+  }else{
+    document.getElementById('nav-dash').style.display='none';
+  }
+
+  // Weekly Jobs nav link with sheet param
+  const wjUrl=sheetId?`../weekly-cleaning?sheet=${sheetId}`:'../weekly-cleaning';
+  document.getElementById('nav-wj').href=wjUrl;
+
+  // Pass session to other apps
+  sessionStorage.setItem('bl_home_unlocked','yes');
+  sessionStorage.setItem('bl_home_role',isManager?'manager':'staff');
+
+  loadNotice();
+  renderHandover();
+  loadEvents().then(buildTicker);
+  loadTonight().then(buildTicker);
+  loadWeather();
+  buildTicker();
+  // pull the shared notice + handover from the sheet, then re-render
+  fetchShared().then(()=>{ loadNotice(); renderHandover(); buildTicker(); });
+}
+
+// ── SHARED NOTICE BOARD + HANDOVER (synced via notes sheet) ──
+function tidyNote(t){
+  return (t||'')
+    .replace(/\r/g,'')
+    .replace(/[ \t]+\n/g,'\n')   // strip trailing spaces on lines
+    .replace(/\n{3,}/g,'\n\n')   // collapse 3+ blank lines to one gap
+    .trim();                     // drop leading/trailing blank lines
+}
+function fmtList(entries, emptyMsg){
+  if(!entries||!entries.length){
+    return '<div class="muted-text">'+emptyMsg+(sharedSyncFailed?' (offline — showing last saved)':'')+'</div>';
+  }
+  const banner=sharedSyncFailed?'<div class="muted-text" style="color:var(--red);margin-bottom:6px">⚠ Couldn’t sync — showing last saved copy</div>':'';
+  return banner+entries.map(n=>`
+    <div class="note-item">
+      <div class="note-src">${escHtml(n.date||'')}</div>
+      <div class="note-text">${escHtml(tidyNote(n.note||''))}</div>
+    </div>`).join('');
+}
+
+async function fetchShared(){
+  try{
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
+    const res=await fetch(NOTES_SCRIPT_URL+'?action=getShared&_='+Date.now(),{signal:ctrl.signal});
+    clearTimeout(t);
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error||'bad response');
+    sharedSyncFailed=false;
+    localStorage.setItem(NOTICE_CACHE,JSON.stringify(data.notice||[]));
+    localStorage.setItem(HANDOVER_CACHE,JSON.stringify(data.notes||[]));
+    return data;
+  }catch(e){
+    sharedSyncFailed=true;
+    return null;
+  }
+}
+
+function cachedNotice(){ try{return JSON.parse(localStorage.getItem(NOTICE_CACHE)||'[]');}catch(e){return [];} }
+function cachedHandover(){ try{return JSON.parse(localStorage.getItem(HANDOVER_CACHE)||'[]');}catch(e){return [];} }
+
+function loadNotice(){
+  document.getElementById('notice-content').innerHTML=fmtList(cachedNotice(),'No notices in the last 10 days.');
+}
+function openNoticeEdit(){
+  document.getElementById('notice-textarea').value='';
+  document.getElementById('notice-textarea').placeholder='Type a new notice — it will be dated today and added to the top…';
+  document.getElementById('notice-content').style.display='none';
+  document.getElementById('notice-textarea').style.display='block';
+  document.getElementById('notice-save-btn').style.display='inline-block';
+  document.getElementById('notice-edit-btn').style.display='none';
+}
+async function saveNotice(){
+  const val=document.getElementById('notice-textarea').value.trim();
+  const btn=document.getElementById('notice-save-btn');
+  document.getElementById('notice-content').style.display='block';
+  document.getElementById('notice-textarea').style.display='none';
+  document.getElementById('notice-save-btn').style.display='none';
+  document.getElementById('notice-edit-btn').style.display=isManager?'inline-block':'none';
+  if(val){
+    try{
+      const res=await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notice',note:val})});
+      const data=await res.json();
+      if(data.ok){
+        sharedSyncFailed=false;
+        localStorage.setItem(NOTICE_CACHE,JSON.stringify(data.notice||[]));
+        localStorage.setItem(HANDOVER_CACHE,JSON.stringify(data.notes||[]));
+      } else { sharedSyncFailed=true; }
+    }catch(e){ sharedSyncFailed=true; }
+  }
+  loadNotice();
+}
+
+// ── HANDOVER NOTES ──
+// Read-only aggregation of the per-day handover notes written in Weekly Jobs
+// and End Of Night, synced via the notes sheet (cached in HANDOVER_CACHE by
+// fetchShared). Home never edits these — it only ever shows what's combined.
+function renderHandover(){
+  const el=document.getElementById('handover-content');
+  const notes=cachedHandover().filter(n=>n && (n.note||n.text));
+  if(!notes.length){
+    el.innerHTML='<div class="muted-text">No handover notes'+(sharedSyncFailed?' (offline — showing last saved)':'')+'.</div>';
+    return;
+  }
+  const banner=sharedSyncFailed?'<div class="muted-text" style="color:var(--red);margin-bottom:6px">⚠ Couldn’t sync — showing last saved copy</div>':'';
+  el.innerHTML=banner+notes.map(n=>{
+    const label=[n.src,n.day].filter(Boolean).join(' · ') || n.date || 'Handover note';
+    const meta=[n.author,n.time].filter(Boolean).join(' · ');
+    return `<div class="note-item">
+      <div class="note-src">${escHtml(label)}</div>
+      <div class="note-text">${escHtml(tidyNote(n.note||n.text||''))}</div>
+      ${meta?`<div class="note-time">${escHtml(meta)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+
+// ── EVENTS ──
 function renderEvents(){
   const el=document.getElementById('events-content');
   const now=new Date();
