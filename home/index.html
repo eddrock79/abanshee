@@ -91,6 +91,15 @@
   .event-desc{font-size:11px;color:var(--muted);margin-top:2px;}
   .crew-chip{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;margin:3px 5px 0 0;font-size:13px;color:var(--text);}
   .crew-time{color:var(--muted);font-size:11px;}
+  .tn-card{margin-bottom:14px}
+  .tn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tn-wx{font-size:15px;color:var(--text);white-space:nowrap}.tn-wx small{color:var(--muted);font-size:13px}.tn-wxi{font-size:18px;margin-right:6px}
+  .tn-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .tn-lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .tn-ev{padding:6px 0;border-bottom:1px solid var(--border);font-size:15px}.tn-ev:last-child{border-bottom:0}.tn-ev b{color:var(--accent);margin-right:6px}.tn-ev small{display:block;color:var(--muted);font-size:12px}
+  .tn-eon{display:block;margin-top:14px;text-align:center;padding:13px;border-radius:10px;background:var(--accent);color:#04102c;font-weight:700;font-size:17px;text-decoration:none}
+  .tn-sub{font-family:inherit;font-size:13px;letter-spacing:0;color:var(--muted);text-shadow:none;text-transform:none;font-weight:400;margin-left:6px}
+  @media(max-width:640px){.tn-grid{grid-template-columns:1fr}.tn-wx small{display:none}}
 
   /* Notice board */
   .notice-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -184,32 +193,30 @@
       <div class="win"><div class="track" id="ticker-track"></div></div>
     </div>
 
-    <!-- On Tonight + Weather (weather hides on busy nights) -->
-    <div class="top-row" id="top-row">
-      <div class="card" id="tonight-card" style="display:none">
-        <div class="card-title" id="tonight-title">🌙 On Tonight</div>
-        <div id="tonight-content"></div>
+    <!-- Tonight: who's on, what's on, the weather in one line, and the closing jobs button -->
+    <div class="card tn-card" id="tonight-card">
+      <div class="tn-head"><div class="card-title" id="tonight-title" style="margin-bottom:0">🌙 Tonight</div><div class="tn-wx" id="wx-content"></div></div>
+      <div class="tn-grid">
+        <div><div class="tn-lbl">On shift</div><div id="tonight-content"><div class="muted-text">Loading the rota…</div></div></div>
+        <div><div class="tn-lbl">On tonight</div><div id="tonight-events"><div class="muted-text">Loading…</div></div></div>
       </div>
-      <div class="card" id="weather-card">
-        <div class="card-title">🌤 Edinburgh</div>
-        <div id="wx-content"><div class="muted-text">Loading…</div></div>
-      </div>
+      <a class="tn-eon" href="../end-of-night/">✓ Tick tonight's closing jobs</a>
     </div>
 
     <!-- Notice Board -->
     <div class="card">
       <div class="notice-header">
-        <div class="card-title" style="margin-bottom:0">📋 Notice Board</div>
+        <div class="card-title" style="margin-bottom:0">📋 Duty Manager Messages</div>
         <button class="notice-edit-btn" id="notice-edit-btn" onclick="requestNoticeEdit()" style="display:none">✏ Edit</button>
       </div>
       <div class="notice-content" id="notice-content"></div>
-      <textarea class="notice-textarea" id="notice-textarea" placeholder="Type a message for staff here…"></textarea>
+      <textarea class="notice-textarea" id="notice-textarea" placeholder="Type a message for the team…"></textarea>
       <button class="notice-save-btn" id="notice-save-btn" onclick="saveNotice()">Save Notice</button>
     </div>
 
     <!-- Handover Notes -->
     <div class="card">
-      <div class="card-title">📝 Handover Notes</div>
+      <div class="card-title">📝 Staff Messages <span class="tn-sub">from the daily handover notes</span></div>
       <div id="handover-content"><div class="muted-text">No handover notes yet.</div></div>
     </div>
 
@@ -343,6 +350,8 @@ function rotaDayInfo(){
   return {iso, name:DOW_FULL[d.getDay()]};
 }
 function cachedShifts(){ try{return JSON.parse(localStorage.getItem(SHIFTS_CACHE)||'{}');}catch(e){return {};} }
+function tonightCrewRows(){ const days=cachedShifts()||{}, iso=rotaDayInfo().iso;   // the rota sometimes has the wrong year: match on day and month
+  const k=days[iso]?iso:Object.keys(days).filter(x=>x.slice(5)===iso.slice(5)).pop(); return (k&&days[k])||[]; }
 async function loadTonight(){
   renderTonight();
   try{
@@ -353,22 +362,13 @@ async function loadTonight(){
 }
 const HIDE_WEATHER_CREW=7;   // busy night: this many+ rota'd hides weather & lets On Tonight fill the row
 function renderTonight(){
-  const card=document.getElementById('tonight-card');
-  const el=document.getElementById('tonight-content');
-  const wx=document.getElementById('weather-card');
-  const row=document.getElementById('top-row');
-  if(!card||!el) return;
-  const info=rotaDayInfo();
-  const crew=(cachedShifts()||{})[info.iso]||[];
-  const hasCrew=crew.length>0;
-  const busy=crew.length>=HIDE_WEATHER_CREW;
-  card.style.display=hasCrew?'':'none';
-  if(wx) wx.style.display=(hasCrew&&busy)?'none':'';
-  if(row) row.classList.toggle('solo',(!hasCrew)||busy);   // single column when only one card shows
-  if(hasCrew){
-    document.getElementById('tonight-title').textContent='🌙 On Tonight — '+info.name;
-    el.innerHTML=crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join('');
-  }
+  const el=document.getElementById('tonight-content'), ev=document.getElementById('tonight-events');
+  if(!el) return;
+  const info=rotaDayInfo(), crew=tonightCrewRows();
+  document.getElementById('tonight-title').textContent='🌙 Tonight · '+info.name;
+  el.innerHTML=crew.length?crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join(''):'<div class="muted-text">Nobody on the rota for tonight yet.</div>';
+  if(ev){ const list=cachedEvents().filter(e=>e.date===info.iso).sort((x,y)=>(x.time||'99').localeCompare(y.time||'99'));
+    ev.innerHTML=list.length?list.map(e=>`<div class="tn-ev"><b>${escHtml(e.time||'Tonight')}</b> ${escHtml(e.what||'Event')}<small>${escHtml([e.room,e.type].filter(Boolean).join(' · '))}</small></div>`).join(''):'<div class="muted-text">Nothing listed in Molly’s Chamber or the cinema.</div>'; }
 }
 
 let livePin=null, liveSuper=null, liveMaster=null, pinEntry='', superEntry='', sheetId='', isManager=false;
@@ -468,7 +468,7 @@ function showApp(){
 
   loadNotice();
   renderHandover();
-  loadEvents().then(buildTicker);
+  loadEvents().then(()=>{renderTonight();buildTicker();});
   loadTonight().then(buildTicker);
   loadWeather();
   buildTicker();
@@ -614,13 +614,8 @@ async function loadWeather(){
     if(!res.ok)throw new Error();
     const d=await res.json();
     const c=d.current;
-    el.innerHTML=`
-      <div class="wx-icon">${WX_ICONS[c.weathercode]||'🌡'}</div>
-      <div class="wx-temp">${Math.round(c.temperature_2m)}°C</div>
-      <div class="wx-desc">${WX_DESC[c.weathercode]||'Variable'}</div>
-      <div class="wx-meta">Feels <span>${Math.round(c.apparent_temperature)}°</span></div>
-      <div class="wx-meta">💨 <span>${Math.round(c.windspeed_10m)} km/h</span></div>`;
-  }catch(e){el.innerHTML='<div class="muted-text">Unavailable</div>';}
+    el.innerHTML=`<span class="tn-wxi">${WX_ICONS[c.weathercode]||'🌡'}</span><b>${Math.round(c.temperature_2m)}°C</b> ${WX_DESC[c.weathercode]||''}<small> · feels ${Math.round(c.apparent_temperature)}° · wind ${Math.round(c.windspeed_10m)} km/h</small>`;
+  }catch(e){el.innerHTML='';}
 }
 
 function logOut(){
@@ -688,7 +683,7 @@ function noticeBit(){
   const n0=list[0];
   const txt=(typeof n0==='string')?n0:(n0.note||n0.text||n0.message||'');
   if(!txt) return '';
-  return `<b>📋 Notice:</b> ${escHtml(String(txt).split('\n')[0]).slice(0,140)}`;
+  return `<b>📋 Duty manager:</b> ${escHtml(String(txt).split('\n')[0]).slice(0,140)}`;
 }
 function nextEventBit(){
   const today=new Date(new Date().toDateString());
@@ -704,7 +699,7 @@ async function buildTicker(){
   if(!bar||!track) return;
   await ensureJokes();
   const bits=[];
-  const info=rotaDayInfo(); const crew=(cachedShifts()||{})[info.iso]||[];
+  const info=rotaDayInfo(); const crew=tonightCrewRows();
   if(crew.length) bits.push(`<b>🎬 On tonight:</b> ${crew.map(c=>escHtml(c.name)).join(', ')}`);
   const nb=noticeBit(); if(nb) bits.push(nb);
   const eb=nextEventBit(); if(eb) bits.push(eb);
