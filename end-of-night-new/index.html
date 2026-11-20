@@ -914,14 +914,14 @@ function renderDay(day){
       js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(j.job)}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
   const pct=jobs.length?Math.round(doneJobs.length/jobs.length*100):0;
   const signOffCard=signOff
-    ?`<div class="job-card" style="border-color:var(--green);background:var(--green-dim);margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--green)">✦ Manager Sign-Off</div><div class="job-assignee assigned">${signOff}</div></div>
+    ?`<div class="job-card" style="border-color:var(--green);background:var(--green-dim);margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--green)">✦ Duty Manager Sign-Off</div><div class="job-assignee assigned">${signOff}</div></div>
        <div class="job-controls"><button class="btn btn-ghost" style="font-size:12px;padding:4px 10px" onclick="clearSignOff('eon-signoff-${dk}','${day}','${dk}')">Undo</button></div></div>`
-    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick':'All ticked, ready to sign off'}</div></div>
-       <div class="job-controls"><select class="assign-select" onchange="nxSignOff('${day}','${dk}',this.value)"><option value="">— Sign Off —</option>${onShift.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></div>`;
+    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick':'All ticked, ready to sign off'}</div></div>
+       <div class="job-controls"><select class="assign-select" onchange="nxSignOff('${day}','${dk}',this.value)"><option value="">— Duty manager —</option>${onShift.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></div>`;
   el.innerHTML=`
     <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div></div>
     ${lastHtml}${whoHtml}
-    <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked. The manager can sign off.</div>'}</div></section>
+    <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked. The duty manager can sign off.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
     ${signOffCard}
     ${isManager?`<details class="nx-manage"><summary>Manage ${day}'s job list (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,dk)).join('')}</div>
