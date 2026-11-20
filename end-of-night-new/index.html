@@ -846,7 +846,8 @@ function nxArea(job){for(const a of NX_AREAS){if(a[1].test(job))return a[0];}ret
 function nxDayDate(day){ // the date of this weekday's trading night: tonight, or the most recent one before it
   const t=new Date(rotaDayISO()+'T12:00:00'),back=(t.getDay()+6)%7-DAYS.indexOf(day),d=new Date(t);d.setDate(d.getDate()-((back%7)+7)%7);return d;}
 function nxWindow(day){const s=nxDayDate(day);s.setHours(12,0,0,0);const e=new Date(s);e.setDate(e.getDate()+1);return [s,e];}
-function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t=new Date(j.timestamp),w=nxWindow(j.day);return isNaN(t)||(t>=w[0]&&t<w[1]);}
+function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t=new Date(j.timestamp),w=nxWindow(j.day),wk=new Date(w[0]);wk.setDate(wk.getDate()+7);
+  return isNaN(t)||(t>=w[0]&&t<wk);}   // counts from that night's start until the same weekday comes round again (late ticks on a past tab stay ticked)
 function nxToday(){return DAYS[(new Date(rotaDayISO()+'T12:00:00').getDay()+6)%7];}
 function nxMe(){try{const m=JSON.parse(localStorage.getItem('eon_new_me')||'null');return m&&m.d===rotaDayISO()?m.n:'';}catch(e){return '';}}
 function nxSetMe(n){localStorage.setItem('eon_new_me',JSON.stringify({d:rotaDayISO(),n:n}));}
