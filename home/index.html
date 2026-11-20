@@ -309,7 +309,7 @@ function woGigs(text){const rows=woCSV(text);let hi=rows.findIndex(r=>r.some(c=>
   const C={cal:col('calendar name'),title:col('event title'),desc:col('description'),date:col('start date'),time:col('start time'),all:col('all day')};const out=[];
   for(const r of rows.slice(hi+1)){
     if(!WO_GIG_CAL.test(r[C.cal]||''))continue;const title=(r[C.title]||'').trim();
-    if(!title||WO_BLOCK.test(title)||/rehearsal/i.test(title)||/^\s*(booked|booking|private|possible|potential|hold)/i.test(title))continue;
+    if(!title||WO_BLOCK.test(title)||/rehearsal/i.test(title)||/^\s*(booked|booking|private|possible|potential|hold)\b/i.test(title))continue;
     const d=(r[C.date]||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!d)continue;
     let plain=woPlain(r[C.desc]);const cut=plain.search(/_{3,}|-{5,}|={5,}|[—–]{3,}/);if(cut>=0)plain=plain.slice(0,cut).trim();
     if(/^hold\b/i.test(plain))continue;
