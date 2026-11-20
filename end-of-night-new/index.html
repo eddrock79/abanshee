@@ -237,6 +237,11 @@
 .nx-grp-done{color:var(--accent);font-size:14px;font-weight:600;padding:6px 6px 4px}
 /* just ticked: stays put for a few seconds so the next tap can't land on the wrong job */
 .nx-job.just{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.nx-jrow{display:flex;gap:6px;align-items:stretch;margin-bottom:8px}.nx-jrow .nx-job{flex:1;min-width:0;margin-bottom:0}
+.nx-flag{flex:none;width:46px;border-radius:12px;border:1px solid #2c3766;background:#141d40;color:#ff6b8b;font-size:17px;cursor:pointer}
+.nx-jrow.flagged .nx-job{border-color:#ff6b8b88}.nx-why{display:block;color:#ff6b8b!important;font-weight:600;margin-top:3px}
+.nx-menu-h{font:700 12px "Signika",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#a9b0cc;padding:6px 10px 4px}
+.nx-jump{margin-left:auto;font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #b7dc35;background:rgba(183,220,53,.08);color:#b7dc35;cursor:pointer;white-space:nowrap}
 .nx-job.just .nx-box{background:var(--accent);border-color:var(--accent);position:relative}
 .nx-job.just .nx-box::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#04102c;font-weight:700}
 .nx-job.just small{display:block;font-size:12px;opacity:.85;margin-top:2px}
@@ -861,25 +866,46 @@ const NX_HOLD=3500, nxRecent={};   // id -> time it moves out of "Still to do"
 function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
   const j=state.jobs.find(x=>x.id===id);if(!j)return;
   if(nxRecent[id]&&nxRecent[id]>Date.now()){nxUndo(id);return;}   // second tap while it's still showing = undo
-  j.assignedTo=me;j.done=true;j.timestamp=new Date().toISOString();
+  j.assignedTo=me;j.done=true;j.timestamp=new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';
   nxRecent[id]=Date.now()+NX_HOLD;
   saveState();renderDay(j.day);queueSheetSync();
   setTimeout(()=>{if(nxRecent[id]&&nxRecent[id]<=Date.now()+50){delete nxRecent[id];if(currentTab===j.day.toLowerCase())renderDay(j.day);}},NX_HOLD+60);
   const left=state.jobs.filter(x=>x.day===j.day&&!nxIsDone(x)).length;if(!left)setTimeout(()=>triggerCelebration(j.day),NX_HOLD);}
 function nxUndo(id){const j=state.jobs.find(x=>x.id===id);if(!j)return;delete nxRecent[id];j.assignedTo='';j.done=false;j.timestamp='';
   saveState();renderDay(j.day);queueSheetSync();nxToast('Unticked');}
-function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();}else{j.assignedTo='';j.done=false;j.timestamp='';}
+function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';}else{j.assignedTo='';j.done=false;j.timestamp='';}
   saveState();renderDay(j.day);queueSheetSync();}
 function nxMenu(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();const j=state.jobs.find(x=>x.id===id);if(!j)return;
   const m=document.createElement('div');m.className='nx-menu';
   m.innerHTML=nxCrew().map(n=>`<button type="button" class="${j.assignedTo===n?'on':''}" data-n="${escHtml(n)}">Done by ${escHtml(n)}</button>`).join('')+'<button type="button" data-n="">Not done (untick)</button>';
   const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-220,r.right+scrollX-200))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
   m.onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;m.remove();nxSet(id,b.getAttribute('data-n'));};}
+// "can't do it": the reason goes in the job's Notes column (and the time in Timestamp) so it reaches the sheet
+const NX_REASONS=['Ran out of time','Area still in use','Broken or needs fixing','Out of stock or supplies'];
+function nxReason(j){if(!j||j.done||!/^Not done:/i.test(j.notes||''))return '';
+  if(j.timestamp){const t=new Date(j.timestamp),w=nxWindow(j.day),wk=new Date(w[0]);wk.setDate(wk.getDate()+7);if(!isNaN(t)&&(t<w[0]||t>=wk))return '';}
+  return j.notes.replace(/^Not done:\s*/i,'');}
+function nxSetReason(id,txt){const j=state.jobs.find(x=>x.id===id);if(!j)return;const me=nxMe();
+  txt=(txt||'').replace(/[\r\n,]+/g,' ').trim().slice(0,120);
+  j.done=false;j.assignedTo='';j.notes=txt?'Not done: '+txt+(me?' ('+me+')':''):'';j.timestamp=txt?new Date().toISOString():'';
+  saveState();renderDay(j.day);queueSheetSync();nxToast(txt?'Reason saved':'Reason cleared');}
+function nxFlag(id,btn,ev){ev.stopPropagation();const old=document.querySelector('.nx-menu');if(old)old.remove();
+  if(!nxMe()){nxToast('Tap your name at the top first');return;}
+  const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  if(nxReason(j)){nxSetReason(id,'');return;}
+  const m=document.createElement('div');m.className='nx-menu';
+  m.innerHTML='<div class="nx-menu-h">Why can’t it be done?</div>'+NX_REASONS.map(r=>`<button type="button" data-r="${escHtml(r)}">${escHtml(r)}</button>`).join('')+'<button type="button" data-r="*">Something else…</button>';
+  const r=btn.getBoundingClientRect();m.style.left=Math.max(8,Math.min(innerWidth-240,r.right+scrollX-230))+'px';m.style.top=(r.bottom+scrollY+4)+'px';document.body.appendChild(m);
+  m.onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;m.remove();let t=b.getAttribute('data-r');
+    if(t==='*'){t=prompt('Why can’t "'+j.job+'" be done tonight?');if(!t)return;}nxSetReason(id,t);};}
+function nxJump(dk){const sec=document.querySelector('#page-'+dk+' .notes-section');if(!sec)return;sec.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{const ta=document.getElementById('ho-ta-'+dk);if(ta)ta.focus({preventScroll:true});},500);}
 document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
 async function nxSignOff(day,dk,name){if(!name)return;const jobs=state.jobs.filter(j=>j.day===day),done=jobs.filter(nxIsDone).length;
-  if(done<jobs.length&&!confirm((jobs.length-done)+' jobs are not ticked yet. Sign off anyway? Add a handover note saying why.'))return;
+  const notDone=jobs.filter(j=>!nxIsDone(j)),noWhy=notDone.filter(j=>!nxReason(j));
+  if(noWhy.length&&!confirm(noWhy.length+' unticked job'+(noWhy.length>1?'s have':' has')+' no reason. Tap the flag on a job to say why it wasn’t done.\n\nSign off anyway?')){renderDay(day);return;}
   doSignOffByName('eon-signoff-'+dk,day,dk,name);
-  try{await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notes',op:'add',src:HANDOVER_APP+' - '+day,author:name,note:'✓ Signed off: '+done+' of '+jobs.length+' closing jobs ticked'})});handoverLoaded=false;loadHandover(day);}catch(e){}}
+  try{await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notes',op:'add',src:HANDOVER_APP+' - '+day,author:name,note:'✓ Signed off: '+done+' of '+jobs.length+' closing jobs ticked'+(notDone.length?'. Not done: '+notDone.map(j=>j.job+(nxReason(j)?' ('+nxReason(j).replace(/\s*\([^)]*\)$/,'')+')':' (no reason given)')).join('; '):'')})});handoverLoaded=false;loadHandover(day);}catch(e){}}
 
 function renderDay(day){
   const dk=day.toLowerCase(),el=document.getElementById('page-'+dk);
@@ -890,7 +916,7 @@ function renderDay(day){
   // last night's result, shown on tonight's page
   let lastHtml='';
   if(tonight){const prev=DAYS[(DAYS.indexOf(day)+6)%7],pj=state.jobs.filter(j=>j.day===prev),pd=pj.filter(nxIsDone).length;
-    if(pj.length&&pd<pj.length)lastHtml=`<div class="nx-last">⚠ Last night <b>${pd} of ${pj.length}</b> closing jobs were ticked. Missed: ${pj.filter(j=>!nxIsDone(j)).slice(0,3).map(j=>escHtml(j.job)).join('; ')}${pj.length-pd>3?'…':''}</div>`;}
+    if(pj.length&&pd<pj.length)lastHtml=`<div class="nx-last">⚠ Last night <b>${pd} of ${pj.length}</b> closing jobs were ticked. Missed: ${pj.filter(j=>!nxIsDone(j)).slice(0,4).map(j=>escHtml(j.job)+(nxReason(j)?` <i>(${escHtml(nxReason(j))})</i>`:'')).join('; ')}${pj.length-pd>4?'…':''}</div>`;}
   // who's ticking
   const others=state.staff.map(s=>s.name).filter(n=>!crew.includes(n));
   const whoHtml=`<section class="nx-who"><p>${me?`Ticking as <b>${escHtml(me)}</b>. Tap the jobs you've finished`:'Who are you? Tap your name first'}</p><div class="nx-chips">
@@ -903,7 +929,7 @@ function renderDay(day){
   const cols=[[],[]],h=[0,0];groups.forEach(g=>{const c=h[0]<=h[1]?0:1;cols[c].push(g);h[c]+=g.all.length+1;});
   const showJob=j=>{const just=nxRecent[j.id]&&nxRecent[j.id]>nowMs&&nxIsDone(j);
     return just?`<button type="button" class="nx-job just" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}<small>✓ Ticked for ${escHtml(j.assignedTo)}. Tap to undo</small></span></button>`
-      :`<button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}</span></button>`;};
+      :(r=>`<div class="nx-jrow${r?' flagged':''}"><button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}${r?`<small class="nx-why">⚑ Not done: ${escHtml(r)}</small>`:''}</span></button><button type="button" class="nx-flag" aria-label="${r?'Clear the reason':'Can’t do it'}" onclick="nxFlag(${j.id},this,event)">${r?'✕':'⚑'}</button></div>`)(nxReason(j));};
   const grpHtml=g=>{const js=g.all.filter(j=>!isDone(j)||(nxRecent[j.id]&&nxRecent[j.id]>nowMs));
     return `<div class="nx-grp"><div class="nx-area">${g.a} · ${g.all.filter(isDone).length}/${g.all.length}</div>${js.length?js.map(showJob).join(''):'<div class="nx-grp-done">✓ All done</div>'}</div>`;};
   const todo=left.length||Object.keys(nxRecent).length?`<div class="nx-cols2">${cols.map(c=>`<div class="nx-c">${c.map(grpHtml).join('')}</div>`).join('')}</div>`:'';
@@ -916,10 +942,10 @@ function renderDay(day){
   const signOffCard=signOff
     ?`<div class="job-card" style="border-color:var(--green);background:var(--green-dim);margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--green)">✦ Duty Manager Sign-Off</div><div class="job-assignee assigned">${signOff}</div></div>
        <div class="job-controls"><button class="btn btn-ghost" style="font-size:12px;padding:4px 10px" onclick="clearSignOff('eon-signoff-${dk}','${day}','${dk}')">Undo</button></div></div>`
-    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick':'All ticked, ready to sign off'}</div></div>
+    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick'+(left.filter(j=>!nxReason(j)).length?' · '+left.filter(j=>!nxReason(j)).length+' without a reason':' · all have a reason'):'All ticked, ready to sign off'}</div></div>
        <div class="job-controls"><select class="assign-select" onchange="nxSignOff('${day}','${dk}',this.value)"><option value="">— Duty manager —</option>${onShift.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></div>`;
   el.innerHTML=`
-    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div></div>
+    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${dk}')">📝 Write a handover note ↓</button></div>
     ${lastHtml}${whoHtml}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked. The duty manager can sign off.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>

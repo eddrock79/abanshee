@@ -75,3 +75,9 @@ input,select,textarea,button{font-family:"Signika",sans-serif}
 #bl-auth-overlay .bla-dot.error{background:#ff6b8b!important;border-color:#ff6b8b!important}
 #bl-auth-overlay .bla-msg{font-family:"Signika",sans-serif!important}
 #bl-auth-overlay .bla-chip,#bl-auth-overlay .bla-switch,#bl-auth-overlay .bla-logout,#bl-auth-overlay .bla-cancel,#bl-auth-overlay .bla-retry{font-family:"Signika",sans-serif!important;border-color:#2c3766!important}
+/* the floating "Signed in: Staff · Logout" chip sat over the handover note box; Log Out is in the header on every page now */
+#bla-chip,.bla-chip{display:none!important}
+/* sheet status pill (Connected / Syncing / Error) matches the other header buttons */
+.gs-status{font:600 13px "Signika",sans-serif!important;padding:5px 12px!important;border-radius:999px!important;background:#141d40!important;border:1px solid #2c3766!important;color:#d9ddf0!important;white-space:nowrap}
+.gs-status.connected{color:#b7dc35!important;border-color:#b7dc3588!important}
+.gs-status.error{color:#ff6b8b!important;border-color:#ff6b8b88!important}
