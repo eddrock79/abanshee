@@ -1057,15 +1057,15 @@ async function addHandover(day,dk){
   const author=sel?sel.value:'';
   const saved=document.getElementById('ho-saved-'+dk);
   if(saved){ saved.textContent='Adding…'; saved.style.display='inline'; }
-  let ok=false;
+  let ok=false,why='';
   try{
     const res=await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notes',op:'add',src:HANDOVER_APP+' - '+day,author:author,note:text})});
     const data=await res.json();
-    if(data&&data.ok){ ok=true; handoverNotes=Array.isArray(data.notes)?data.notes:handoverNotes; handoverLoaded=true; }
-  }catch(e){}
+    if(data&&data.ok){ ok=true; handoverNotes=Array.isArray(data.notes)?data.notes:handoverNotes; handoverLoaded=true; } else why=(data&&(data.error||data.message||JSON.stringify(data).slice(0,80)))||'empty reply';
+  }catch(e){why=(e&&e.message)||'no connection';}
   if(ok){ ta.value=''; if(saved)saved.textContent='✓ Added'; renderHandoverList(day); }
-  else if(saved){ saved.textContent='Couldn’t save — try again'; }
-  if(saved) setTimeout(()=>{saved.style.display='none';saved.textContent='✓ Added';},2500);
+  else if(saved){ saved.textContent='Couldn’t save: '+why; }
+  if(saved) setTimeout(()=>{saved.style.display='none';saved.textContent='✓ Added';},ok?2500:15000);
 }
 
 function editHandover(id,dk){
