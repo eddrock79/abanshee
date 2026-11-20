@@ -750,6 +750,7 @@ function initApp(){
   if(DAY_KEYS.includes(today)){
     const el=document.getElementById('tab-'+today);
     if(el){el.style.fontWeight='700';el.style.color='var(--accent)';}
+    switchTab(today);
   }
 }
 
