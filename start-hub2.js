@@ -21,6 +21,7 @@
     return [
       ['Lost property', 'Log an item or hand one back', q(site + '/lost-property/')],
       ['Cocktails', 'Recipes and what you can make', q(site + '/cocktails/')],
+      V === 'bl' ? ['Drinks menu', 'The customer menu, no 2-hour timer', 'https://menu.hauntedpubs.co.uk/?bansheestaff='] : ['Drinks menu', 'The customer menu', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'],
       V === 'bl' ? ['Calendar', 'Gigs, DJs and bookings', q(nas + '/events.html')] : null,
       V === 'bl' ? ['Rotas', "Who's working when", q(site + '/rotas/')] : null,
       V === 'bl' ? ['Holidays', 'Book or check time off', q(site + '/holidays/')] : null,
