@@ -125,6 +125,8 @@
       // the Checklists site's own manager page is a different thing from the Manager Dashboard
       if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
       // plain words only: no symbols on any link in the row
+      // our own pages open in the same window (not a new tab), like the main buttons
+      if (a.tagName === 'A' && a.target === '_blank' && /^https?:\/\/([a-z]+\.hauntedpubs\.co\.uk|100\.90\.189\.89|192\.168\.1\.40|eddrock79nas)/i.test(a.href)) { a.target = '_top'; a.removeAttribute('rel'); }
       // (never in the dashboards' tab row: that page redraws its tabs if their words change, which would loop)
       if (!a.children.length && !s.matches('nav.otop')) {
         var o = a.textContent, c = o.replace(/[←-⇿⌀-➿⬀-⯿\u{1F000}-\u{1FAFF}️]/gu, '').replace(/^[\s＋]+|[\s＋]+$/g, '').replace(/\s{2,}/g, ' ');
