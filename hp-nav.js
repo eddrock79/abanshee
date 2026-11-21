@@ -42,14 +42,9 @@
     var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=6';
     hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=6'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
-  // ── Dashboard preview: ?dashprev=1 switches it on (?dashprev=0 off), this browser tab only; main board and sales only ──
-  var DASHPREV = false;
-  try {
-    var dq = (location.search.match(/[?&]dashprev=(\d)/) || [])[1];
-    if (dq === '1') sessionStorage.setItem('dashprev', '1'); else if (dq === '0') sessionStorage.removeItem('dashprev');
-    DASHPREV = sessionStorage.getItem('dashprev') === '1';
-  } catch (e) {}
-  DASHPREV = DASHPREV && cur === 'dash' && (port === '8101' || port === '8102') && /^\/(index\.html)?$/.test(path);
+  // ── Dashboard layout (main board and sales only) ──
+  // live for everyone since 21 Nov 2026
+  var DASHPREV = cur === 'dash' && (port === '8101' || port === '8102') && /^\/(index\.html)?$/.test(path);
   var TOOLS = P === 'br'
     ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
     : [["What's On boards", 'https://banshee.hauntedpubs.co.uk/whatson/'], ['Menu editor', 'https://menu.hauntedpubs.co.uk/?bansheestaff='], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0']];
@@ -197,6 +192,8 @@
     st.textContent =
       'html body.dashprev{' + theme + ';background-attachment:fixed!important}' +
       'html body.dashprev nav.otop{display:none!important}' +
+      /* big numbers in the plain text font, lighter; card titles keep the heading font */
+      'html body.dashprev .kpi .big,html body.dashprev .tiles3 b,html body.dashprev .mini3 b,html body.dashprev .tile b,html body.dashprev .wxbig{font-family:var(--body)!important;font-weight:600!important;letter-spacing:0!important}' +
       'html body.dashprev .wrap{max-width:1400px!important}' +
       'html body .hpsub>.hpdashrow{align-items:center!important}' +
       'html body .hpsub>.hpdashrow>.hp-tools-lbl{margin-left:auto!important;border:0!important;background:none!important;color:#9a9aa6!important;cursor:default!important;font-size:11px!important;font-weight:700!important;letter-spacing:.08em!important;text-transform:uppercase!important;padding:0 2px 0 0!important}' +
