@@ -45,13 +45,13 @@
     if (MOVED) cur = 'hub';
     if (cur === 'hub' && !MOVED) {
       try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
-      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=3'; document.head.appendChild(hl);
-      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=3'; document.head.appendChild(hs);
+      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=4'; document.head.appendChild(hl);
+      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=4'; document.head.appendChild(hs);
     }
   }
   var TOOLS = P === 'br'
     ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
-    : [['Menu editor', 'https://menu.hauntedpubs.co.uk/?menu_access=active'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0']];
+    : [["What's On boards", 'https://banshee.hauntedpubs.co.uk/whatson/'], ['Menu editor', 'https://menu.hauntedpubs.co.uk/?menu_access=active'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0']];
   var acc = P === 'br' ? '#e9b23f' : '#c6e03c';
   var F = 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
   var CSS =
