@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>The Banshee Labyrinth — Staff Hub</title>
+<title>The Banshee Labyrinth — Checklists</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
   :root {
@@ -141,7 +141,7 @@
 <!-- PIN SCREEN — unchanged from original -->
 <div id="pin-screen" style="display:none">
   <div class="pin-logo">Banshee Labyrinth</div>
-  <div class="pin-sub">Staff Hub</div>
+  <div class="pin-sub">Checklists</div>
   <div class="pin-dots">
     <div class="pin-dot" id="pd0"></div>
     <div class="pin-dot" id="pd1"></div>
@@ -432,7 +432,7 @@ async function loadPINFromSheet(id){
   if(urlSheet)localStorage.setItem(SHEET_ID_KEY,urlSheet);
   const cfg=BL_CFG.weeklyJobs;
   sheetId=(cfg && (''+cfg).indexOf('PUT_')!==0) ? cfg : (localStorage.getItem(SHEET_ID_KEY)||'');
-  BLAuth.init({appName:'Staff Hub', require:'staff', onReady:function(){ showApp(); }});
+  BLAuth.init({appName:'Checklists', require:'staff', onReady:function(){ showApp(); }});
 })();
 
 // ── PIN ──
