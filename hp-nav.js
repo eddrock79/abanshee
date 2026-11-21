@@ -49,7 +49,14 @@
     }).join('');
     // sits directly above the page's own links
     var sub = document.querySelector('#quick3, nav.otop, .nav-bar');
-    if (sub && sub.parentNode) sub.parentNode.insertBefore(nav, sub);
+    if (sub && sub.parentNode) {
+      sub.parentNode.insertBefore(nav, sub);
+      if (sub.classList.contains('nav-bar')) {   // line up with the Checklists tab row underneath
+        var cs = getComputedStyle(sub), l = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.marginLeft) || 0), r = (parseFloat(cs.paddingRight) || 0) + (parseFloat(cs.marginRight) || 0);
+        nav.style.setProperty('width', 'auto', 'important');
+        nav.style.setProperty('margin', '12px ' + r + 'px 8px ' + l + 'px', 'important');
+      }
+    }
     else if (document.body) document.body.insertBefore(nav, document.body.firstChild);
     else return false;
     tidy(); return true;
