@@ -58,11 +58,19 @@
     'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
     'html body .hpsub>*>a,html body .hpsub>*>span,html body .hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}html body .hpsub>*>.hp-right{margin-left:0!important}}' +
     '@media print{header.hptop,html body .hpsub{display:none!important}}';
+  var FRAMED = false; try { FRAMED = window.self !== window.top; } catch (e) { FRAMED = true; }
   function sub() { return document.querySelector('#quick3, nav.otop, .nav-bar'); }
   function build() {
     if (!document.body) return false;
     if (!document.getElementById('hpnav-css')) { var st = document.createElement('style'); st.id = 'hpnav-css'; st.textContent = CSS; document.head.appendChild(st); }
     var top = document.querySelector('header.hptop');
+    // opened inside another staff page (the Staff Hub viewer): that page already shows the top, so don't repeat it
+    if (!top && FRAMED) {
+      var w0 = document.querySelector('html body .hpsub');
+      if (!w0) { w0 = document.createElement('div'); w0.className = 'hpsub'; document.body.insertBefore(w0, document.body.firstChild); }
+      var s0 = sub(); if (s0 && s0.parentNode !== w0) w0.appendChild(s0);
+      tidy(); return true;
+    }
     if (!top) {
       top = document.createElement('header'); top.className = 'hptop';
       top.innerHTML = '<div class="hptop-in"><a class="hplogo" href="' + L[0][3] + '" target="_top" aria-label="Staff Hub"><img src="' + site + '/logo.jpg" alt="' + (P === 'br' ? 'The Black Rose Tavern' : 'The Banshee Labyrinth') + '"></a>' +
@@ -101,7 +109,8 @@
       // the Checklists site's own manager page is a different thing from the Manager Dashboard
       if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
       // plain words only: no symbols on any link in the row
-      if (!a.children.length) {
+      // (never in the dashboards' tab row: that page redraws its tabs if their words change, which would loop)
+      if (!a.children.length && !s.matches('nav.otop')) {
         var o = a.textContent, c = o.replace(/[←-⇿⌀-➿⬀-⯿\u{1F000}-\u{1FAFF}️]/gu, '').replace(/^[\s＋]+|[\s＋]+$/g, '').replace(/\s{2,}/g, ' ');
         if (c && c !== o) a.textContent = c;
       }
@@ -114,7 +123,7 @@
   function go() {
     if (!build()) return;
     new MutationObserver(function () {
-      if (!document.querySelector('header.hptop') || (sub() && sub().parentNode !== document.querySelector('html body .hpsub'))) build(); else tidy();
+      if ((!FRAMED && !document.querySelector('header.hptop')) || (sub() && sub().parentNode !== document.querySelector('html body .hpsub'))) build(); else tidy();
     }).observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
