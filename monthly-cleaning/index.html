@@ -222,6 +222,19 @@
 .nx-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--accent);color:#06221e;font:700 15px 'DM Sans',sans-serif;padding:12px 18px;border-radius:999px;box-shadow:0 8px 24px #000a;z-index:70}
 .nx-manage{margin-top:16px}
 .nx-manage summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0}
+.nx-manage .nx-mform{background:#0a1330;border:1px solid #2c3766;border-radius:12px;padding:12px 14px;margin:6px 0 14px}
+.nx-mhead{font:700 12px "Signika",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#a9b0cc;margin:4px 0 8px}
+.nx-mstep{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}.nx-mstep>span{font:600 14px "Signika",sans-serif;color:#d9ddf0;margin-right:6px;min-width:120px}
+.nx-mchip{font:600 15px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #2c3766;background:#141d40;color:#fff;cursor:pointer}
+.nx-mchip.on{background:#b7dc35;border-color:#b7dc35;color:#04102c}
+.nx-madd{display:flex;gap:8px}.nx-minput{flex:1;min-width:0;font:500 16px "Signika",sans-serif;padding:11px 14px;border-radius:10px;border:1px solid #2c3766;background:#04102c;color:#fff}
+.nx-minput:disabled{opacity:.55}.nx-mbtn{font:700 15px "Signika",sans-serif;padding:10px 18px;border-radius:10px;border:0;background:#b7dc35;color:#04102c;cursor:pointer;white-space:nowrap}.nx-mbtn:disabled{opacity:.4;cursor:default}
+.nx-mlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;align-items:start}
+.nx-mgrp{background:#0a1330;border:1px solid #26305a;border-radius:12px;padding:8px}
+.nx-mrow{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;background:#141d40;margin-top:6px;font:500 14px/1.3 "Signika",sans-serif;color:#fff}
+.nx-mrow>span{flex:1;min-width:0}.nx-mico{flex:none;width:34px;height:32px;border-radius:8px;border:1px solid #2c3766;background:#0b1533;color:#d9ddf0;cursor:pointer}
+.nx-mico.del{color:#ff6b8b}
+
 .nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
 .nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
 .nx-edit{font:600 14px "Signika",sans-serif;padding:8px 14px;border-radius:999px;border:1px solid #7d4bb8;background:rgba(125,75,184,.18);color:#c9a7ff;cursor:pointer;white-space:nowrap}
@@ -670,7 +683,8 @@ function removeStaff(i){
 // ── NEW PAGE: pick your name, tap the jobs you've done ──
 const NX_AREAS=[["Safety checks",/fire|pat\b|safety|extinguisher|alarm|first aid|electric|gas/i],["Deep cleans",/clean|descale|degrease|fridge|freezer|polish/i],["Checks and maintenance",/inspect|check|review|service|repair|test|replace/i]];
 const NX_LIST=MONTHS, NX_KEYS=MONTH_KEYS, NX_KIND='month';
-function nxArea(job){for(const a of NX_AREAS){if(a[1].test(job))return a[0];}return "Other jobs";}
+function nxArea(job){const s=String(job),i=s.indexOf(" | ");if(i>0)return s.slice(0,i);for(const a of NX_AREAS){if(a[1]&&a[1].test(s))return a[0];}return "Other jobs";}
+function nxJobText(job){const s=String(job),i=s.indexOf(" | ");return i>0?s.slice(i+3):s;}
 function nxNow(){const d=new Date();if(NX_KIND==='day'&&d.getHours()<7)d.setDate(d.getDate()-1);return d;}
 function nxStamp(){const d=nxNow();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(NX_KIND==='day'?d.getDate():1);}
 function nxCur(){const d=nxNow();return NX_KIND==='day'?NX_LIST[(d.getDay()+6)%7]:NX_LIST[d.getMonth()];}
@@ -728,6 +742,49 @@ function nxJump(pk){const sec=document.querySelector('#page-'+pk+' .notes-sectio
   setTimeout(()=>{const ta=document.getElementById('ho-ta-'+pk);if(ta)ta.focus({preventScroll:true});},500);}
 document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
 
+// ── MANAGER: add / remove jobs (new style). Placeholders filled by the builder: renderMonth, month, __HOME__ ──
+let nxManageOpen=false, nxNewGroup='', nxNewArea='';
+// sections to choose from: a page can define BR_CHOICES() (e.g. Bar/Kitchen then a section); otherwise the page's areas
+function nxChoices(){
+  if(typeof BR_CHOICES==='function') return BR_CHOICES();
+  const names=NX_AREAS.map(a=>a[0]); if(!names.includes('Other jobs')) names.push('Other jobs');
+  return [['',names]];
+}
+function nxPickGroup(g,p,pk){nxNewGroup=g;const c=nxChoices().find(x=>x[0]===g);nxNewArea=c&&c[1].length===1?c[1][0]:'';nxManageRedraw(p,pk);}
+function nxPickArea(a,p,pk){nxNewArea=a;nxManageRedraw(p,pk);}
+function nxManageRedraw(p,pk){const keep=(document.getElementById('nx-new-'+pk)||{}).value||'';renderMonth(p);const i=document.getElementById('nx-new-'+pk);if(i){i.value=keep;}}
+function nxAreaShort(a){return String(a).replace(/^Bar /,'').replace(/^Opening: /,'Opening ').replace(/^4–5pm: /,'4–5pm ');}
+function nxManageHtml(p,pk,jobs){
+  const ch=nxChoices(), grouped=ch.length>1||ch[0][0]!=='';
+  if(!grouped&&!nxNewGroup)nxNewGroup='';
+  const g=ch.find(x=>x[0]===nxNewGroup)||(grouped?null:ch[0]);
+  const step1=grouped?`<div class="nx-mstep"><span>1. Where?</span>${ch.map(x=>`<button type="button" class="nx-mchip${x[0]===nxNewGroup?' on':''}" onclick="nxPickGroup('${escHtml(x[0])}','${p}','${pk}')">${escHtml(x[0])}</button>`).join('')}</div>`:'';
+  const step2=g&&g[1].length>1?`<div class="nx-mstep"><span>${grouped?'2. Which section?':'Section'}</span>${g[1].map(a=>`<button type="button" class="nx-mchip${a===nxNewArea?' on':''}" onclick="nxPickArea('${escHtml(a)}','${p}','${pk}')">${escHtml(grouped?nxAreaShort(a):a)}</button>`).join('')}</div>`:'';
+  const ready=!!nxNewArea;
+  const add=`<div class="nx-madd"><input id="nx-new-${pk}" class="nx-minput" placeholder="${ready?'New job for '+escHtml(nxNewArea)+' on '+p+'…':(grouped?'Pick where it goes first':'Pick a section first')}" ${ready?'':'disabled'} onkeydown="if(event.key==='Enter')nxAddJob('${p}','${pk}')"><button type="button" class="nx-mbtn" ${ready?'':'disabled'} onclick="nxAddJob('${p}','${pk}')">＋ Add job</button></div>`;
+  const order=[];ch.forEach(x=>x[1].forEach(a=>{if(!order.includes(a))order.push(a);}));jobs.forEach(j=>{const a=nxArea(j.job);if(!order.includes(a))order.push(a);});
+  const canMove=typeof moveJob==='function'&&typeof DAY_KEYS!=='undefined'&&DAY_KEYS.includes(pk);
+  const list=order.map(a=>{const js=jobs.filter(j=>nxArea(j.job)===a);if(!js.length)return '';
+    return `<div class="nx-mgrp"><div class="nx-area">${escHtml(a)} · ${js.length}</div>${js.map(j=>`<div class="nx-mrow"><span>${escHtml(nxJobText(j.job))}</span>`
+      +(canMove?`<button type="button" class="nx-mico" title="Move to the day before" onclick="moveJob(${j.id},'${pk}',-1)">◀</button><button type="button" class="nx-mico" title="Move to the next day" onclick="moveJob(${j.id},'${pk}',1)">▶</button>`:'')
+      +`<button type="button" class="nx-mico del" title="Remove this job" onclick="nxDelJob(${j.id},'${p}')">✕</button></div>`).join('')}</div>`;}).join('');
+  return `<details class="nx-manage" ${nxManageOpen?'open':''} ontoggle="nxManageOpen=this.open"><summary>✎ Add or remove ${p}'s jobs (manager)</summary>
+    <div class="nx-mform"><div class="nx-mhead">Add a job</div>${step1}${step2}${add}</div>
+    <div class="nx-mhead">${p}'s jobs</div><div class="nx-mlist">${list||'<div class="nx-empty">No jobs yet.</div>'}</div></details>`;
+}
+function nxAddJob(p,pk){
+  const inp=document.getElementById('nx-new-'+pk);const t=(inp&&inp.value||'').replace(/\s*\|\s*/g,' - ').replace(/\s+/g,' ').trim();
+  if(!nxNewArea){nxToast('Pick where the job goes first');return;}
+  if(!t){nxToast('Type the job first');if(inp)inp.focus();return;}
+  const id=state.jobs.reduce((m,j)=>Math.max(m,+j.id||0),0)+1;
+  const o={id,job:nxNewArea==='Other jobs'?t:nxNewArea+' | '+t,assignedTo:'',done:false,timestamp:'',notes:''};o['month']=p;o['home'+'month'.charAt(0).toUpperCase()+'month'.slice(1)]=p;
+  state.jobs.push(o);saveState();queueSheetSync();nxToast('Added to '+nxNewArea);
+  if(inp)inp.value='';renderMonth(p);const i2=document.getElementById('nx-new-'+pk);if(i2)i2.focus();
+}
+function nxDelJob(id,p){const j=state.jobs.find(x=>x.id===id);if(!j)return;
+  if(!confirm('Remove "'+nxJobText(j.job)+'" from '+p+'?'))return;
+  state.jobs=state.jobs.filter(x=>x.id!==id);saveState();queueSheetSync();nxToast('Job removed');renderMonth(p);}
+
 function renderMonth(p){
   const pk=p.toLowerCase(),el=document.getElementById('page-'+pk);
   const jobs=state.jobs.filter(j=>j.month===p),isDone=nxIsDone;
@@ -742,23 +799,22 @@ function renderMonth(p){
   const groups=order.map(a=>({a,all:jobs.filter(j=>nxArea(j.job)===a)})).filter(g=>g.all.length);
   const cols=[[],[]],h=[0,0];groups.forEach(g=>{const c=h[0]<=h[1]?0:1;cols[c].push(g);h[c]+=g.all.length+1;});
   const showJob=j=>{const just=nxRecent[j.id]&&nxRecent[j.id]>nowMs&&nxIsDone(j);
-    return just?`<button type="button" class="nx-job just" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}<small>✓ Ticked for ${escHtml(j.assignedTo)}. Tap to undo</small></span></button>`
-      :(r=>`<div class="nx-jrow${r?' flagged':''}"><button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(j.job)}${r?`<small class="nx-why">⚑ Not done: ${escHtml(r)}</small>`:''}</span></button><button type="button" class="nx-flag" aria-label="${r?'Clear the reason':'Can’t do it'}" onclick="nxFlag(${j.id},this,event)">${r?'✕':'⚑'}</button></div>`)(nxReason(j));};
+    return just?`<button type="button" class="nx-job just" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(nxJobText(j.job))}<small>✓ Ticked for ${escHtml(j.assignedTo)}. Tap to undo</small></span></button>`
+      :(r=>`<div class="nx-jrow${r?' flagged':''}"><button type="button" class="nx-job" onclick="nxTick(${j.id})"><span class="nx-box"></span><span>${escHtml(nxJobText(j.job))}${r?`<small class="nx-why">⚑ Not done: ${escHtml(r)}</small>`:''}</span></button><button type="button" class="nx-flag" aria-label="${r?'Clear the reason':'Can’t do it'}" onclick="nxFlag(${j.id},this,event)">${r?'✕':'⚑'}</button></div>`)(nxReason(j));};
   const grpHtml=g=>{const js=g.all.filter(j=>!isDone(j)||(nxRecent[j.id]&&nxRecent[j.id]>nowMs));
     return `<div class="nx-grp"><div class="nx-area">${g.a} · ${g.all.filter(isDone).length}/${g.all.length}</div>${js.length?js.map(showJob).join(''):'<div class="nx-grp-done">✓ All done</div>'}</div>`;};
   const todo=left.length||Object.keys(nxRecent).length?`<div class="nx-cols2">${cols.map(c=>`<div class="nx-c">${c.map(grpHtml).join('')}</div>`).join('')}</div>`:'';
   const names=[];doneJobs.forEach(j=>{const n=j.assignedTo||'Someone';if(!names.includes(n))names.push(n);});crew.forEach(n=>{if(!names.includes(n))names.push(n);});
   const people=names.map(n=>{const js=doneJobs.filter(j=>(j.assignedTo||'Someone')===n).sort((x,y)=>(y.timestamp||'').localeCompare(x.timestamp||''));
     return `<section class="nx-col${n===me?' me':''}"><h3><span class="nx-av">${escHtml(n[0]||'?')}</span>${escHtml(n)}<small>${js.length} done</small></h3><div class="nx-list">${
-      js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(j.job)}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
+      js.map(j=>`<div class="nx-done"><span class="nx-tick">✓</span><span>${escHtml(nxJobText(j.job))}<small>${j.timestamp?fmtTime(j.timestamp):''}</small></span><button type="button" class="nx-grab" aria-label="Change who did this" onclick="nxMenu(${j.id},this,event)">⋮⋮</button></div>`).join('')||'<div class="nx-empty">Nothing ticked yet</div>'}</div></section>`;}).join('');
   const pct=jobs.length?Math.round(doneJobs.length/jobs.length*100):0;
   el.innerHTML=`
     <div class="nx-head"><div><div class="section-title">${p}${cur?' · this month':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${pk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${pk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
     ${whoHtml}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
-    ${isManager?`<details class="nx-manage"><summary>✎ Add or remove ${p}'s jobs (manager)</summary><div class="job-list">${jobs.map(j=>jobCard(j,onShift,pk)).join('')}</div>
-      <div class="add-job-row"><input class="add-job-input" id="new-job-${pk}" placeholder="Add a job for ${p}…" onkeydown="if(event.key==='Enter')addJob('${p}','${pk}')"/><button class="btn btn-accent" onclick="addJob('${p}','${pk}')">+ Add</button></div></details>`:''}
+    ${isManager?nxManageHtml(p,pk,jobs):''}
     <div class="notes-section">
       <div class="notes-title">📝 Handover Notes</div>
       <div id="handover-list-${pk}" class="ho-list"><div class="muted-text" style="font-size:13px">Loading…</div></div>
