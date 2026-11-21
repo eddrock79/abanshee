@@ -235,6 +235,9 @@
 .nx-mrow{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;background:#141d40;margin-top:6px;font:500 14px/1.3 "Signika",sans-serif;color:#fff}
 .nx-mrow>span{flex:1;min-width:0}.nx-mico{flex:none;width:34px;height:32px;border-radius:8px;border:1px solid #2c3766;background:#0b1533;color:#d9ddf0;cursor:pointer}
 .nx-mico.del{color:#ff6b8b}
+.nx-mchip.sm{font-size:13px;padding:6px 10px}.nx-mico.on{border-color:#b7dc35;color:#b7dc35}
+.nx-mdays{display:block;font-size:12px;color:#a9b0cc;margin-top:2px}.nx-mhead small{font-weight:500;letter-spacing:0;text-transform:none}
+.nx-mdaypick{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px 4px}
 
 .nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
 .nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
@@ -741,8 +744,11 @@ function nxJump(pk){const sec=document.querySelector('#page-'+pk+' .notes-sectio
   setTimeout(()=>{const ta=document.getElementById('ho-ta-'+pk);if(ta)ta.focus({preventScroll:true});},500);}
 document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
 
-// ── MANAGER: add / remove jobs (new style). Placeholders filled by the builder: renderDay, day, __HOME__ ──
-let nxManageOpen=false, nxNewGroup='', nxNewArea='';
+// ── MANAGER: add / remove jobs (new style). Placeholders filled by the builder: renderDay, day ──
+let nxManageOpen=false, nxNewGroup='', nxNewArea='', nxNewDays=null, nxNewFor='', nxDaysOpen='';
+const NX_PERIODS=(typeof NX_LIST!=='undefined')?NX_LIST:DAYS;          // days on the day pages, months on the monthly page
+const NX_PKIND=NX_PERIODS.length===12?'month':'day';
+function nxShort(x){return x.slice(0,3);}
 // sections to choose from: a page can define BR_CHOICES() (e.g. Bar/Kitchen then a section); otherwise the page's areas
 function nxChoices(){
   if(typeof BR_CHOICES==='function') return BR_CHOICES();
@@ -751,38 +757,56 @@ function nxChoices(){
 }
 function nxPickGroup(g,p,pk){nxNewGroup=g;const c=nxChoices().find(x=>x[0]===g);nxNewArea=c&&c[1].length===1?c[1][0]:'';nxManageRedraw(p,pk);}
 function nxPickArea(a,p,pk){nxNewArea=a;nxManageRedraw(p,pk);}
+function nxToggleNewDay(d,p,pk){if(d==='*'){nxNewDays=nxNewDays.length===NX_PERIODS.length?[p]:NX_PERIODS.slice();}
+  else{const i=nxNewDays.indexOf(d);if(i>=0){if(nxNewDays.length>1)nxNewDays.splice(i,1);}else nxNewDays.push(d);}nxManageRedraw(p,pk);}
 function nxManageRedraw(p,pk){const keep=(document.getElementById('nx-new-'+pk)||{}).value||'';renderDay(p);const i=document.getElementById('nx-new-'+pk);if(i){i.value=keep;}}
 function nxAreaShort(a){return String(a).replace(/^Bar /,'').replace(/^Opening: /,'Opening ').replace(/^4–5pm: /,'4–5pm ');}
+// which days (or months) a job is on: every row with exactly the same job text
+function nxJobPeriods(job){return NX_PERIODS.filter(x=>state.jobs.some(j=>j.job===job&&j['day']===x));}
+function nxPeriodLabel(list){return list.length===NX_PERIODS.length?(NX_PKIND==='day'?'Every day':'Every month'):list.map(nxShort).join(', ');}
+function nxNewRow(job,x){const id=state.jobs.reduce((m,j)=>Math.max(m,+j.id||0),0)+1;
+  const o={id,job,assignedTo:'',done:false,timestamp:'',notes:''};o['day']=x;o['home'+'day'.charAt(0).toUpperCase()+'day'.slice(1)]=x;state.jobs.push(o);}
+function nxToggleJobDay(id,x,p){const j=state.jobs.find(r=>r.id===id);if(!j)return;const on=state.jobs.filter(r=>r.job===j.job&&r['day']===x);
+  if(on.length){if(nxJobPeriods(j.job).length===1){nxToast('A job needs at least one '+NX_PKIND+'. Use ✕ to remove it.');return;}
+    state.jobs=state.jobs.filter(r=>!(r.job===j.job&&r['day']===x));}else nxNewRow(j.job,x);
+  saveState();queueSheetSync();renderDay(p);}
 function nxManageHtml(p,pk,jobs){
+  if(nxNewFor!==p||!nxNewDays){nxNewFor=p;nxNewDays=[p];}
   const ch=nxChoices(), grouped=ch.length>1||ch[0][0]!=='';
-  if(!grouped&&!nxNewGroup)nxNewGroup='';
   const g=ch.find(x=>x[0]===nxNewGroup)||(grouped?null:ch[0]);
   const step1=grouped?`<div class="nx-mstep"><span>1. Where?</span>${ch.map(x=>`<button type="button" class="nx-mchip${x[0]===nxNewGroup?' on':''}" onclick="nxPickGroup('${escHtml(x[0])}','${p}','${pk}')">${escHtml(x[0])}</button>`).join('')}</div>`:'';
   const step2=g&&g[1].length>1?`<div class="nx-mstep"><span>${grouped?'2. Which section?':'Section'}</span>${g[1].map(a=>`<button type="button" class="nx-mchip${a===nxNewArea?' on':''}" onclick="nxPickArea('${escHtml(a)}','${p}','${pk}')">${escHtml(grouped?nxAreaShort(a):a)}</button>`).join('')}</div>`:'';
+  const all=nxNewDays.length===NX_PERIODS.length;
+  const step3=`<div class="nx-mstep"><span>${grouped?'3. ':''}Which ${NX_PKIND}s?</span><button type="button" class="nx-mchip${all?' on':''}" onclick="nxToggleNewDay('*','${p}','${pk}')">${NX_PKIND==='day'?'Every day':'Every month'}</button>${NX_PERIODS.map(x=>`<button type="button" class="nx-mchip sm${nxNewDays.includes(x)?' on':''}" onclick="nxToggleNewDay('${x}','${p}','${pk}')">${nxShort(x)}</button>`).join('')}</div>`;
   const ready=!!nxNewArea;
-  const add=`<div class="nx-madd"><input id="nx-new-${pk}" class="nx-minput" placeholder="${ready?'New job for '+escHtml(nxNewArea)+' on '+p+'…':(grouped?'Pick where it goes first':'Pick a section first')}" ${ready?'':'disabled'} onkeydown="if(event.key==='Enter')nxAddJob('${p}','${pk}')"><button type="button" class="nx-mbtn" ${ready?'':'disabled'} onclick="nxAddJob('${p}','${pk}')">＋ Add job</button></div>`;
+  const add=`<div class="nx-madd"><input id="nx-new-${pk}" class="nx-minput" placeholder="${ready?'New job for '+escHtml(nxNewArea)+' · '+nxPeriodLabel(NX_PERIODS.filter(x=>nxNewDays.includes(x)))+'…':(grouped?'Pick where it goes first':'Pick a section first')}" ${ready?'':'disabled'} onkeydown="if(event.key==='Enter')nxAddJob('${p}','${pk}')"><button type="button" class="nx-mbtn" ${ready?'':'disabled'} onclick="nxAddJob('${p}','${pk}')">＋ Add job</button></div>`;
   const order=[];ch.forEach(x=>x[1].forEach(a=>{if(!order.includes(a))order.push(a);}));jobs.forEach(j=>{const a=nxArea(j.job);if(!order.includes(a))order.push(a);});
   const canMove=typeof moveJob==='function'&&typeof DAY_KEYS!=='undefined'&&DAY_KEYS.includes(pk);
   const list=order.map(a=>{const js=jobs.filter(j=>nxArea(j.job)===a);if(!js.length)return '';
-    return `<div class="nx-mgrp"><div class="nx-area">${escHtml(a)} · ${js.length}</div>${js.map(j=>`<div class="nx-mrow"><span>${escHtml(nxJobText(j.job))}</span>`
+    return `<div class="nx-mgrp"><div class="nx-area">${escHtml(a)} · ${js.length}</div>${js.map(j=>{const per=nxJobPeriods(j.job),open=nxDaysOpen===String(j.id);
+      return `<div class="nx-mrow"><span>${escHtml(nxJobText(j.job))}<small class="nx-mdays">📅 ${nxPeriodLabel(per)}</small></span>`
+      +`<button type="button" class="nx-mico${open?' on':''}" title="Which ${NX_PKIND}s" onclick="nxDaysOpen=nxDaysOpen==='${j.id}'?'':'${j.id}';renderDay('${p}')">📅</button>`
       +(canMove?`<button type="button" class="nx-mico" title="Move to the day before" onclick="moveJob(${j.id},'${pk}',-1)">◀</button><button type="button" class="nx-mico" title="Move to the next day" onclick="moveJob(${j.id},'${pk}',1)">▶</button>`:'')
-      +`<button type="button" class="nx-mico del" title="Remove this job" onclick="nxDelJob(${j.id},'${p}')">✕</button></div>`).join('')}</div>`;}).join('');
+      +`<button type="button" class="nx-mico del" title="Remove from ${p}" onclick="nxDelJob(${j.id},'${p}')">✕</button></div>`
+      +(open?`<div class="nx-mdaypick">${NX_PERIODS.map(x=>`<button type="button" class="nx-mchip sm${per.includes(x)?' on':''}" onclick="nxToggleJobDay(${j.id},'${x}','${p}')">${nxShort(x)}</button>`).join('')}</div>`:'');}).join('')}</div>`;}).join('');
   return `<details class="nx-manage" ${nxManageOpen?'open':''} ontoggle="nxManageOpen=this.open"><summary>✎ Add or remove ${p}'s jobs (manager)</summary>
-    <div class="nx-mform"><div class="nx-mhead">Add a job</div>${step1}${step2}${add}</div>
-    <div class="nx-mhead">${p}'s jobs</div><div class="nx-mlist">${list||'<div class="nx-empty">No jobs yet.</div>'}</div></details>`;
+    <div class="nx-mform"><div class="nx-mhead">Add a job</div>${step1}${step2}${step3}${add}</div>
+    <div class="nx-mhead">${p}'s jobs <small>· tap 📅 to choose which ${NX_PKIND}s a job is on</small></div><div class="nx-mlist">${list||'<div class="nx-empty">No jobs yet.</div>'}</div></details>`;
 }
 function nxAddJob(p,pk){
   const inp=document.getElementById('nx-new-'+pk);const t=(inp&&inp.value||'').replace(/\s*\|\s*/g,' - ').replace(/\s+/g,' ').trim();
   if(!nxNewArea){nxToast('Pick where the job goes first');return;}
   if(!t){nxToast('Type the job first');if(inp)inp.focus();return;}
-  const id=state.jobs.reduce((m,j)=>Math.max(m,+j.id||0),0)+1;
-  const o={id,job:nxNewArea==='Other jobs'?t:nxNewArea+' | '+t,assignedTo:'',done:false,timestamp:'',notes:''};o['day']=p;o['home'+'day'.charAt(0).toUpperCase()+'day'.slice(1)]=p;
-  state.jobs.push(o);saveState();queueSheetSync();nxToast('Added to '+nxNewArea);
+  const job=nxNewArea==='Other jobs'?t:nxNewArea+' | '+t;
+  const days=NX_PERIODS.filter(x=>nxNewDays.includes(x)&&!state.jobs.some(j=>j.job===job&&j['day']===x));
+  if(!days.length){nxToast('That job is already on those '+NX_PKIND+'s');return;}
+  days.forEach(x=>nxNewRow(job,x));saveState();queueSheetSync();nxToast('Added to '+nxNewArea+' · '+nxPeriodLabel(days));
   if(inp)inp.value='';renderDay(p);const i2=document.getElementById('nx-new-'+pk);if(i2)i2.focus();
 }
 function nxDelJob(id,p){const j=state.jobs.find(x=>x.id===id);if(!j)return;
-  if(!confirm('Remove "'+nxJobText(j.job)+'" from '+p+'?'))return;
-  state.jobs=state.jobs.filter(x=>x.id!==id);saveState();queueSheetSync();nxToast('Job removed');renderDay(p);}
+  const per=nxJobPeriods(j.job),many=per.length>1;
+  if(!confirm('Remove "'+nxJobText(j.job)+'" from '+p+'?'+(many?'\n\nIt stays on: '+nxPeriodLabel(per.filter(x=>x!==p))+'. Use 📅 to change the other '+NX_PKIND+'s.':'')))return;
+  state.jobs=state.jobs.filter(x=>x.id!==id);saveState();queueSheetSync();nxToast('Job removed from '+p);renderDay(p);}
 
 function renderDay(p){
   const pk=p.toLowerCase(),el=document.getElementById('page-'+pk);
