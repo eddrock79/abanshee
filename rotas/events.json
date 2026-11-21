@@ -1,33 +1,33 @@
 {
-  "generated": "2026-11-16T08:00:16",
+  "generated": "2026-11-21T08:00:14",
   "events": [
     {
-      "date": "2016-11-16",
+      "date": "2026-11-16",
       "room": "Cave Bar",
       "what": "Booking"
     },
     {
-      "date": "2016-11-16",
+      "date": "2026-11-16",
       "room": "Cinema",
       "what": "Edinburgh B-Team"
     },
     {
-      "date": "2016-11-17",
+      "date": "2026-11-17",
       "room": "Chamber Room",
       "what": "Karaoke"
     },
     {
-      "date": "2016-11-18",
+      "date": "2026-11-18",
       "room": "Chamber Room",
       "what": "Take the stage"
     },
     {
-      "date": "2016-11-21",
+      "date": "2026-11-21",
       "room": "Cave Bar",
       "what": "Booking"
     },
     {
-      "date": "2016-11-22",
+      "date": "2026-11-22",
       "room": "Chamber Room",
       "what": "Karaoke"
     },
