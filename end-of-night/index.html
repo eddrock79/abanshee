@@ -239,6 +239,10 @@
 .nx-mchip.sm{font-size:13px;padding:6px 10px}.nx-mico.on{border-color:#b7dc35;color:#b7dc35}
 .nx-mdays{display:block;font-size:12px;color:#a9b0cc;margin-top:2px}.nx-mhead small{font-weight:500;letter-spacing:0;text-transform:none}
 .nx-mdaypick{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px 4px}
+.nx-ho{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}.nx-ho label{display:flex;flex-direction:column;gap:4px;font:600 14px "Signika",sans-serif;color:#d9ddf0}
+.nx-ho label.wide{grid-column:1/-1}.nx-ho input,.nx-ho textarea{font:500 15px "Signika",sans-serif;padding:10px 12px;border-radius:10px;border:1px solid #2c3766;background:#04102c;color:#fff}
+.nx-ho textarea{min-height:70px;resize:vertical}@media(max-width:700px){.nx-ho{grid-template-columns:1fr}}
+
 
 .nx-manage{background:#0a1330;border:1px dashed #7d4bb8;border-radius:12px;padding:4px 14px 10px}
 .nx-manage summary{color:#c9a7ff!important;font:600 16px "Signika",sans-serif!important;padding:10px 0 6px!important}
@@ -991,6 +995,15 @@ function nxDelJob(id,p){const j=state.jobs.find(x=>x.id===id);if(!j)return;
   state.jobs=state.jobs.filter(x=>x.id!==id);saveState();queueSheetSync();nxToast('Job removed from '+p);renderDay(p);}
 
 
+// ── STRUCTURED HANDOVER: three quick fields, saved as one note (the messages service reads "Ran out of" and "Broken") ──
+function nxHandover(p,pk){const g=id=>((document.getElementById(id+pk)||{}).value||'').replace(/\s+/g,' ').trim();
+  const out=g('ho-out-'),brk=g('ho-brk-'),nxt=((document.getElementById('ho-nxt-'+pk)||{}).value||'').trim();
+  if(!out&&!brk&&!nxt){nxToast('Fill in at least one box');return;}
+  const lines=[];if(out)lines.push('Ran out of: '+out);if(brk)lines.push('Broken: '+brk);if(nxt)lines.push('For the next shift: '+nxt);
+  const ta=document.getElementById('ho-ta-'+pk);if(ta)ta.value=lines.join('\n');
+  ['ho-out-','ho-brk-','ho-nxt-'].forEach(id=>{const e=document.getElementById(id+pk);if(e)e.value='';});
+  addHandover(p,pk);}
+
 function renderDay(day){
   const dk=day.toLowerCase(),el=document.getElementById('page-'+dk);
   const jobs=state.jobs.filter(j=>j.day===day),isDone=nxIsDone;
@@ -1040,8 +1053,8 @@ function renderDay(day){
       <div id="handover-list-${dk}" class="ho-list"><div class="muted-text" style="font-size:13px">Loading…</div></div>
       <div class="ho-add">
         <select class="assign-select" id="ho-author-${dk}"><option value="">— Your name —</option>${onShift.map(n=>`<option value="${escHtml(n)}"${n===me?' selected':''}>${escHtml(n)}</option>`).join('')}</select>
-        <textarea class="notes-textarea" id="ho-ta-${dk}" placeholder="Add a handover note for day staff…"></textarea>
-        <div class="notes-save-row"><button class="btn btn-accent" onclick="addHandover('${day}','${dk}')">Add Note</button><span class="notes-saved" id="ho-saved-${dk}">✓ Added</span></div>
+        <div class="nx-ho"><label>🛒 Ran out of<input id="ho-out-${dk}" placeholder="e.g. Guinness, limes, blue roll"></label><label>🔧 Broken / needs fixing<input id="ho-brk-${dk}" placeholder="e.g. glasswasher 2 leaking"></label><label class="wide">📝 For the next shift<textarea id="ho-nxt-${dk}" placeholder="Anything else they should know"></textarea></label></div><textarea id="ho-ta-${dk}" hidden></textarea>
+        <div class="notes-save-row"><button class="btn btn-accent" onclick="nxHandover('${day}','${dk}')">Add handover</button><span class="notes-saved" id="ho-saved-${dk}">✓ Added</span></div>
       </div>
     </div>`;
   loadHandover(day);
