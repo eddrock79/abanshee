@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lost property — Banshee Labyrinth</title>
+<link rel="apple-touch-icon" href="../logo.jpg">
+<style>
+  :root{--bg:#0d0d0f;--surface:#17171a;--surface2:#1f1f24;--border:#2a2a30;--accent:#4fb8a8;--red:#e85d5d;--text:#e8e8ec;--muted:#8a8a96}
+  *{box-sizing:border-box}html,body{margin:0}
+  .nav-bar a,.topbar a{text-decoration:none}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:15px;min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 70px}
+  .lp-h{font-size:24px;margin:6px 0 4px}.lp-sub{color:var(--muted);margin:0 0 16px}
+  .lp-form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:2fr 1.3fr 1fr auto;gap:10px;align-items:end}
+  @media(max-width:800px){.lp-form{grid-template-columns:1fr 1fr}}
+  .lp-form label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px;color:var(--muted)}
+  .lp-form input,.lp-form select{font-family:inherit;font-size:16px;font-weight:500;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+  .lp-add{font-family:inherit;font-size:16px;font-weight:700;padding:12px 18px;border-radius:10px;border:0;background:var(--accent);color:#0a0a0b;cursor:pointer;white-space:nowrap}
+  .lp-msg{margin-top:10px;padding:12px 14px;border-radius:12px;font-weight:600;display:none}
+  .lp-msg.ok{background:rgba(122,211,138,.12);border:1px solid #7ad38a}.lp-msg.bad{background:rgba(255,107,139,.12);border:1px solid #ff6b8b}
+  .lp-step{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--muted);margin:22px 0 8px}
+  .lp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+  .lp-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .lp-item b{font-size:17px}.lp-item small{display:block;color:var(--muted);margin-top:2px}
+  .lp-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .lp-act{font-family:inherit;font-size:14px;font-weight:600;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .lp-act.go{border-color:#7ad38a;color:#7ad38a}
+  .lp-old{opacity:.7}.lp-empty{color:var(--muted)}
+  .lp-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-left:6px}
+  .lp-tag.w{color:#f2b552}.lp-tag.c{color:#7ad38a}.lp-tag.b{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="topbar" style="position:relative;">
+  <div class="topbar-logo">🧳 Lost property</div>
+  <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
+  <div class="topbar-right"></div>
+</div>
+<div class="nav-bar">
+  <a class="nav-btn" id="nav-home" href="../home">Home</a>
+  <a class="nav-btn" href="../end-of-night">End Of Night</a>
+  <a class="nav-btn" href="../weekly-cleaning">Weekly Jobs</a>
+  <a class="nav-btn" href="../monthly-cleaning">Monthly Jobs</a>
+  <a class="nav-btn" href="../cocktails">Cocktails</a>
+  <a class="nav-btn" href="../rotas">Rotas</a>
+  <a class="nav-btn" href="../holidays/">Holidays</a>
+  <a class="nav-btn" href="http://eddrock79nas:8101/">Pub Dashboard</a>
+  <button class="nav-btn" type="button" onclick="BLAuth.switchVenue()" style="cursor:pointer">Switch Venue</button>
+  <button class="nav-btn" onclick="BLAuth.logout()" style="cursor:pointer;color:var(--red);border-color:var(--red)">Log Out</button>
+</div>
+
+<div class="wrap">
+  <h1 class="lp-h">Lost property</h1>
+  <p class="lp-sub">Log anything left behind. When the owner collects it, or it's binned or donated, tap it off.</p>
+  <div class="lp-form">
+    <label>What is it?<input id="lp-item" placeholder="e.g. black North Face jacket, iPhone in red case" maxlength="120"></label>
+    <label>Where was it found?<input id="lp-where" placeholder="e.g. booth by the stage" maxlength="80"></label>
+    <label>Found by<select id="lp-by"><option value="">Pick your name</option></select></label>
+    <button class="lp-add" type="button" onclick="lpAdd()">＋ Log item</button>
+  </div>
+  <div class="lp-msg" id="lp-msg"></div>
+
+  <div class="lp-step">Waiting to be collected</div>
+  <div class="lp-list" id="lp-wait"><span class="lp-empty">Loading…</span></div>
+  <div class="lp-step">Recently sorted</div>
+  <div class="lp-list" id="lp-done"><span class="lp-empty">Loading…</span></div>
+</div>
+
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<script>
+const COMPLIANCE_URL='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+let lpRows=[], lpStaff=[];
+function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function msg(t,ok){const m=document.getElementById('lp-msg');m.textContent=t;m.className='lp-msg '+(ok?'ok':'bad');m.style.display='block';}
+function ago(d){const t=new Date(String(d)+'T12:00:00');if(isNaN(t))return String(d||'');const n=Math.round((Date.now()-t)/864e5);return n<=0?'today':n===1?'yesterday':n+' days ago';}
+async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
+  if(r.ok)lpStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}catch(e){}
+  let last='';try{last=localStorage.getItem('rf_who')||'';}catch(e){}
+  document.getElementById('lp-by').innerHTML='<option value="">Pick your name</option>'+lpStaff.map(n=>`<option${n===last?' selected':''}>${esc(n)}</option>`).join('');}
+async function loadRows(){try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=60&t='+Date.now());const d=await r.json();lpRows=(d&&d.LostProperty)||[];}catch(e){lpRows=null;}draw();}
+function draw(){const w=document.getElementById('lp-wait'),dn=document.getElementById('lp-done');
+  if(lpRows===null){w.innerHTML=dn.innerHTML='<span class="lp-empty">Couldn’t load the list.</span>';return;}
+  const wait=lpRows.filter(x=>x['Status']==='Waiting'),done=lpRows.filter(x=>x['Status']!=='Waiting').slice(0,24);
+  w.innerHTML=wait.length?wait.map(x=>`<div class="lp-item"><b>${esc(x['Item'])}</b><small>Found ${esc(ago(x['Date found']))}${x['Where found']?' · '+esc(x['Where found']):''}${x['Found by']?' · by '+esc(x['Found by']):''}</small>`
+    +`<div class="lp-acts"><button class="lp-act go" type="button" onclick="lpSet('${esc(x['ID'])}','Collected')">✓ Collected</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID'])}','Binned')">Binned</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID'])}','Donated')">Donated</button></div></div>`).join(''):'<span class="lp-empty">Nothing waiting. 👍</span>';
+  dn.innerHTML=done.length?done.map(x=>`<div class="lp-item lp-old"><b>${esc(x['Item'])}</b><span class="lp-tag ${x['Status']==='Collected'?'c':'b'}">${esc(x['Status'])}</span><small>${esc(x['Status by']||'')}${x['Status at']?' · '+esc(x['Status at']):''}</small></div>`).join(''):'<span class="lp-empty">Nothing sorted recently.</span>';}
+async function lpAdd(){const item=document.getElementById('lp-item').value.trim(),where=document.getElementById('lp-where').value.trim(),by=document.getElementById('lp-by').value;
+  if(!item){msg('Say what the item is first.',false);return;}if(!by){msg('Pick your name.',false);return;}
+  try{localStorage.setItem('rf_who',by);}catch(e){}
+  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'lost',pub:pub(),item:item,where:where,by:by})});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
+    msg('✓ Logged: '+item,true);document.getElementById('lp-item').value='';document.getElementById('lp-where').value='';
+    lpRows.unshift({'ID':d.id,'Item':item,'Where found':where,'Found by':by,'Status':'Waiting','Date found':new Date().toISOString().slice(0,10)});draw();
+  }catch(e){msg('Couldn’t save it ('+(e.message||'no connection')+'). Please try again.',false);}}
+async function lpSet(id,status){const by=document.getElementById('lp-by').value||(prompt('Your name:')||'').trim();if(!by)return;
+  const x=lpRows.find(r=>String(r['ID'])===String(id));if(!confirm('Mark "'+(x?x['Item']:'item')+'" as '+status.toLowerCase()+'?'))return;
+  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'lostStatus',pub:pub(),id:id,status:status,by:by})});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
+    if(x){x['Status']=status;x['Status by']=by;x['Status at']=new Date().toLocaleString('en-GB');}draw();msg('✓ '+status+': '+(x?x['Item']:''),true);
+  }catch(e){msg('Couldn’t update it ('+(e.message||'no connection')+').',false);}}
+function start(){loadStaff();loadRows();}
+(async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
+  BLAuth.init({appName:'Lost property',require:'staff',onReady:start});})();
+</script>
+<script src="../bl-header.js" defer></script>
+<link rel="stylesheet" href="../bl-style.css">
+</body>
+</html>

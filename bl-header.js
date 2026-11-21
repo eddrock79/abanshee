@@ -15,6 +15,16 @@
   document.head.appendChild(css);
   function run(){
     var tb=document.querySelector('.topbar'); if(!tb||tb.dataset.blHeader) return;
+    // Refusals and Lost property get their own tabs, next to Monthly Jobs, on every page
+    var nb=document.querySelector('.nav-bar');
+    if(nb&&!nb.querySelector('[data-cx]')){
+      var after=[].slice.call(nb.querySelectorAll('.nav-btn')).filter(function(x){return /monthly jobs/i.test(x.textContent);})[0];
+      [['Refusals','refusals'],['Lost property','lost-property']].forEach(function(t){
+        var cur=location.pathname.indexOf('/'+t[1]+'/')>=0, el=document.createElement(cur?'span':'a');
+        el.className='nav-btn'+(cur?' current':''); el.textContent=t[0]; el.setAttribute('data-cx','1'); if(!cur) el.href='../'+t[1]+'/';
+        if(after&&after.parentNode){after.parentNode.insertBefore(el,after.nextSibling); after=el;} else nb.appendChild(el);
+      });
+    }
     tb.dataset.blHeader='1';
     var old=tb.querySelector('.topbar-logo');
     var centre=tb.querySelector('.topbar-centre-logo');

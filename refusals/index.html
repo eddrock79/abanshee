@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refusals — Banshee Labyrinth</title>
+<link rel="apple-touch-icon" href="../logo.jpg">
+<style>
+  :root{--bg:#0d0d0f;--surface:#17171a;--surface2:#1f1f24;--border:#2a2a30;--accent:#4fb8a8;--red:#e85d5d;--text:#e8e8ec;--muted:#8a8a96}
+  *{box-sizing:border-box}html,body{margin:0}
+  .nav-bar a,.topbar a{text-decoration:none}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:15px;min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 70px}
+  .rf-h{font-size:24px;margin:6px 0 4px}.rf-sub{color:var(--muted);margin:0 0 16px}
+  .rf-step{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--muted);margin:16px 0 8px}
+  .rf-names{display:flex;flex-wrap:wrap;gap:8px}
+  .rf-name{font-weight:600;font-size:16px;font-family:inherit;padding:10px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .rf-name.on{background:var(--accent);border-color:var(--accent);color:#0a0a0b}
+  .rf-reasons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  @media(max-width:700px){.rf-reasons{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .rf-reason{font-weight:700;font-size:19px;font-family:inherit;padding:26px 12px;border-radius:16px;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .rf-reason span{font-size:34px}.rf-reason:active{transform:scale(.98)}
+  .rf-reason:disabled{opacity:.45;cursor:default}
+  .rf-note{width:100%;margin-top:12px;font-weight:500;font-size:15px;font-family:inherit;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+  .rf-done{margin-top:12px;padding:14px 16px;border-radius:12px;background:rgba(122,211,138,.12);border:1px solid #7ad38a;font-weight:600;display:none}
+  .rf-err{margin-top:12px;padding:14px 16px;border-radius:12px;background:rgba(255,107,139,.12);border:1px solid #ff6b8b;font-weight:600;display:none}
+  .rf-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}@media(max-width:800px){.rf-cards{grid-template-columns:1fr}}
+  .rf-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+  .rf-card h3{margin:0 0 10px;font-size:18px}
+  .rf-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}.rf-row:last-child{border-bottom:0}
+  .rf-row b{min-width:52px}.rf-row small{color:var(--muted);display:block}
+  .rf-count{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+  .rf-empty{color:var(--muted)}
+  .rf-tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .rf-btn{font-weight:600;font-size:14px;font-family:inherit;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  #rf-print{display:none}
+  @media print{body{background:#fff;color:#000}.topbar,.nav-bar,.wrap>*:not(#rf-print),#bl-auth-overlay{display:none!important}#rf-print{display:block!important}
+    #rf-print table{width:100%;border-collapse:collapse;font-size:12px}#rf-print th,#rf-print td{border:1px solid #999;padding:4px 6px;text-align:left}}
+</style>
+</head>
+<body>
+<div class="topbar" style="position:relative;">
+  <div class="topbar-logo">🚫 Refusals</div>
+  <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
+  <div class="topbar-right"></div>
+</div>
+<div class="nav-bar">
+  <a class="nav-btn" id="nav-home" href="../home">Home</a>
+  <a class="nav-btn" href="../end-of-night">End Of Night</a>
+  <a class="nav-btn" href="../weekly-cleaning">Weekly Jobs</a>
+  <a class="nav-btn" href="../monthly-cleaning">Monthly Jobs</a>
+  <a class="nav-btn" href="../cocktails">Cocktails</a>
+  <a class="nav-btn" href="../rotas">Rotas</a>
+  <a class="nav-btn" href="../holidays/">Holidays</a>
+  <a class="nav-btn" href="http://eddrock79nas:8101/">Pub Dashboard</a>
+  <button class="nav-btn" type="button" onclick="BLAuth.switchVenue()" style="cursor:pointer">Switch Venue</button>
+  <button class="nav-btn" onclick="BLAuth.logout()" style="cursor:pointer;color:var(--red);border-color:var(--red)">Log Out</button>
+</div>
+
+<div class="wrap">
+  <h1 class="rf-h">Refusals log</h1>
+  <p class="rf-sub">Tap who you are, then the reason. It's saved straight away with the time.</p>
+
+  <div class="rf-step">1. Who's refusing?</div>
+  <div class="rf-names" id="rf-names"><span class="rf-empty">Loading names…</span></div>
+
+  <div class="rf-step">2. Why?</div>
+  <div class="rf-reasons" id="rf-reasons"></div>
+  <input class="rf-note" id="rf-note" placeholder="Optional note (e.g. description, ID shown, group of 4)" maxlength="300">
+  <div class="rf-done" id="rf-done"></div>
+  <div class="rf-err" id="rf-err"></div>
+
+  <div class="rf-cards">
+    <div class="rf-card"><h3>Today</h3><div id="rf-today"><span class="rf-empty">Loading…</span></div></div>
+    <div class="rf-card"><h3>This month</h3><div id="rf-month"><span class="rf-empty">Loading…</span></div>
+      <div class="rf-tools"><button class="rf-btn" type="button" onclick="rfPrint()">🖨 Print this month's log</button></div></div>
+  </div>
+  <div id="rf-print"></div>
+</div>
+
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<script>
+const COMPLIANCE_URL='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+const REASONS=[['🪪','Under age / no ID'],['🍺','Too drunk'],['😠','Aggressive / threatening'],['🦨','Smelly / unkempt'],['⛔','Barred / banned'],['✏️','Other']];
+let rfWho='', rfRows=[], rfStaff=[];
+function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function heroes(){try{const c=JSON.parse(localStorage.getItem('br_crew')||'null');const d=new Date();if(d.getHours()<7)d.setDate(d.getDate()-1);
+  return c&&c.d===d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()&&Array.isArray(c.n)?c.n:[];}catch(e){return [];}}
+async function loadStaff(){
+  try{const id=BL_CFG.endOfNight;const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
+    if(r.ok){rfStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}}catch(e){}
+  const h=heroes().filter(n=>rfStaff.includes(n));if(h.length)rfStaff=h.concat(rfStaff.filter(n=>!h.includes(n)));
+  try{rfWho=localStorage.getItem('rf_who')||'';}catch(e){}
+  drawNames();}
+function drawNames(){const el=document.getElementById('rf-names');
+  el.innerHTML=(rfStaff.length?rfStaff:[]).map(n=>`<button type="button" class="rf-name${n===rfWho?' on':''}" onclick="rfPick(this.dataset.n)" data-n="${esc(n)}">${esc(n)}</button>`).join('')
+    +`<button type="button" class="rf-name" onclick="rfOther()">＋ Someone else</button>`;
+  document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
+function rfPick(n){rfWho=n;try{localStorage.setItem('rf_who',n);}catch(e){}drawNames();}
+function rfOther(){const n=(prompt('Your name:')||'').trim().slice(0,30);if(n){if(!rfStaff.includes(n))rfStaff.push(n);rfPick(n);}}
+function drawReasons(){document.getElementById('rf-reasons').innerHTML=REASONS.map(r=>`<button type="button" class="rf-reason" onclick="rfLog('${esc(r[1])}')"><span>${r[0]}</span>${esc(r[1])}</button>`).join('');}
+async function rfLog(reason){
+  const done=document.getElementById('rf-done'),err=document.getElementById('rf-err');done.style.display=err.style.display='none';
+  if(!rfWho){err.textContent='Tap your name first.';err.style.display='block';return;}
+  let note=document.getElementById('rf-note').value.trim();
+  if(reason==='Other'&&!note){note=(prompt('What was the reason?')||'').trim();if(!note)return;}
+  document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=true);
+  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'refusal',pub:pub(),reason:reason,by:rfWho,note:note})});
+    const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
+    done.textContent='✓ Logged: '+reason+' · '+d.time+' · refused by '+rfWho+(note?' · '+note:'');done.style.display='block';
+    document.getElementById('rf-note').value='';
+    rfRows.unshift({'Date':d.date,'Time':d.time,'Reason':reason,'Refused by':rfWho,'Note':note});drawLists();
+  }catch(e){err.textContent='Couldn’t save it ('+(e.message||'no connection')+'). Please try again, or write it on paper and add it later.';err.style.display='block';}
+  document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
+async function loadRows(){try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=40&t='+Date.now());const d=await r.json();rfRows=(d&&d.Refusals)||[];}catch(e){rfRows=null;}drawLists();}
+function drawLists(){const t=document.getElementById('rf-today'),m=document.getElementById('rf-month');
+  if(rfRows===null){t.innerHTML=m.innerHTML='<span class="rf-empty">Couldn’t load the log.</span>';return;}
+  const td=today(),mon=td.slice(0,7),list=rfRows.filter(x=>String(x['Date'])===td);
+  t.innerHTML=list.length?list.map(x=>`<div class="rf-row"><b>${esc(x['Time'])}</b><div>${esc(x['Reason'])}<small>${esc(x['Refused by'])}${x['Note']?' · '+esc(x['Note']):''}</small></div></div>`).join(''):'<span class="rf-empty">No refusals logged today.</span>';
+  const mm=rfRows.filter(x=>String(x['Date']).slice(0,7)===mon),c={};mm.forEach(x=>{c[x['Reason']]=(c[x['Reason']]||0)+1;});
+  m.innerHTML=mm.length?`<div class="rf-count"><b>Total</b><b>${mm.length}</b></div>`+Object.keys(c).sort((a,b)=>c[b]-c[a]).map(k=>`<div class="rf-count"><span>${esc(k)}</span><span>${c[k]}</span></div>`).join(''):'<span class="rf-empty">No refusals this month.</span>';}
+function rfPrint(){const mon=today().slice(0,7),mm=(rfRows||[]).filter(x=>String(x['Date']).slice(0,7)===mon).slice().reverse();
+  const name=(BL_CFG&&BL_CFG.venueName)||'';
+  document.getElementById('rf-print').innerHTML=`<h2>${esc(name)} · Refusals log · ${mon}</h2><table><tr><th>Date</th><th>Time</th><th>Reason</th><th>Refused by</th><th>Note</th></tr>`
+    +mm.map(x=>`<tr><td>${esc(x['Date'])}</td><td>${esc(x['Time'])}</td><td>${esc(x['Reason'])}</td><td>${esc(x['Refused by'])}</td><td>${esc(x['Note'])}</td></tr>`).join('')+`</table><p>Printed ${new Date().toLocaleString('en-GB')}</p>`;
+  window.print();}
+function start(){drawReasons();loadStaff();loadRows();}
+(async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
+  BLAuth.init({appName:'Refusals',require:'staff',onReady:start});})();
+</script>
+<script src="../bl-header.js" defer></script>
+<link rel="stylesheet" href="../bl-style.css">
+</body>
+</html>
