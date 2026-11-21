@@ -29,25 +29,18 @@
     : /\/refusals\//.test(path) ? 'refusals'
     : /hauntedpubs\.co\.uk$/.test(h) ? 'check'
     : (port === '8101' || port === '8102') ? 'dash' : '';
-  // ── PREVIEW (v2): switched on by ?hpv=2, off by ?hpv=0; remembered for this browser tab only. Staff never see it. ──
-  var PREVIEW = false;
-  try {
-    var qv = (location.search.match(/[?&]hpv=(\d)/) || [])[1];
-    if (qv === '2') sessionStorage.setItem('hpv', '2'); else if (qv === '0') sessionStorage.removeItem('hpv');
-    PREVIEW = sessionStorage.getItem('hpv') === '2';
-  } catch (e) { PREVIEW = /[?&]hpv=2/.test(location.search); }
-  if (PREVIEW) {
-    var addq = function (u) { var i = u.indexOf('#'), b = i < 0 ? u : u.slice(0, i), t = i < 0 ? '' : u.slice(i); return b + (b.indexOf('?') < 0 ? '?' : '&') + 'hpv=2' + t; };
-    L[0][3] = NAS + '/pub-report/start-' + P + '.html';      // the preview Staff Hub (the venue port shows the live one)
-    L.forEach(function (x) { x[3] = addq(x[3]); });
-    // staff pages that now live on the Staff Hub light up Staff Hub
-    var MOVED = /\/(lost-property|cocktails|rotas|holidays)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
-    if (MOVED) cur = 'hub';
-    if (cur === 'hub' && !MOVED) {
-      try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
-      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=4'; document.head.appendChild(hl);
-      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=4'; document.head.appendChild(hs);
-    }
+  // ── Staff Hub v2: live for everyone since 21 Nov 2026 (the old ?hpv= preview switch is no longer needed) ──
+  var PREVIEW = true;
+  // staff pages that now live on the Staff Hub light up Staff Hub
+  var MOVED = /\/(lost-property|cocktails|rotas|holidays)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
+  if (MOVED) cur = 'hub';
+  if (cur === 'hub' && !MOVED) {
+    try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
+    var FB = 'https://banshee.hauntedpubs.co.uk/';     // fallback copy if the board service can't hand the file out
+    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=5';
+    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=5'; }; document.head.appendChild(hl);
+    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=5';
+    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=5'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
   var TOOLS = P === 'br'
     ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
@@ -125,6 +118,8 @@
           return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + x[2] + '</a>';
         }).join('') + '</nav>' + (PREVIEW ? '<div class="hpclock" aria-label="Time"><b></b><span></span></div>' : '') + '</div>';
       document.body.insertBefore(top, document.body.firstChild);
+      var lg = top.querySelector('a.hplogo');
+      if (lg) lg.addEventListener('click', function (e) { var br = document.querySelector('header.top .brand'); if (br && typeof br.onclick === 'function') { e.preventDefault(); br.onclick(); } });
       // pages that pad the body (the dashboards) still get the bar edge to edge
       var bs = getComputedStyle(document.body);
       ['Left', 'Right', 'Top'].forEach(function (s) { var v = parseFloat(bs['padding' + s]) || 0; if (v) top.style.setProperty('margin-' + s.toLowerCase(), (-v) + 'px', 'important'); });
