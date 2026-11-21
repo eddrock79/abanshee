@@ -145,6 +145,13 @@
       if (!due || due < today) items.push([COMPL_RULES[k][0], last ? 'overdue' : 'not done yet']);
     });
     (compl.Actions || []).forEach(function (a) { if (a.Status !== 'Done' && a.Due && new Date(String(a.Due) + 'T12:00:00') < today) items.push(['Fire risk action: ' + (a.Action || a.Finding), 'overdue']); });
+    (compl.Documents || []).forEach(function (d) {
+      var months = Number(d['Check months']) || 6, last = String(d['Last checked'] || '').slice(0, 10);
+      var next = last ? new Date(last + 'T12:00:00') : null; if (next) next.setDate(next.getDate() + Math.round(months * 30.44));
+      var exp = d.Expires ? new Date(String(d.Expires) + 'T12:00:00') : null;
+      if (exp && exp < today) items.push([d.Name + ' (expired)', 'overdue']);
+      else if (!next || next < today) items.push([d.Name + ' (check due)', 'overdue']);
+    });
     var V = (window.BOARD && BOARD.venue) || 'bl', site = V === 'br' ? 'https://blackrose.hauntedpubs.co.uk' : 'https://banshee.hauntedpubs.co.uk';
     if (!items.length) { if (box) box.remove(); return; }
     var html = '<a class="al todo h2-compl-head" data-hpfull="1" href="' + site + '/compliance/"><i>Compliance</i><div>' + items.length + ' check' + (items.length === 1 ? '' : 's') + ' due: ' +

@@ -71,7 +71,7 @@
 
 <div class="wrap" id="cp-root">
   <h1 class="cp-h">Compliance</h1>
-  <p class="cp-sub">Training records, fire and water safety checks, the fire risk assessment and licence details, all in one place.</p>
+  <p class="cp-sub">Training records, fire and water safety checks, the fire risk assessment, licence details and important documents, all in one place.</p>
   <div class="setup" id="cp-setup"></div>
   <div class="msg" id="cp-msg"></div>
   <div class="cp-tabs" role="tablist" id="cp-tabs"></div>
@@ -181,6 +181,26 @@
     <div class="card"><h2>Notices on display <small>tick when checked</small></h2><div id="lic-notices"></div></div>
   </section>
 
+  <!-- DOCUMENTS -->
+  <section class="cp-panel" id="p-docs">
+    <div class="card"><h2>Important documents <small>flagged when a check is due or the expiry is within 60 days</small></h2><div id="doc-list"></div></div>
+    <div class="card"><h2 id="doc-form-h">Upload a document</h2>
+      <div class="locked">Managers upload documents. Log in as a manager to add one.</div>
+      <div class="mgr-only">
+        <div class="form">
+          <label class="f">Type<select id="doc-cat" onchange="docCat()"></select></label>
+          <label class="f">Name<input id="doc-name" maxlength="120" placeholder="e.g. Premises licence 2026"></label>
+          <label class="f">Expires (if it does)<input type="date" id="doc-exp"></label>
+          <label class="f">Check it every<select id="doc-months"><option value="3">3 months</option><option value="6">6 months</option><option value="12">12 months</option></select></label>
+          <label class="f wide">File (PDF or a photo)<input type="file" id="doc-file" accept="application/pdf,image/*"></label>
+          <label class="f wide">Notes<input id="doc-notes" maxlength="300" placeholder="e.g. policy number, who to call to renew"></label>
+        </div>
+        <button class="btn go" type="button" id="doc-save" onclick="docSave()">Upload</button> <button class="btn" type="button" id="doc-cancel" style="display:none" onclick="docReplace('')">Cancel replace</button>
+        <p class="note">Files are saved in your Google Drive, in "Haunted Pubs - Compliance documents". Anyone with a document's link can view it, so the Open button works on the pub iPads and for an inspector.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- PRINT -->
   <section class="cp-panel" id="p-print">
     <div class="card"><h2>Print the compliance file</h2>
@@ -228,7 +248,8 @@ const FRA_SECTIONS=[
   ['training','Training and procedures','Staff fire training, evacuation plan, assembly point, who calls 999, fire drills.'],
   ['findings','Significant findings','What needs improving. Add each one to the action plan below.']
 ];
-let D={Training:[],Checks:[],Actions:[],Settings:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
+const DOC_CATS=[['Premises licence',12],['Personal licence',12],["Insurance: employers' liability",6],['Insurance: public liability',6],['Insurance: buildings and contents',6],['Tables and chairs permit',6],['Food business registration',12],['Gas safety certificate',6],['Electrical installation (EICR)',12],['PAT testing',6],['Fire alarm service certificate',6],['Emergency lighting certificate',6],['Extinguisher service certificate',6],['Fire risk assessment (signed)',6],['Legionella risk assessment',6],['Music licence (PPL PRS)',12],['TV licence',12],['Waste transfer note',12],['Pest control report',3],['Other',6]];
+let D={Training:[],Checks:[],Actions:[],Settings:[],Documents:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
 const $=id=>document.getElementById(id);
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -252,10 +273,18 @@ function trState(rec){if(!rec)return 'over';if(!rec.Expires)return 'ok';const l=
 function gaps(){const g=[];STAFF.forEach(s=>COURSES.filter(c=>c.need).forEach(c=>{const r=trainingFor(s,c),st=trState(r);if(st!=='ok')g.push({staff:s,course:c,rec:r,state:st});}));return g;}
 function licenceDue(){return lines('plh').map(l=>{const p=l.split('|').map(s=>s.trim());return {name:p[0],no:p[1],due:p[2]};}).filter(p=>/^\d{4}-\d{2}-\d{2}$/.test(p.due||'')).map(p=>Object.assign(p,{left:daysFrom(p.due)}));}
 
+// documents: next check and expiry
+function docState(d){const months=Number(d['Check months'])||6,last=String(d['Last checked']||d['Uploaded at']||'').slice(0,10);
+  const next=last?addDays(last,Math.round(months*30.44)):today(),nl=daysFrom(next),el=d.Expires?daysFrom(String(d.Expires)):null;
+  const state=(el!=null&&el<0)||nl<0?'over':(el!=null&&el<=60)||nl<=14?'soon':'ok';
+  const why=el!=null&&el<0?'Expired '+fmt(String(d.Expires)):nl<0?'Check overdue (was due '+fmt(next)+')':el!=null&&el<=60?'Expires '+fmt(String(d.Expires)):nl<=14?'Check due '+fmt(next):'Next check '+fmt(next);
+  return {doc:d,state,next,why};}
+function docsDue(){return (D.Documents||[]).map(docState).filter(x=>x.state!=='ok');}
 function drawTabs(){
   const over=Object.keys(RULES).map(checkStatus).filter(s=>s.state==='over');
-  const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length};
-  const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['licence','Licence'],['print','Print file']];
+  const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length,docs:docsDue().filter(x=>x.state==='over').length};
+  n.overview+=n.docs;
+  const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['licence','Licence'],['docs','Documents'],['print','Print file']];
   $('cp-tabs').innerHTML=T.map(t=>`<button class="cp-tab" type="button" role="tab" aria-selected="${t[0]===TAB}" onclick="go('${t[0]}')">${t[1]}${n[t[0]]?`<span class="n">${n[t[0]]}</span>`:''}</button>`).join('');
   document.querySelectorAll('.cp-panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+TAB));
 }
@@ -267,6 +296,7 @@ function drawOverview(){
   sts.filter(s=>s.state!=='ok').forEach(s=>due.push({w:s.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(s.rule.label)}</b><small>${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):''):'No record yet'}</small></div>${pillFor(s)}<button class="btn sm" type="button" onclick="logNow('${s.type}')">Log it</button></div>`}));
   gaps().forEach(g=>due.push({w:g.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(g.staff)}</b>: ${esc(g.course.name)}<small>${g.rec?'Expires '+fmt(String(g.rec.Expires)):'No record'}</small></div><span class="pill ${g.state}">${g.state==='over'?(g.rec?'Expired':'Missing'):'Due soon'}</span></div>`}));
   D.Actions.filter(a=>a.Status!=='Done').forEach(a=>{const l=a.Due?daysFrom(String(a.Due)):99;if(l<=7)due.push({w:l<0?0:1,html:`<div class="row"><div class="grow"><b>Fire risk action:</b> ${esc(a.Action||a.Finding)}<small>${a.Owner?esc(a.Owner)+' · ':''}due ${fmt(String(a.Due))}</small></div><span class="pill ${l<0?'over':'soon'}">${l<0?'Overdue':'Due soon'}</span></div>`});});
+  docsDue().forEach(x=>due.push({w:x.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(x.doc.Name)}</b><small>${esc(x.doc.Category||'')} · ${esc(x.why)}</small></div><span class="pill ${x.state}">${x.state==='over'?'Overdue':'Due soon'}</span><button class="btn sm" type="button" onclick="go('docs')">Open</button></div>`}));
   licenceDue().filter(p=>p.left<=90).forEach(p=>due.push({w:p.left<0?0:1,html:`<div class="row"><div class="grow"><b>${esc(p.name)}</b>: personal licence refresher<small>due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':'soon'}">${p.left<0?'Overdue':'In '+p.left+' days'}</span></div>`}));
   due.sort((a,b)=>a.w-b.w);
   $('ov-count').textContent=due.length?due.length+' item'+(due.length===1?'':'s'):'';
@@ -368,10 +398,38 @@ function printFile(){const L=jsonSet('licence',{}),f=jsonSet('fra',{}),name=(BL_
   [['fire','Fire safety checks (last 12 months)'],['water','Legionella checks (last 12 months)']].forEach(([a,t])=>{h+='<h2 class="pb">'+t+'</h2>'+tbl(['Date','Check','Item','Result','Reading','By','Notes'],D.Checks.filter(c=>RULES[c.Type]&&RULES[c.Type].area===a&&String(c.Date)>=yearAgo).sort((x,y)=>String(y.Date).localeCompare(String(x.Date))).map(c=>[fmt(String(c.Date)),RULES[c.Type].label,c.Item,c.Result,c.Reading,c.By,c.Notes]));});
   h+='<h2 class="pb">Fire risk assessment</h2>'+tbl(['Section','Details'],[['Assessed by',f.assessor||''],['Assembly point',f.assembly||''],['Last reviewed',checkStatus('fra_review').last?fmt(String(checkStatus('fra_review').last.Date)):'not recorded']].concat(FRA_SECTIONS.map(s=>[s[1],f[s[0]]||''])));
   h+='<h2>Fire risk assessment action plan</h2>'+tbl(['Finding','Action','Who','Due','Status'],D.Actions.map(a=>[a.Finding,a.Action,a.Owner,fmt(String(a.Due||'')),a.Status==='Done'?'Done '+fmt(String(a['Done date'])):'Open']));
+  h+='<h2>Document register</h2>'+tbl(['Document','Type','Expires','Last checked','Check every','Link'],(D.Documents||[]).map(d=>[d.Name,d.Category,fmt(String(d.Expires||'')),fmt(String(d['Last checked']||'').slice(0,10)),(d['Check months']||6)+' months',d['File URL']||'']));
   const N=jsonSet('notices',{});h+='<h2>Notices on display</h2>'+tbl(['Notice','Last checked'],NOTICES.map(n=>[n,N[n]?fmt(N[n].d)+(N[n].by?' by '+N[n].by:''):'not checked']));
   $('cp-print').innerHTML=h;window.print();}
 
-function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='training')drawTraining();if(TAB==='fire')drawCheckArea('fire');if(TAB==='water')drawCheckArea('water');if(TAB==='fra')drawFRA();if(TAB==='licence')drawLicence();
+function drawDocs(){
+  const cs=$('doc-cat');if(!cs.options.length){cs.innerHTML=DOC_CATS.map(c=>`<option>${esc(c[0])}</option>`).join('');docCat();}
+  const order={over:0,soon:1,ok:2};
+  const docs=(D.Documents||[]).map(docState).sort((a,b)=>(order[a.state]-order[b.state])||String(a.doc.Category).localeCompare(String(b.doc.Category)));
+  $('doc-list').innerHTML=docs.length?docs.map(x=>{const d=x.doc;return `<div class="row"><div class="grow"><b>${esc(d.Name)}</b><small>${esc(d.Category||'')} · ${esc(x.why)} · checked every ${esc(d['Check months']||6)} months${d['Last checked']?' · last checked '+fmt(String(d['Last checked']).slice(0,10))+(d['Checked by']?' by '+esc(d['Checked by']):''):''}${d.Notes?' · '+esc(d.Notes):''}</small></div><span class="pill ${x.state}">${x.state==='over'?'Overdue':x.state==='soon'?'Due soon':'OK'}</span>${d['File URL']?`<a class="btn sm" href="${esc(d['File URL'])}" target="_blank" rel="noopener">Open</a>`:''}<button class="btn sm mgr-inline" type="button" onclick="docCheck('${esc(d.ID)}')">Mark checked</button><button class="btn sm mgr-inline" type="button" onclick="docReplace('${esc(d.ID)}')">Replace</button><button class="btn sm bad mgr-inline" type="button" onclick="docRemove('${esc(d.ID)}')">Remove</button></div>`}).join(''):'<p class="note">No documents uploaded yet. Managers can upload the premises licence, insurance certificates, the tables and chairs permit and so on below.</p>';}
+function docCat(){const c=DOC_CATS.find(x=>x[0]===$('doc-cat').value);if(c)$('doc-months').value=String(c[1]);if(!$('doc-name').value||$('doc-name').dataset.auto){$('doc-name').value=c?c[0].replace(/^Insurance: /,'')+' '+new Date().getFullYear():'';$('doc-name').dataset.auto='1';}}
+let DOC_REPLACE='';
+function docReplace(id){DOC_REPLACE=id;const d=(D.Documents||[]).find(x=>String(x.ID)===String(id));$('doc-form-h').textContent=d?'Replace: '+d.Name:'Upload a document';$('doc-cancel').style.display=d?'':'none';
+  if(d){$('doc-cat').value=d.Category||'Other';$('doc-name').value=d.Name;$('doc-name').dataset.auto='';$('doc-months').value=String(d['Check months']||6);$('doc-exp').value='';$('doc-form-h').scrollIntoView({behavior:'smooth'});}}
+function fileToBase64(file){return new Promise((res,rej)=>{
+  if(/^image\//.test(file.type)){const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const m=2000,k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res({data:c.toDataURL('image/jpeg',0.85).split(',')[1],mime:'image/jpeg',name:file.name.replace(/\.[^.]+$/,'')+'.jpg'});};img.onerror=rej;img.src=url;return;}
+  const r=new FileReader();r.onload=()=>res({data:String(r.result).split(',')[1],mime:file.type||'application/pdf',name:file.name});r.onerror=rej;r.readAsDataURL(file);});}
+async function docSave(){const f=$('doc-file').files[0],name=$('doc-name').value.trim();if(!name){msg('Give the document a name.',false);return}if(!f){msg('Choose the file to upload.',false);return}
+  if(f.size>15e6){msg('That file is over 15MB: please upload a smaller PDF or a photo.',false);return}
+  const btn=$('doc-save');btn.disabled=true;btn.textContent='Uploading…';
+  try{const x=await fileToBase64(f);const d=await post({action:'docUpload',replaceId:DOC_REPLACE,name,category:$('doc-cat').value,expires:$('doc-exp').value,checkMonths:$('doc-months').value,notes:$('doc-notes').value,fileName:x.name,mime:x.mime,data:x.data});
+    const rec={ID:d.id,Name:name,Category:$('doc-cat').value,Expires:$('doc-exp').value,'Check months':$('doc-months').value,'Last checked':today(),'Checked by':WHO,'File URL':d.url,Notes:$('doc-notes').value};
+    D.Documents=(D.Documents||[]).filter(x=>String(x.ID)!==String(d.id)).concat([rec]);['doc-file','doc-notes','doc-exp'].forEach(i=>$(i).value='');docReplace('');msg('Uploaded: '+name,true);drawAll();}
+  catch(e){msg('Couldn’t upload ('+e.message+').',false);}
+  btn.disabled=false;btn.textContent='Upload';}
+async function docCheck(id){const d=(D.Documents||[]).find(x=>String(x.ID)===String(id));if(!d)return;
+  const exp=prompt('Checked '+d.Name+'. If the expiry date has changed, type the new one (YYYY-MM-DD), otherwise leave it:',d.Expires||'');if(exp===null)return;
+  try{await post({action:'docCheck',id});if(exp!==(d.Expires||'')){await post({action:'docEdit',id,expires:exp,checkMonths:d['Check months']});d.Expires=exp;}d['Last checked']=today();d['Checked by']=WHO;msg('Marked checked: '+d.Name,true);drawAll();}
+  catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function docRemove(id){const d=(D.Documents||[]).find(x=>String(x.ID)===String(id));if(!d||!confirm('Remove '+d.Name+' from the list? (The file stays in your Google Drive.)'))return;
+  try{await post({action:'docRemove',id});D.Documents=D.Documents.filter(x=>x!==d);msg('Removed.',true);drawAll();}catch(e){msg('Couldn’t remove ('+e.message+').',false);}}
+
+function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='training')drawTraining();if(TAB==='fire')drawCheckArea('fire');if(TAB==='water')drawCheckArea('water');if(TAB==='fra')drawFRA();if(TAB==='licence')drawLicence();if(TAB==='docs')drawDocs();
   ['call_points','em_lights','extinguishers','outlets'].forEach(k=>{const el=$('set-'+k);if(el&&document.activeElement!==el)el.value=SET[k]||'';});}
 
 async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
