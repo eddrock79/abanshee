@@ -157,6 +157,9 @@
   }
   function hideEl(a) { a.style.setProperty('display', 'none', 'important'); }
   function tidy() {
+    // Checklists: managers see What's On on every page, not just Home, so the row doesn't change as you move between pages
+    var nd = document.getElementById('nav-dash'), nw = document.getElementById('nav-whatson');
+    if (nd && nw && getComputedStyle(nd).display !== 'none' && nw.style.display === 'none') nw.style.display = '';
     // old headers
     [].slice.call(document.querySelectorAll('.topbar, header.top')).forEach(function (x) { if (!x.classList.contains('hp-old')) x.classList.add('hp-old'); });
     var s = sub(); if (!s) return;
