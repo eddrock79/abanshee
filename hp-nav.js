@@ -73,6 +73,18 @@
     '@media(max-width:700px){.hptop-in{flex-direction:column!important;align-items:stretch!important;gap:8px!important}.hptop-in>a.hplogo{align-self:center!important}.hptop-in>a.hplogo img{height:40px!important}' +
     'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
     'html body .hpsub>*>a,html body .hpsub>*>span,html body .hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}html body .hpsub>*>.hp-right{margin-left:0!important}}' +
+    /* Checklists on a desktop (mouse, wide screen): use the width; touch screens keep their layout */
+    '@media (hover:hover) and (pointer:fine) and (min-width:1100px){' +
+      'html body #app>.page{max-width:1400px!important}' +
+      'html body #app>.tabbar{padding-left:max(16px,calc((100% - 1400px) / 2 + 20px))!important;padding-right:max(16px,calc((100% - 1400px) / 2 + 20px))!important}' +
+      'html body .nx-board{grid-template-columns:minmax(0,1fr) 290px!important;gap:18px!important}' +
+      'html body .nx-cols2{gap:14px!important}' +
+      'html body .nx-job{min-height:0!important;padding:9px 12px!important;align-items:center!important}' +
+      'html body .nx-job>span{font-size:15px!important;line-height:1.3!important}' +
+      'html body .nx-jrow{margin-bottom:6px!important}' +
+      'html body .nx-people .nx-col:has(.nx-empty)>.nx-list{display:none!important}' +
+      'html body .nx-people .nx-col:has(.nx-empty){margin-bottom:6px!important;opacity:.8}' +
+    '}' +
     /* preview extras */
     '.hpclock{flex:0 0 auto!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;line-height:1.1!important;color:#fff!important;font-family:' + F + '!important}' +
     '.hpclock b{font:800 26px/1 ' + F + '!important;color:' + acc + '!important;font-variant-numeric:tabular-nums}.hpclock span{font:600 12px/1.3 ' + F + '!important;color:#b9b9c4!important;white-space:nowrap}' +
