@@ -42,6 +42,14 @@
     var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=6';
     hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=6'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
+  // ── Dashboard preview: ?dashprev=1 switches it on (?dashprev=0 off), this browser tab only; main board and sales only ──
+  var DASHPREV = false;
+  try {
+    var dq = (location.search.match(/[?&]dashprev=(\d)/) || [])[1];
+    if (dq === '1') sessionStorage.setItem('dashprev', '1'); else if (dq === '0') sessionStorage.removeItem('dashprev');
+    DASHPREV = sessionStorage.getItem('dashprev') === '1';
+  } catch (e) {}
+  DASHPREV = DASHPREV && cur === 'dash' && (port === '8101' || port === '8102') && /^\/(index\.html)?$/.test(path);
   var TOOLS = P === 'br'
     ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
     : [["What's On boards", 'https://banshee.hauntedpubs.co.uk/whatson/'], ['Menu editor', 'https://menu.hauntedpubs.co.uk/?bansheestaff='], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0']];
@@ -152,7 +160,8 @@
     var onSite = /hauntedpubs\.co\.uk$/.test(h);
     if (cur === 'orders' || (cur === 'hub' && !onSite)) wrap.classList.add('hp-norow');
     if (cur === 'refusals' || (cur === 'hub' && onSite)) wrap.classList.add('hp-btnonly');
-    if (cur === 'dash' && !wrap.querySelector('.hptools')) {
+    if (DASHPREV) dashPreview(wrap);
+    if (cur === 'dash' && !DASHPREV && !wrap.querySelector('.hptools')) {
       var t = document.createElement('div'); t.className = 'hptools';
       t.innerHTML = '<span class="hp-lbl">Manager tools</span>' + TOOLS.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + '</a>'; }).join('');
       wrap.appendChild(t);
@@ -166,6 +175,35 @@
       };
       tickc(); setInterval(tickc, 15000);
     }
+  }
+  // Dashboard preview: one row (Overview / Sales, manager tools on the right), plain info line, lined up with the top bar, pub colours
+  function dashPreview(wrap) {
+    if (!wrap.querySelector('.hpdashrow')) {
+      document.body.classList.add('dashprev');
+      var sales = /[?&]p=sales/.test(location.search);
+      var r = document.createElement('div'); r.className = 'hpdashrow';
+      r.innerHTML = '<a href="./"' + (sales ? '' : ' aria-current="page"') + '>Overview</a><a href="./?p=sales"' + (sales ? ' aria-current="page"' : '') + '>Sales</a>' +
+        '<span class="hp-lbl hp-tools-lbl">Manager tools</span>' + TOOLS.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + '</a>'; }).join('');
+      wrap.insertBefore(r, wrap.firstChild);
+    }
+    if (document.getElementById('hp-dashprev-css')) return;
+    var fl = document.createElement('link'); fl.rel = 'stylesheet';
+    fl.href = P === 'br' ? 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Outfit:wght@400;500;600;700&display=swap' : 'https://fonts.googleapis.com/css2?family=Bevan&family=Signika:wght@400;500;600;700&display=swap';
+    document.head.appendChild(fl);
+    var theme = P === 'br'
+      ? '--bg:#0a0a0b;--panel:#111113;--panel2:#1b1b1e;--line:#2a2a2e;--grid:#222226;--text:#f1f1f3;--muted:#a9a9b2;--accent:#e8a93a;--accent-soft:rgba(232,169,58,.14);--display:"Alfa Slab One",Georgia,serif;--body:"Outfit",system-ui,sans-serif;background:radial-gradient(900px 420px at 85% -5%,#8b1d3855 0,transparent 65%),#0a0a0b!important'
+      : '--bg:#04102c;--panel:#0b1533;--panel2:#141d40;--line:#26305a;--grid:#1d2752;--text:#fff;--muted:#a9b0cc;--accent:#b7dc35;--accent-soft:rgba(183,220,53,.14);--display:"Bevan",Georgia,serif;--body:"Signika",system-ui,sans-serif;background:radial-gradient(900px 420px at 85% -5%,#5c2e9155 0,transparent 65%),#04102c!important';
+    var st = document.createElement('style'); st.id = 'hp-dashprev-css';
+    st.textContent =
+      'html body.dashprev{' + theme + ';background-attachment:fixed!important}' +
+      'html body.dashprev nav.otop{display:none!important}' +
+      'html body.dashprev .wrap{max-width:1400px!important}' +
+      'html body .hpsub>.hpdashrow{align-items:center!important}' +
+      'html body .hpsub>.hpdashrow>.hp-tools-lbl{margin-left:auto!important;border:0!important;background:none!important;color:#9a9aa6!important;cursor:default!important;font-size:11px!important;font-weight:700!important;letter-spacing:.08em!important;text-transform:uppercase!important;padding:0 2px 0 0!important}' +
+      'html body.dashprev .meta,html body.dashprev .meta-under{display:flex!important;flex-wrap:wrap!important;justify-content:flex-start!important;gap:4px 18px!important;margin:10px auto 2px!important;width:100%!important;max-width:1400px!important;padding:0!important;border:0!important;background:none!important}' +
+      'html body.dashprev .meta>*,html body.dashprev .meta-under>*{border:0!important;background:none!important;height:auto!important;min-height:0!important;padding:0!important;box-shadow:none!important;color:#b4b8c8!important;font:500 13px/1.4 ' + F + '!important}' +
+      '@media(max-width:700px){html body .hpsub>.hpdashrow>.hp-tools-lbl{margin-left:0!important;flex-basis:100%!important}}';
+    document.head.appendChild(st);
   }
   function hideEl(a) { a.style.setProperty('display', 'none', 'important'); }
   function tidy() {
