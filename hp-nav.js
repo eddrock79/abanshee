@@ -40,15 +40,18 @@
     var addq = function (u) { var i = u.indexOf('#'), b = i < 0 ? u : u.slice(0, i), t = i < 0 ? '' : u.slice(i); return b + (b.indexOf('?') < 0 ? '?' : '&') + 'hpv=2' + t; };
     L[0][3] = NAS + '/pub-report/start-' + P + '.html';      // the preview Staff Hub (the venue port shows the live one)
     L.forEach(function (x) { x[3] = addq(x[3]); });
-    if (cur === 'hub') {
+    // staff pages that now live on the Staff Hub light up Staff Hub
+    var MOVED = /\/(lost-property|cocktails)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
+    if (MOVED) cur = 'hub';
+    if (cur === 'hub' && !MOVED) {
       window.CHAT_WIDE = '(min-width:1400px)';              // chat is a button on the iPad; a column only on big screens
-      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=1'; document.head.appendChild(hl);
-      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=1'; document.head.appendChild(hs);
+      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=2'; document.head.appendChild(hl);
+      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=2'; document.head.appendChild(hs);
     }
   }
   var TOOLS = P === 'br'
-    ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Trello board', 'https://trello.com/b/54a2a08e20dbba377fdd5498'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
-    : [['Menu editor', 'https://menu.hauntedpubs.co.uk/?menu_access=active'], ['Trello board', 'https://trello.com/b/54a2a0781d8c930f0225a1ca'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0'], ['Sound desk (venue wifi)', 'http://192.168.0.24']];
+    ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
+    : [['Menu editor', 'https://menu.hauntedpubs.co.uk/?menu_access=active'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0']];
   var acc = P === 'br' ? '#e9b23f' : '#c6e03c';
   var F = 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
   var CSS =
@@ -139,8 +142,9 @@
   }
   // preview extras: links row only inside its own section; manager tools on the Dashboard; clock in the top bar
   function preview(wrap) {
-    if (cur === 'orders' || cur === 'hub') wrap.classList.add('hp-norow');
-    if (cur === 'refusals') wrap.classList.add('hp-btnonly');
+    var onSite = /hauntedpubs\.co\.uk$/.test(h);
+    if (cur === 'orders' || (cur === 'hub' && !onSite)) wrap.classList.add('hp-norow');
+    if (cur === 'refusals' || (cur === 'hub' && onSite)) wrap.classList.add('hp-btnonly');
     if (cur === 'dash' && !wrap.querySelector('.hptools')) {
       var t = document.createElement('div'); t.className = 'hptools';
       t.innerHTML = '<span class="hp-lbl">Manager tools</span>' + TOOLS.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + '</a>'; }).join('');
@@ -170,6 +174,8 @@
     [].slice.call(s.children).forEach(function (a) {
       var t = (a.textContent || '').replace(/\s+/g, ' ').replace(/\d+$/, '').trim();
       if (drop.test(t) && a.style.display !== 'none') hideEl(a);
+      // preview: these now live on the Staff Hub (hidden only, never renamed: the dashboards redraw renamed tabs)
+      if (PREVIEW && /^(lost property|cocktails|ideas|questions|events|what's on|lighting|qlc\+|sound desk.*)$/i.test(t) && a.style.display !== 'none') hideEl(a);
       // the Checklists site's own manager page is a different thing from the Manager Dashboard
       if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
       // plain words only: no symbols on any link in the row
