@@ -57,7 +57,23 @@
     '@media(max-width:700px){.hptop-in{flex-direction:column!important;align-items:stretch!important;gap:8px!important}.hptop-in>a.hplogo{align-self:center!important}.hptop-in>a.hplogo img{height:40px!important}' +
     'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
     'html body .hpsub>*>a,html body .hpsub>*>span,html body .hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}html body .hpsub>*>.hp-right{margin-left:0!important}}' +
+    /* Staff Hub with a page open inside it: the Hub's own links row makes way for that page's links */
+    'html body.viewing>.hpsub{display:none!important}' +
     '@media print{header.hptop,html body .hpsub{display:none!important}}';
+  // which main button to light up for a given address
+  function keyOf(u) {
+    return /\/refusals\//.test(u) ? 'refusals' : /orders/.test(u) ? 'orders' : /hauntedpubs\.co\.uk/.test(u) ? 'check'
+      : /:810[0-3]\b/.test(u) ? 'dash' : /:8114\b|start-b[lr]\.html/.test(u) ? 'hub' : '';
+  }
+  function mark() {
+    var k = cur;
+    if (document.body.classList.contains('viewing')) { var m = /view=([^&]+)/.exec(location.hash); if (m) { try { k = keyOf(decodeURIComponent(m[1])) || cur; } catch (e) {} } }
+    [].slice.call(document.querySelectorAll('nav.hpnav a')).forEach(function (a, i) {
+      var on = L[i] && L[i][0] === k;
+      if (on && a.getAttribute('aria-current') !== 'page') a.setAttribute('aria-current', 'page');
+      if (!on && a.hasAttribute('aria-current')) a.removeAttribute('aria-current');
+    });
+  }
   var FRAMED = false; try { FRAMED = window.self !== window.top; } catch (e) { FRAMED = true; }
   function sub() { return document.querySelector('#quick3, nav.otop, .nav-bar'); }
   function build() {
@@ -124,7 +140,10 @@
     if (!build()) return;
     new MutationObserver(function () {
       if ((!FRAMED && !document.querySelector('header.hptop')) || (sub() && sub().parentNode !== document.querySelector('html body .hpsub'))) build(); else tidy();
+      mark();
     }).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(mark).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('hashchange', mark); mark();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
 })();
