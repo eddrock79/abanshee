@@ -29,6 +29,26 @@
     : /\/refusals\//.test(path) ? 'refusals'
     : /hauntedpubs\.co\.uk$/.test(h) ? 'check'
     : (port === '8101' || port === '8102') ? 'dash' : '';
+  // ── PREVIEW (v2): switched on by ?hpv=2, off by ?hpv=0; remembered for this browser tab only. Staff never see it. ──
+  var PREVIEW = false;
+  try {
+    var qv = (location.search.match(/[?&]hpv=(\d)/) || [])[1];
+    if (qv === '2') sessionStorage.setItem('hpv', '2'); else if (qv === '0') sessionStorage.removeItem('hpv');
+    PREVIEW = sessionStorage.getItem('hpv') === '2';
+  } catch (e) { PREVIEW = /[?&]hpv=2/.test(location.search); }
+  if (PREVIEW) {
+    var addq = function (u) { var i = u.indexOf('#'), b = i < 0 ? u : u.slice(0, i), t = i < 0 ? '' : u.slice(i); return b + (b.indexOf('?') < 0 ? '?' : '&') + 'hpv=2' + t; };
+    L[0][3] = NAS + '/pub-report/start-' + P + '.html';      // the preview Staff Hub (the venue port shows the live one)
+    L.forEach(function (x) { x[3] = addq(x[3]); });
+    if (cur === 'hub') {
+      window.CHAT_WIDE = '(min-width:1400px)';              // chat is a button on the iPad; a column only on big screens
+      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=1'; document.head.appendChild(hl);
+      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=1'; document.head.appendChild(hs);
+    }
+  }
+  var TOOLS = P === 'br'
+    ? [['Menu editor', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'], ['Food menu admin', 'https://demo.blackrosetavern.com/wp-admin/admin.php?page=food-menu'], ['Trello board', 'https://trello.com/b/54a2a08e20dbba377fdd5498'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/blackrose/report?authuser=0']]
+    : [['Menu editor', 'https://menu.hauntedpubs.co.uk/?menu_access=active'], ['Trello board', 'https://trello.com/b/54a2a0781d8c930f0225a1ca'], ['Report site', 'https://sites.google.com/thebansheelabyrinth.com/bansheelabyrinth/report?authuser=0'], ['Sound desk (venue wifi)', 'http://192.168.0.24']];
   var acc = P === 'br' ? '#e9b23f' : '#c6e03c';
   var F = 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
   var CSS =
@@ -57,6 +77,14 @@
     '@media(max-width:700px){.hptop-in{flex-direction:column!important;align-items:stretch!important;gap:8px!important}.hptop-in>a.hplogo{align-self:center!important}.hptop-in>a.hplogo img{height:40px!important}' +
     'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
     'html body .hpsub>*>a,html body .hpsub>*>span,html body .hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}html body .hpsub>*>.hp-right{margin-left:0!important}}' +
+    /* preview extras */
+    '.hpclock{flex:0 0 auto!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;line-height:1.1!important;color:#fff!important;font-family:' + F + '!important}' +
+    '.hpclock b{font:800 26px/1 ' + F + '!important;color:' + acc + '!important;font-variant-numeric:tabular-nums}.hpclock span{font:600 12px/1.3 ' + F + '!important;color:#b9b9c4!important;white-space:nowrap}' +
+    'html body .hpsub.hp-norow{display:none!important}' +
+    'html body .hpsub.hp-btnonly>*>a,html body .hpsub.hp-btnonly>*>span{display:none!important}' +
+    'html body .hpsub>.hptools{margin-top:8px!important}' +
+    'html body .hpsub>.hptools>.hp-lbl{border:0!important;background:none!important;color:#9a9aa6!important;padding:0 4px 0 0!important;cursor:default!important;font-weight:700!important;text-transform:uppercase!important;font-size:11px!important;letter-spacing:.08em!important}' +
+    '@media(max-width:700px){.hpclock{display:none!important}}' +
     /* Staff Hub with a page open inside it: the Hub's own links row makes way for that page's links */
     'html body.viewing>.hpsub{display:none!important}' +
     '@media print{header.hptop,html body .hpsub{display:none!important}}';
@@ -92,7 +120,7 @@
       top.innerHTML = '<div class="hptop-in"><a class="hplogo" href="' + L[0][3] + '" target="_top" aria-label="Staff Hub"><img src="' + site + '/logo.jpg" alt="' + (P === 'br' ? 'The Black Rose Tavern' : 'The Banshee Labyrinth') + '"></a>' +
         '<nav class="hpnav" aria-label="Main menu">' + L.map(function (x) {
           return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + x[2] + '</a>';
-        }).join('') + '</nav></div>';
+        }).join('') + '</nav>' + (PREVIEW ? '<div class="hpclock" aria-label="Time"><b></b><span></span></div>' : '') + '</div>';
       document.body.insertBefore(top, document.body.firstChild);
       // pages that pad the body (the dashboards) still get the bar edge to edge
       var bs = getComputedStyle(document.body);
@@ -106,7 +134,27 @@
     }
     var s = sub();
     if (s && s.parentNode !== wrap) wrap.appendChild(s);
+    if (PREVIEW) preview(wrap);
     tidy(); return true;
+  }
+  // preview extras: links row only inside its own section; manager tools on the Dashboard; clock in the top bar
+  function preview(wrap) {
+    if (cur === 'orders' || cur === 'hub') wrap.classList.add('hp-norow');
+    if (cur === 'refusals') wrap.classList.add('hp-btnonly');
+    if (cur === 'dash' && !wrap.querySelector('.hptools')) {
+      var t = document.createElement('div'); t.className = 'hptools';
+      t.innerHTML = '<span class="hp-lbl">Manager tools</span>' + TOOLS.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + '</a>'; }).join('');
+      wrap.appendChild(t);
+    }
+    if (!window.__hpclock) {
+      window.__hpclock = 1;
+      var tickc = function () {
+        var c = document.querySelector('.hpclock'); if (!c) return; var d = new Date();
+        c.firstChild.textContent = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        c.lastChild.textContent = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      };
+      tickc(); setInterval(tickc, 15000);
+    }
   }
   function hideEl(a) { a.style.setProperty('display', 'none', 'important'); }
   function tidy() {
