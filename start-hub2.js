@@ -121,9 +121,42 @@
     if (m) { openMsgs[m.id] = !openMsgs[m.id]; m.classList.toggle('h2open', !!openMsgs[m.id]); }
   });
   // the "Office · N actions" jump row now points at the list right below it
+  // ── compliance reminders (fire alarm, emergency lighting, legionella, fire risk actions) from the Compliance page's sheet ──
+  var COMPL_URL = 'https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+  var COMPL_RULES = { fire_alarm: ['Weekly fire alarm test', 7], em_light_month: ['Monthly emergency lighting test', 31], em_light_annual: ['Annual 3-hour emergency lighting test', 365],
+    extinguisher_month: ['Monthly extinguisher check', 31], extinguisher_service: ['Annual extinguisher service', 365], alarm_service: ['Fire alarm service', 183],
+    fire_drill: ['Fire drill', 183], legionella_flush: ['Weekly flush of little-used taps', 7], legionella_temp: ['Monthly water temperatures', 31],
+    showerhead: ['Quarterly showerhead clean', 92], legionella_review: ['Annual legionella review', 365], fra_review: ['Annual fire risk assessment review', 365] };
+  var compl = null, complAt = 0;
+  function complLoad() {
+    if (Date.now() - complAt < 30 * 60000) return; complAt = Date.now();
+    var V = (window.BOARD && BOARD.venue) || 'bl';
+    fetch(COMPL_URL + '?action=compliance&pub=' + V + '&t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) { compl = d && d.Checks ? d : null; complDraw(); }).catch(function () {});
+  }
+  function complDraw() {
+    var host = document.body.classList.contains('hub2') ? $('sec-todo') : $('sec-attn'); if (!host || !$('attn')) return;
+    var box = $('h2-compl');
+    if (!compl) { if (box) box.remove(); return; }
+    var today = new Date(); today.setHours(12, 0, 0, 0);
+    var items = [];
+    Object.keys(COMPL_RULES).forEach(function (k) {
+      var last = compl.Checks.filter(function (c) { return c.Type === k; }).map(function (c) { return String(c.Date); }).sort().pop();
+      var due = last ? new Date(last + 'T12:00:00') : null; if (due) due.setDate(due.getDate() + COMPL_RULES[k][1]);
+      if (!due || due < today) items.push([COMPL_RULES[k][0], last ? 'overdue' : 'not done yet']);
+    });
+    (compl.Actions || []).forEach(function (a) { if (a.Status !== 'Done' && a.Due && new Date(String(a.Due) + 'T12:00:00') < today) items.push(['Fire risk action: ' + (a.Action || a.Finding), 'overdue']); });
+    var V = (window.BOARD && BOARD.venue) || 'bl', site = V === 'br' ? 'https://blackrose.hauntedpubs.co.uk' : 'https://banshee.hauntedpubs.co.uk';
+    if (!items.length) { if (box) box.remove(); return; }
+    var html = '<a class="al todo h2-compl-head" data-hpfull="1" href="' + site + '/compliance/"><i>Compliance</i><div>' + items.length + ' check' + (items.length === 1 ? '' : 's') + ' due: ' +
+      items.slice(0, 4).map(function (x) { return x[0]; }).join(', ') + (items.length > 4 ? ' and ' + (items.length - 4) + ' more' : '') + '</div><span class="jump">Open ›</span></a>';
+    if (!box) { box = document.createElement('div'); box.id = 'h2-compl'; box.className = 'sa'; }
+    if (box.innerHTML !== html) box.innerHTML = html;
+    var at = $('attn'); if (box.parentNode !== at.parentNode || box.previousSibling !== at) at.parentNode.insertBefore(box, at.nextSibling);
+  }
   function tick() {
-    if (!IPAD) { desktopSidebar(); return; }
-    if (arrange()) { compactReport(); compactMsgs(); }
+    complLoad();
+    if (!IPAD) { desktopSidebar(); complDraw(); return; }
+    if (arrange()) { compactReport(); compactMsgs(); complDraw(); }
   }
   var busy = false;
   function soon() { if (busy) return; busy = true; setTimeout(function () { busy = false; tick(); }, 60); }

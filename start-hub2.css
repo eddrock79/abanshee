@@ -52,3 +52,7 @@
 
 /* desktop (classic layout): the clock is in the top bar now */
 .hub2-desk .sclock{display:none!important}
+
+/* compliance reminder line keeps its own colour even though it reuses the office row style */
+#h2-compl a.al.todo{display:flex!important}
+#h2-compl{margin-top:6px}

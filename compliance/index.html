@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance — Banshee Labyrinth</title>
+<link rel="apple-touch-icon" href="../logo.jpg">
+<style>
+  :root{--bg:#0d0d0f;--surface:#17171a;--surface2:#1f1f24;--border:#2a2a30;--accent:#4fb8a8;--red:#e85d5d;--text:#e8e8ec;--muted:#8a8a96;--ok:#7ad38a;--warn:#f2b552;--bad:#ff6b8b}
+  *{box-sizing:border-box}html,body{margin:0}
+  .nav-bar a,.topbar a{text-decoration:none}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:15px;min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 70px}
+  h1.cp-h{font-size:24px;margin:4px 0 2px}.cp-sub{color:var(--muted);margin:0 0 14px}
+  .cp-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+  .cp-tab{font-family:inherit;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .cp-tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#0a0a0b}
+  .cp-tab .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--bad);color:#2a0610;font-size:11px;font-weight:800}
+  .cp-panel{display:none}.cp-panel.on{display:block}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:0 0 14px}
+  .card h2{font-size:17px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .card h2 small{font-size:12px;color:var(--muted);font-weight:500}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+  .row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}.row:last-child{border-bottom:0}
+  .row .grow{flex:1;min-width:0}.row small{display:block;color:var(--muted);font-size:12px}
+  .pill{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .pill.ok{background:rgba(122,211,138,.15);color:var(--ok)}.pill.soon{background:rgba(242,181,82,.15);color:var(--warn)}.pill.over{background:rgba(255,107,139,.15);color:var(--bad)}.pill.na{background:var(--surface2);color:var(--muted)}
+  .btn{font-family:inherit;font-size:14px;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;white-space:nowrap}
+  .btn.go{background:var(--accent);border-color:var(--accent);color:#0a0a0b}.btn.sm{font-size:12px;padding:6px 10px}.btn.bad{border-color:var(--bad);color:var(--bad)}
+  label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 10px}
+  input,select,textarea{font-family:inherit;font-size:15px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg);color:var(--text)}
+  textarea{min-height:70px;resize:vertical}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 12px}
+  .form .wide{grid-column:1/-1}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+  .chip{font-family:inherit;font-size:13px;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#0a0a0b}.chip.fail.on{background:var(--bad);border-color:var(--bad)}
+  .msg{padding:10px 14px;border-radius:10px;margin:0 0 12px;font-weight:600;display:none}.msg.ok{display:block;background:rgba(122,211,138,.12);border:1px solid var(--ok)}.msg.bad{display:block;background:rgba(255,107,139,.12);border:1px solid var(--bad)}
+  .note{color:var(--muted);font-size:13px;line-height:1.5}
+  .mgr-only{display:none}.is-mgr .mgr-only{display:block}.is-mgr .mgr-inline{display:inline-flex}.mgr-inline{display:none}
+  .locked{color:var(--muted);font-size:13px;padding:8px 0}.is-mgr .locked{display:none}
+  table.mx{width:100%;border-collapse:collapse;font-size:13px}table.mx th,table.mx td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+  table.mx th{color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .temp-ok{color:var(--ok);font-weight:700}.temp-bad{color:var(--bad);font-weight:700}
+  .setup{background:rgba(242,181,82,.10);border:1px solid rgba(242,181,82,.6);color:#f2d39a;border-radius:12px;padding:12px 14px;margin:0 0 14px;display:none}
+  #cp-print{display:none}
+  @media print{
+    body{background:#fff;color:#000;font-size:11px}
+    body>*:not(.wrap),.wrap>*:not(#cp-print),header.hptop,.hpsub{display:none!important}
+    #cp-print{display:block!important}
+    #cp-print h1{font-size:20px;margin:0 0 4px}#cp-print h2{font-size:15px;margin:18px 0 6px;border-bottom:2px solid #000;padding-bottom:2px;page-break-after:avoid}
+    #cp-print table{width:100%;border-collapse:collapse;margin:0 0 8px}#cp-print th,#cp-print td{border:1px solid #999;padding:3px 5px;text-align:left;vertical-align:top}
+    #cp-print .pb{page-break-before:always}
+  }
+</style>
+</head>
+<body>
+<div class="topbar" style="position:relative;">
+  <div class="topbar-logo">Compliance</div>
+  <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
+  <div class="topbar-right"></div>
+</div>
+<div class="nav-bar">
+  <a class="nav-btn" id="nav-home" href="../home">Home</a>
+  <a class="nav-btn" href="../end-of-night">End Of Night</a>
+  <a class="nav-btn" href="../weekly-cleaning">Weekly Jobs</a>
+  <a class="nav-btn" href="../monthly-cleaning">Monthly Jobs</a>
+  <button class="nav-btn" type="button" onclick="BLAuth.switchVenue()" style="cursor:pointer">Switch Venue</button>
+  <button class="nav-btn" onclick="BLAuth.logout()" style="cursor:pointer;color:var(--red);border-color:var(--red)">Log Out</button>
+</div>
+
+<div class="wrap" id="cp-root">
+  <h1 class="cp-h">Compliance</h1>
+  <p class="cp-sub">Training records, fire and water safety checks, the fire risk assessment and licence details, all in one place.</p>
+  <div class="setup" id="cp-setup"></div>
+  <div class="msg" id="cp-msg"></div>
+  <div class="cp-tabs" role="tablist" id="cp-tabs"></div>
+
+  <!-- OVERVIEW -->
+  <section class="cp-panel" id="p-overview">
+    <div class="card"><h2>Needs doing <small id="ov-count"></small></h2><div id="ov-due"></div></div>
+    <div class="grid2">
+      <div class="card"><h2>Checks <small>last done</small></h2><div id="ov-checks"></div></div>
+      <div class="card"><h2>Training gaps</h2><div id="ov-training"></div></div>
+    </div>
+  </section>
+
+  <!-- TRAINING -->
+  <section class="cp-panel" id="p-training">
+    <div class="card"><h2>Who has what <small>green = in date, amber = due within 30 days, red = missing or out of date</small></h2>
+      <div style="overflow-x:auto"><table class="mx" id="tr-matrix"></table></div>
+      <p class="note">The <b>alcohol sales training</b> is required by law for everyone who sells alcohol: 2 hours, on the set topics, signed off by a personal licence holder, with the record kept here for the Licensing Standards Officer.</p>
+    </div>
+    <div class="card"><h2>Add a training record</h2>
+      <div class="locked">Managers add training records. Log in as a manager to add one.</div>
+      <div class="mgr-only">
+        <div class="form">
+          <label class="f">Staff member<select id="tr-staff"></select></label>
+          <label class="f">Course<select id="tr-course" onchange="trCourse()"></select></label>
+          <label class="f">Date completed<input type="date" id="tr-date"></label>
+          <label class="f">Expires (filled in for you)<input type="date" id="tr-exp"></label>
+          <label class="f">Trainer (personal licence holder for alcohol training)<input id="tr-trainer" maxlength="60"></label>
+          <label class="f wide" id="tr-topics-wrap">Topics covered<div class="chips" id="tr-topics"></div></label>
+          <label class="f wide">Notes<input id="tr-notes" maxlength="300" placeholder="e.g. certificate number, course provider"></label>
+        </div>
+        <button class="btn go" type="button" onclick="trSave()">Save training record</button>
+      </div>
+    </div>
+    <div class="card"><h2>All training records</h2><div id="tr-list"></div></div>
+  </section>
+
+  <!-- FIRE -->
+  <section class="cp-panel" id="p-fire">
+    <div class="card"><h2>Log a fire safety check</h2>
+      <div class="chips" id="fire-types"></div>
+      <div id="fire-form"></div>
+    </div>
+    <div class="card"><h2>Recent fire safety checks</h2><div id="fire-hist"></div></div>
+    <div class="card mgr-only"><h2>Fire alarm, lights and extinguishers <small>one per line</small></h2>
+      <div class="grid2">
+        <label class="f">Call points (rotated weekly)<textarea id="set-call_points" placeholder="CP1 Front door&#10;CP2 Bar 13&#10;CP3 Cellar"></textarea></label>
+        <label class="f">Emergency lights<textarea id="set-em_lights" placeholder="EL1 Stairs&#10;EL2 Cave bar fire exit"></textarea></label>
+        <label class="f">Fire extinguishers / blankets<textarea id="set-extinguishers" placeholder="CO2 Main bar&#10;Water Cave bar&#10;Fire blanket Kitchen"></textarea></label>
+      </div>
+      <button class="btn go" type="button" onclick="saveLists(['call_points','em_lights','extinguishers'])">Save lists</button>
+    </div>
+  </section>
+
+  <!-- LEGIONELLA -->
+  <section class="cp-panel" id="p-water">
+    <div class="card"><h2>Log a water safety check</h2>
+      <div class="chips" id="water-types"></div>
+      <div id="water-form"></div>
+    </div>
+    <div class="card"><h2>Recent water checks</h2><div id="water-hist"></div></div>
+    <div class="card mgr-only"><h2>Taps, showers and outlets <small>one per line: name | hot, cold or mixed | little used (yes/no)</small></h2>
+      <label class="f"><textarea id="set-outlets" style="min-height:120px" placeholder="Ladies toilet sink | mixed | no&#10;Cellar tap | cold | yes&#10;Staff shower | mixed | yes&#10;Hot water tank (stored) | hot | no"></textarea></label>
+      <button class="btn go" type="button" onclick="saveLists(['outlets'])">Save outlets</button>
+      <p class="note">Little-used outlets get flushed weekly. Hot water should reach at least 50°C within a minute (60°C stored in the tank); cold should be below 20°C within 2 minutes.</p>
+    </div>
+  </section>
+
+  <!-- FIRE RISK ASSESSMENT -->
+  <section class="cp-panel" id="p-fra">
+    <div class="card"><h2>Fire risk assessment <small id="fra-status"></small></h2>
+      <p class="note">Required by the Fire (Scotland) Act 2005. Work through each section, record the significant findings, and add an action for anything that needs doing. Review it at least once a year, and whenever something changes (layout, events, number of people).</p>
+      <div class="locked">The fire risk assessment is edited by managers. Log in as a manager to change it.</div>
+      <div id="fra-form"></div>
+      <div class="mgr-only" style="margin-top:6px"><button class="btn go" type="button" onclick="fraSave()">Save assessment</button> <button class="btn" type="button" onclick="fraReviewed()">Mark as reviewed today</button></div>
+    </div>
+    <div class="card"><h2>Action plan</h2>
+      <div id="fra-actions"></div>
+      <div class="mgr-only" style="margin-top:10px">
+        <div class="form">
+          <label class="f wide">Finding<input id="fa-finding" maxlength="300" placeholder="e.g. Fire exit in Bar 13 partly blocked by stock"></label>
+          <label class="f wide">Action<input id="fa-action" maxlength="300" placeholder="e.g. Move stock to the cellar and keep the route clear"></label>
+          <label class="f">Who<input id="fa-owner" maxlength="60"></label>
+          <label class="f">Due by<input type="date" id="fa-due"></label>
+        </div>
+        <button class="btn go" type="button" onclick="faAdd()">Add action</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LICENCE -->
+  <section class="cp-panel" id="p-licence">
+    <div class="card"><h2>Licence details</h2>
+      <div id="lic-view"></div>
+      <div class="mgr-only" style="margin-top:10px">
+        <div class="form">
+          <label class="f">Premises licence number<input id="lic-premises_no"></label>
+          <label class="f">Premises licence holder<input id="lic-holder"></label>
+          <label class="f">Designated Premises Manager (DPM)<input id="lic-dpm"></label>
+          <label class="f">Licensing board<input id="lic-board" placeholder="City of Edinburgh Licensing Board"></label>
+          <label class="f wide">Personal licence holders <small style="font-weight:500">one per line: name | licence number | refresher training due (YYYY-MM-DD)</small><textarea id="lic-plh"></textarea></label>
+        </div>
+        <button class="btn go" type="button" onclick="licSave()">Save licence details</button>
+      </div>
+      <p class="note">Personal licence holders must do refresher training every 5 years and send the certificate to the licensing board, or the licence is revoked.</p>
+    </div>
+    <div class="card"><h2>Notices on display <small>tick when checked</small></h2><div id="lic-notices"></div></div>
+  </section>
+
+  <!-- PRINT -->
+  <section class="cp-panel" id="p-print">
+    <div class="card"><h2>Print the compliance file</h2>
+      <p class="note">Puts everything into one document for an inspection: licence details, the training matrix and records, the last 12 months of fire and water checks, the fire risk assessment and the action plan. Use your browser's print, or save as PDF.</p>
+      <button class="btn go" type="button" onclick="printFile()">Print / save as PDF</button>
+    </div>
+  </section>
+
+  <div id="cp-print"></div>
+</div>
+
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<script>
+const COMPLIANCE_URL='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+// how often each check is due (days)
+const RULES={
+  fire_alarm:{label:'Weekly fire alarm test',area:'fire',days:7,item:'call_points',result:true},
+  em_light_month:{label:'Monthly emergency lighting test (flick test)',area:'fire',days:31,item:'em_lights',multi:true,result:true},
+  em_light_annual:{label:'Annual 3-hour emergency lighting test',area:'fire',days:365,result:true,engineer:true},
+  extinguisher_month:{label:'Monthly extinguisher visual check',area:'fire',days:31,item:'extinguishers',multi:true,result:true},
+  extinguisher_service:{label:'Annual extinguisher service',area:'fire',days:365,engineer:true},
+  alarm_service:{label:'Fire alarm service (engineer, 6-monthly)',area:'fire',days:183,engineer:true},
+  fire_drill:{label:'Fire drill (twice a year)',area:'fire',days:183,drill:true},
+  legionella_flush:{label:'Weekly flush of little-used outlets',area:'water',days:7,item:'outlets_little',multi:true},
+  legionella_temp:{label:'Monthly water temperatures',area:'water',days:31,temps:true},
+  showerhead:{label:'Quarterly showerhead clean and descale',area:'water',days:92},
+  legionella_review:{label:'Annual legionella risk assessment review',area:'water',days:365},
+  fra_review:{label:'Annual fire risk assessment review',area:'fra',days:365}
+};
+const COURSES=[
+  {id:'alcohol',name:'Alcohol sales training (mandatory, 2 hours)',refresh:0,need:true,topics:['The law on selling alcohol (Licensing (Scotland) Act 2005)','The five licensing objectives','This premises licence, its conditions and operating plan','Age verification: Challenge 25 and accepted ID','Refusing sales: drunkenness and proxy sales','Responsible drinking and drinks promotions','Preventing crime and disorder; protecting children from harm']},
+  {id:'challenge25',name:'Challenge 25 refresher',refresh:365,need:true},
+  {id:'fire',name:'Fire safety and evacuation',refresh:365,need:true},
+  {id:'allergen',name:'Allergen awareness',refresh:730,need:false},
+  {id:'food',name:'Food hygiene',refresh:1095,need:false},
+  {id:'firstaid',name:'First aid',refresh:1095,need:false}
+];
+const NOTICES=['Challenge 25 policy notice','Premises licence summary','Under-18s notice (times children are allowed)','No smoking signs','Fire action notices at call points','Fire exit signs lit and unobstructed','Allergen information notice','Drinks measures notice (25ml / 35ml)'];
+const FRA_SECTIONS=[
+  ['premises','The premises and people','Building layout, floors, rooms, maximum numbers, opening hours and events.'],
+  ['hazards','Fire hazards','Sources of ignition (cooking, electrics, heaters, candles, smoking), things that burn (stock, rubbish, furniture), and oxygen sources.'],
+  ['people','People at risk','Staff, customers, contractors, anyone working alone, people with reduced mobility, people who have been drinking.'],
+  ['measures','Fire safety measures in place','Alarm and detection, escape routes and exits, emergency lighting, signs, extinguishers, doors, housekeeping.'],
+  ['training','Training and procedures','Staff fire training, evacuation plan, assembly point, who calls 999, fire drills.'],
+  ['findings','Significant findings','What needs improving. Add each one to the action plan below.']
+];
+let D={Training:[],Checks:[],Actions:[],Settings:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
+const $=id=>document.getElementById(id);
+function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function addDays(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function daysFrom(iso){return Math.round((new Date(iso+'T12:00:00')-new Date(today()+'T12:00:00'))/864e5);}
+function fmt(iso){if(!iso)return '';const d=new Date(iso+'T12:00:00');return isNaN(d)?iso:d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function msg(t,ok){const m=$('cp-msg');m.textContent=t;m.className='msg '+(ok?'ok':'bad');clearTimeout(msg._t);msg._t=setTimeout(()=>{m.className='msg'},6000);window.scrollTo({top:0,behavior:'smooth'});}
+function lines(k){return String(SET[k]||'').split('\n').map(s=>s.trim()).filter(Boolean);}
+function outlets(){return lines('outlets').map(l=>{const p=l.split('|').map(s=>s.trim());return {name:p[0],kind:(p[1]||'mixed').toLowerCase(),little:/^y/i.test(p[2]||'')};});}
+function jsonSet(k,def){try{return JSON.parse(SET[k]||'')||def}catch(e){return def}}
+
+// ── status of every check: last done, due date, overdue / soon ──
+function lastOf(type){return D.Checks.filter(c=>c.Type===type).sort((a,b)=>String(b.Date).localeCompare(String(a.Date)))[0];}
+function checkStatus(type){const r=RULES[type],l=lastOf(type);if(!l)return {type,rule:r,last:null,due:today(),state:'over',left:0};
+  const due=addDays(String(l.Date),r.days),left=daysFrom(due);return {type,rule:r,last:l,due,left,state:left<0?'over':left<=(r.days<=7?1:7)?'soon':'ok'};}
+function pillFor(st){return st.state==='over'?(st.last?'<span class="pill over">Overdue</span>':'<span class="pill over">Not done yet</span>'):st.state==='soon'?'<span class="pill soon">Due '+(st.left<=0?'today':'in '+st.left+'d')+'</span>':'<span class="pill ok">OK</span>';}
+// ── training status per person per course ──
+function trainingFor(staff,course){return D.Training.filter(t=>t.Staff===staff&&t.Course===course.name).sort((a,b)=>String(b.Date).localeCompare(String(a.Date)))[0];}
+function trState(rec){if(!rec)return 'over';if(!rec.Expires)return 'ok';const l=daysFrom(String(rec.Expires));return l<0?'over':l<=30?'soon':'ok';}
+function gaps(){const g=[];STAFF.forEach(s=>COURSES.filter(c=>c.need).forEach(c=>{const r=trainingFor(s,c),st=trState(r);if(st!=='ok')g.push({staff:s,course:c,rec:r,state:st});}));return g;}
+function licenceDue(){return lines('plh').map(l=>{const p=l.split('|').map(s=>s.trim());return {name:p[0],no:p[1],due:p[2]};}).filter(p=>/^\d{4}-\d{2}-\d{2}$/.test(p.due||'')).map(p=>Object.assign(p,{left:daysFrom(p.due)}));}
+
+function drawTabs(){
+  const over=Object.keys(RULES).map(checkStatus).filter(s=>s.state==='over');
+  const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length};
+  const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['licence','Licence'],['print','Print file']];
+  $('cp-tabs').innerHTML=T.map(t=>`<button class="cp-tab" type="button" role="tab" aria-selected="${t[0]===TAB}" onclick="go('${t[0]}')">${t[1]}${n[t[0]]?`<span class="n">${n[t[0]]}</span>`:''}</button>`).join('');
+  document.querySelectorAll('.cp-panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+TAB));
+}
+function go(t){TAB=t;try{sessionStorage.setItem('cp_tab',t)}catch(e){}drawAll();}
+
+function drawOverview(){
+  const sts=Object.keys(RULES).map(checkStatus);
+  const due=[];
+  sts.filter(s=>s.state!=='ok').forEach(s=>due.push({w:s.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(s.rule.label)}</b><small>${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):''):'No record yet'}</small></div>${pillFor(s)}<button class="btn sm" type="button" onclick="logNow('${s.type}')">Log it</button></div>`}));
+  gaps().forEach(g=>due.push({w:g.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(g.staff)}</b>: ${esc(g.course.name)}<small>${g.rec?'Expires '+fmt(String(g.rec.Expires)):'No record'}</small></div><span class="pill ${g.state}">${g.state==='over'?(g.rec?'Expired':'Missing'):'Due soon'}</span></div>`}));
+  D.Actions.filter(a=>a.Status!=='Done').forEach(a=>{const l=a.Due?daysFrom(String(a.Due)):99;if(l<=7)due.push({w:l<0?0:1,html:`<div class="row"><div class="grow"><b>Fire risk action:</b> ${esc(a.Action||a.Finding)}<small>${a.Owner?esc(a.Owner)+' · ':''}due ${fmt(String(a.Due))}</small></div><span class="pill ${l<0?'over':'soon'}">${l<0?'Overdue':'Due soon'}</span></div>`});});
+  licenceDue().filter(p=>p.left<=90).forEach(p=>due.push({w:p.left<0?0:1,html:`<div class="row"><div class="grow"><b>${esc(p.name)}</b>: personal licence refresher<small>due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':'soon'}">${p.left<0?'Overdue':'In '+p.left+' days'}</span></div>`}));
+  due.sort((a,b)=>a.w-b.w);
+  $('ov-count').textContent=due.length?due.length+' item'+(due.length===1?'':'s'):'';
+  $('ov-due').innerHTML=due.length?due.map(d=>d.html).join(''):'<p class="note">Everything is up to date.</p>';
+  $('ov-checks').innerHTML=sts.map(s=>`<div class="row"><div class="grow">${esc(s.rule.label)}<small>${s.last?fmt(String(s.last.Date)):'never'}</small></div>${pillFor(s)}</div>`).join('');
+  const g=gaps();$('ov-training').innerHTML=!STAFF.length?'<p class="note">Loading staff…</p>':g.length?g.slice(0,14).map(x=>`<div class="row"><div class="grow">${esc(x.staff)}<small>${esc(x.course.name)}</small></div><span class="pill ${x.state}">${x.state==='over'?'Missing':'Due soon'}</span></div>`).join('')+(g.length>14?`<p class="note">…and ${g.length-14} more on the Training tab.</p>`:''):'<p class="note">All staff are in date for the required training.</p>';
+}
+function logNow(type){const r=RULES[type];if(r.area==='fra'){go('fra');return}CUR[r.area]=type;go(r.area);}
+
+function drawTraining(){
+  const cs=COURSES;
+  $('tr-matrix').innerHTML='<tr><th>Staff</th>'+cs.map(c=>`<th>${esc(c.name.replace(' (mandatory, 2 hours)',''))}${c.need?' *':''}</th>`).join('')+'</tr>'+
+    STAFF.map(s=>'<tr><td><b>'+esc(s)+'</b></td>'+cs.map(c=>{const r=trainingFor(s,c),st=trState(r);return `<td>${r?`<span class="pill ${st}">${fmt(String(r.Date))}</span>${r.Expires?`<small style="display:block;color:var(--muted)">to ${fmt(String(r.Expires))}</small>`:''}`:(c.need?'<span class="pill over">Missing</span>':'<span class="pill na">–</span>')}</td>`}).join('')+'</tr>').join('');
+  const sel=$('tr-staff');if(!sel.options.length||sel.dataset.n!=STAFF.length){sel.innerHTML=STAFF.map(s=>`<option>${esc(s)}</option>`).join('');sel.dataset.n=STAFF.length;}
+  const cs2=$('tr-course');if(!cs2.options.length){cs2.innerHTML=COURSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');$('tr-date').value=today();trCourse();}
+  const recs=D.Training.slice().sort((a,b)=>String(b.Date).localeCompare(String(a.Date)));
+  $('tr-list').innerHTML=recs.length?recs.map(r=>`<div class="row"><div class="grow"><b>${esc(r.Staff)}</b>: ${esc(r.Course)}<small>${fmt(String(r.Date))}${r.Expires?' · expires '+fmt(String(r.Expires)):''}${r.Trainer?' · trainer '+esc(r.Trainer):''}${r.Topics?' · topics: '+esc(r.Topics):''}${r.Notes?' · '+esc(r.Notes):''}</small></div><span class="pill ${trState(r)}">${trState(r)==='ok'?'In date':trState(r)==='soon'?'Due soon':'Expired'}</span><button class="btn sm bad mgr-inline" type="button" onclick="trRemove('${esc(r.ID)}')">Remove</button></div>`).join(''):'<p class="note">No training recorded yet.</p>';
+}
+function trCourse(){const c=COURSES.find(x=>x.id===$('tr-course').value);$('tr-exp').value=c.refresh?addDays($('tr-date').value||today(),c.refresh):'';
+  $('tr-topics-wrap').style.display=c.topics?'':'none';$('tr-topics').innerHTML=(c.topics||[]).map((t,i)=>`<button type="button" class="chip on" data-t="${esc(t)}" onclick="this.classList.toggle('on')">${esc(t)}</button>`).join('');}
+async function post(body){body.pub=pub();body.by=body.by||WHO||(BL_CFG&&BL_CFG.venueName)||'';const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify(body)});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');return d;}
+async function trSave(){const c=COURSES.find(x=>x.id===$('tr-course').value),staff=$('tr-staff').value;if(!staff){msg('Pick the staff member.',false);return}
+  if(c.id==='alcohol'&&!$('tr-trainer').value.trim()){msg('Add the trainer: it must be a personal licence holder for the alcohol training.',false);return}
+  const topics=[...document.querySelectorAll('#tr-topics .chip.on')].map(b=>b.dataset.t).join('; ');
+  try{const d=await post({action:'training',staff,course:c.name,date:$('tr-date').value,expires:$('tr-exp').value,trainer:$('tr-trainer').value,topics,notes:$('tr-notes').value});
+    D.Training.push({ID:d.id,Staff:staff,Course:c.name,Date:$('tr-date').value,Expires:$('tr-exp').value,Trainer:$('tr-trainer').value,Topics:topics,Notes:$('tr-notes').value});$('tr-notes').value='';msg('Saved: '+staff+', '+c.name,true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function trRemove(id){const r=D.Training.find(x=>String(x.ID)===String(id));if(!r||!confirm('Remove '+r.Staff+'’s '+r.Course+' record?'))return;
+  try{await post({action:'trainingRemove',id});D.Training=D.Training.filter(x=>x!==r);msg('Removed.',true);drawAll();}catch(e){msg('Couldn’t remove ('+e.message+').',false);}}
+
+// ── check forms (fire + water) ──
+function drawCheckArea(area){
+  const types=Object.keys(RULES).filter(k=>RULES[k].area===area);
+  $(area+'-types').innerHTML=types.map(k=>{const s=checkStatus(k);return `<button type="button" class="chip${CUR[area]===k?' on':''}" onclick="CUR['${area}']='${k}';drawAll()">${esc(RULES[k].label.replace(/ \(.*\)/,''))} ${s.state==='over'?'⚠':''}</button>`}).join('');
+  const k=CUR[area],r=RULES[k],s=checkStatus(k);let h=`<p class="note">${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):'')+' · next due '+fmt(s.due):'No record yet: due now.'}</p>`;
+  h+='<div class="form">';
+  if(r.item&&!r.multi){const list=lines(r.item);const next=nextCallPoint(list);h+=`<label class="f">${r.item==='call_points'?'Call point tested':'Item'}${list.length?`<select id="ck-item">${list.map(x=>`<option${x===next?' selected':''}>${esc(x)}</option>`).join('')}</select>`:'<input id="ck-item" placeholder="Add the call points on this page (managers) to pick from a list">'}</label>`;}
+  if(r.multi){const list=r.item==='outlets_little'?outlets().filter(o=>o.little).map(o=>o.name):lines(r.item);
+    h+=`<label class="f wide">${r.item==='outlets_little'?'Outlets flushed (tap to untick any not done)':'Tap any that FAILED'}${list.length?`<div class="chips" id="ck-multi">${list.map(x=>`<button type="button" class="chip ${r.item==='outlets_little'?'on':'fail'}" data-x="${esc(x)}" onclick="this.classList.toggle('on')">${esc(x)}</button>`).join('')}</div>`:'<span class="note">No list set up yet: managers can add it below.</span>'}</label>`;}
+  if(r.temps){h+='</div><div id="ck-temps">'+(outlets().length?outlets().map((o,i)=>`<div class="row"><div class="grow">${esc(o.name)}<small>${o.kind==='cold'?'cold: below 20°C':/stored|tank|calorifier/i.test(o.name)?'stored hot: 60°C or more':o.kind==='hot'?'hot: 50°C or more':'hot 50°C+ / cold below 20°C'}</small></div>${o.kind!=='cold'?`<input type="number" step="0.1" inputmode="decimal" placeholder="Hot °C" data-o="${i}" data-k="hot" style="width:100px" oninput="tempMark(this)">`:''}${o.kind!=='hot'?`<input type="number" step="0.1" inputmode="decimal" placeholder="Cold °C" data-o="${i}" data-k="cold" style="width:100px" oninput="tempMark(this)">`:''}</div>`).join(''):'<p class="note">Add your taps and outlets below (managers) to log temperatures.</p>')+'</div><div class="form">';}
+  if(r.result&&!r.multi)h+=`<label class="f">Result<select id="ck-result"><option>Pass</option><option>Fail</option></select></label>`;
+  if(r.drill)h+=`<label class="f">Time to evacuate (minutes)<input id="ck-reading" type="number" step="0.5" inputmode="decimal"></label>`;
+  h+=`<label class="f">Date<input type="date" id="ck-date" value="${today()}"></label>`;
+  h+=`<label class="f">Done by<select id="ck-by">${STAFF.map(x=>`<option${x===WHO?' selected':''}>${esc(x)}</option>`).join('')}<option value="__other">Someone else…</option></select></label>`;
+  h+=`<label class="f wide">Notes<input id="ck-notes" maxlength="300" placeholder="${r.engineer?'Engineer / company, certificate number':r.drill?'Who took part, anything that went wrong':'Anything to report (faults are added to the snag list)'}"></label></div>`;
+  h+=`<button class="btn go" type="button" onclick="ckSave('${k}')">Save check</button>`;
+  $(area+'-form').innerHTML=h;
+  const hist=D.Checks.filter(c=>RULES[c.Type]&&RULES[c.Type].area===area).sort((a,b)=>String(b['Logged at']||b.Date).localeCompare(String(a['Logged at']||a.Date))).slice(0,25);
+  $(area+'-hist').innerHTML=hist.length?hist.map(c=>`<div class="row"><div class="grow"><b>${esc(RULES[c.Type].label)}</b>${c.Item?': '+esc(c.Item):''}<small>${fmt(String(c.Date))}${c.By?' · '+esc(c.By):''}${c.Reading!==''&&c.Reading!=null?' · '+esc(c.Reading)+(RULES[c.Type].drill?' min':'°C'):''}${c.Notes?' · '+esc(c.Notes):''}</small></div><span class="pill ${c.Result==='Fail'||c.Result==='Fault'?'over':'ok'}">${esc(c.Result||'Done')}</span></div>`).join(''):'<p class="note">Nothing logged yet.</p>';
+}
+function nextCallPoint(list){if(!list.length)return '';const done=D.Checks.filter(c=>c.Type==='fire_alarm').sort((a,b)=>String(b.Date).localeCompare(String(a.Date)));
+  for(const x of list){if(!done.some(c=>c.Item===x))return x;}let best=list[0],bd='9999';list.forEach(x=>{const l=done.find(c=>c.Item===x);if(l&&String(l.Date)<bd){bd=String(l.Date);best=x}});return best;}
+function tempMark(el){const o=outlets()[+el.dataset.o],v=parseFloat(el.value);if(isNaN(v)){el.style.borderColor='';return}
+  const stored=/stored|tank|calorifier/i.test(o.name),bad=el.dataset.k==='cold'?v>=20:v<(stored?60:50);el.style.borderColor=bad?'var(--bad)':'var(--ok)';}
+async function ckSave(k){const r=RULES[k];let by=$('ck-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;try{localStorage.setItem('rf_who',by)}catch(e){}
+  const date=$('ck-date').value||today(),notes=$('ck-notes').value.trim();const posts=[];
+  if(r.temps){const os=outlets();document.querySelectorAll('#ck-temps input').forEach(inp=>{if(inp.value==='')return;const o=os[+inp.dataset.o],v=parseFloat(inp.value),stored=/stored|tank|calorifier/i.test(o.name),bad=inp.dataset.k==='cold'?v>=20:v<(stored?60:50);
+      posts.push({action:'check',type:k,item:o.name+' ('+inp.dataset.k+')',reading:v,result:bad?'Fail':'Pass',date,notes,by});});
+    if(!posts.length){msg('Enter at least one temperature.',false);return}}
+  else if(r.multi){const all=[...document.querySelectorAll('#ck-multi .chip')];
+    if(r.item==='outlets_little'){const done=all.filter(b=>b.classList.contains('on')).map(b=>b.dataset.x);posts.push({action:'check',type:k,item:done.join(', ')||'(none listed)',result:'Done',date,notes,by});}
+    else{const failed=all.filter(b=>b.classList.contains('on')).map(b=>b.dataset.x);posts.push({action:'check',type:k,item:failed.length?'Failed: '+failed.join(', '):'All passed',result:failed.length?'Fail':'Pass',date,notes,by});}}
+  else posts.push({action:'check',type:k,item:$('ck-item')?$('ck-item').value:'',result:$('ck-result')?$('ck-result').value:'Done',reading:$('ck-reading')?$('ck-reading').value:'',date,notes,by});
+  try{for(const b of posts){const d=await post(b);D.Checks.push({ID:d.id,Type:b.type,Date:date,Item:b.item,Result:b.result,Reading:b.reading==null?'':b.reading,By:by,Notes:notes,'Logged at':new Date().toISOString()});}
+    const fails=posts.filter(b=>b.result==='Fail');msg('Saved: '+r.label+(fails.length?'. '+fails.length+' result'+(fails.length===1?'':'s')+' failed: please report it and arrange a fix.':''),!fails.length);drawAll();}
+  catch(e){msg('Couldn’t save ('+e.message+'). Please try again.',false);}}
+
+// ── fire risk assessment ──
+function drawFRA(){const f=jsonSet('fra',{});const st=checkStatus('fra_review');
+  $('fra-status').innerHTML=(f.assessor?'by '+esc(f.assessor)+' · ':'')+(st.last?'reviewed '+fmt(String(st.last.Date))+' · next review '+fmt(st.due):'not reviewed yet');
+  $('fra-form').innerHTML='<div class="form"><label class="f">Assessed by (responsible person)<input id="fra-assessor" value="'+esc(f.assessor||'')+'"'+(MGR?'':' disabled')+'></label><label class="f">Assembly point<input id="fra-assembly" value="'+esc(f.assembly||'')+'"'+(MGR?'':' disabled')+'></label></div>'+
+    FRA_SECTIONS.map(s=>`<label class="f">${esc(s[1])} <small style="font-weight:500">${esc(s[2])}</small><textarea id="fra-${s[0]}"${MGR?'':' disabled'}>${esc(f[s[0]]||'')}</textarea></label>`).join('');
+  const acts=D.Actions.slice().sort((a,b)=>(a.Status==='Done')-(b.Status==='Done')||String(a.Due).localeCompare(String(b.Due)));
+  $('fra-actions').innerHTML=acts.length?acts.map(a=>{const l=a.Due?daysFrom(String(a.Due)):null;return `<div class="row"><div class="grow"><b>${esc(a.Action||a.Finding)}</b><small>${a.Finding&&a.Action?esc(a.Finding)+' · ':''}${a.Owner?esc(a.Owner)+' · ':''}${a.Due?'due '+fmt(String(a.Due)):''}${a.Status==='Done'?' · done '+fmt(String(a['Done date']))+(a['Done by']?' by '+esc(a['Done by']):''):''}</small></div>${a.Status==='Done'?'<span class="pill ok">Done</span>':`<span class="pill ${l!=null&&l<0?'over':'soon'}">${l!=null&&l<0?'Overdue':'Open'}</span><button class="btn sm mgr-inline" type="button" onclick="faDone('${esc(a.ID)}')">Mark done</button>`}</div>`}).join(''):'<p class="note">No actions yet.</p>';}
+async function fraSave(){const f={assessor:$('fra-assessor').value,assembly:$('fra-assembly').value};FRA_SECTIONS.forEach(s=>f[s[0]]=$('fra-'+s[0]).value);
+  try{await post({action:'setting',key:'fra',value:JSON.stringify(f)});SET.fra=JSON.stringify(f);msg('Fire risk assessment saved.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function fraReviewed(){if(!confirm('Record that the fire risk assessment was reviewed today?'))return;try{const d=await post({action:'check',type:'fra_review',result:'Done',notes:'Reviewed'});D.Checks.push({ID:d.id,Type:'fra_review',Date:today(),Result:'Done',By:WHO});msg('Review recorded.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function faAdd(){const b={action:'fraAction',finding:$('fa-finding').value,actionText:$('fa-action').value,owner:$('fa-owner').value,due:$('fa-due').value};if(!b.finding.trim()&&!b.actionText.trim()){msg('Add the finding or the action.',false);return}
+  try{const d=await post(b);D.Actions.push({ID:d.id,Finding:b.finding,Action:b.actionText,Owner:b.owner,Due:b.due,Status:'Open'});['fa-finding','fa-action','fa-owner','fa-due'].forEach(i=>$(i).value='');msg('Action added.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function faDone(id){try{await post({action:'fraAction',id,status:'Done'});const a=D.Actions.find(x=>String(x.ID)===String(id));if(a){a.Status='Done';a['Done date']=today();a['Done by']=WHO;}msg('Marked done.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+
+// ── licence + notices ──
+function drawLicence(){const L=jsonSet('licence',{});
+  $('lic-view').innerHTML=['premises_no:Premises licence number','holder:Premises licence holder','dpm:Designated Premises Manager','board:Licensing board'].map(x=>{const [k,lab]=x.split(':');return `<div class="row"><div class="grow">${lab}</div><b>${esc(L[k]||'–')}</b></div>`}).join('')+
+    (licenceDue().length?licenceDue().map(p=>`<div class="row"><div class="grow">Personal licence: <b>${esc(p.name)}</b><small>${esc(p.no||'')} · refresher due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':p.left<=90?'soon':'ok'}">${p.left<0?'Overdue':p.left<=90?'In '+p.left+' days':'OK'}</span></div>`).join(''):'<p class="note">No personal licence holders added yet.</p>');
+  ['premises_no','holder','dpm','board'].forEach(k=>{if(document.activeElement!==$('lic-'+k))$('lic-'+k).value=L[k]||''});if(document.activeElement!==$('lic-plh'))$('lic-plh').value=SET.plh||'';
+  const N=jsonSet('notices',{});$('lic-notices').innerHTML=NOTICES.map((n,i)=>`<div class="row"><div class="grow">${esc(n)}<small>${N[n]?'checked '+fmt(N[n].d)+(N[n].by?' by '+esc(N[n].by):''):'not checked'}</small></div><button class="btn sm" type="button" onclick="noticeTick(${i})">${N[n]?'Checked again':'Mark checked'}</button></div>`).join('');}
+async function licSave(){const L={};['premises_no','holder','dpm','board'].forEach(k=>L[k]=$('lic-'+k).value.trim());
+  try{await post({action:'setting',key:'licence',value:JSON.stringify(L)});await post({action:'setting',key:'plh',value:$('lic-plh').value});SET.licence=JSON.stringify(L);SET.plh=$('lic-plh').value;msg('Licence details saved.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function noticeTick(i){const N=jsonSet('notices',{});N[NOTICES[i]]={d:today(),by:WHO};try{await post({action:'setting',key:'notices',value:JSON.stringify(N)});SET.notices=JSON.stringify(N);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function saveLists(keys){try{for(const k of keys){const v=$('set-'+k).value.split('\n').map(s=>s.trim()).filter(Boolean).join('\n');await post({action:'setting',key:k,value:v});SET[k]=v;}msg('Saved.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+
+// ── print the compliance file ──
+function printFile(){const L=jsonSet('licence',{}),f=jsonSet('fra',{}),name=(BL_CFG&&BL_CFG.venueName)||'';const yearAgo=addDays(today(),-365);
+  const tbl=(head,rows)=>'<table><tr>'+head.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+(rows.length?rows.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+head.length+'">None recorded</td></tr>')+'</table>';
+  let h=`<h1>${esc(name)}: Compliance file</h1><p>Printed ${new Date().toLocaleString('en-GB')}</p>`;
+  h+='<h2>Licence</h2>'+tbl(['Detail','Value'],[['Premises licence number',L.premises_no||''],['Premises licence holder',L.holder||''],['Designated Premises Manager',L.dpm||''],['Licensing board',L.board||'']])+tbl(['Personal licence holder','Licence number','Refresher due'],lines('plh').map(l=>l.split('|').map(s=>s.trim())));
+  h+='<h2 class="pb">Staff training matrix</h2>'+tbl(['Staff'].concat(COURSES.map(c=>c.name)),STAFF.map(s=>[s].concat(COURSES.map(c=>{const r=trainingFor(s,c);return r?fmt(String(r.Date))+(r.Expires?' (to '+fmt(String(r.Expires))+')':''):(c.need?'MISSING':'');}))));
+  h+='<h2>Training records</h2>'+tbl(['Staff','Course','Date','Expires','Trainer','Topics covered','Notes'],D.Training.slice().sort((a,b)=>String(a.Staff).localeCompare(String(b.Staff))).map(r=>[r.Staff,r.Course,fmt(String(r.Date)),fmt(String(r.Expires||'')),r.Trainer,r.Topics,r.Notes]));
+  [['fire','Fire safety checks (last 12 months)'],['water','Legionella checks (last 12 months)']].forEach(([a,t])=>{h+='<h2 class="pb">'+t+'</h2>'+tbl(['Date','Check','Item','Result','Reading','By','Notes'],D.Checks.filter(c=>RULES[c.Type]&&RULES[c.Type].area===a&&String(c.Date)>=yearAgo).sort((x,y)=>String(y.Date).localeCompare(String(x.Date))).map(c=>[fmt(String(c.Date)),RULES[c.Type].label,c.Item,c.Result,c.Reading,c.By,c.Notes]));});
+  h+='<h2 class="pb">Fire risk assessment</h2>'+tbl(['Section','Details'],[['Assessed by',f.assessor||''],['Assembly point',f.assembly||''],['Last reviewed',checkStatus('fra_review').last?fmt(String(checkStatus('fra_review').last.Date)):'not recorded']].concat(FRA_SECTIONS.map(s=>[s[1],f[s[0]]||''])));
+  h+='<h2>Fire risk assessment action plan</h2>'+tbl(['Finding','Action','Who','Due','Status'],D.Actions.map(a=>[a.Finding,a.Action,a.Owner,fmt(String(a.Due||'')),a.Status==='Done'?'Done '+fmt(String(a['Done date'])):'Open']));
+  const N=jsonSet('notices',{});h+='<h2>Notices on display</h2>'+tbl(['Notice','Last checked'],NOTICES.map(n=>[n,N[n]?fmt(N[n].d)+(N[n].by?' by '+N[n].by:''):'not checked']));
+  $('cp-print').innerHTML=h;window.print();}
+
+function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='training')drawTraining();if(TAB==='fire')drawCheckArea('fire');if(TAB==='water')drawCheckArea('water');if(TAB==='fra')drawFRA();if(TAB==='licence')drawLicence();
+  ['call_points','em_lights','extinguishers','outlets'].forEach(k=>{const el=$('set-'+k);if(el&&document.activeElement!==el)el.value=SET[k]||'';});}
+
+async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
+  if(r.ok)STAFF=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}catch(e){}
+  try{WHO=localStorage.getItem('rf_who')||''}catch(e){}drawAll();}
+async function loadData(){try{const r=await fetch(COMPLIANCE_URL+'?action=compliance&pub='+pub()+'&t='+Date.now());const d=await r.json();
+    if(!d.Checks){$('cp-setup').style.display='block';$('cp-setup').innerHTML='<b>One-time setup needed:</b> the compliance Google script needs updating before records can be saved here. (Paste in the new script, run <b>setupSheet</b>, then Deploy → Manage deployments → New version.)';return drawAll();}
+    D=d;SET={};(d.Settings||[]).forEach(s=>SET[s.Key]=String(s.Value||''));drawAll();}
+  catch(e){$('cp-setup').style.display='block';$('cp-setup').textContent='Couldn’t reach the compliance sheet. Check the connection and refresh.';drawAll();}}
+function start(){MGR=!!(window.BLAuth&&BLAuth.isManager&&BLAuth.isManager());document.body.classList.toggle('is-mgr',MGR);
+  try{TAB=sessionStorage.getItem('cp_tab')||'overview'}catch(e){}if(/[?&]tab=(\w+)/.test(location.search))TAB=location.search.match(/[?&]tab=(\w+)/)[1];
+  drawAll();loadStaff();loadData();}
+(async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
+  BLAuth.init({appName:'Compliance',require:'staff',onReady:start});})();
+</script>
+<script src="../bl-header.js" defer></script>
+<link rel="stylesheet" href="../bl-style.css">
+</body>
+</html>
