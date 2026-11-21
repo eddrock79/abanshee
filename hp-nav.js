@@ -41,12 +41,12 @@
     L[0][3] = NAS + '/pub-report/start-' + P + '.html';      // the preview Staff Hub (the venue port shows the live one)
     L.forEach(function (x) { x[3] = addq(x[3]); });
     // staff pages that now live on the Staff Hub light up Staff Hub
-    var MOVED = /\/(lost-property|cocktails)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
+    var MOVED = /\/(lost-property|cocktails|rotas|holidays)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
     if (MOVED) cur = 'hub';
     if (cur === 'hub' && !MOVED) {
-      window.CHAT_WIDE = '(min-width:1400px)';              // chat is a button on the iPad; a column only on big screens
-      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=2'; document.head.appendChild(hl);
-      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=2'; document.head.appendChild(hs);
+      try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
+      var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=3'; document.head.appendChild(hl);
+      var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=3'; document.head.appendChild(hs);
     }
   }
   var TOOLS = P === 'br'
@@ -175,7 +175,7 @@
       var t = (a.textContent || '').replace(/\s+/g, ' ').replace(/\d+$/, '').trim();
       if (drop.test(t) && a.style.display !== 'none') hideEl(a);
       // preview: these now live on the Staff Hub (hidden only, never renamed: the dashboards redraw renamed tabs)
-      if (PREVIEW && /^(lost property|cocktails|ideas|questions|events|what's on|lighting|qlc\+|sound desk.*)$/i.test(t) && a.style.display !== 'none') hideEl(a);
+      if (PREVIEW && /^(lost property|cocktails|rotas|holidays|ideas|questions|events|lighting|qlc\+|sound desk.*)$/i.test(t) && a.style.display !== 'none') hideEl(a);
       // the Checklists site's own manager page is a different thing from the Manager Dashboard
       if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
       // plain words only: no symbols on any link in the row
