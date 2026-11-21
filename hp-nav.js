@@ -67,7 +67,7 @@
       top = document.createElement('header'); top.className = 'hptop';
       top.innerHTML = '<div class="hptop-in"><a class="hplogo" href="' + L[0][3] + '" target="_top" aria-label="Staff Hub"><img src="' + site + '/logo.jpg" alt="' + (P === 'br' ? 'The Black Rose Tavern' : 'The Banshee Labyrinth') + '"></a>' +
         '<nav class="hpnav" aria-label="Main menu">' + L.map(function (x) {
-          return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '><i aria-hidden="true">' + x[1] + '</i>' + x[2] + '</a>';
+          return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + x[2] + '</a>';
         }).join('') + '</nav></div>';
       document.body.insertBefore(top, document.body.firstChild);
       // pages that pad the body (the dashboards) still get the bar edge to edge
@@ -100,6 +100,11 @@
       if (drop.test(t) && a.style.display !== 'none') hideEl(a);
       // the Checklists site's own manager page is a different thing from the Manager Dashboard
       if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
+      // plain words only: no symbols on any link in the row
+      if (!a.children.length) {
+        var o = a.textContent, c = o.replace(/[←-⇿⌀-➿⬀-⯿\u{1F000}-\u{1FAFF}️]/gu, '').replace(/^[\s＋]+|[\s＋]+$/g, '').replace(/\s{2,}/g, ' ');
+        if (c && c !== o) a.textContent = c;
+      }
     });
     [].slice.call(document.querySelectorAll('.bl-xlink')).forEach(function (a) { if (a.style.display !== 'none') hideEl(a); });
     // only the first leftover button in the row gets pushed right
