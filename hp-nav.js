@@ -1,6 +1,7 @@
-/* Haunted Pubs — the same main menu on every staff page: Staff Hub / Checklists / Orders / Refusals.
-   The page's own links sit directly underneath. One file, copied unchanged to:
-   both Checklists sites (/hp-nav.js), the NAS boards (pub-report/hp-nav.js) and the Manager Dashboards (venue-bl, venue-br). */
+/* Haunted Pubs — the same top on every staff page:
+   [pub logo] Staff Hub / Checklists / Orders / Refusals / Dashboard, then that page's own links, then the page.
+   One file, copied unchanged to both Checklists sites (/hp-nav.js), the NAS boards (pub-report/hp-nav.js)
+   and the Manager Dashboards (venue-bl, venue-br). Each page's old header is hidden. */
 (function () {
   if (window.__hpnav) return; window.__hpnav = 1;
   var h = location.hostname, port = location.port, path = location.pathname;
@@ -14,60 +15,102 @@
     var c = window.BL_CFG && (BL_CFG.venueKey || BL_CFG.venueName || '');
     return /rose/i.test(c || '') ? 'br' : 'bl';
   }
+  var P = pub(), site = P === 'br' ? 'https://blackrose.hauntedpubs.co.uk' : 'https://banshee.hauntedpubs.co.uk';
+  var dashPort = P === 'br' ? '8102' : '8101';
+  var L = [
+    ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P],
+    ['check', '✓', 'Checklists', site + '/home/'],
+    ['orders', '🛒', 'Orders', NAS + ':' + dashPort + '/orders.html'],
+    ['refusals', '🚫', 'Refusals', site + '/refusals/'],
+    ['dash', '📊', 'Dashboard', NAS + ':' + dashPort + '/']
+  ];
+  var cur = port === '8114' || /start-b[lr]\.html/.test(path) ? 'hub'
+    : /orders/.test(path) ? 'orders'
+    : /\/refusals\//.test(path) ? 'refusals'
+    : /hauntedpubs\.co\.uk$/.test(h) ? 'check'
+    : (port === '8101' || port === '8102') ? 'dash' : '';
+  var acc = P === 'br' ? '#e9b23f' : '#c6e03c';
+  var F = 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+  var CSS =
+    /* the page's own headers make way for the shared one */
+    'body>.topbar,.topbar.hp-old,header.top.hp-old,.mbar,.side .logo,.bl-front{display:none!important}' +
+    'header.hptop{display:block!important;box-sizing:border-box!important;background:#0b0b10!important;border-bottom:3px solid ' + acc + '!important;padding:10px 16px!important;margin:0!important;position:relative!important;z-index:20!important;font-family:' + F + '!important}' +
+    '.hptop-in{display:flex!important;align-items:center!important;gap:16px!important;max-width:1400px!important;margin:0 auto!important}' +
+    '.hptop-in>a.hplogo{flex:0 0 auto!important;display:block!important;line-height:0!important;padding:0!important;border:0!important;background:none!important}' +
+    '.hptop-in>a.hplogo img{height:54px!important;width:auto!important;max-width:170px!important;border-radius:6px!important;display:block!important}' +
+    'nav.hpnav{flex:1 1 auto!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;margin:0!important;padding:0!important;box-sizing:border-box!important}' +
+    'nav.hpnav a{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:52px!important;padding:0 8px!important;box-sizing:border-box!important;margin:0!important;' +
+    'border-radius:12px!important;border:1px solid rgba(255,255,255,.2)!important;background:#1b1b22!important;color:#fff!important;' +
+    'font:700 16px/1 ' + F + '!important;letter-spacing:0!important;text-transform:none!important;text-decoration:none!important;text-align:center!important;white-space:nowrap!important;box-shadow:none!important}' +
+    'nav.hpnav a:hover{border-color:' + acc + '!important}' +
+    'nav.hpnav a[aria-current=page]{background:' + acc + '!important;border-color:' + acc + '!important;color:#111!important}' +
+    'nav.hpnav a i{font-style:normal!important;font-size:18px!important;line-height:1!important}' +
+    /* that page's own links, one row, same look on every page */
+    '.hpsub{box-sizing:border-box!important;padding:10px 16px 0!important;margin:0!important;font-family:' + F + '!important}' +
+    '.hpsub>*{display:flex!important;flex-wrap:wrap!important;gap:6px!important;max-width:1400px!important;width:auto!important;margin:0 auto!important;padding:0!important;border:0!important;background:none!important;position:static!important;box-shadow:none!important;order:0!important}' +
+    '.hpsub>*>a,.hpsub>*>span,.hpsub>*>button{display:inline-flex;align-items:center!important;height:38px!important;padding:0 14px!important;margin:0!important;box-sizing:border-box!important;border-radius:9px!important;border:1px solid rgba(255,255,255,.18)!important;' +
+    'background:#15151b!important;color:#e8e8ee!important;font:600 14px/1 ' + F + '!important;letter-spacing:0!important;text-transform:none!important;text-decoration:none!important;white-space:nowrap!important;cursor:pointer!important;box-shadow:none!important;min-height:0!important;flex-direction:row!important}' +
+    '.hpsub>*>a small{display:none!important}' +
+    '.hpsub>*>.current,.hpsub>*>[aria-current=page]{border-color:' + acc + '!important;color:' + acc + '!important;background:#15151b!important}' +
+    '.hpsub>*>.hp-out{color:#ff7a93!important;border-color:#ff7a9366!important}' +
+    '.hpsub>*>.hp-right{margin-left:auto!important}' +
+    '@media(max-width:700px){.hptop-in{flex-direction:column!important;align-items:stretch!important;gap:8px!important}.hptop-in>a.hplogo{align-self:center!important}.hptop-in>a.hplogo img{height:40px!important}' +
+    'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
+    '.hpsub>*>a,.hpsub>*>span,.hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}.hpsub>*>.hp-right{margin-left:0!important}}' +
+    '@media print{header.hptop,.hpsub{display:none!important}}';
+  function sub() { return document.querySelector('#quick3, nav.otop, .nav-bar'); }
   function build() {
-    if (document.querySelector('nav.hpnav')) return true;
-    var P = pub(), site = P === 'br' ? 'https://blackrose.hauntedpubs.co.uk' : 'https://banshee.hauntedpubs.co.uk';
-    var L = [
-      ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P],
-      ['check', '✓', 'Checklists', site + '/home/'],
-      ['orders', '🛒', 'Orders', NAS + ':' + (P === 'br' ? '8102' : '8101') + '/orders.html'],
-      ['refusals', '🚫', 'Refusals', site + '/refusals/']
-    ];
-    var cur = port === '8114' || /start-b[lr]\.html/.test(path) ? 'hub'
-      : /orders/.test(path) ? 'orders'
-      : /\/refusals\//.test(path) ? 'refusals'
-      : /hauntedpubs\.co\.uk$/.test(h) ? 'check' : '';
-    var acc = P === 'br' ? '#e9b23f' : '#c6e03c';
-    if (!document.getElementById('hpnav-css')) {
-      var st = document.createElement('style'); st.id = 'hpnav-css';
-      st.textContent =
-        'nav.hpnav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0 0 10px!important;padding:0!important;box-sizing:border-box!important;width:100%!important}' +
-        'nav.hpnav a{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:50px!important;padding:8px 10px!important;box-sizing:border-box!important;' +
-        'border-radius:12px!important;border:1px solid rgba(255,255,255,.18)!important;background:rgba(255,255,255,.06)!important;color:#fff!important;' +
-        'font:700 16px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;text-decoration:none!important;text-align:center!important;white-space:nowrap!important}' +
-        'nav.hpnav a:hover{border-color:' + acc + '!important}' +
-        'nav.hpnav a[aria-current=page]{background:' + acc + '!important;border-color:' + acc + '!important;color:#111!important}' +
-        'nav.hpnav a i{font-style:normal!important;font-size:18px!important;line-height:1!important}' +
-        '@media(max-width:600px){nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:3px!important;min-height:54px!important;font-size:13px!important;padding:6px 4px!important}}' +
-        'body>nav.hpnav{width:auto!important;margin:14px 16px 10px!important}' +
-        '@media print{nav.hpnav{display:none!important}}';
-      document.head.appendChild(st);
+    if (!document.body) return false;
+    if (!document.getElementById('hpnav-css')) { var st = document.createElement('style'); st.id = 'hpnav-css'; st.textContent = CSS; document.head.appendChild(st); }
+    var top = document.querySelector('header.hptop');
+    if (!top) {
+      top = document.createElement('header'); top.className = 'hptop';
+      top.innerHTML = '<div class="hptop-in"><a class="hplogo" href="' + L[0][3] + '" target="_top" aria-label="Staff Hub"><img src="' + site + '/logo.jpg" alt="' + (P === 'br' ? 'The Black Rose Tavern' : 'The Banshee Labyrinth') + '"></a>' +
+        '<nav class="hpnav" aria-label="Main menu">' + L.map(function (x) {
+          return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '><i aria-hidden="true">' + x[1] + '</i>' + x[2] + '</a>';
+        }).join('') + '</nav></div>';
+      document.body.insertBefore(top, document.body.firstChild);
+      // pages that pad the body (the dashboards) still get the bar edge to edge
+      var bs = getComputedStyle(document.body);
+      ['Left', 'Right', 'Top'].forEach(function (s) { var v = parseFloat(bs['padding' + s]) || 0; if (v) top.style.setProperty('margin-' + s.toLowerCase(), (-v) + 'px', 'important'); });
     }
-    var nav = document.createElement('nav'); nav.className = 'hpnav'; nav.setAttribute('aria-label', 'Main menu');
-    nav.innerHTML = L.map(function (x) {
-      return '<a href="' + x[3] + '" target="_top"' + (x[0] === cur ? ' aria-current="page"' : '') + '><i aria-hidden="true">' + x[1] + '</i>' + x[2] + '</a>';
-    }).join('');
-    // sits directly above the page's own links
-    var sub = document.querySelector('#quick3, nav.otop, .nav-bar');
-    if (sub && sub.parentNode) {
-      sub.parentNode.insertBefore(nav, sub);
-      if (sub.classList.contains('nav-bar')) {   // line up with the Checklists tab row underneath
-        var cs = getComputedStyle(sub), l = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.marginLeft) || 0), r = (parseFloat(cs.paddingRight) || 0) + (parseFloat(cs.marginRight) || 0);
-        nav.style.setProperty('width', 'auto', 'important');
-        nav.style.setProperty('margin', '12px ' + r + 'px 8px ' + l + 'px', 'important');
-      }
+    var wrap = document.querySelector('.hpsub');
+    if (!wrap) {
+      wrap = document.createElement('div'); wrap.className = 'hpsub'; top.parentNode.insertBefore(wrap, top.nextSibling);
+      var bs2 = getComputedStyle(document.body);
+      ['Left', 'Right'].forEach(function (k) { var v = parseFloat(bs2['padding' + k]) || 0; if (v) wrap.style.setProperty('margin-' + k.toLowerCase(), (-v) + 'px', 'important'); });
     }
-    else if (document.body) document.body.insertBefore(nav, document.body.firstChild);
-    else return false;
+    var s = sub();
+    if (s && s.parentNode !== wrap) wrap.appendChild(s);
     tidy(); return true;
   }
-  // links now in the main menu come out of the page's own rows
+  function hideEl(a) { a.style.setProperty('display', 'none', 'important'); }
   function tidy() {
-    var drop = /^(refusals|staff hub|⌂ staff hub|order list|checklists ↗|home)$/i;
-    [].slice.call(document.querySelectorAll('.nav-bar .nav-btn, nav.otop a, .bl-xlink, #quick3 a')).forEach(function (a) {
-      if (drop.test((a.textContent || '').replace(/\s+/g, ' ').trim())) a.style.setProperty('display', 'none', 'important');
+    // old headers
+    [].slice.call(document.querySelectorAll('.topbar, header.top')).forEach(function (x) { if (!x.classList.contains('hp-old')) x.classList.add('hp-old'); });
+    var s = sub(); if (!s) return;
+    // Checklists: Switch Venue / Log Out lived in the old header; bring them into the links row
+    [].slice.call(document.querySelectorAll('.topbar .bl-mini, .topbar .bl-acts > button')).forEach(function (b) {
+      var t = (b.textContent || '').trim().toLowerCase(); b.classList.add('hp-right'); if (t !== 'switch venue') b.classList.add('hp-out'); s.appendChild(b);
     });
+    // links the main menu already gives
+    var drop = /^(refusals|staff hub|⌂ staff hub|order list|orders|checklists|checklists ↗|home|main board|manager dashboard|pub dashboard)$/i;
+    [].slice.call(s.children).forEach(function (a) {
+      var t = (a.textContent || '').replace(/\s+/g, ' ').replace(/\d+$/, '').trim();
+      if (drop.test(t) && a.style.display !== 'none') hideEl(a);
+      // the Checklists site's own manager page is a different thing from the Manager Dashboard
+      if (t === 'Dashboard' && /\/dashboard\/?$/.test(a.getAttribute('href') || '')) a.textContent = 'Checklist dashboard';
+    });
+    [].slice.call(document.querySelectorAll('.bl-xlink')).forEach(function (a) { if (a.style.display !== 'none') hideEl(a); });
+    // only the first leftover button in the row gets pushed right
+    var r = [].slice.call(s.querySelectorAll('.hp-right'));
+    r.forEach(function (b, i) { if (i) b.classList.remove('hp-right'); });
   }
-  function go() { if (build()) { tidy(); new MutationObserver(function () { if (!document.querySelector('nav.hpnav')) build(); else tidy(); }).observe(document.body, { childList: true, subtree: true }); } }
+  function go() {
+    if (!build()) return;
+    new MutationObserver(function () {
+      if (!document.querySelector('header.hptop') || (sub() && sub().parentNode !== document.querySelector('.hpsub'))) build(); else tidy();
+    }).observe(document.body, { childList: true, subtree: true });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
 })();
