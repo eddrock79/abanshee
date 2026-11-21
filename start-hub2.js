@@ -145,6 +145,20 @@
       if (!due || due < today) items.push([COMPL_RULES[k][0], last ? 'overdue' : 'not done yet']);
     });
     (compl.Actions || []).forEach(function (a) { if (a.Status !== 'Done' && a.Due && new Date(String(a.Due) + 'T12:00:00') < today) items.push(['Fire risk action: ' + (a.Action || a.Finding), 'overdue']); });
+    // toilets: during the check hours, any toilet not checked within the interval (+15 min)
+    var set = {}; (compl.Settings || []).forEach(function (x) { set[x.Key] = String(x.Value || ''); });
+    var areas = (set.toilet_areas || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean); if (!areas.length) areas = ['Ladies', 'Gents', 'Accessible'];
+    var every = parseInt(set.toilet_every || '60', 10); if (!(every >= 15)) every = 60;
+    var hm = String(set.toilet_hours || '16:00-03:00').match(/(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?/), h0 = hm ? +hm[1] * 60 + (+hm[2] || 0) : 960, h1 = hm ? +hm[3] * 60 + (+hm[4] || 0) : 180;
+    var nowD = new Date(), tm = nowD.getHours() * 60 + nowD.getMinutes(), open = h0 <= h1 ? (tm >= h0 && tm < h1) : (tm >= h0 || tm < h1);
+    if (open) {
+      var lateT = areas.filter(function (ar) {
+        var last = compl.Checks.filter(function (c) { return c.Type === 'toilet' && c.Item === ar; }).map(function (c) { return c['Logged at'] ? new Date(c['Logged at']).getTime() : 0; }).sort().pop();
+        return !last || (Date.now() - last) / 60000 > every + 15;
+      });
+      if (lateT.length) items.unshift(['Toilet check (' + lateT.join(', ') + ')', 'due']);
+    }
+    (compl.Security || []).forEach(function (g) { if (g['SIA expiry'] && new Date(String(g['SIA expiry']) + 'T12:00:00') < today) items.push([g.Name + ' SIA licence expired', 'overdue']); });
     (compl.Documents || []).forEach(function (d) {
       var months = Number(d['Check months']) || 6, last = String(d['Last checked'] || '').slice(0, 10);
       var next = last ? new Date(last + 'T12:00:00') : null; if (next) next.setDate(next.getDate() + Math.round(months * 30.44));

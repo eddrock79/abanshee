@@ -71,7 +71,7 @@
 
 <div class="wrap" id="cp-root">
   <h1 class="cp-h">Compliance</h1>
-  <p class="cp-sub">Training records, fire and water safety checks, the fire risk assessment, licence details and important documents, all in one place.</p>
+  <p class="cp-sub">Training records, fire, water and toilet checks, door supervisors, the fire risk assessment, licence details and important documents, all in one place.</p>
   <div class="setup" id="cp-setup"></div>
   <div class="msg" id="cp-msg"></div>
   <div class="cp-tabs" role="tablist" id="cp-tabs"></div>
@@ -181,6 +181,62 @@
     <div class="card"><h2>Notices on display <small>tick when checked</small></h2><div id="lic-notices"></div></div>
   </section>
 
+  <!-- TOILETS -->
+  <section class="cp-panel" id="p-toilets">
+    <div class="card"><h2>Toilet check <small id="toi-when"></small></h2>
+      <div class="chips" id="toi-areas"></div>
+      <div class="chips" id="toi-items"></div>
+      <div class="form">
+        <label class="f">Checked by<select id="toi-by"></select></label>
+        <label class="f wide">Anything wrong? <input id="toi-notes" maxlength="300" placeholder="e.g. lock broken on cubicle 2, needles found, flooding"></label>
+      </div>
+      <button class="btn go" type="button" onclick="toiSave(false)">All OK: log check</button> <button class="btn bad" type="button" onclick="toiSave(true)">Log a problem</button>
+      <p class="note">Tap the toilet, untick anything that wasn't right, and log it. Checks are expected every <span id="toi-every">60</span> minutes while open (<span id="toi-hours">16:00 to 03:00</span>).</p>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Last checked</h2><div id="toi-status"></div></div>
+      <div class="card"><h2>Today's checks</h2><div id="toi-today"></div></div>
+    </div>
+    <div class="card mgr-only"><h2>Toilet settings</h2>
+      <div class="form">
+        <label class="f">Toilets (one per line)<textarea id="set-toilet_areas" placeholder="Ladies&#10;Gents&#10;Accessible"></textarea></label>
+        <label class="f">Check every (minutes)<input id="set-toilet_every" type="number" min="15" step="15" placeholder="60"></label>
+        <label class="f">Open hours to check (e.g. 16:00-03:00)<input id="set-toilet_hours" placeholder="16:00-03:00"></label>
+      </div>
+      <button class="btn go" type="button" onclick="saveLists(['toilet_areas','toilet_every','toilet_hours'])">Save toilet settings</button>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="cp-panel" id="p-security">
+    <div class="card"><h2>Door supervisors on duty <small id="sec-date"></small></h2>
+      <div id="sec-onduty"></div>
+      <div class="form" style="margin-top:10px">
+        <label class="f">Door supervisor<select id="sec-who"></select></label>
+        <label class="f">Start time<input type="time" id="sec-start"></label>
+        <label class="f wide">Notes<input id="sec-notes" maxlength="300" placeholder="e.g. badge number, position (front door / Bar 13)"></label>
+      </div>
+      <button class="btn go" type="button" onclick="secSignIn()">Sign in</button>
+      <p class="note">Check their SIA badge on arrival: name and photo match, and the licence is in date. You can confirm a licence on the <a href="https://services.sia.homeoffice.gov.uk/rolh" target="_blank" rel="noopener" style="color:var(--accent)">SIA register of licence holders</a>.</p>
+    </div>
+    <div class="card"><h2>Door supervisor register <small>name, SIA licence number and expiry</small></h2>
+      <div id="sec-list"></div>
+      <div class="mgr-only" style="margin-top:10px">
+        <h2 id="sec-form-h" style="font-size:15px">Add a door supervisor</h2>
+        <div class="form">
+          <label class="f">Name<input id="sec-name" maxlength="60"></label>
+          <label class="f">SIA licence number (16 digits)<input id="sec-sia" maxlength="24" inputmode="numeric" placeholder="0000 0000 0000 0000"></label>
+          <label class="f">Licence expiry<input type="date" id="sec-exp"></label>
+          <label class="f">Company / agency<input id="sec-company" maxlength="60"></label>
+          <label class="f">Phone<input id="sec-phone" maxlength="30" inputmode="tel"></label>
+          <label class="f wide">Notes<input id="sec-snotes" maxlength="300"></label>
+        </div>
+        <button class="btn go" type="button" onclick="secSave()">Save</button> <button class="btn" type="button" id="sec-cancel" style="display:none" onclick="secEdit('')">Cancel edit</button>
+      </div>
+    </div>
+    <div class="card"><h2>Recent door shifts</h2><div id="sec-shifts"></div></div>
+  </section>
+
   <!-- DOCUMENTS -->
   <section class="cp-panel" id="p-docs">
     <div class="card"><h2>Important documents <small>flagged when a check is due or the expiry is within 60 days</small></h2><div id="doc-list"></div></div>
@@ -249,7 +305,7 @@ const FRA_SECTIONS=[
   ['findings','Significant findings','What needs improving. Add each one to the action plan below.']
 ];
 const DOC_CATS=[['Premises licence',12],['Personal licence',12],["Insurance: employers' liability",6],['Insurance: public liability',6],['Insurance: buildings and contents',6],['Tables and chairs permit',6],['Food business registration',12],['Gas safety certificate',6],['Electrical installation (EICR)',12],['PAT testing',6],['Fire alarm service certificate',6],['Emergency lighting certificate',6],['Extinguisher service certificate',6],['Fire risk assessment (signed)',6],['Legionella risk assessment',6],['Music licence (PPL PRS)',12],['TV licence',12],['Waste transfer note',12],['Pest control report',3],['Other',6]];
-let D={Training:[],Checks:[],Actions:[],Settings:[],Documents:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
+let D={Training:[],Checks:[],Actions:[],Settings:[],Documents:[],Security:[],DoorShifts:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
 const $=id=>document.getElementById(id);
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -280,11 +336,25 @@ function docState(d){const months=Number(d['Check months'])||6,last=String(d['La
   const why=el!=null&&el<0?'Expired '+fmt(String(d.Expires)):nl<0?'Check overdue (was due '+fmt(next)+')':el!=null&&el<=60?'Expires '+fmt(String(d.Expires)):nl<=14?'Check due '+fmt(next):'Next check '+fmt(next);
   return {doc:d,state,next,why};}
 function docsDue(){return (D.Documents||[]).map(docState).filter(x=>x.state!=='ok');}
+// toilets: trading day runs 06:00 to 06:00; checks expected every N minutes inside the open hours
+function tradingDay(){const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function toiletAreas(){const l=lines('toilet_areas');return l.length?l:['Ladies','Gents','Accessible'];}
+function toiletEvery(){const n=parseInt(SET.toilet_every||'60',10);return n>=15?n:60;}
+function toiletHours(){const m=String(SET.toilet_hours||'16:00-03:00').match(/(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?/);return m?[+m[1]*60+(+m[2]||0),+m[3]*60+(+m[4]||0)]:[960,180];}
+function inOpenHours(){const h=toiletHours(),d=new Date(),t=d.getHours()*60+d.getMinutes();return h[0]<=h[1]?(t>=h[0]&&t<h[1]):(t>=h[0]||t<h[1]);}
+function toiletChecks(){return D.Checks.filter(c=>c.Type==='toilet');}
+function lastToilet(area){return toiletChecks().filter(c=>c.Item===area).sort((a,b)=>String(b['Logged at']||b.Date+' '+b.Time).localeCompare(String(a['Logged at']||a.Date+' '+a.Time)))[0];}
+function minsSince(c){if(!c)return null;const t=c['Logged at']?new Date(c['Logged at']):new Date(String(c.Date)+'T'+(c.Time||'00:00'));return isNaN(t)?null:Math.round((Date.now()-t)/60000);}
+function toiletsDue(){if(!inOpenHours())return [];const lim=toiletEvery()+15;return toiletAreas().filter(a=>{const m=minsSince(lastToilet(a));return m==null||m>lim;});}
+// security: SIA licence expiry and anyone still signed in from an earlier day
+function siaState(g){if(!g['SIA expiry'])return {g,state:'soon',why:'No expiry date recorded'};const l=daysFrom(String(g['SIA expiry']));return {g,state:l<0?'over':l<=60?'soon':'ok',why:l<0?'SIA licence expired '+fmt(String(g['SIA expiry'])):l<=60?'SIA licence expires '+fmt(String(g['SIA expiry'])):'Licence to '+fmt(String(g['SIA expiry']))};}
+function siaDue(){return (D.Security||[]).map(siaState).filter(x=>x.state!=='ok');}
+function openShifts(){return (D.DoorShifts||[]).filter(s=>!s.Finish);}
 function drawTabs(){
   const over=Object.keys(RULES).map(checkStatus).filter(s=>s.state==='over');
-  const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length,docs:docsDue().filter(x=>x.state==='over').length};
-  n.overview+=n.docs;
-  const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['licence','Licence'],['docs','Documents'],['print','Print file']];
+  const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length,docs:docsDue().filter(x=>x.state==='over').length,toilets:toiletsDue().length,security:siaDue().filter(x=>x.state==='over').length};
+  n.overview+=n.docs+n.toilets+n.security;
+  const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['toilets','Toilets'],['security','Security'],['licence','Licence'],['docs','Documents'],['print','Print file']];
   $('cp-tabs').innerHTML=T.map(t=>`<button class="cp-tab" type="button" role="tab" aria-selected="${t[0]===TAB}" onclick="go('${t[0]}')">${t[1]}${n[t[0]]?`<span class="n">${n[t[0]]}</span>`:''}</button>`).join('');
   document.querySelectorAll('.cp-panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+TAB));
 }
@@ -296,6 +366,9 @@ function drawOverview(){
   sts.filter(s=>s.state!=='ok').forEach(s=>due.push({w:s.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(s.rule.label)}</b><small>${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):''):'No record yet'}</small></div>${pillFor(s)}<button class="btn sm" type="button" onclick="logNow('${s.type}')">Log it</button></div>`}));
   gaps().forEach(g=>due.push({w:g.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(g.staff)}</b>: ${esc(g.course.name)}<small>${g.rec?'Expires '+fmt(String(g.rec.Expires)):'No record'}</small></div><span class="pill ${g.state}">${g.state==='over'?(g.rec?'Expired':'Missing'):'Due soon'}</span></div>`}));
   D.Actions.filter(a=>a.Status!=='Done').forEach(a=>{const l=a.Due?daysFrom(String(a.Due)):99;if(l<=7)due.push({w:l<0?0:1,html:`<div class="row"><div class="grow"><b>Fire risk action:</b> ${esc(a.Action||a.Finding)}<small>${a.Owner?esc(a.Owner)+' · ':''}due ${fmt(String(a.Due))}</small></div><span class="pill ${l<0?'over':'soon'}">${l<0?'Overdue':'Due soon'}</span></div>`});});
+  if(toiletsDue().length)due.push({w:0,html:`<div class="row"><div class="grow"><b>Toilet check due</b><small>${toiletsDue().map(a=>{const m=minsSince(lastToilet(a));return esc(a)+(m==null?' (not checked today)':' ('+m+' min ago)')}).join(', ')}</small></div><span class="pill over">Due</span><button class="btn sm" type="button" onclick="go('toilets')">Log it</button></div>`});
+  siaDue().forEach(x=>due.push({w:x.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(x.g.Name)}</b>: door supervisor<small>${esc(x.why)} · SIA ${esc(x.g['SIA number'])}</small></div><span class="pill ${x.state}">${x.state==='over'?'Expired':'Check'}</span><button class="btn sm" type="button" onclick="go('security')">Open</button></div>`}));
+  openShifts().filter(s=>String(s.Date)<tradingDay()).forEach(s=>due.push({w:1,html:`<div class="row"><div class="grow"><b>${esc(s.Name)}</b> was never signed out<small>Door shift on ${fmt(String(s.Date))} from ${esc(s.Start)}</small></div><span class="pill soon">Sign out</span><button class="btn sm" type="button" onclick="go('security')">Open</button></div>`}));
   docsDue().forEach(x=>due.push({w:x.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(x.doc.Name)}</b><small>${esc(x.doc.Category||'')} · ${esc(x.why)}</small></div><span class="pill ${x.state}">${x.state==='over'?'Overdue':'Due soon'}</span><button class="btn sm" type="button" onclick="go('docs')">Open</button></div>`}));
   licenceDue().filter(p=>p.left<=90).forEach(p=>due.push({w:p.left<0?0:1,html:`<div class="row"><div class="grow"><b>${esc(p.name)}</b>: personal licence refresher<small>due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':'soon'}">${p.left<0?'Overdue':'In '+p.left+' days'}</span></div>`}));
   due.sort((a,b)=>a.w-b.w);
@@ -398,6 +471,9 @@ function printFile(){const L=jsonSet('licence',{}),f=jsonSet('fra',{}),name=(BL_
   [['fire','Fire safety checks (last 12 months)'],['water','Legionella checks (last 12 months)']].forEach(([a,t])=>{h+='<h2 class="pb">'+t+'</h2>'+tbl(['Date','Check','Item','Result','Reading','By','Notes'],D.Checks.filter(c=>RULES[c.Type]&&RULES[c.Type].area===a&&String(c.Date)>=yearAgo).sort((x,y)=>String(y.Date).localeCompare(String(x.Date))).map(c=>[fmt(String(c.Date)),RULES[c.Type].label,c.Item,c.Result,c.Reading,c.By,c.Notes]));});
   h+='<h2 class="pb">Fire risk assessment</h2>'+tbl(['Section','Details'],[['Assessed by',f.assessor||''],['Assembly point',f.assembly||''],['Last reviewed',checkStatus('fra_review').last?fmt(String(checkStatus('fra_review').last.Date)):'not recorded']].concat(FRA_SECTIONS.map(s=>[s[1],f[s[0]]||''])));
   h+='<h2>Fire risk assessment action plan</h2>'+tbl(['Finding','Action','Who','Due','Status'],D.Actions.map(a=>[a.Finding,a.Action,a.Owner,fmt(String(a.Due||'')),a.Status==='Done'?'Done '+fmt(String(a['Done date'])):'Open']));
+  h+='<h2 class="pb">Door supervisor register</h2>'+tbl(['Name','SIA licence number','Licence expiry','Company','Phone'],(D.Security||[]).map(g=>[g.Name,g['SIA number'],fmt(String(g['SIA expiry']||'')),g.Company,g.Phone]));
+  const q3=addDays(today(),-92);h+='<h2>Door shifts (last 3 months)</h2>'+tbl(['Date','Name','SIA number','Start','Finish','Signed in by','Notes'],(D.DoorShifts||[]).filter(s=>String(s.Date)>=q3).sort((a,b)=>String(b.Date).localeCompare(String(a.Date))).map(s=>[fmt(String(s.Date)),s.Name,s['SIA number'],s.Start,s.Finish,s['Signed in by'],s.Notes]));
+  const w1=addDays(today(),-7);h+='<h2>Toilet checks (last 7 days)</h2>'+tbl(['Date','Time','Toilet','Result','By','Notes'],toiletChecks().filter(c=>String(c.Date)>=w1).sort((a,b)=>String(b['Logged at']||'').localeCompare(String(a['Logged at']||''))).map(c=>[fmt(String(c.Date)),c.Time,c.Item,c.Result==='Fault'?'Problem':'OK',c.By,c.Notes]));
   h+='<h2>Document register</h2>'+tbl(['Document','Type','Expires','Last checked','Check every','Link'],(D.Documents||[]).map(d=>[d.Name,d.Category,fmt(String(d.Expires||'')),fmt(String(d['Last checked']||'').slice(0,10)),(d['Check months']||6)+' months',d['File URL']||'']));
   const N=jsonSet('notices',{});h+='<h2>Notices on display</h2>'+tbl(['Notice','Last checked'],NOTICES.map(n=>[n,N[n]?fmt(N[n].d)+(N[n].by?' by '+N[n].by:''):'not checked']));
   $('cp-print').innerHTML=h;window.print();}
@@ -429,8 +505,58 @@ async function docCheck(id){const d=(D.Documents||[]).find(x=>String(x.ID)===Str
 async function docRemove(id){const d=(D.Documents||[]).find(x=>String(x.ID)===String(id));if(!d||!confirm('Remove '+d.Name+' from the list? (The file stays in your Google Drive.)'))return;
   try{await post({action:'docRemove',id});D.Documents=D.Documents.filter(x=>x!==d);msg('Removed.',true);drawAll();}catch(e){msg('Couldn’t remove ('+e.message+').',false);}}
 
-function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='training')drawTraining();if(TAB==='fire')drawCheckArea('fire');if(TAB==='water')drawCheckArea('water');if(TAB==='fra')drawFRA();if(TAB==='licence')drawLicence();if(TAB==='docs')drawDocs();
-  ['call_points','em_lights','extinguishers','outlets'].forEach(k=>{const el=$('set-'+k);if(el&&document.activeElement!==el)el.value=SET[k]||'';});}
+let TOI_AREA='';
+const TOI_ITEMS=['Clean and dry','Soap','Toilet roll','Hand towels / dryer','Bins emptied','No damage or graffiti'];
+function drawToilets(){const areas=toiletAreas();if(!TOI_AREA||areas.indexOf(TOI_AREA)<0)TOI_AREA=areas[0];
+  $('toi-areas').innerHTML=areas.map(a=>{const m=minsSince(lastToilet(a));return `<button type="button" class="chip${a===TOI_AREA?' on':''}" onclick="TOI_AREA='${esc(a).replace(/'/g,"\\'")}';drawAll()">${esc(a)}${m!=null&&m<=toiletEvery()?' ✓':''}</button>`}).join('');
+  if(!$('toi-items').dataset.done){$('toi-items').innerHTML=TOI_ITEMS.map(x=>`<button type="button" class="chip on" data-x="${esc(x)}" onclick="this.classList.toggle('on')">${esc(x)}</button>`).join('');$('toi-items').dataset.done=1;}
+  const by=$('toi-by');if(by.dataset.n!=STAFF.length){by.innerHTML=STAFF.map(x=>`<option${x===WHO?' selected':''}>${esc(x)}</option>`).join('')+'<option value="__other">Someone else…</option>';by.dataset.n=STAFF.length;}
+  $('toi-every').textContent=toiletEvery();const h=toiletHours();const hh=n=>String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('toi-hours').textContent=hh(h[0])+' to '+hh(h[1]);
+  $('toi-when').textContent=inOpenHours()?'open now: checks due every '+toiletEvery()+' minutes':'outside the check hours';
+  $('toi-status').innerHTML=areas.map(a=>{const c=lastToilet(a),m=minsSince(c),due=inOpenHours()&&(m==null||m>toiletEvery()+15);return `<div class="row"><div class="grow"><b>${esc(a)}</b><small>${c?(m<120?m+' minutes ago':fmt(String(c.Date))+' '+esc(c.Time||''))+(c.By?' by '+esc(c.By):''):'not checked yet'}${c&&c.Result==='Fault'?' · problem: '+esc(c.Notes):''}</small></div><span class="pill ${due?'over':c&&c.Result==='Fault'?'soon':'ok'}">${due?'Due':c&&c.Result==='Fault'?'Problem':'OK'}</span></div>`}).join('');
+  const td=tradingDay(),list=toiletChecks().filter(c=>{const d=String(c.Date),t=String(c.Time||'00:00');return d===td&&t>='06:00'||d===addDays(td,1)&&t<'06:00';}).sort((a,b)=>String(b['Logged at']||'').localeCompare(String(a['Logged at']||'')));
+  $('toi-today').innerHTML=list.length?list.slice(0,30).map(c=>`<div class="row"><div class="grow"><b>${esc(c.Time||'')}</b> ${esc(c.Item)}<small>${esc(c.By||'')}${c.Notes?' · '+esc(c.Notes):''}</small></div><span class="pill ${c.Result==='Fault'?'over':'ok'}">${c.Result==='Fault'?'Problem':'OK'}</span></div>`).join(''):'<p class="note">No toilet checks logged today yet.</p>';}
+async function toiSave(problem){let by=$('toi-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;try{localStorage.setItem('rf_who',by)}catch(e){}
+  const missed=[...document.querySelectorAll('#toi-items .chip')].filter(b=>!b.classList.contains('on')).map(b=>b.dataset.x);let notes=$('toi-notes').value.trim();
+  if(problem&&!notes&&!missed.length){notes=(prompt('What was the problem?')||'').trim();if(!notes)return}
+  const fault=problem||missed.length>0;const n2=(missed.length?'Not OK: '+missed.join(', '):'')+(notes?(missed.length?'. ':'')+notes:'');
+  try{const d=await post({action:'check',type:'toilet',item:TOI_AREA,result:fault?'Fault':'Pass',notes:n2,by});
+    D.Checks.push({ID:d.id,Type:'toilet',Date:today(),Time:new Date().toTimeString().slice(0,5),Item:TOI_AREA,Result:fault?'Fault':'Pass',By:by,Notes:n2,'Logged at':new Date().toISOString()});
+    $('toi-notes').value='';document.querySelectorAll('#toi-items .chip').forEach(b=>b.classList.add('on'));msg('Logged: '+TOI_AREA+(fault?' (problem reported: please sort it or add it to the snag list)':' OK'),!fault);
+    const areas=toiletAreas(),i=areas.indexOf(TOI_AREA);TOI_AREA=areas[(i+1)%areas.length];drawAll();}
+  catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+
+let SEC_EDIT='';
+function drawSecurity(){const td=tradingDay();$('sec-date').textContent=fmt(td);
+  const reg=(D.Security||[]).slice().sort((a,b)=>String(a.Name).localeCompare(String(b.Name)));
+  const sel=$('sec-who');const opts=reg.map(g=>`<option value="${esc(g.ID)}">${esc(g.Name)} (SIA ${esc(g['SIA number'])})</option>`).join('');if(sel.dataset.v!==opts){sel.innerHTML=opts||'<option value="">Add door supervisors to the register first</option>';sel.dataset.v=opts;}
+  if(!$('sec-start').value)$('sec-start').value=new Date().toTimeString().slice(0,5);
+  const on=openShifts().sort((a,b)=>String(a.Start).localeCompare(String(b.Start)));
+  $('sec-onduty').innerHTML=on.length?on.map(s=>{const g=reg.find(x=>x.Name===s.Name),st=g?siaState(g):null;return `<div class="row"><div class="grow"><b>${esc(s.Name)}</b><small>SIA ${esc(s['SIA number'])} · on since ${esc(s.Start)}${String(s.Date)!==td?' ('+fmt(String(s.Date))+')':''}${s.Notes?' · '+esc(s.Notes):''}</small></div>${st&&st.state==='over'?'<span class="pill over">Licence expired</span>':''}<button class="btn sm" type="button" onclick="secSignOut('${esc(s.ID)}')">Sign out</button></div>`}).join(''):'<p class="note">No door supervisors signed in.</p>';
+  $('sec-list').innerHTML=reg.length?reg.map(g=>{const st=siaState(g);return `<div class="row"><div class="grow"><b>${esc(g.Name)}</b><small>SIA ${esc(g['SIA number'])} · ${esc(st.why)}${g.Company?' · '+esc(g.Company):''}${g.Phone?' · '+esc(g.Phone):''}${g.Notes?' · '+esc(g.Notes):''}</small></div><span class="pill ${st.state}">${st.state==='over'?'Expired':st.state==='soon'?'Check':'OK'}</span><button class="btn sm mgr-inline" type="button" onclick="secEdit('${esc(g.ID)}')">Edit</button><button class="btn sm bad mgr-inline" type="button" onclick="secRemove('${esc(g.ID)}')">Remove</button></div>`}).join(''):'<p class="note">No door supervisors added yet.</p>';
+  const sh=(D.DoorShifts||[]).slice().sort((a,b)=>String(b.Date).localeCompare(String(a.Date))||String(b.Start).localeCompare(String(a.Start))).slice(0,30);
+  $('sec-shifts').innerHTML=sh.length?sh.map(s=>`<div class="row"><div class="grow"><b>${fmt(String(s.Date))}</b> ${esc(s.Name)}<small>SIA ${esc(s['SIA number'])} · ${esc(s.Start)} to ${s.Finish?esc(s.Finish):'(still on)'}${s['Signed in by']?' · signed in by '+esc(s['Signed in by']):''}${s.Notes?' · '+esc(s.Notes):''}</small></div></div>`).join(''):'<p class="note">No door shifts logged yet.</p>';}
+function siaClean(v){return String(v||'').replace(/\D/g,'');}
+async function secSave(){const name=$('sec-name').value.trim(),sia=siaClean($('sec-sia').value);if(!name){msg('Add their name.',false);return}
+  if(sia.length!==16){if(!confirm('SIA licence numbers are 16 digits; this one has '+sia.length+'. Save anyway?'))return;}
+  const b={action:'securityAdd',id:SEC_EDIT,name,sia,expiry:$('sec-exp').value,company:$('sec-company').value,phone:$('sec-phone').value,notes:$('sec-snotes').value};
+  try{const d=await post(b);const rec={ID:d.id,Name:name,'SIA number':sia,'SIA expiry':b.expiry,Company:b.company,Phone:b.phone,Notes:b.notes};
+    D.Security=(D.Security||[]).filter(x=>String(x.ID)!==String(d.id)).concat([rec]);['sec-name','sec-sia','sec-exp','sec-company','sec-phone','sec-snotes'].forEach(i=>$(i).value='');secEdit('');msg('Saved: '+name,true);drawAll();}
+  catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+function secEdit(id){SEC_EDIT=id;const g=(D.Security||[]).find(x=>String(x.ID)===String(id));$('sec-form-h').textContent=g?'Edit: '+g.Name:'Add a door supervisor';$('sec-cancel').style.display=g?'':'none';
+  if(g){$('sec-name').value=g.Name;$('sec-sia').value=g['SIA number'];$('sec-exp').value=g['SIA expiry']||'';$('sec-company').value=g.Company||'';$('sec-phone').value=g.Phone||'';$('sec-snotes').value=g.Notes||'';$('sec-form-h').scrollIntoView({behavior:'smooth'});}}
+async function secRemove(id){const g=(D.Security||[]).find(x=>String(x.ID)===String(id));if(!g||!confirm('Remove '+g.Name+' from the register? (Their past shifts stay on record.)'))return;
+  try{await post({action:'securityRemove',id});D.Security=D.Security.filter(x=>x!==g);msg('Removed.',true);drawAll();}catch(e){msg('Couldn’t remove ('+e.message+').',false);}}
+async function secSignIn(){const g=(D.Security||[]).find(x=>String(x.ID)===String($('sec-who').value));if(!g){msg('Pick the door supervisor (add them to the register first).',false);return}
+  const st=siaState(g);if(st.state==='over'&&!confirm(g.Name+'’s SIA licence has expired. They must not work as a door supervisor. Sign in anyway?'))return;
+  try{const d=await post({action:'doorShift',name:g.Name,sia:g['SIA number'],date:tradingDay(),start:$('sec-start').value,notes:$('sec-notes').value});
+    D.DoorShifts=(D.DoorShifts||[]).concat([{ID:d.id,Date:d.date,Name:g.Name,'SIA number':g['SIA number'],Start:d.start,Finish:'',Notes:$('sec-notes').value,'Signed in by':WHO}]);$('sec-notes').value='';$('sec-start').value='';msg('Signed in: '+g.Name+' at '+d.start,true);drawAll();}
+  catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+async function secSignOut(id){const s=(D.DoorShifts||[]).find(x=>String(x.ID)===String(id));if(!s)return;const t=prompt('Sign out '+s.Name+'. Finish time:',new Date().toTimeString().slice(0,5));if(t===null)return;
+  try{const d=await post({action:'doorShift',id,finish:t});s.Finish=d.finish;msg('Signed out: '+s.Name+' at '+d.finish,true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
+
+function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='training')drawTraining();if(TAB==='fire')drawCheckArea('fire');if(TAB==='water')drawCheckArea('water');if(TAB==='fra')drawFRA();if(TAB==='licence')drawLicence();if(TAB==='docs')drawDocs();if(TAB==='toilets')drawToilets();if(TAB==='security')drawSecurity();
+  ['call_points','em_lights','extinguishers','outlets','toilet_areas','toilet_every','toilet_hours'].forEach(k=>{const el=$('set-'+k);if(el&&document.activeElement!==el)el.value=SET[k]||'';});}
 
 async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
   if(r.ok)STAFF=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}catch(e){}
