@@ -129,10 +129,12 @@
     fire_drill: ['Fire drill', 183], legionella_flush: ['Weekly flush of little-used taps', 7], legionella_temp: ['Monthly water temperatures', 31],
     showerhead: ['Quarterly showerhead clean', 92], legionella_review: ['Annual legionella review', 365], fra_review: ['Annual fire risk assessment review', 365] };
   var compl = null, complAt = 0;
+  var hsSum = null;
   function complLoad() {
     if (Date.now() - complAt < 30 * 60000) return; complAt = Date.now();
     var V = (window.BOARD && BOARD.venue) || 'bl';
-    fetch(COMPL_URL + '?action=compliance&pub=' + V + '&t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) { compl = d && d.Checks ? d : null; complDraw(); }).catch(function () {});
+    fetch('hs-summary-' + V + '.json?t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) { hsSum = d && d.docs ? d : null; hsDraw(); }).catch(function () {});
+    fetch(COMPL_URL + '?action=compliance&pub=' + V + '&t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) { compl = d && d.Checks ? d : null; complDraw(); hsDraw(); }).catch(function () {});
   }
   function complDraw() {
     var host = document.body.classList.contains('hub2') ? $('sec-todo') : $('sec-attn'); if (!host || !$('attn')) return;
@@ -175,10 +177,39 @@
     if (box.innerHTML !== html) box.innerHTML = html;
     var at = $('attn'); if (box.parentNode !== at.parentNode || box.previousSibling !== at) at.parentNode.insertBefore(box, at.nextSibling);
   }
+  // health and safety library: policies to sign (missing, changed since signed, or over a year), gaps to fill in, staff yet to read the core policies
+  function hsDraw() {
+    var host = $('attn'), box = $('h2-hs'); if (!host) return;
+    if (!hsSum) { if (box) box.remove(); return; }
+    var items = [], sig = compl && compl.Signatures, yearAgo = Date.now() - 365 * 864e5;
+    if (sig) {
+      var toSign = hsSum.docs.filter(function (d) {
+        var s = sig.filter(function (x) { return x.Doc === d.id; }).sort(function (a, b) { return String(a['Signed at']).localeCompare(String(b['Signed at'])); }).pop();
+        return !s || s.Version !== d.ver || new Date(String(s['Signed at']).slice(0, 10) + 'T12:00:00').getTime() < yearAgo;
+      });
+      if (toSign.length) items.push(toSign.length + ' polic' + (toSign.length === 1 ? 'y' : 'ies') + ' to sign');
+    }
+    var gaps = hsSum.docs.filter(function (d) { return d.fill > 0; });
+    if (gaps.length) items.push(gaps.length + ' with gaps to fill in (' + gaps.slice(0, 2).map(function (d) { return d.title; }).join(', ') + (gaps.length > 2 ? '…' : '') + ')');
+    if (compl && compl.Training && hsSum.staff && hsSum.staff.length) {
+      var core = hsSum.docs.filter(function (d) { return d.core; });
+      var behind = hsSum.staff.filter(function (n) {
+        return core.some(function (d) { return !compl.Training.some(function (t) { return String(t.Staff).toLowerCase() === n.toLowerCase() && t.Course === 'Read: ' + d.title && new Date(String(t.Date) + 'T12:00:00').getTime() >= yearAgo; }); });
+      });
+      if (behind.length) items.push(behind.length + ' staff still to read the core policies (' + behind.slice(0, 3).join(', ') + (behind.length > 3 ? '…' : '') + ')');
+    }
+    if (!items.length) { if (box) box.remove(); return; }
+    var V = (window.BOARD && BOARD.venue) || 'bl';
+    var nas = 'http://' + (/^(192\.168\.1\.40|100\.90\.189\.89|eddrock79nas)/i.test(location.hostname) ? location.hostname : '100.90.189.89') + ':' + (V === 'br' ? '8102' : '8101');
+    var html = '<a class="al todo h2-compl-head" data-hpfull="1" href="' + nas + '/hs.html"><i>Health and safety</i><div>' + items.join(' · ') + '</div><span class="jump">Open ›</span></a>';
+    if (!box) { box = document.createElement('div'); box.id = 'h2-hs'; box.className = 'sa'; }
+    if (box.innerHTML !== html) box.innerHTML = html;
+    var after = $('h2-compl') || host; if (box.parentNode !== after.parentNode || box.previousSibling !== after) after.parentNode.insertBefore(box, after.nextSibling);
+  }
   function tick() {
     complLoad();
-    if (!IPAD) { desktopSidebar(); complDraw(); return; }
-    if (arrange()) { compactReport(); compactMsgs(); complDraw(); }
+    if (!IPAD) { desktopSidebar(); complDraw(); hsDraw(); return; }
+    if (arrange()) { compactReport(); compactMsgs(); complDraw(); hsDraw(); }
   }
   var busy = false;
   function soon() { if (busy) return; busy = true; setTimeout(function () { busy = false; tick(); }, 60); }
