@@ -32,7 +32,7 @@
   // ── Staff Hub v2: live for everyone since 21 Nov 2026 (the old ?hpv= preview switch is no longer needed) ──
   var PREVIEW = true;
   // staff pages that now live on the Staff Hub light up Staff Hub
-  var MOVED = /\/(lost-property|cocktails|rotas|holidays)\/|\/(ideas|questions|events|lights|qlc|sound)\.html/.test(path);
+  var MOVED = /\/(lost-property|cocktails|rotas|holidays)\/|\/(ideas|questions|events|lights|qlc|sound|hs)\.html/.test(path);
   if (MOVED) cur = 'hub';
   if (cur === 'hub' && !MOVED) {
     try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
