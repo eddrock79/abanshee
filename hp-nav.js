@@ -1,5 +1,5 @@
 /* Haunted Pubs — the same top on every staff page:
-   [pub logo] Staff Hub / Checklists / Orders / Refusals / Dashboard, then that page's own links, then the page.
+   [pub logo] Staff Hub / Checklists / Stock / Toilets & refusals / Dashboard, then that page's own links, then the page.
    One file, copied unchanged to both Checklists sites (/hp-nav.js), the NAS boards (pub-report/hp-nav.js)
    and the Manager Dashboards (venue-bl, venue-br). Each page's old header is hidden. */
 (function () {
@@ -20,7 +20,7 @@
   var L = [
     ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P],
     ['check', '✓', 'Checklists', site + '/home/'],
-    ['orders', '🛒', 'Orders', NAS + ':' + dashPort + '/orders.html'],
+    ['orders', '🛒', 'Stock', NAS + ':' + dashPort + '/orders.html'],
     ['refusals', '🚫', 'Toilets & refusals', site + '/refusals/'],
     ['dash', '📊', 'Dashboard', NAS + ':' + dashPort + '/']
   ];
@@ -37,10 +37,10 @@
   if (cur === 'hub' && !MOVED) {
     try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
     var FB = 'https://banshee.hauntedpubs.co.uk/';     // fallback copy if the board service can't hand the file out
-    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=10';
-    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=10'; }; document.head.appendChild(hl);
-    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=10';
-    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=10'; document.head.appendChild(y); }; document.head.appendChild(hs);
+    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=11';
+    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=11'; }; document.head.appendChild(hl);
+    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=11';
+    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=11'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
   // ── Dashboard layout (main board and sales only) ──
   // live for everyone since 21 Nov 2026
@@ -215,7 +215,7 @@
       var t = (b.textContent || '').trim().toLowerCase(); b.classList.add('hp-right'); if (t !== 'switch venue') b.classList.add('hp-out'); s.appendChild(b);
     });
     // links the main menu already gives
-    var drop = /^(refusals|toilets & refusals|staff hub|⌂ staff hub|order list|orders|checklists|checklists ↗|home|main board|manager dashboard|pub dashboard)$/i;
+    var drop = /^(refusals|toilets & refusals|staff hub|⌂ staff hub|order list|orders|stock|checklists|checklists ↗|home|main board|manager dashboard|pub dashboard)$/i;
     [].slice.call(s.children).forEach(function (a) {
       var t = (a.textContent || '').replace(/\s+/g, ' ').replace(/\d+$/, '').trim();
       if (drop.test(t) && a.style.display !== 'none') hideEl(a);

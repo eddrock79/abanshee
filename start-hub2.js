@@ -19,22 +19,22 @@
     var nas = 'http://' + (/^(192\.168\.1\.40|100\.90\.189\.89|eddrock79nas)/i.test(location.hostname) ? location.hostname : '100.90.189.89') + ':' + (V === 'br' ? '8102' : '8101');
     var q = function (u) { return u; };
     return [
+      ['Rotas', "Who's working when", q(site + '/rotas/')],
       ['Compliance', 'Fire checks, training, documents and door staff', q(site + '/compliance/')],
       ['Toilets & refusals', 'One tap per toilet, refusals tab too', q(site + '/refusals/')],
-      ['Fridge temperatures', 'Fridge and freezer readings', q(nas + '/temps-record.html')],
       ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
+      ['Fridge temperatures', 'Fridge and freezer readings', q(nas + '/temps-record.html')],
       ['Lost property', 'Log an item or hand one back', q(site + '/lost-property/')],
       ['Cocktails', 'Recipes and what you can make', q(site + '/cocktails/')],
       V === 'bl' ? ['Drinks menu', 'The customer menu, no 2-hour timer', 'https://menu.hauntedpubs.co.uk/?bansheestaff='] : ['Drinks menu', 'The customer menu', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'],
       V === 'bl' ? ['Calendar', 'Gigs, DJs and bookings', q(nas + '/events.html')] : null,
-      ['Rotas', "Who's working when", q(site + '/rotas/')],
       V === 'bl' ? ['Holidays', 'Book or check time off', q(site + '/holidays/')] : null,
       ['Questions', 'Ask instead of messaging the group', q(nas + '/questions.html')],
       ['Ideas', 'Post an idea for the pub', q(nas + '/ideas.html')],
       ['Trello board', "Today's on-shift jobs", V === 'br' ? 'https://trello.com/b/54a2a08e20dbba377fdd5498' : 'https://trello.com/b/54a2a0781d8c930f0225a1ca'],
       ['Lighting', 'Venue lights', q(nas + '/lights.html')],
       V === 'br' ? ['QLC+', 'Lighting desk', q(nas + '/qlc.html')] : null,
-      ['Sound desk', 'Venue wifi only', 'http://192.168.0.24']
+      V === 'br' ? ['Sound desk', 'Venue wifi only', 'http://192.168.0.24'] : null
     ].filter(Boolean);
   }
   // desktop: classic layout, with the staff pages listed in the sidebar instead of the old duplicate links
