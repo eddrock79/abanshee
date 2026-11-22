@@ -20,6 +20,10 @@
 .nm.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .nm.rota::after{content:" ·";color:var(--accent)}
 .saved{font-size:15px}.saved.err{color:var(--bad)}
+.lab{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 -8px}
+.ed{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+textarea.ed{min-height:110px;resize:vertical}
+.edrow{display:flex;gap:10px;align-items:center}.edrow input[type=radio]{width:24px;height:24px;flex:none;accent-color:var(--good)}
 
 /* Layout: one column that swaps between the course shelf, a course (cards then quiz), and the manager check list. Built for a bar tablet: big tap targets. */
 *{box-sizing:border-box}
@@ -284,7 +288,71 @@ async function loadNames(){
   const st = await getJSON('../rotas/staff.json'); STAFF = ((st && st.names) || []).filter(n => !ROTA.includes(n));
   render();
 }
-async function loadTraining(){ const d = await getJSON(COMPLIANCE_URL + '?action=compliance&pub=' + PUB); TRAIN = (d && d.Training) || []; render(); }
+const BUILTIN = COURSES.slice(); let CUSTOM = [];
+const paras = t => String(t || '').split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+function addCustom(rows){
+  CUSTOM = (rows || []).map(r => { let d = {}; try { d = JSON.parse(r.Data || '{}'); } catch (e) {}
+    return {id: 'q_' + r.ID, tag: r.Topic || 'Our pubs', title: r.Title, blurb: d.blurb || '', custom: {ID: r.ID, where: r.Pub, by: r.By},
+      cards: (d.cards || []).map(c => paras(c).map(p => '<p>' + esc(p) + '</p>').join('')), qs: (d.qs || []).filter(q => q.q && q.a && q.a.length >= 2)};
+  }).filter(c => c.title && c.qs.length >= 8);
+  COURSES.length = 0; BUILTIN.concat(CUSTOM).forEach(c => COURSES.push(c));
+}
+async function loadTraining(){ const d = await getJSON(COMPLIANCE_URL + '?action=compliance&pub=' + PUB); TRAIN = (d && d.Training) || []; addCustom(d && d.Quizzes); render(); }
+// ── managers make their own courses (8+ questions) ──
+const isMgr = () => { try { return !!(window.BLAuth && BLAuth.isManager && BLAuth.isManager()); } catch (e) { return false; } };
+let ED = null, ED_MSG = '';
+const blankQ = () => ({q: '', a: ['', '', '', ''], right: 0, why: ''});
+function newQuiz(){ ED = {id: '', title: '', topic: '', where: PUB, blurb: '', cards: '', qs: Array.from({length: 8}, blankQ)}; ED_MSG = ''; VIEW = 'make'; render(); scrollTo(0, 0); }
+function editQuiz(id){ const c = CUSTOM.find(x => x.custom.ID === id); if (!c) return;
+  ED = {id: id, title: c.title, topic: c.tag, where: c.custom.where, blurb: c.blurb, cards: c.cards.map(h => h.replace(/<\/p><p>/g, '\n\n').replace(/<\/?p>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')).join('\n\n---\n\n'),
+    qs: c.qs.map(q => ({q: q.q, a: q.a.concat(['', '', '', '']).slice(0, 4), right: 0, why: q.why || ''}))};
+  while (ED.qs.length < 8) ED.qs.push(blankQ()); ED_MSG = ''; VIEW = 'make'; render(); scrollTo(0, 0); }
+function edSet(path, v){ const p = path.split('.'); let o = ED; while (p.length > 1) o = o[p.shift()]; o[p[0]] = v; }
+function edAddQ(){ ED.qs.push(blankQ()); render(); }
+function edDelQ(i){ if (ED.qs.length <= 8) return; ED.qs.splice(i, 1); render(); }
+async function edSave(){
+  const qs = ED.qs.map(q => { const a = q.a.map(x => x.trim()); const right = a[q.right]; if (!q.q.trim() || !right) return null;
+    const rest = a.filter((x, k) => x && k !== q.right); return rest.length ? {q: q.q.trim(), a: [right].concat(rest), why: q.why.trim()} : null; }).filter(Boolean);
+  if (!ED.title.trim()) { ED_MSG = 'Give the course a title.'; return render(); }
+  if (qs.length < 8) { ED_MSG = 'You need at least 8 finished questions: each needs the question, the right answer ticked, and at least one wrong answer. ' + qs.length + ' done so far.'; return render(); }
+  const cards = ED.cards.split(/\n\s*---\s*\n/).map(x => x.trim()).filter(Boolean);
+  const by = (window.BLAuth && BLAuth.getAuth && (BLAuth.getAuth() || {}).name) || WHO || 'Manager';
+  ED_MSG = 'Saving…'; render();
+  let j = {}; try { const r = await fetch(COMPLIANCE_URL, {method: 'POST', body: JSON.stringify({action: 'quizSave', pub: PUB, id: ED.id, where: ED.where, title: ED.title.trim(), topic: ED.topic.trim(), by: by,
+    data: JSON.stringify({blurb: ED.blurb.trim(), cards: cards, qs: qs})})}); j = await r.json().catch(() => ({})); } catch (e) {}
+  if (!j.ok) { ED_MSG = j.error === 'data' || !j.error ? 'Couldn’t save. Check the wifi and try again (the Compliance script may need updating).' : j.error; return render(); }
+  ED = null; VIEW = 'make'; ED_MSG = 'Saved. It’s on the Courses tab now.'; await loadTraining(); scrollTo(0, 0);
+}
+async function edRemove(id){ if (!confirm('Remove this course? Passes already saved stay on the training record.')) return;
+  try { await fetch(COMPLIANCE_URL, {method: 'POST', body: JSON.stringify({action: 'quizRemove', pub: PUB, id: id, by: WHO || 'Manager'})}); } catch (e) {}
+  await loadTraining(); }
+function makeView(){
+  let h = header();
+  if (!isMgr()) return h + '<p class="muted">Sign in as a manager to make a course.</p>';
+  if (!ED) {
+    h += `<section class="panel"><h2>Make a course</h2><p class="muted">Anyone in charge of something can make a course for it: sound desk, cellar, cocktails, the pub’s history. A few short cards to read, then at least 8 multiple-choice questions. Passing earns the same 10 points and goes on the training record.</p>
+      ${ED_MSG ? `<p class="saved">${esc(ED_MSG)}</p>` : ''}<div class="row"><button class="btn" type="button" onclick="newQuiz()">Start a new course</button></div></section>`;
+    h += '<h2>Your pubs’ own courses</h2>' + (CUSTOM.length ? '<div class="check">' + CUSTOM.map(c => `<div class="cq"><b>${esc(c.title)}</b><span class="muted">${esc(c.tag)} · ${c.qs.length} questions · ${c.custom.where === 'both' ? 'both pubs' : c.custom.where === 'br' ? 'Black Rose' : 'Banshee'}${c.custom.by ? ' · by ' + esc(c.custom.by) : ''}</span>
+      <div class="ctl"><button class="fbtn" type="button" onclick="editQuiz('${esc(c.custom.ID)}')">Edit</button><button class="fbtn" type="button" onclick="edRemove('${esc(c.custom.ID)}')">Remove</button></div></div>`).join('') + '</div>' : '<p class="muted">None yet.</p>');
+    return h;
+  }
+  const inp = (path, val, ph, big) => big ? `<textarea class="ed" placeholder="${esc(ph)}" oninput="edSet('${path}',this.value)">${esc(val)}</textarea>` : `<input class="ed" value="${esc(val)}" placeholder="${esc(ph)}" oninput="edSet('${path}',this.value)">`;
+  h += `<section class="panel"><div class="crumb"><button class="link" type="button" onclick="ED=null;render()">‹ Back</button><span class="qn">${ED.id ? 'EDITING' : 'NEW COURSE'}</span></div>
+    <label class="lab">Title</label>${inp('title', ED.title, 'e.g. Sound desk basics')}
+    <label class="lab">Topic (groups it on the Courses tab)</label><input class="ed" list="topics" value="${esc(ED.topic)}" placeholder="e.g. Sound and lighting" oninput="edSet('topic',this.value)"><datalist id="topics">${[...new Set(COURSES.map(c => c.tag))].map(t => `<option value="${esc(t)}">`).join('')}</datalist>
+    <label class="lab">For</label><select class="ed" onchange="edSet('where',this.value)">${[['bl', 'The Banshee'], ['br', 'The Black Rose'], ['both', 'Both pubs']].map(o => `<option value="${o[0]}"${ED.where === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>
+    <label class="lab">One-line summary</label>${inp('blurb', ED.blurb, 'What staff will learn')}
+    <label class="lab">Cards to read first (optional). Put a line with just --- between cards.</label>${inp('cards', ED.cards, 'Card 1 text\n\n---\n\nCard 2 text', true)}</section>`;
+  ED.qs.forEach((q, i) => {
+    h += `<section class="panel"><div class="crumb"><b>Question ${i + 1}</b>${ED.qs.length > 8 ? `<button class="link" type="button" onclick="edDelQ(${i})">Remove</button>` : ''}</div>
+      ${inp('qs.' + i + '.q', q.q, 'The question')}
+      <p class="muted">Tick the right answer. Fill in at least 2 answers.</p>
+      ${q.a.map((a, k) => `<div class="edrow"><input type="radio" name="r${i}" ${q.right === k ? 'checked' : ''} onchange="edSet('qs.${i}.right',${k})" aria-label="Right answer"><input class="ed" value="${esc(a)}" placeholder="Answer ${k + 1}" oninput="edSet('qs.${i}.a.${k}',this.value)"></div>`).join('')}
+      ${inp('qs.' + i + '.why', q.why, 'Why is it right? (shown after they answer, optional)')}</section>`;
+  });
+  h += `<div class="row"><button class="btn ghost" type="button" onclick="edAddQ()">＋ Add a question</button><button class="btn" type="button" onclick="edSave()">Save course</button></div>${ED_MSG ? `<p class="saved${/Saving/.test(ED_MSG) ? ' muted' : ' err'}">${esc(ED_MSG)}</p>` : ''}`;
+  return h;
+}
 function pickName(n){ WHO = n; try { localStorage.setItem('hp_course_who', JSON.stringify({n: n, d: night()})); } catch (e) {} render(); }
 function otherName(){ let n = (prompt('Your first name (as it is on the rota):') || '').replace(/\s+/g, ' ').trim().slice(0, 24); if (!n) return; n = n.charAt(0).toUpperCase() + n.slice(1); if (!ROTA.includes(n) && !STAFF.includes(n)) STAFF.push(n); pickName(n); }
 // a pass counts for 12 months
@@ -305,7 +373,7 @@ function header(){
   return `<div class="top"><div><h1>Staff courses</h1><p class="sub">A few cards, then 8 questions. Pass mark ${PASS * 100}%. Passing saves to your training record for 12 months and earns points for the league on the Staff Hub.</p></div>
     ${WHO ? `<div class="pts"><b>${monthPts()}</b><span>course points this month</span></div>` : ''}</div>
     <div><p class="qn" style="margin-bottom:8px">WHO ARE YOU? ${ROTA.length ? '(on the rota tonight first)' : ''}</p><div class="names">${names}</div></div>
-    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check'}" onclick="go('shelf')">Courses</button><button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button></div>`;
+    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button>` : ''}</div>`;
 }
 function shelf(){
   const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))];
@@ -364,7 +432,7 @@ function checkView(){
   COURSES.forEach(c => { h += `<h2>${esc(c.title)}</h2>`; c.qs.forEach((q, i) => { h += `<div class="cq"><b>${i + 1}. ${esc(q.q)}</b><ol type="a">${q.a.map((a, j) => `<li class="${j ? '' : 'ans'}">${esc(a)}${j ? '' : ' ✓'}</li>`).join('')}</ol><p class="muted">${esc(q.why)}</p></div>`; }); });
   return h + '</div>';
 }
-function render(){ $('app').innerHTML = VIEW === 'check' ? checkView() : VIEW === 'course' && CUR ? coursePanel() : shelf(); }
+function render(){ $('app').innerHTML = VIEW === 'make' ? makeView() : VIEW === 'check' ? checkView() : VIEW === 'course' && CUR ? coursePanel() : shelf(); }
 render(); loadNames(); loadTraining();
 </script>
 <script src="../bl-header.js" defer></script>

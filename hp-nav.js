@@ -73,6 +73,9 @@
     'html body .hpsub>*>.current,html body .hpsub>*>[aria-current=page]{border-color:' + acc + '!important;color:' + acc + '!important;background:#15151b!important}' +
     'html body .hpsub>*>.hp-out{color:#ff7a93!important;border-color:#ff7a9366!important}' +
     'html body .hpsub>*>.hp-right{margin-left:auto!important}' +
+    /* manager-only buttons (Checklist dashboard, What's On): the page turns them on with display:inline-block and a purple style; keep them like the rest */
+    'html body .hpsub>*>a[style*="inline-block"],html body .hpsub>*>a[style*="display: block"]{display:inline-flex!important}' +
+    'html body .hpsub>*>a.mgr{background:#15151b!important;color:#e8e8ee!important;border-color:rgba(255,255,255,.18)!important}' +
     '@media(max-width:700px){.hptop-in{flex-direction:column!important;align-items:stretch!important;gap:8px!important}.hptop-in>a.hplogo{align-self:center!important}.hptop-in>a.hplogo img{height:40px!important}' +
     'nav.hpnav{gap:5px!important}nav.hpnav a{flex-direction:column!important;gap:4px!important;height:56px!important;font-size:12px!important;padding:0 2px!important}' +
     'html body .hpsub>*>a,html body .hpsub>*>span,html body .hpsub>*>button{height:34px!important;padding:0 10px!important;font-size:13px!important}html body .hpsub>*>.hp-right{margin-left:0!important}}' +
