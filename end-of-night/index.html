@@ -183,6 +183,13 @@
   .modal-buttons{display:flex;gap:10px;justify-content:flex-end;}
   @media(max-width:500px){.job-card{flex-wrap:wrap}.assign-select{max-width:100%}}
 
+.nx-bars{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;align-items:stretch}
+.nx-bar{flex:1 1 150px;min-height:54px;border:2px solid var(--border,#444);background:var(--surface,#1b1b22);color:var(--text,#eee);border-radius:12px;padding:8px 12px;font:inherit;font-weight:700;font-size:16px;text-align:left;cursor:pointer}
+.nx-bar small{display:block;font-weight:400;font-size:12px;opacity:.75;margin-top:2px}
+.nx-bar.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.nx-bar.done small{color:var(--green,#4caf50);opacity:1}
+.nx-bar.off{border-style:dashed;opacity:.7;font-weight:600}
+.nx-barclose{flex-basis:100%;background:none;border:0;color:var(--muted,#999);text-decoration:underline;font:inherit;font-size:13px;text-align:left;padding:2px 4px;cursor:pointer}
 /* ===== new day page: pick your name, tap the jobs you've done ===== */
 .nx-trial{background:#4fb8a81f;border-bottom:1px solid #4fb8a855;color:var(--accent);font-size:13px;text-align:center;padding:7px 12px}
 .nx-trial a{color:var(--accent);text-decoration:underline}
@@ -871,8 +878,58 @@ function removeStaff(i){
 const NX_AREAS=[["Customer areas",/toilet|customer|lost property|ledge/i],["Restock",/restock|fruit|nibble|forward-face/i],
   ["Bar top and taps",/tap|font|nozzle|soda|drip|till|bar surface|bar runner|ice bucket|fridge door|python/i],["Glasswasher",/glass ?washer/i],
   ["Floor and bins",/sweep|mop|deck|floor|bin|wall/i]];
-function nxArea(job){const s=String(job),i=s.indexOf(" | ");if(i>0)return s.slice(0,i);for(const a of NX_AREAS){if(a[1]&&a[1].test(s))return a[0];}return "Other jobs";}
-function nxJobText(job){const s=String(job),i=s.indexOf(" | ");return i>0?s.slice(i+3):s;}
+function nxArea(job){const s=nxBarStrip(job),i=s.indexOf(" | ");if(i>0)return s.slice(0,i);for(const a of NX_AREAS){if(a[1]&&a[1].test(s))return a[0];}return "Other jobs";}
+function nxJobText(job){const s=nxBarStrip(job),i=s.indexOf(" | ");return i>0?s.slice(i+3):s;}
+// ── BARS (Banshee): Main Bar every night; Cave Bar and Bar 13 every Friday and Saturday, or any other night someone opens them.
+// A back-bar job is stored as "Cave Bar: <job>" (on its days for good) or "Cave Bar@2026-11-27: <job>" (that one night only).
+const NX_BAR_LIST=['Main Bar','Cave Bar','Bar 13'], NX_BAR_DAYS=['Friday','Saturday'];
+const NX_BAR_RE=/^(Cave Bar|Bar 13)(?:@(\d{4}-\d{2}-\d{2}))?: /;
+function nxBars(){return typeof BR_CHOICES==='function'?null:NX_BAR_LIST;}
+function nxBar(job){const m=String(job).match(NX_BAR_RE);return m?m[1]:'Main Bar';}
+function nxBarDate(job){const m=String(job).match(NX_BAR_RE);return m&&m[2]||'';}
+function nxBarStrip(job){return String(job).replace(NX_BAR_RE,'');}
+function nxISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function nxLive(j){const dt=nxBarDate(j.job);return !dt||dt===nxISO(nxDayDate(j.day));}
+function nxLabel(j){const b=nxBar(j.job);return (b==='Main Bar'?'':b+': ')+nxJobText(j.job);}
+function nxBarSel(day){try{const m=JSON.parse(localStorage.getItem('eon_bar')||'null');if(m&&m.day===day&&m.d===rotaDayISO()&&NX_BAR_LIST.includes(m.bar))return m.bar;}catch(e){}return 'Main Bar';}
+function nxPickBar(day,bar){try{localStorage.setItem('eon_bar',JSON.stringify({day:day,bar:bar,d:rotaDayISO()}));}catch(e){}renderDay(day);}
+function nxBarPrefix(day,bar){if(!nxBars()||bar==='Main Bar')return '';
+  const temp=state.jobs.find(j=>j.day===day&&nxBar(j.job)===bar&&nxBarDate(j.job)&&nxLive(j));
+  return temp?bar+'@'+nxBarDate(temp.job)+': ':bar+': ';}
+function nxCopyRows(src,prefix,day){const seen=new Set();
+  src.forEach(j=>{const t=nxBarStrip(j.job);if(seen.has(t)||state.jobs.some(x=>x.day===day&&x.job===prefix+t))return;seen.add(t);nxNewRow(prefix+t,day);});return seen.size;}
+function nxMainRows(day){return state.jobs.filter(j=>j.day===day&&nxBar(j.job)==='Main Bar');}
+// first time on a Friday or Saturday: copy the Main Bar's jobs for both nights (edit them later in the manager box)
+function nxSetupBar(day,bar){
+  if(!confirm(bar+' has no closing jobs yet.\n\nCopy the Main Bar\'s Friday and Saturday jobs to '+bar+'? A manager can edit them afterwards.'))return;
+  let n=0;NX_BAR_DAYS.forEach(d=>{n+=nxCopyRows(nxMainRows(d),bar+': ',d);});
+  saveState();queueSheetSync();nxToast(bar+': '+n+' jobs added');nxPickBar(day,bar);}
+// open a back bar on another night: tonight only, using its Friday list
+function nxOpenBar(day,bar){
+  if(!confirm('Is '+bar+' open on '+day+'?\n\nIts closing jobs will be added for '+day+' '+nxDayDate(day).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' only.'))return;
+  let src=state.jobs.filter(j=>nxBar(j.job)===bar&&!nxBarDate(j.job)&&j.day==='Friday');
+  if(!src.length)src=state.jobs.filter(j=>nxBar(j.job)===bar&&!nxBarDate(j.job));
+  if(!src.length)src=nxMainRows('Friday').length?nxMainRows('Friday'):nxMainRows(day);
+  const n=nxCopyRows(src,bar+'@'+nxISO(nxDayDate(day))+': ',day);
+  saveState();queueSheetSync();nxToast(bar+' open: '+n+' jobs added');nxPickBar(day,bar);}
+function nxCloseBar(day,bar){const rows=state.jobs.filter(j=>j.day===day&&nxBar(j.job)===bar&&nxBarDate(j.job)&&nxLive(j));
+  if(!rows.length)return;const ticked=rows.filter(nxIsDone).length;
+  if(!confirm('Close '+bar+' for '+day+'? Its '+rows.length+' jobs'+(ticked?' ('+ticked+' already ticked)':'')+' will be removed.'))return;
+  const ids=new Set(rows.map(j=>j.id));state.jobs=state.jobs.filter(j=>!ids.has(j.id));saveState();queueSheetSync();nxToast(bar+' closed for '+day);nxPickBar(day,'Main Bar');}
+// one-night rows tidy themselves away after five days
+function nxPruneBars(){const cut=nxISO(new Date(Date.now()-5*864e5)),before=state.jobs.length;
+  state.jobs=state.jobs.filter(j=>{const d=nxBarDate(j.job);return !d||d>=cut;});
+  if(state.jobs.length!==before){saveState();queueSheetSync();}}
+function nxBarStripHtml(day,sel,all){const bars=nxBars();if(!bars)return '';
+  const tempSel=sel!=='Main Bar'&&all.some(j=>nxBar(j.job)===sel&&nxBarDate(j.job));
+  return `<div class="nx-bars">${bars.map(b=>{const js=all.filter(j=>nxBar(j.job)===b);
+    if(b==='Main Bar'||js.length){const d=js.filter(nxIsDone).length;
+      return `<button type="button" class="nx-bar${b===sel?' on':''}${js.length&&d===js.length?' done':''}" onclick="nxPickBar('${day}','${b}')">${b}<small>${d} of ${js.length}</small></button>`;}
+    const has=state.jobs.some(j=>nxBar(j.job)===b&&!nxBarDate(j.job));
+    return NX_BAR_DAYS.includes(day)&&!has
+      ?`<button type="button" class="nx-bar off" onclick="nxSetupBar('${day}','${b}')">${b}<small>Set up its jobs</small></button>`
+      :`<button type="button" class="nx-bar off" onclick="nxOpenBar('${day}','${b}')">${b}<small>Closed · open tonight?</small></button>`;}).join('')}
+    ${tempSel?`<button type="button" class="nx-barclose" onclick="nxCloseBar('${day}','${sel}')">${sel} not open after all? Close it</button>`:''}</div>`;}
 function nxDayDate(day){ // the date of this weekday's trading night: tonight, or the most recent one before it
   const t=new Date(rotaDayISO()+'T12:00:00'),back=(t.getDay()+6)%7-DAYS.indexOf(day),d=new Date(t);d.setDate(d.getDate()-((back%7)+7)%7);return d;}
 function nxWindow(day){const s=nxDayDate(day);s.setHours(12,0,0,0);const e=new Date(s);e.setDate(e.getDate()+1);return [s,e];}
@@ -894,7 +951,7 @@ function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top fi
   nxRecent[id]=Date.now()+NX_HOLD;
   saveState();renderDay(j.day);queueSheetSync();
   setTimeout(()=>{if(nxRecent[id]&&nxRecent[id]<=Date.now()+50){delete nxRecent[id];if(currentTab===j.day.toLowerCase())renderDay(j.day);}},NX_HOLD+60);
-  const left=state.jobs.filter(x=>x.day===j.day&&!nxIsDone(x)).length;if(!left)setTimeout(()=>triggerCelebration(j.day),NX_HOLD);}
+  const left=state.jobs.filter(x=>x.day===j.day&&nxLive(x)&&!nxIsDone(x)).length;if(!left)setTimeout(()=>triggerCelebration(j.day),NX_HOLD);}
 function nxUndo(id){const j=state.jobs.find(x=>x.id===id);if(!j)return;delete nxRecent[id];j.assignedTo='';j.done=false;j.timestamp='';
   saveState();renderDay(j.day);queueSheetSync();nxToast('Unticked');}
 function nxSet(id,name){const j=state.jobs.find(x=>x.id===id);if(!j)return;if(name){j.assignedTo=name;j.done=true;j.timestamp=j.timestamp||new Date().toISOString();if(/^Not done:/i.test(j.notes||''))j.notes='';}else{j.assignedTo='';j.done=false;j.timestamp='';}
@@ -925,11 +982,11 @@ function nxFlag(id,btn,ev){ev.stopPropagation();const old=document.querySelector
 function nxJump(dk){const sec=document.querySelector('#page-'+dk+' .notes-section');if(!sec)return;sec.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(()=>{const ta=document.getElementById('ho-ta-'+dk);if(ta)ta.focus({preventScroll:true});},500);}
 document.addEventListener('click',e=>{if(!e.target.closest('.nx-menu')){const m=document.querySelector('.nx-menu');if(m)m.remove();}});
-async function nxSignOff(day,dk,name){if(!name)return;const jobs=state.jobs.filter(j=>j.day===day),done=jobs.filter(nxIsDone).length;
+async function nxSignOff(day,dk,name){if(!name)return;const jobs=state.jobs.filter(j=>j.day===day&&nxLive(j)),done=jobs.filter(nxIsDone).length;
   const notDone=jobs.filter(j=>!nxIsDone(j)),noWhy=notDone.filter(j=>!nxReason(j));
   if(noWhy.length&&!confirm(noWhy.length+' unticked job'+(noWhy.length>1?'s have':' has')+' no reason. Tap the flag on a job to say why it wasn’t done.\n\nSign off anyway?')){renderDay(day);return;}
   doSignOffByName('eon-signoff-'+dk,day,dk,name);
-  try{await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notes',op:'add',src:HANDOVER_APP+' - '+day,author:name,note:'✓ Signed off: '+done+' of '+jobs.length+' closing jobs ticked'+(notDone.length?'. Not done: '+notDone.map(j=>j.job+(nxReason(j)?' ('+nxReason(j).replace(/\s*\([^)]*\)$/,'')+')':' (no reason given)')).join('; '):'')})});handoverLoaded=false;loadHandover(day);}catch(e){}}
+  try{await fetch(NOTES_SCRIPT_URL,{method:'POST',body:JSON.stringify({board:'notes',op:'add',src:HANDOVER_APP+' - '+day,author:name,note:'✓ Signed off: '+done+' of '+jobs.length+' closing jobs ticked'+(notDone.length?'. Not done: '+notDone.map(j=>nxLabel(j)+(nxReason(j)?' ('+nxReason(j).replace(/\s*\([^)]*\)$/,'')+')':' (no reason given)')).join('; '):'')})});handoverLoaded=false;loadHandover(day);}catch(e){}}
 // ── MANAGER: add / remove jobs (new style). Placeholders filled by the builder: renderDay, day ──
 let nxManageOpen=false, nxNewGroup='', nxNewArea='', nxNewDays=null, nxNewFor='', nxDaysOpen='';
 const NX_PERIODS=(typeof NX_LIST!=='undefined')?NX_LIST:DAYS;          // days on the day pages, months on the monthly page
@@ -975,7 +1032,7 @@ function nxManageHtml(p,pk,jobs){
       +(canMove?`<button type="button" class="nx-mico" title="Move to the day before" onclick="moveJob(${j.id},'${pk}',-1)">◀</button><button type="button" class="nx-mico" title="Move to the next day" onclick="moveJob(${j.id},'${pk}',1)">▶</button>`:'')
       +`<button type="button" class="nx-mico del" title="Remove from ${p}" onclick="nxDelJob(${j.id},'${p}')">✕</button></div>`
       +(open?`<div class="nx-mdaypick">${NX_PERIODS.map(x=>`<button type="button" class="nx-mchip sm${per.includes(x)?' on':''}" onclick="nxToggleJobDay(${j.id},'${x}','${p}')">${nxShort(x)}</button>`).join('')}</div>`:'');}).join('')}</div>`;}).join('');
-  return `<details class="nx-manage" ${nxManageOpen?'open':''} ontoggle="nxManageOpen=this.open"><summary>✎ Add or remove ${p}'s jobs (manager)</summary>
+  return `<details class="nx-manage" ${nxManageOpen?'open':''} ontoggle="nxManageOpen=this.open"><summary>✎ Add or remove ${p}'s jobs${nxBars()&&jobs.length&&nxBar(jobs[0].job)!=='Main Bar'?' · '+nxBar(jobs[0].job):''} (manager)</summary>
     <div class="nx-mform"><div class="nx-mhead">Add a job</div>${step1}${step2}${step3}${add}</div>
     <div class="nx-mhead">${p}'s jobs <small>· tap 📅 to choose which ${NX_PKIND}s a job is on</small></div><div class="nx-mlist">${list||'<div class="nx-empty">No jobs yet.</div>'}</div></details>`;
 }
@@ -983,7 +1040,7 @@ function nxAddJob(p,pk){
   const inp=document.getElementById('nx-new-'+pk);const t=(inp&&inp.value||'').replace(/\s*\|\s*/g,' - ').replace(/\s+/g,' ').trim();
   if(!nxNewArea){nxToast('Pick where the job goes first');return;}
   if(!t){nxToast('Type the job first');if(inp)inp.focus();return;}
-  const job=nxNewArea==='Other jobs'?t:nxNewArea+' | '+t;
+  const job=nxBarPrefix(p,nxBars()?nxBarSel(p):'Main Bar')+(nxNewArea==='Other jobs'?t:nxNewArea+' | '+t);
   const days=NX_PERIODS.filter(x=>nxNewDays.includes(x)&&!state.jobs.some(j=>j.job===job&&j['day']===x));
   if(!days.length){nxToast('That job is already on those '+NX_PKIND+'s');return;}
   days.forEach(x=>nxNewRow(job,x));saveState();queueSheetSync();nxToast('Added to '+nxNewArea+' · '+nxPeriodLabel(days));
@@ -1006,14 +1063,17 @@ function nxHandover(p,pk){const g=id=>((document.getElementById(id+pk)||{}).valu
 
 function renderDay(day){
   const dk=day.toLowerCase(),el=document.getElementById('page-'+dk);
-  const jobs=state.jobs.filter(j=>j.day===day),isDone=nxIsDone;
+  nxPruneBars();
+  const dayAll=state.jobs.filter(j=>j.day===day&&nxLive(j));
+  let bar=nxBars()?nxBarSel(day):'';if(bar&&bar!=='Main Bar'&&!dayAll.some(j=>nxBar(j.job)===bar))bar='Main Bar';
+  const jobs=bar?dayAll.filter(j=>nxBar(j.job)===bar):dayAll,isDone=nxIsDone,dayLeft=dayAll.filter(j=>!isDone(j));
   const doneJobs=jobs.filter(isDone),left=jobs.filter(j=>!isDone(j)),me=nxMe(),crew=nxCrew();
   const onShift=crew.length?crew:state.staff.filter(s=>s.onShift).map(s=>s.name);
   const tonight=day===nxToday(),signOff=getSignOff('eon-signoff-'+dk);
   // last night's result, shown on tonight's page
   let lastHtml='';
-  if(tonight){const prev=DAYS[(DAYS.indexOf(day)+6)%7],pj=state.jobs.filter(j=>j.day===prev),pd=pj.filter(nxIsDone).length;
-    if(pj.length&&pd<pj.length)lastHtml=`<div class="nx-last">⚠ Last night <b>${pd} of ${pj.length}</b> closing jobs were ticked. Missed: ${pj.filter(j=>!nxIsDone(j)).slice(0,4).map(j=>escHtml(nxJobText(j.job))+(nxReason(j)?` <i>(${escHtml(nxReason(j))})</i>`:'')).join('; ')}${pj.length-pd>4?'…':''}</div>`;}
+  if(tonight){const prev=DAYS[(DAYS.indexOf(day)+6)%7],pj=state.jobs.filter(j=>j.day===prev&&nxLive(j)),pd=pj.filter(nxIsDone).length;
+    if(pj.length&&pd<pj.length)lastHtml=`<div class="nx-last">⚠ Last night <b>${pd} of ${pj.length}</b> closing jobs were ticked. Missed: ${pj.filter(j=>!nxIsDone(j)).slice(0,4).map(j=>escHtml(nxLabel(j))+(nxReason(j)?` <i>(${escHtml(nxReason(j))})</i>`:'')).join('; ')}${pj.length-pd>4?'…':''}</div>`;}
   // who's ticking
   const others=state.staff.map(s=>s.name).filter(n=>!crew.includes(n));
   const whoHtml=`<section class="nx-who"><p>${me?`Ticking as <b>${escHtml(me)}</b>. Tap the jobs you've finished`:'Who are you? Tap your name first'}</p><div class="nx-chips">
@@ -1039,11 +1099,12 @@ function renderDay(day){
   const signOffCard=signOff
     ?`<div class="job-card" style="border-color:var(--green);background:var(--green-dim);margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--green)">✦ Duty Manager Sign-Off</div><div class="job-assignee assigned">${signOff}</div></div>
        <div class="job-controls"><button class="btn btn-ghost" style="font-size:12px;padding:4px 10px" onclick="clearSignOff('eon-signoff-${dk}','${day}','${dk}')">Undo</button></div></div>`
-    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${left.length?left.length+' jobs still to tick'+(left.filter(j=>!nxReason(j)).length?' · '+left.filter(j=>!nxReason(j)).length+' without a reason':' · all have a reason'):'All ticked, ready to sign off'}</div></div>
+    :`<div class="job-card" style="border-color:var(--red);border-style:dashed;margin-top:14px;"><div class="job-info"><div class="job-name" style="color:var(--red)">✦ Duty Manager Sign-Off</div><div class="job-assignee">${dayLeft.length?dayLeft.length+' jobs still to tick'+(dayLeft.filter(j=>!nxReason(j)).length?' · '+dayLeft.filter(j=>!nxReason(j)).length+' without a reason':' · all have a reason'):'All ticked, ready to sign off'}</div></div>
        <div class="job-controls"><select class="assign-select" onchange="nxSignOff('${day}','${dk}',this.value)"><option value="">— Duty manager —</option>${onShift.map(n=>`<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('')}</select></div></div>`;
   el.innerHTML=`
-    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${doneJobs.length} of ${jobs.length} ticked</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${dk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${dk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
+    <div class="nx-head"><div><div class="section-title">${day}${tonight?' · tonight':''}</div><div class="nx-sub">${bar&&jobs.length!==dayAll.length?escHtml(bar)+": ":""}${doneJobs.length} of ${jobs.length} ticked${bar&&jobs.length!==dayAll.length?" · whole night "+(dayAll.length-dayLeft.length)+" of "+dayAll.length:""}</div></div><div class="nx-prog"><i style="width:${pct}%"></i></div><button type="button" class="nx-jump" onclick="nxJump('${dk}')">📝 Write a handover note ↓</button>${isManager?`<button type="button" class="nx-edit" onclick="(function(d){if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'});}})(document.querySelector('#page-${dk} .nx-manage'))">✎ Edit job list</button>`:''}</div>
     ${lastHtml}${whoHtml}
+    ${nxBarStripHtml(day,bar||"Main Bar",dayAll)}
     <div class="nx-board"><section class="nx-col nx-todo"><h3>Still to do<small>${left.length} jobs</small></h3><div class="nx-list">${todo||'<div class="nx-empty" style="grid-column:1/-1">Everything is ticked. The duty manager can sign off.</div>'}</div></section>
       <div class="nx-people">${people}</div></div>
     ${signOffCard}
