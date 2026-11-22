@@ -62,6 +62,8 @@
     'border-radius:12px!important;border:1px solid rgba(255,255,255,.2)!important;background:#1b1b22!important;color:#fff!important;' +
     'font:700 16px/1 ' + F + '!important;letter-spacing:0!important;text-transform:none!important;text-decoration:none!important;text-align:center!important;white-space:nowrap!important;box-shadow:none!important}' +
     'nav.hpnav a:hover{border-color:' + acc + '!important}' +
+    /* tablet portrait: long labels (Toilets & refusals) wrap onto two lines inside their button instead of spilling out */
+    '@media(max-width:1000px){nav.hpnav a{white-space:normal!important;line-height:1.1!important;font-size:15px!important;overflow:hidden!important;min-width:0!important}}' +
     'nav.hpnav a[aria-current=page]{background:' + acc + '!important;border-color:' + acc + '!important;color:#111!important}' +
     'nav.hpnav a i{font-style:normal!important;font-size:18px!important;line-height:1!important}' +
     /* that page's own links, one row, same look on every page */
