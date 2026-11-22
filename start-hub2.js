@@ -24,7 +24,7 @@
       ['Compliance', 'Fire checks, training, documents and door staff', q(site + '/compliance/')],
       ['Toilets & refusals', 'One tap per toilet, refusals tab too', q(site + '/refusals/')],
       ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
-      ['Fridge temperatures', 'Fridge and freezer readings', q(nas + '/temps-record.html')],
+      V === 'br' ? ['Kitchen', 'Food safety diary, fridges and allergens', q(nas + '/kitchen.html')] : ['Fridge temperatures', 'Fridge and freezer readings', q(nas + '/temps-record.html')],
       ['Lost property', 'Log an item or hand one back', q(site + '/lost-property/')],
       ['Cocktails', 'Recipes and what you can make', q(site + '/cocktails/')],
       V === 'bl' ? ['Drinks menu', 'The customer menu, no 2-hour timer', 'https://menu.hauntedpubs.co.uk/?bansheestaff='] : ['Drinks menu', 'The customer menu', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'],
