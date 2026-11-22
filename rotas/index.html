@@ -63,6 +63,13 @@
     text-transform:uppercase;font-size:12px;transition:.18s;text-decoration:none}
   .btn:hover{border-color:var(--accent);color:#fff}
   .stamp{color:var(--muted);font-size:12px;margin-left:auto}
+
+  /* fit the rota to the screen: draw it at a fixed size, then zoom it to the space available */
+  #sheet table.rota{width:1100px!important}
+  #sheet table.rota td{font-size:13px!important;padding:6px 5px}
+  .viewer.fitted{padding:8px;min-height:0}
+  .tabs{margin:12px 0 10px}.tab{padding:9px 12px}
+  .viewer.fitted .state{position:static}
 </style>
 <script src="../bl-header.js" defer></script>
 <link rel="stylesheet" href="../bl-style.css">
@@ -109,6 +116,7 @@
 
   <div class="footer">
     <button class="btn" onclick="load()">↻ Refresh</button>
+    <button class="btn" id="fitbtn" onclick="toggleFit()">Full size</button>
     <span class="stamp" id="stamp"></span>
   </div>
 
@@ -145,10 +153,32 @@
       if (!res.ok) throw new Error('not found');
       document.getElementById('sheet').innerHTML = await res.text();
       setState(null);
+      rotaFit(); setTimeout(rotaFit, 400);
     }catch(err){
       setState('Could not load this rota.<br><small style="color:#7d7689">' + String(err) + '</small>');
     }
   }
+
+  // ── fit to screen ──
+  let FIT = true; try { FIT = localStorage.getItem('rota_fit') !== '0'; } catch (e) {}
+  function rotaFit(){
+    const sh = document.getElementById('sheet'), t = sh.querySelector('table'), v = document.querySelector('.viewer');
+    document.getElementById('fitbtn').textContent = FIT ? 'Full size' : 'Fit to screen';
+    sh.style.zoom = ''; if (t) t.style.removeProperty('width'); v.classList.toggle('fitted', !!t && FIT);
+    if (!t || !FIT) return;
+    const w = t.offsetWidth, h = t.offsetHeight; if (!w || !h) return;
+    const cs = getComputedStyle(v), padW = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2, padH = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + 2;
+    const availW = v.clientWidth - padW + 2;
+    const availH = innerHeight - (v.getBoundingClientRect().top + scrollY) - padH - 64;   // leave room for the Refresh row
+    let k = Math.min(availW / w, availH / h);
+    if (k < 0.6) k = availW / w;          // too tall to fit and stay readable: fit the width, scroll down
+    k = Math.max(0.5, Math.min(k, 1.6));  // phones: never smaller than half size (swipe sideways)
+    if (availW / k > w + 8) t.style.setProperty('width', Math.floor(availW / k) + 'px', 'important');   // height is the limit: stretch the columns to use the full width
+    sh.style.zoom = k.toFixed(3);
+  }
+  function toggleFit(){ FIT = !FIT; try { localStorage.setItem('rota_fit', FIT ? '1' : '0'); } catch (e) {} rotaFit(); }
+  addEventListener('resize', () => { clearTimeout(window._rf); window._rf = setTimeout(rotaFit, 120); });
+  addEventListener('orientationchange', () => setTimeout(rotaFit, 300));
 
   async function load(){
     setState('<div class="spinner"></div>Loading rotas…');
