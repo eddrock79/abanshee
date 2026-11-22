@@ -46,7 +46,7 @@
     var keep = [['Checklists', link('Checklists')], ['Stock', link('Add to the order list')]].filter(function (k) { return k[1]; }).map(function (k) { return [k[0], '', k[1]]; });
     var V0 = (window.BOARD && BOARD.venue) || 'bl';
     var mgr = [['Manager dashboard', link('Manager dashboard')], ['Menu editor', link('Menu editor')], ['Food menu admin', link('Food menu admin')],
-               V0 === 'bl' ? ['What&#8217;s On boards', 'https://banshee.hauntedpubs.co.uk/whatson/'] : null, ['Report site', link('Report site')]].filter(function (k) { return k && k[1]; });
+               V0 === 'bl' ? ['What&#8217;s On boards', 'https://banshee.hauntedpubs.co.uk/whatson/'] : null, ['Report site', link('Report site')], ['Who&#8217;s who and manager&#8217;s pick', 'http://' + location.hostname + ':8114/board/who.html?venue=' + V0]].filter(function (k) { return k && k[1]; });
     var block = document.createElement('div'); block.id = 'h2-sidenav';
     block.innerHTML = '<p class="navh">Staff pages</p><nav class="nav">' + keep.concat(pagesList()).map(function (x) {
       return '<a href="' + x[2] + '"' + (/trello\.com|192\.168\.0\./.test(x[2]) ? ' target="_blank" rel="noopener"' : '') + '>' + x[0] + '</a>';

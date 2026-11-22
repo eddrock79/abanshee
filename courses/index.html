@@ -373,7 +373,7 @@ function header(){
   return `<div class="top"><div><h1>Staff courses</h1><p class="sub">A few cards, then 8 questions. Pass mark ${PASS * 100}%. Passing saves to your training record for 12 months and earns points for the league on the Staff Hub.</p></div>
     ${WHO ? `<div class="pts"><b>${monthPts()}</b><span>course points this month</span></div>` : ''}</div>
     <div><p class="qn" style="margin-bottom:8px">WHO ARE YOU? ${ROTA.length ? '(on the rota tonight first)' : ''}</p><div class="names">${names}</div></div>
-    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button>` : ''}</div>`;
+    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button><a class="tab" href="http://100.90.189.89:8114/board/who.html?venue=${PUB}" style="text-decoration:none">Who’s who and manager’s pick ›</a>` : ''}</div>`;
 }
 function shelf(){
   const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))];
