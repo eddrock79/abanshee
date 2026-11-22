@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff courses — Banshee Labyrinth</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0f;--surface:#17171a;--ink:#e8e8ec;--muted:#8a8a96;--line:#2a2a30;
+  --accent:#4fb8a8;--accent-ink:#0a0a0b;--accent-soft:rgba(79,184,168,.14);
+  --good:#7ad38a;--good-soft:rgba(122,211,138,.13);--bad:#ff6b8b;--bad-soft:rgba(255,107,139,.13);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;color-scheme:dark}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:var(--surface);border-bottom:1px solid var(--line);position:relative}
+.topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent)}
+.topbar-centre-logo{position:absolute;left:50%;transform:translateX(-50%);height:34px;width:auto;pointer-events:none}
+.nav-bar{display:flex;gap:8px;background:#1f1f24;border-bottom:1px solid var(--line);padding:10px 16px;flex-wrap:wrap}
+.nav-btn{padding:7px 14px;border-radius:8px;font:600 13px 'DM Sans',sans-serif;border:1px solid var(--line);background:var(--surface);color:var(--muted);text-decoration:none}
+.names{display:flex;flex-wrap:wrap;gap:8px}
+.nm{font:600 16px var(--body);padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.nm.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nm.rota::after{content:" ·";color:var(--accent)}
+.saved{font-size:15px}.saved.err{color:var(--bad)}
+
+/* Layout: one column that swaps between the course shelf, a course (cards then quiz), and the manager check list. Built for a bar tablet: big tap targets. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 var(--body)}
+.wrap{padding:18px 16px 60px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:24px;font-weight:800}
+h3{font-size:19px;font-weight:600}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.draft{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:15px}
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+.top .sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.me{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.me label{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.me input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);width:180px}
+.pts{display:flex;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+.pts b{font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.pts span{color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;font-size:15px}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.course{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-height:150px}
+.course:hover{border-color:var(--accent)}
+.course .tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.course p{color:var(--muted);font-size:15px;flex:1}
+.state{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+.pill{border-radius:999px;padding:3px 10px;font-weight:700;font-size:13px;background:var(--bg);color:var(--muted)}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.no{background:var(--bad-soft);color:var(--bad)}
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 18px}
+.rules div{display:flex;gap:10px;align-items:baseline}
+.rules b{font-family:var(--display);color:var(--accent);min-width:44px;font-variant-numeric:tabular-nums}
+.rules span{font-size:15px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.crumb{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.link{background:none;border:0;color:var(--accent);font-weight:700;padding:6px 0}
+.dots{display:flex;gap:6px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.card-body{font-size:19px;line-height:1.55;max-width:62ch;display:flex;flex-direction:column;gap:10px}
+.card-body ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.card-body strong{color:var(--accent)}
+.row{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:14px 22px;font-weight:700;font-size:17px;min-height:52px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.45;cursor:default}
+.qn{font-size:14px;color:var(--muted);letter-spacing:.04em}
+.q{font-family:var(--display);font-size:clamp(21px,3.4vw,26px);font-weight:600;line-height:1.25}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:14px 16px;font-size:18px;min-height:56px}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.why{border-left:4px solid var(--good);padding:8px 14px;background:var(--good-soft);border-radius:0 10px 10px 0}
+.why.badw{border-color:var(--bad);background:var(--bad-soft)}
+.result{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;padding:10px 0}
+.big{font-family:var(--display);font-size:56px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.muted{color:var(--muted)}
+.check{display:flex;flex-direction:column;gap:14px}
+.cq{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.cq.flag{border-color:var(--bad)}
+.cq ol{margin:0;padding-left:22px}
+.cq li.ans{color:var(--good);font-weight:700}
+.cq .ctl{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.cq textarea{flex:1 1 260px;min-height:42px;font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.fbtn{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;font-size:14px;font-weight:700}
+.cq.flag .fbtn{border-color:var(--bad);color:var(--bad)}
+.chead{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:10px 0;z-index:2;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .18s ease-out}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">Staff courses</div>
+  <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
+  <div class="topbar-right"></div>
+</div>
+<div class="nav-bar">
+  <a class="nav-btn" id="nav-home" href="../home">Home</a>
+  <a class="nav-btn" href="../end-of-night">End Of Night</a>
+  <a class="nav-btn" href="../weekly-cleaning">Weekly Jobs</a>
+  <a class="nav-btn" href="../monthly-cleaning">Monthly Jobs</a>
+  <a class="nav-btn" href="../cocktails">Cocktails</a>
+  <a class="nav-btn" href="../rotas">Rotas</a>
+  <a class="nav-btn" href="../holidays/">Holidays</a>
+  <a class="nav-btn" href="http://eddrock79nas:8101/">Pub Dashboard</a>
+</div>
+<div class="wrap" id="app"></div>
+<script src="../bl-config.js"></script>
+<script src="../bl-auth.js"></script>
+<script>
+const COMPLIANCE_URL = 'https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+const PUB = /rose/i.test(((window.BL_CFG || {}).venueKey || '') + location.hostname) ? 'br' : 'bl';
+const ASSEMBLY = PUB === 'bl' ? 'Bannermans Bar' : '';
+const PASS = 0.8, PTS_PASS = 10, PTS_PERFECT = 2, PTS_ALL = 20;
+const COURSES = [
+{id:"licensing", tag:"Scottish licensing", title:"Licensing law basics", blurb:"The five objectives, who can authorise a sale, and why training is the law.",
+ cards:[
+  `<p>Pubs in Scotland run under the <strong>Licensing (Scotland) Act 2005</strong>. Every pub needs a <strong>premises licence</strong> from the local Licensing Board, plus an <strong>operating plan</strong> that sets the hours, the activities, and when children can be in.</p>`,
+  `<p>Everything the board decides comes back to the <strong>five licensing objectives</strong>:</p><ul><li>Preventing crime and disorder</li><li>Securing public safety</li><li>Preventing public nuisance</li><li>Protecting and improving public health</li><li>Protecting children and young people from harm</li></ul><p>England has four. Public health is the extra one in Scotland.</p>`,
+  `<p>Every pub has a <strong>premises manager</strong> named on the licence, who must hold a <strong>personal licence</strong>.</p><p>Every sale of alcohol has to be made or authorised by the premises manager or another personal licence holder. When you serve, you're doing it under their authority, so follow the house rules.</p>`,
+  `<p>Staff training is part of the law. Everyone who sells or serves alcohol must complete <strong>at least 2 hours</strong> of staff training, and the pub has to keep a record of it to show inspectors.</p><p>Personal licence holders also do <strong>refresher training every 5 years</strong>.</p>`,
+  `<p><strong>Licensing Standards Officers (LSOs)</strong> from the council and the <strong>police</strong> can visit to check the pub is keeping to its licence.</p><p>If things go wrong, the board can review the licence and add conditions, suspend it, or take it away. Some offences, like selling to someone under 18, are charged to the person who served.</p>`
+ ],
+ qs:[
+  {q:"How many licensing objectives are there in Scotland?",a:["Five","Three","Four","Six"],why:"Crime and disorder, public safety, public nuisance, public health, and protecting children."},
+  {q:"Which of these is NOT a licensing objective?",a:["Increasing sales of alcohol","Preventing public nuisance","Protecting and improving public health","Protecting children and young people from harm"],why:"The objectives are about safety and harm, never about sales."},
+  {q:"Which objective does Scotland have that England doesn’t?",a:["Protecting and improving public health","Preventing crime and disorder","Securing public safety","Preventing public nuisance"],why:"Public health was added in Scotland."},
+  {q:"Who must make or authorise every sale of alcohol?",a:["The premises manager or another personal licence holder","Any member of staff over 18","Only the owner of the pub","The door supervisor"],why:"Every sale is authorised by a personal licence holder, usually the premises manager."},
+  {q:"What is the minimum training time for staff who serve alcohol?",a:["2 hours","30 minutes","1 day","No training is required"],why:"The law sets at least 2 hours, and the pub keeps a record of it."},
+  {q:"Who grants a premises licence?",a:["The local Licensing Board","The police","Food Standards Scotland","The pub company"],why:"Each council area has a Licensing Board that grants and reviews licences."},
+  {q:"Where are the pub’s hours and activities set out?",a:["The operating plan","The rota","The menu","The staff handbook"],why:"The operating plan is part of the premises licence."},
+  {q:"How often do personal licence holders need refresher training?",a:["Every 5 years","Every year","Every 10 years","Never"],why:"Refresher training every 5 years keeps a personal licence valid."}
+ ]},
+{id:"challenge25", tag:"Scottish licensing", title:"Challenge 25 and refusals", blurb:"Who to ask for ID, which ID counts, and how to say no.",
+ cards:[
+  `<p>In Scotland <strong>Challenge 25 is the law</strong>, not just a policy. If someone looks under 25, you must ask for ID before selling them alcohol.</p><p>The legal age to buy alcohol is <strong>18</strong>.</p>`,
+  `<p>ID you can accept:</p><ul><li>Passport</li><li>UK or EU photocard driving licence</li><li>A card with the <strong>PASS hologram</strong> (for example a Young Scot card)</li><li>Military ID (MoD Form 90)</li></ul><p>No ID, or the wrong ID, means no sale.</p>`,
+  `<p>Don’t accept bank cards, student cards without a PASS hologram, photocopies, or a photo of ID on a phone.</p><p>To check ID: compare the photo with their face, work out the age from the date of birth, and check the hologram and feel of the card for tampering.</p>`,
+  `<p><strong>Proxy buying</strong> is buying alcohol for someone under 18. It’s an offence. If you think an adult is buying for someone underage, refuse.</p><p>Police can run <strong>test purchases</strong> with under-18 volunteers. You won’t know it’s a test.</p>`,
+  `<p>To refuse: stay calm and polite, keep it short (“Sorry, I can’t serve you without valid ID”), and don’t argue. Get the manager or door staff if it escalates.</p><p>Then <strong>log it in the Refusals log</strong>. It shows the pub is doing its job.</p>`
+ ],
+ qs:[
+  {q:"What does Challenge 25 mean?",a:["Ask anyone who looks under 25 for ID","Only serve people over 25","Ask everyone for ID after 25 drinks","Charge under-25s more"],why:"Anyone who looks under 25 must show ID."},
+  {q:"Is Challenge 25 a legal requirement in Scottish pubs?",a:["Yes, it is the law in Scotland","No, it is optional","Only at weekends","Only for off-sales"],why:"An age verification policy is a mandatory licence condition in Scotland."},
+  {q:"Which of these can you NOT accept as ID?",a:["A bank card","A passport","A photocard driving licence","A card with the PASS hologram"],why:"Bank cards don’t show a date of birth or a verified photo."},
+  {q:"A customer shows you a photo of their passport on their phone. What do you do?",a:["Refuse: it has to be the real document","Accept it if the photo matches","Accept it if they’re with friends","Ask them to send it to you"],why:"Only the original document counts."},
+  {q:"An 18-year-old orders two pints, and you think one is for their 16-year-old friend. What do you do?",a:["Refuse the sale: that’s proxy buying","Serve both pints","Serve one pint","Serve them if they promise to share"],why:"Buying alcohol for someone under 18 is an offence."},
+  {q:"What is the legal age to buy alcohol in a Scottish pub?",a:["18","16","21","25"],why:"18. Challenge 25 just gives you a safety margin."},
+  {q:"You’ve just refused someone. What’s the next step?",a:["Log it in the Refusals log","Nothing","Tell them to come back later","Post it in the group chat"],why:"The log shows inspectors the pub takes refusals seriously."},
+  {q:"Who can be charged for selling alcohol to someone under 18?",a:["The person who served, and the pub can face action too","Only the customer","Only the owner","No one, if it was busy"],why:"The person who made the sale can be charged personally, and the licence can be reviewed."}
+ ]},
+{id:"responsible", tag:"Scottish licensing", title:"Serving responsibly", blurb:"Drunkenness, free water, promotions and units.",
+ cards:[
+  `<p>It’s an offence to <strong>sell alcohol to someone who is drunk</strong>, and an offence to buy alcohol for someone who is drunk.</p><p>Signs to look for: slurred speech, unsteady on their feet, glazed eyes, loud or aggressive behaviour, spilling drinks, falling asleep.</p>`,
+  `<p>If someone has had too much: stop serving them alcohol, offer water or a soft drink, and tell the manager.</p><p>If a friend tries to buy a round that includes the drunk person, refuse that drink.</p>`,
+  `<p><strong>Tap water must be free</strong> to anyone who asks for it. It’s a licence condition in Scotland.</p>`,
+  `<p><strong>Irresponsible promotions</strong> are banned. Drink prices can only change at the start of a period of at least <strong>72 hours</strong>, so happy hours aren’t allowed.</p><p>Also banned: unlimited drinks for a fixed price, drinking games and speed drinking, and anything that rewards people for drinking more.</p>`,
+  `<p>Scotland has <strong>minimum unit pricing</strong>: alcohol can’t be sold for less than <strong>65p a unit</strong>.</p><p>One unit is 10ml of pure alcohol:</p><ul><li>25ml of 40% spirit = 1 unit</li><li>A pint of 5% lager = about 2.8 units</li><li>175ml of 12% wine = about 2.1 units</li></ul><p>The UK guideline is no more than 14 units a week.</p>`
+ ],
+ qs:[
+  {q:"Is it legal to sell alcohol to someone who is drunk?",a:["No, it’s an offence","Yes, if they can still walk","Yes, if they pay first","Only before midnight"],why:"Selling to a drunk person is an offence under the 2005 Act."},
+  {q:"A customer is slurring and swaying and asks for a double. What do you do?",a:["Refuse alcohol, offer water or a soft drink, and tell the manager","Serve a single instead","Serve it and keep an eye on them","Ask their friends to decide"],why:"Stop alcohol, offer an alternative, and involve the manager."},
+  {q:"Someone asks for a glass of tap water. What do you charge?",a:["Nothing: it must be free","The price of a soft drink","50p for the glass","Only free with food"],why:"Free tap water on request is a licence condition."},
+  {q:"In Scotland, how long must a drinks price stay the same before it can change?",a:["At least 72 hours","1 hour","24 hours","There’s no rule"],why:"Prices can only change at the start of a period of at least 72 hours."},
+  {q:"Which of these promotions is banned?",a:["Unlimited drinks for £20","A gin of the month at the same price all month","A food and drink meal deal at a set price","A new cocktail menu"],why:"Unlimited drinks for a fixed price is an irresponsible promotion."},
+  {q:"What is the minimum unit price in Scotland?",a:["65p per unit","50p per unit","£1 per unit","There is none"],why:"Minimum unit pricing rose to 65p in September 2024."},
+  {q:"How many units are in 25ml of 40% spirit?",a:["1","2","0.5","3"],why:"25 × 40 ÷ 1000 = 1 unit."},
+  {q:"A customer buys a round, and one of the drinks is for a friend who is clearly drunk. What do you do?",a:["Refuse the drink for the drunk friend","Serve the round, since the buyer is sober","Serve it but water it down","Charge extra"],why:"Buying alcohol for a drunk person is also an offence."}
+ ]},
+{id:"food", tag:"Food hygiene", title:"Food hygiene in Scotland", blurb:"The 4 Cs, the temperatures, and when to stay off work.",
+ cards:[
+  `<p>Food Standards Scotland sets the rules, and most kitchens use <strong>CookSafe</strong>, its food safety system. Council officers inspect, and the result is shown under the Food Hygiene Information Scheme: <strong>Pass</strong> or <strong>Improvement Required</strong>.</p><p>The basics are the <strong>4 Cs</strong>: Cleaning, Cooking, Chilling, Cross-contamination.</p>`,
+  `<p>Temperatures to remember:</p><ul><li>Fridges: <strong>5°C or below</strong></li><li>Freezers: <strong>-18°C or colder</strong></li><li>Cooking: core <strong>75°C</strong></li><li>Reheating in Scotland: <strong>82°C</strong></li><li>Hot holding: <strong>63°C or above</strong></li></ul><p>Bacteria grow fastest between 5°C and 63°C, the danger zone.</p>`,
+  `<p><strong>Wash your hands</strong> for at least 20 seconds with soap and warm water: before handling food, after the toilet, after touching raw meat, bins or money, and after a break.</p><p>Wear clean clothes, tie long hair back, and cover cuts with a blue plaster.</p>`,
+  `<p>If you’ve had <strong>vomiting or diarrhoea</strong>, tell your manager and stay off food work until you’ve had no symptoms for <strong>48 hours</strong>.</p>`,
+  `<p><strong>Cross-contamination</strong> is how bugs like <strong>E. coli O157</strong> spread. Keep raw and ready-to-eat food apart: separate boards, knives and areas, and raw meat on the <strong>bottom shelf</strong> of the fridge.</p><p>Clean in two stages, clean then disinfect, and leave sanitiser on for the time on the label.</p><p><strong>Use by</strong> is about safety: never use food after it. <strong>Best before</strong> is about quality.</p>`
+ ],
+ qs:[
+  {q:"What are the 4 Cs of food hygiene?",a:["Cleaning, Cooking, Chilling, Cross-contamination","Cooking, Cutting, Cleaning, Cost","Chilling, Checking, Counting, Cooking","Cleaning, Customers, Cooking, Cash"],why:"These four cover most food safety risks."},
+  {q:"What temperature should a fridge be?",a:["5°C or below","8°C to 10°C","Below 15°C","0°C exactly"],why:"Food Standards Scotland advises fridges at 5°C or below."},
+  {q:"What core temperature must reheated food reach in Scotland?",a:["82°C","63°C","70°C","100°C"],why:"Scotland’s rules require reheating to at least 82°C."},
+  {q:"What temperature must hot food be held at?",a:["63°C or above","50°C or above","40°C or above","75°C exactly"],why:"Below 63°C, bacteria can grow."},
+  {q:"After a bout of vomiting or diarrhoea, how long before you can handle food again?",a:["48 hours with no symptoms","As soon as you feel OK","24 hours after it started","1 week"],why:"48 hours symptom-free is the standard."},
+  {q:"Where should raw meat go in the fridge?",a:["On the bottom shelf","On the top shelf","Next to the salad","Wherever there’s room"],why:"On the bottom shelf, its juices can’t drip onto other food."},
+  {q:"What does a “use by” date mean?",a:["Don’t use the food after this date","The food is at its best before this date","It’s just a guide","Use it within a week after"],why:"Use by is a safety date."},
+  {q:"What result does the Scottish Food Hygiene Information Scheme give?",a:["Pass or Improvement Required","1 to 5 stars","A, B or C","Gold, Silver or Bronze"],why:"Scotland uses Pass or Improvement Required, not star ratings."}
+ ]},
+{id:"allergens", tag:"Food and drink", title:"Allergens", blurb:"The 14 allergens, the drinks that contain them, and what to do in an emergency.",
+ cards:[
+  `<p>The law lists <strong>14 allergens</strong> that must be declared:</p><p>celery, cereals containing gluten, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, tree nuts, peanuts, sesame, soya, and sulphites.</p>`,
+  `<p><strong>Never guess.</strong> If a customer asks about allergens, check the allergen information or ask the kitchen or your manager.</p><p>“I think it’s fine” can put someone in hospital.</p>`,
+  `<p>Drinks contain allergens too:</p><ul><li>Wine, prosecco and cider usually contain <strong>sulphites</strong></li><li>Most beers and lagers contain <strong>gluten</strong> (barley or wheat)</li><li>Cream liqueurs contain <strong>milk</strong></li><li>Sours made with egg white contain <strong>egg</strong></li><li>A Bloody Mary with celery salt contains <strong>celery</strong></li></ul>`,
+  `<p><strong>Natasha’s Law</strong> covers food that is prepacked for direct sale (made and packed on site before it’s ordered). It must be labelled with the full ingredients, with the allergens in <strong>bold</strong>.</p>`,
+  `<p>If someone has a serious reaction (swelling, trouble breathing, collapse): <strong>call 999</strong> and say “anaphylaxis”. Help them use their adrenaline pen if they have one, keep them still, and don’t leave them alone.</p><p>Tell your manager straight away.</p>`
+ ],
+ qs:[
+  {q:"How many allergens must be declared by law?",a:["14","8","10","20"],why:"There are 14 named allergens."},
+  {q:"A customer asks if a dish is safe for a nut allergy and you’re not sure. What do you do?",a:["Check the allergen information or ask the kitchen","Say it should be fine","Say there are no nuts in the kitchen","Tell them to pick something else"],why:"Never guess about allergens."},
+  {q:"Which allergen is usually in wine and prosecco?",a:["Sulphites","Peanuts","Mustard","Lupin"],why:"Sulphites are used in most wines."},
+  {q:"Which allergen is in most beers and lagers?",a:["Gluten (from barley or wheat)","Sesame","Milk","Crustaceans"],why:"Barley and wheat contain gluten."},
+  {q:"A whisky sour made with egg white contains which allergen?",a:["Egg","Fish","Soya","Celery"],why:"Egg white is an egg allergen."},
+  {q:"Which allergen do cream liqueurs contain?",a:["Milk","Mustard","Molluscs","Lupin"],why:"Cream comes from milk."},
+  {q:"What does Natasha’s Law require for food that’s prepacked for direct sale?",a:["A full ingredients list with the allergens emphasised","Just a best before date","A price label","Nothing"],why:"Prepacked-for-direct-sale food needs full ingredients, with the allergens in bold."},
+  {q:"A customer is struggling to breathe after eating. What do you do first?",a:["Call 999 and say anaphylaxis","Give them a glass of water","Ask them to wait outside","Wait to see if it passes"],why:"Anaphylaxis is a medical emergency."}
+ ]},
+{id:"drinks", tag:"Food and drink", title:"Drinks know-how", blurb:"Legal measures, glassware, and staying safe in the cellar.",
+ cards:[
+  `<p><strong>Gin, rum, vodka and whisky</strong> must be served in <strong>25ml or 35ml</strong> measures, or multiples, and each pub picks one and shows it. <strong>Both our pubs use 25ml.</strong> Always use the optic or a stamped measure.</p>`,
+  `<p><strong>Wine</strong> by the glass comes in <strong>125ml or 175ml</strong>, or multiples.</p><p><strong>Draught beer and cider</strong> come in a third, half, two-thirds or a pint, or multiples of a half.</p>`,
+  `<p>Check every glass: <strong>bin anything chipped or cracked</strong>. Hold glasses by the base or stem, never by the rim.</p><p>Use the <strong>ice scoop</strong>, never a glass. If a glass breaks in the ice, melt it all down or empty the ice well and clean it.</p>`,
+  `<p>The cellar is kept at about <strong>11 to 13°C</strong>. <strong>CO2 is heavier than air</strong> and you can’t see or smell it. If the gas alarm sounds, don’t go in: get out, and tell the manager.</p><p>Lines are usually cleaned <strong>every 7 days</strong>. Rotate stock: oldest first.</p>`
+ ],
+ qs:[
+  {q:"Which measures are legal for gin, rum, vodka and whisky?",a:["25ml or 35ml (or multiples)","20ml or 30ml","Any amount, free-poured","50ml only"],why:"These four spirits must be sold in 25ml or 35ml measures, or multiples."},
+  {q:"Which wine glass sizes are legal?",a:["125ml or 175ml (or multiples)","100ml or 200ml","150ml only","Any size"],why:"By the glass, wine comes in 125ml, 175ml or multiples."},
+  {q:"Which of these draught measures is NOT legal?",a:["Three-quarters of a pint","A third of a pint","Two-thirds of a pint","Half a pint"],why:"Draught beer comes in thirds, halves, two-thirds and pints."},
+  {q:"You spot a small chip on the rim of a glass. What do you do?",a:["Bin it","Use it, but face the chip away","Use it for water only","Put it back on the shelf"],why:"Chipped glasses are binned."},
+  {q:"A glass breaks in the ice well. What do you do?",a:["Empty the ice well and clean it","Pick out the bits you can see","Keep using the ice from the top","Cover it with fresh ice"],why:"You can’t see every shard. Empty and clean it."},
+  {q:"What do you use to scoop ice?",a:["The ice scoop","A pint glass","Your hand, if it’s clean","A wine glass"],why:"A glass can chip in the ice."},
+  {q:"The cellar gas alarm is going off. What do you do?",a:["Don’t go in, and tell the manager","Go in quickly to check","Open the gas valve","Turn the alarm off"],why:"CO2 is heavier than air, invisible, and can make you collapse."},
+  {q:"Which measure do our pubs use for gin, rum, vodka and whisky?",a:["25ml","35ml","50ml","Free pour"],why:"Both the Banshee and the Black Rose use 25ml."}
+ ]},
+{id:"welfare", tag:"Safety", title:"Welfare, spiking and emergencies", blurb:"Ask for Angela, spotting spiking, trouble, and fire.",
+ cards:[
+  `<p>Look out for anyone who is <strong>vulnerable</strong>: very drunk, alone, separated from friends, unwell, or being pressured by someone.</p><p><strong>Ask for Angela</strong>: if someone asks for “Angela”, they need help. Take them somewhere safe, then help them leave discreetly (taxi, friend, door staff), and get the police if needed.</p>`,
+  `<p>Signs of <strong>spiking</strong>: suddenly far drunker than their drinks explain, confusion, being sick, losing balance or passing out.</p><p>What to do:</p><ul><li>Keep them with a trusted friend or a member of staff</li><li>Tell the manager or door staff</li><li>Call 999 if they pass out or get worse</li><li>Keep their glass. Don’t wash it.</li></ul>`,
+  `<p><strong>Drugs</strong>: the pub has zero tolerance. Don’t confront anyone yourself: tell the manager or door staff.</p><p><strong>Fights and trouble</strong>: never get physically involved. Call the door staff or manager, and 999 if someone is hurt or in danger.</p>`,
+  `<p>If the <strong>fire alarm</strong> goes:</p><ul><li>Stop serving, turn the music off and the lights up</li><li>Send customers to the <strong>nearest exit</strong></li><li>Don’t use lifts, and don’t go back in</li><li>Meet at the <strong>assembly point</strong>${ASSEMBLY ? ': <strong>' + ASSEMBLY + '</strong>' : ' (ask your manager where it is)'}</li></ul><p>Know where the call points and extinguishers are on your floor. The weekly alarm test is logged on the Compliance page.</p>`,
+  `<p>At closing, help people leave quietly. Noise outside at the end of the night is a <strong>public nuisance</strong> issue, and the neighbours can complain to the Licensing Board.</p>`
+ ],
+ qs:[
+  {q:"A customer asks if “Angela” is working tonight. What does it mean?",a:["They need help and want to leave safely","They’re looking for a member of staff called Angela","They want a cocktail","They’re making a complaint"],why:"Ask for Angela is a code for help."},
+  {q:"Someone who has had one drink is suddenly very confused and unsteady. What could it be?",a:["Possible spiking: get help and keep them safe","They’re a cheap date","They’re just tired","Nothing to worry about"],why:"Being far drunker than their drinks explain is a warning sign of spiking."},
+  {q:"You think someone’s drink has been spiked. What do you do with the glass?",a:["Keep it, unwashed, for the police","Wash it straight away","Throw it away","Give it back to them"],why:"The glass can be tested."},
+  {q:"You see someone dealing drugs in the toilets. What do you do?",a:["Tell the manager or door staff","Confront them yourself","Ignore it","Ask them to leave quietly"],why:"Don’t put yourself at risk. Report it."},
+  {q:"A fight starts in the bar. What do you do?",a:["Call the door staff or manager, and 999 if someone is hurt","Jump in to break it up","Keep serving","Film it"],why:"Never get physically involved."},
+  {q:"The fire alarm sounds. What do you NOT do?",a:["Use the lift","Turn the music off","Send customers to the nearest exit","Go to the assembly point"],why:"Lifts can fail in a fire."},
+  {q:"Someone collapses and won’t wake up. What do you do?",a:["Call 999 and get help","Let them sleep it off","Put them in a taxi","Give them coffee"],why:"Someone who can’t be woken needs an ambulance."},
+  {q:"Why should customers leave quietly at closing time?",a:["Noise outside is a public nuisance issue for the licence","It saves energy","So staff can go home","It isn’t important"],why:"Preventing public nuisance is one of the licensing objectives."}
+ ]},
+{id:"hands", tag:"Safety", title:"Health and safety on shift", blurb:"Spills, lifting, chemicals and reporting accidents.",
+ cards:[
+  `<p><strong>Slips and trips</strong> are the most common accident in pubs. Clean spills straight away, put out the wet floor sign, and keep walkways and fire exits clear.</p>`,
+  `<p><strong>Lifting</strong>: kegs and cases are heavy. Use the trolley, bend your knees not your back, keep the load close, and get help with anything awkward. Never roll a keg down stairs without the proper method.</p>`,
+  `<p><strong>Chemicals (COSHH)</strong>: read the label and the safety sheet, wear the gloves or goggles it says to, and only use the right chemical for the job.</p><p><strong>Never mix chemicals.</strong> Bleach and acid descaler together give off toxic gas.</p>`,
+  `<p>Every accident or near miss goes in the <strong>accident book</strong>, however small. Tell the manager. Serious injuries have to be reported to the Health and Safety Executive under <strong>RIDDOR</strong>, and the manager does that.</p><p>Know where the <strong>first aid kit</strong> is and who the first aider is on your shift.</p>`
+ ],
+ qs:[
+  {q:"Someone spills a drink on the floor. What do you do?",a:["Clean it straight away and put out the wet floor sign","Leave it until closing","Tell a customer to step over it","Put a napkin on it"],why:"Spills cause most pub accidents."},
+  {q:"What’s the right way to lift a heavy case?",a:["Bend your knees, keep it close, and get help if it’s awkward","Bend from the waist","Lift it above your head","Twist as you lift"],why:"Your legs take the load, not your back."},
+  {q:"Is it OK to mix two cleaning products to make them stronger?",a:["No, never mix chemicals","Yes, if they’re the same brand","Yes, in a ventilated room","Only bleach and descaler"],why:"Mixing can give off toxic gas."},
+  {q:"Where do you find out how to use a chemical safely?",a:["The label and the safety data sheet","The group chat","Guess from the smell","Ask a customer"],why:"The label and data sheet give the PPE and safe use."},
+  {q:"You slip but don’t get hurt. Do you report it?",a:["Yes, near misses go in the accident book too","No, nobody was hurt","Only if a customer saw","Only if it happens twice"],why:"Near misses help stop the next accident."},
+  {q:"Who reports serious injuries under RIDDOR?",a:["The manager or responsible person","The injured person’s friend","Nobody","The police"],why:"RIDDOR reports go to the HSE through the manager."},
+  {q:"What should always be kept clear?",a:["Fire exits and walkways","The staff room","The car park","The bar top"],why:"Blocked exits are a serious fire safety breach."},
+  {q:"What should you know at the start of every shift?",a:["Where the first aid kit is and who the first aider is","The till float","The wifi password","The day’s music playlist"],why:"Time matters in an emergency."}
+ ]}
+];
+// ── who is doing the course: tonight's rota first, then the rest of the staff list ──
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function night(){ const d = new Date(); if (d.getHours() < 6) d.setDate(d.getDate() - 1); return iso(d); }   // the day runs 6am to 6am
+let ROTA = [], STAFF = [], WHO = '', TRAIN = [], VIEW = 'shelf', CUR = null, STEP = 0, QUIZ = null, FLAGS = {};
+try { const w = JSON.parse(localStorage.getItem('hp_course_who') || 'null'); if (w && w.d === night()) WHO = w.n; } catch (e) {}
+try { FLAGS = JSON.parse(localStorage.getItem('hp_courses_flags') || '{}'); } catch (e) {}
+async function getJSON(u){ try { const r = await fetch(u + (u.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache: 'no-store'}); return r.ok ? await r.json() : null; } catch (e) { return null; } }
+async function loadNames(){
+  const sh = await getJSON('../rotas/shifts.json'), days = (sh && sh.days) || {}, k = days[night()] ? night() : Object.keys(days).filter(x => x.slice(5) === night().slice(5)).pop();
+  ROTA = ((k && days[k]) || []).map(x => x.name).filter(Boolean);
+  const st = await getJSON('../rotas/staff.json'); STAFF = ((st && st.names) || []).filter(n => !ROTA.includes(n));
+  render();
+}
+async function loadTraining(){ const d = await getJSON(COMPLIANCE_URL + '?action=compliance&pub=' + PUB); TRAIN = (d && d.Training) || []; render(); }
+function pickName(n){ WHO = n; try { localStorage.setItem('hp_course_who', JSON.stringify({n: n, d: night()})); } catch (e) {} render(); }
+function otherName(){ let n = (prompt('Your first name (as it is on the rota):') || '').replace(/\s+/g, ' ').trim().slice(0, 24); if (!n) return; n = n.charAt(0).toUpperCase() + n.slice(1); if (!ROTA.includes(n) && !STAFF.includes(n)) STAFF.push(n); pickName(n); }
+// a pass counts for 12 months
+function myPasses(){
+  const yr = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10), out = {};
+  TRAIN.filter(t => String(t.Staff).toLowerCase() === WHO.toLowerCase() && String(t.Course).startsWith('Course: ') && String(t.Date).slice(0, 10) >= yr)
+    .forEach(t => { const c = COURSES.find(x => 'Course: ' + x.title === t.Course); if (!c) return; const m = String(t.Notes || '').match(/(\d+)\/(\d+)/), sc = m ? +m[1] : 0;
+      if (!out[c.id] || sc > out[c.id].best) out[c.id] = {best: sc, date: String(t.Date).slice(0, 10), perfect: m && m[1] === m[2]}; });
+  return out;
+}
+function monthPts(){ const p = myPasses(), mon = night().slice(0, 7); let n = 0; Object.values(p).forEach(r => { if (r.date.slice(0, 7) === mon) n += PTS_PASS + (r.perfect ? PTS_PERFECT : 0); });
+  return n; }
+
+function header(){
+  const names = ROTA.map(n => `<button type="button" class="nm rota${n === WHO ? ' on' : ''}" data-n="${esc(n)}" onclick="pickName(this.dataset.n)">${esc(n)}</button>`).join('')
+    + STAFF.map(n => `<button type="button" class="nm${n === WHO ? ' on' : ''}" data-n="${esc(n)}" onclick="pickName(this.dataset.n)">${esc(n)}</button>`).join('')
+    + `<button type="button" class="nm" onclick="otherName()">＋ Someone else</button>`;
+  return `<div class="top"><div><h1>Staff courses</h1><p class="sub">A few cards, then 8 questions. Pass mark ${PASS * 100}%. Passing saves to your training record for 12 months and earns points for the league on the Staff Hub.</p></div>
+    ${WHO ? `<div class="pts"><b>${monthPts()}</b><span>course points this month</span></div>` : ''}</div>
+    <div><p class="qn" style="margin-bottom:8px">WHO ARE YOU? ${ROTA.length ? '(on the rota tonight first)' : ''}</p><div class="names">${names}</div></div>
+    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check'}" onclick="go('shelf')">Courses</button><button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button></div>`;
+}
+function shelf(){
+  const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))];
+  let h = header();
+  tags.forEach(t => {
+    h += `<h2>${esc(t)}</h2><div class="grid">` + COURSES.filter(c => c.tag === t).map(c => {
+      const r = p[c.id];
+      const pill = !WHO ? '<span class="pill">Tap your name first</span>' : r ? `<span class="pill ok">Passed ${r.best}/${c.qs.length}</span>` : '<span class="pill">Not done yet</span>';
+      return `<button class="course" type="button" onclick="openCourse('${c.id}')"><span class="tag">${c.cards.length} cards · ${c.qs.length} questions</span><h3>${esc(c.title)}</h3><p>${esc(c.blurb)}</p><span class="state">${pill}<span class="muted">${PTS_PASS} pts</span></span></button>`;
+    }).join('') + '</div>';
+  });
+  return h + `<h2>Points</h2><div class="rules"><div><b>+${PTS_PASS}</b><span>for passing a course</span></div><div><b>+${PTS_PERFECT}</b><span>for a perfect score</span></div>
+    <div><b>+1</b><span>for every checklist job you tick</span></div><div><b>+15</b><span>Hero of the week (top seller, best cleaner)</span></div><div><b>100</b><span>points in a month = a £10 voucher</span></div></div>`;
+}
+function openCourse(id){ CUR = COURSES.find(c => c.id === id); STEP = 0; QUIZ = null; VIEW = 'course'; render(); scrollTo(0, 0); }
+function go(v){ VIEW = v; CUR = null; QUIZ = null; render(); scrollTo(0, 0); }
+function coursePanel(){
+  const c = CUR, n = c.cards.length; if (QUIZ) return quizPanel();
+  const dots = c.cards.map((_, i) => `<i class="${i <= STEP ? 'on' : ''}"></i>`).join('');
+  return header() + `<section class="panel"><div class="crumb"><button class="link" type="button" onclick="go('shelf')">‹ All courses</button><div class="dots">${dots}</div></div>
+    <p class="qn">${esc(c.tag.toUpperCase())} · CARD ${STEP + 1} OF ${n}</p><h2>${esc(c.title)}</h2><div class="card-body">${c.cards[STEP]}</div>
+    <div class="row"><button class="btn ghost" type="button" onclick="STEP--;render()" ${STEP ? '' : 'disabled'}>Back</button>
+    ${STEP < n - 1 ? `<button class="btn" type="button" onclick="STEP++;render()">Next</button>` : `<button class="btn" type="button" onclick="startQuiz()" ${WHO ? '' : 'disabled'}>${WHO ? 'Start the quiz' : 'Tap your name above first'}</button>`}</div></section>`;
+}
+function startQuiz(){ if (!WHO) return; QUIZ = {list: shuffle(CUR.qs).map(q => ({q: q.q, why: q.why, right: q.a[0], opts: shuffle(q.a)})), i: 0, score: 0, picked: null}; render(); scrollTo(0, 0); }
+function pick(k){ const Q = QUIZ.list[QUIZ.i]; if (QUIZ.picked !== null) return; QUIZ.picked = k; if (Q.opts[k] === Q.right) QUIZ.score++; render(); }
+function nextQ(){ QUIZ.i++; QUIZ.picked = null; if (QUIZ.i >= QUIZ.list.length) finish(); render(); scrollTo(0, 0); }
+async function finish(){
+  const c = CUR, n = c.qs.length, sc = QUIZ.score, pass = sc >= Math.ceil(PASS * n);
+  QUIZ.done = {sc, n, pass, pts: pass ? PTS_PASS + (sc === n ? PTS_PERFECT : 0) : 0, saved: pass ? 'saving' : ''};
+  if (!pass) return;
+  const d = new Date(), ex = new Date(d); ex.setFullYear(ex.getFullYear() + 1);
+  const row = {action: 'training', pub: PUB, staff: WHO, course: 'Course: ' + c.title, date: iso(d), expires: iso(ex), trainer: 'Staff courses (online)', topics: c.blurb, notes: 'Score ' + sc + '/' + n, by: WHO};
+  let ok = false; try { const r = await fetch(COMPLIANCE_URL, {method: 'POST', body: JSON.stringify(row)}); const j = await r.json().catch(() => ({})); ok = !!j.ok; } catch (e) {}
+  if (ok) TRAIN.push({Staff: WHO, Course: row.course, Date: row.date, Notes: row.notes});
+  QUIZ.done.saved = ok ? 'ok' : 'err'; render();
+}
+function quizPanel(){
+  const c = CUR;
+  if (QUIZ.done) {
+    const d = QUIZ.done, need = Math.ceil(PASS * d.n);
+    const sv = d.saved === 'ok' ? '<p class="saved">✓ Saved to your training record.</p>' : d.saved === 'err' ? '<p class="saved err">Couldn’t save just now. Check the wifi and press Retake to try again, or tell a manager.</p>' : d.saved === 'saving' ? '<p class="saved muted">Saving…</p>' : '';
+    return header() + `<section class="panel"><div class="result"><p class="qn">${esc(c.title.toUpperCase())} · ${esc(WHO.toUpperCase())}</p><div class="big">${d.sc}/${d.n}</div>
+      <h2>${d.pass ? (d.sc === d.n ? 'Perfect score. Passed.' : 'Passed.') : 'Not this time.'}</h2>
+      <p class="muted">${d.pass ? '+' + d.pts + ' points.' : 'You need ' + need + ' out of ' + d.n + ' to pass. Have another look at the cards and try again.'}</p>${sv}
+      <div class="row" style="justify-content:center"><button class="btn ghost" type="button" onclick="openCourse('${c.id}')">Read the cards again</button><button class="btn ghost" type="button" onclick="startQuiz()">Retake</button><button class="btn" type="button" onclick="go('shelf')">All courses</button></div></div></section>`;
+  }
+  const Q = QUIZ.list[QUIZ.i], p = QUIZ.picked, done = p !== null, ok = done && Q.opts[p] === Q.right;
+  return header() + `<section class="panel"><div class="crumb"><button class="link" type="button" onclick="go('shelf')">‹ All courses</button><span class="qn">Score ${QUIZ.score}</span></div>
+    <p class="qn">${esc(c.title.toUpperCase())} · QUESTION ${QUIZ.i + 1} OF ${QUIZ.list.length}</p><p class="q">${esc(Q.q)}</p>
+    <div class="opts">${Q.opts.map((o, k) => `<button class="opt ${done && o === Q.right ? 'right' : done && k === p ? 'wrong' : ''}" type="button" onclick="pick(${k})" ${done ? 'disabled' : ''}>${esc(o)}</button>`).join('')}</div>
+    ${done ? `<p class="why ${ok ? '' : 'badw'}"><b>${ok ? 'Correct.' : 'Not quite.'}</b> ${esc(Q.why)}</p><div class="row" style="justify-content:flex-end"><button class="btn" type="button" onclick="nextQ()">${QUIZ.i < QUIZ.list.length - 1 ? 'Next question' : 'See my score'}</button></div>` : ''}</section>`;
+}
+function checkView(){
+  let h = header() + `<p class="muted">Every question with the right answer in green, for managers to check. Staff see the answers in a random order.</p><div class="check">`;
+  COURSES.forEach(c => { h += `<h2>${esc(c.title)}</h2>`; c.qs.forEach((q, i) => { h += `<div class="cq"><b>${i + 1}. ${esc(q.q)}</b><ol type="a">${q.a.map((a, j) => `<li class="${j ? '' : 'ans'}">${esc(a)}${j ? '' : ' ✓'}</li>`).join('')}</ol><p class="muted">${esc(q.why)}</p></div>`; }); });
+  return h + '</div>';
+}
+function render(){ $('app').innerHTML = VIEW === 'check' ? checkView() : VIEW === 'course' && CUR ? coursePanel() : shelf(); }
+render(); loadNames(); loadTraining();
+</script>
+<script src="../bl-header.js" defer></script>
+</body>
+</html>

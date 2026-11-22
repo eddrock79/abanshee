@@ -20,6 +20,7 @@
     var q = function (u) { return u; };
     return [
       ['Rotas', "Who's working when", q(site + '/rotas/')],
+      ['Staff courses', 'Quick quizzes: +10 points each', q(site + '/courses/')],
       ['Compliance', 'Fire checks, training, documents and door staff', q(site + '/compliance/')],
       ['Toilets & refusals', 'One tap per toilet, refusals tab too', q(site + '/refusals/')],
       ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
@@ -82,7 +83,7 @@
     }
     if (!$('folders') || !$('folders').children.length) fold.style.display = 'none'; else fold.style.display = '';
     var h = $('h-report'); if (h && !/^Last night/.test(h.textContent)) h.textContent = 'Last night · both pubs';
-    var order = ['sec-todo', 'sec-pages', 'sec-tonight', 'sec-eon', 'sec-shift', 'sec-report', 'sec-heroes', 'sec-reviews', 'sec-snags', 'sec-folders', 'sec-wx', 'sec-news'];
+    var order = ['sec-todo', 'sec-heroes', 'sec-pages', 'sec-tonight', 'sec-eon', 'sec-shift', 'sec-report', 'sec-reviews', 'sec-snags', 'sec-folders', 'sec-wx', 'sec-news'];
     var prev = null;
     order.forEach(function (id) {
       var el = id === 'sec-todo' ? todo : id === 'sec-folders' ? fold : id === 'sec-pages' ? pages : $(id); if (!el) return;

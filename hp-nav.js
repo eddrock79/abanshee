@@ -37,10 +37,10 @@
   if (cur === 'hub' && !MOVED) {
     try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
     var FB = 'https://banshee.hauntedpubs.co.uk/';     // fallback copy if the board service can't hand the file out
-    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=11';
-    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=11'; }; document.head.appendChild(hl);
-    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=11';
-    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=11'; document.head.appendChild(y); }; document.head.appendChild(hs);
+    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=12';
+    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=12'; }; document.head.appendChild(hl);
+    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=12';
+    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=12'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
   // ── Dashboard layout (main board and sales only) ──
   // live for everyone since 21 Nov 2026
