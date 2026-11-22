@@ -373,7 +373,7 @@ function header(){
   return `<div class="top"><div><h1>Staff courses</h1><p class="sub">A few cards, then 8 questions. Pass mark ${PASS * 100}%. Passing saves to your training record for 12 months and earns points for the league on the Staff Hub.</p></div>
     ${WHO ? `<div class="pts"><b>${monthPts()}</b><span>course points this month</span></div>` : ''}</div>
     <div><p class="qn" style="margin-bottom:8px">WHO ARE YOU? ${ROTA.length ? '(on the rota tonight first)' : ''}</p><div class="names">${names}</div></div>
-    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button><a class="tab" href="http://100.90.189.89:8114/board/who.html?venue=${PUB}" style="text-decoration:none">Who’s who and manager’s pick ›</a>` : ''}</div>`;
+    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button><button class="tab" type="button" aria-pressed="${VIEW === 'who'}" onclick="go('who')">Who’s who and manager’s pick</button>` : ''}</div>`;
 }
 function shelf(){
   const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))];
@@ -432,7 +432,11 @@ function checkView(){
   COURSES.forEach(c => { h += `<h2>${esc(c.title)}</h2>`; c.qs.forEach((q, i) => { h += `<div class="cq"><b>${i + 1}. ${esc(q.q)}</b><ol type="a">${q.a.map((a, j) => `<li class="${j ? '' : 'ans'}">${esc(a)}${j ? '' : ' ✓'}</li>`).join('')}</ol><p class="muted">${esc(q.why)}</p></div>`; }); });
   return h + '</div>';
 }
-function render(){ $('app').innerHTML = VIEW === 'make' ? makeView() : VIEW === 'check' ? checkView() : VIEW === 'course' && CUR ? coursePanel() : shelf(); }
+function whoView(){ return header() + `<section class="panel"><h2>Who’s who and manager’s pick</h2>
+  <p>Matching till logins to people, giving this week’s manager’s pick, and the great-nights “well done” messages all live on the pub network, so they open from the Staff Hub rather than from this website.</p>
+  <ul class="card-body" style="font-size:17px"><li><b>On the iPad:</b> Staff Hub → Points and heroes → <b>Managers: who’s who and this week’s pick</b>.</li><li><b>In the office:</b> the control desk → <b>Great nights, who’s who and manager’s pick</b>.</li></ul>
+  <p class="muted">Sign in with your manager passcode (the same one as the control desk).</p></section>`; }
+function render(){ $('app').innerHTML = VIEW === 'who' ? whoView() : VIEW === 'make' ? makeView() : VIEW === 'check' ? checkView() : VIEW === 'course' && CUR ? coursePanel() : shelf(); }
 render(); loadNames(); loadTraining();
 </script>
 <script src="../bl-header.js" defer></script>

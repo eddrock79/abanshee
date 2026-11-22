@@ -179,6 +179,21 @@
       <p class="note">Personal licence holders must do refresher training every 5 years and send the certificate to the licensing board, or the licence is revoked.</p>
     </div>
     <div class="card"><h2>Notices on display <small>tick when checked</small></h2><div id="lic-notices"></div></div>
+    <div class="card"><h2>Visits <small>police, licensing standards, environmental health, fire service</small></h2>
+      <p class="note">Log every official visit, even a quick walk-through: who came, why, and what they said. Licensing boards ask to see this.</p>
+      <div class="form">
+        <label class="f">Who visited<select id="vi-who"><option value="">Pick…</option><option>Police</option><option>Licensing Standards Officer (LSO)</option><option>Environmental Health (EHO)</option><option>Fire service</option><option>Trading Standards</option><option>HMRC</option><option>Other</option></select></label>
+        <label class="f">Date<input id="vi-date" type="date"></label>
+        <label class="f">Time<input id="vi-time" type="time"></label>
+        <label class="f">Officer name / number<input id="vi-officer" placeholder="e.g. PC Smith 1234"></label>
+        <label class="f wide">Reason for the visit<input id="vi-reason" placeholder="e.g. routine licence check, complaint about noise"></label>
+        <label class="f wide">What happened / what they said<textarea id="vi-outcome"></textarea></label>
+        <label class="f wide">Anything we need to do? <small style="font-weight:500">(goes on the list below)</small><input id="vi-followup"></label>
+        <label class="f">Logged by<select id="vi-by"></select></label>
+      </div>
+      <button class="btn go" type="button" onclick="viSave()">Log the visit</button>
+      <div id="vi-list" style="margin-top:14px"></div>
+    </div>
   </section>
 
   <!-- TOILETS -->
@@ -451,11 +466,20 @@ async function faAdd(){const b={action:'fraAction',finding:$('fa-finding').value
 async function faDone(id){try{await post({action:'fraAction',id,status:'Done'});const a=D.Actions.find(x=>String(x.ID)===String(id));if(a){a.Status='Done';a['Done date']=today();a['Done by']=WHO;}msg('Marked done.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
 
 // ── licence + notices ──
-function drawLicence(){const L=jsonSet('licence',{});
+function drawLicence(){drawVisits();const L=jsonSet('licence',{});
   $('lic-view').innerHTML=['premises_no:Premises licence number','holder:Premises licence holder','dpm:Designated Premises Manager','board:Licensing board'].map(x=>{const [k,lab]=x.split(':');return `<div class="row"><div class="grow">${lab}</div><b>${esc(L[k]||'–')}</b></div>`}).join('')+
     (licenceDue().length?licenceDue().map(p=>`<div class="row"><div class="grow">Personal licence: <b>${esc(p.name)}</b><small>${esc(p.no||'')} · refresher due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':p.left<=90?'soon':'ok'}">${p.left<0?'Overdue':p.left<=90?'In '+p.left+' days':'OK'}</span></div>`).join(''):'<p class="note">No personal licence holders added yet.</p>');
   ['premises_no','holder','dpm','board'].forEach(k=>{if(document.activeElement!==$('lic-'+k))$('lic-'+k).value=L[k]||''});if(document.activeElement!==$('lic-plh'))$('lic-plh').value=SET.plh||'';
   const N=jsonSet('notices',{});$('lic-notices').innerHTML=NOTICES.map((n,i)=>`<div class="row"><div class="grow">${esc(n)}<small>${N[n]?'checked '+fmt(N[n].d)+(N[n].by?' by '+esc(N[n].by):''):'not checked'}</small></div><button class="btn sm" type="button" onclick="noticeTick(${i})">${N[n]?'Checked again':'Mark checked'}</button></div>`).join('');}
+function drawVisits(){const sel=$('vi-by');if(sel&&sel.dataset.n!=STAFF.length){sel.innerHTML=STAFF.map(x=>`<option${x===WHO?' selected':''}>${esc(x)}</option>`).join('');sel.dataset.n=STAFF.length;}
+  if($('vi-date')&&!$('vi-date').value)$('vi-date').value=today();
+  const V=(D.Visits||[]).slice().sort((a,b)=>String(b.Date+b.Time).localeCompare(String(a.Date+a.Time)));
+  $('vi-list').innerHTML=V.length?V.map(v=>`<div class="row"><div class="grow"><b>${esc(v.Who)}</b> · ${fmt(String(v.Date).slice(0,10))} ${esc(v.Time||'')}${v.Officer?' · '+esc(v.Officer):''}<small>${esc(v.Reason||'')}${v.Outcome?' · '+esc(v.Outcome):''}${v['Follow up']?' · <b>To do:</b> '+esc(v['Follow up']):''} · logged by ${esc(v['Logged by']||'')}</small></div><button class="btn sm bad mgr-inline" type="button" onclick="viRemove('${esc(v.ID)}')">Remove</button></div>`).join(''):'<p class="note">No visits logged yet.</p>';}
+async function viSave(){const who=$('vi-who').value;if(!who){msg('Pick who visited.',false);return}
+  const body={action:'visit',who,date:$('vi-date').value,time:$('vi-time').value,officer:$('vi-officer').value,reason:$('vi-reason').value,outcome:$('vi-outcome').value,followup:$('vi-followup').value,by:$('vi-by').value||WHO};
+  try{const d=await post(body);(D.Visits=D.Visits||[]).push({ID:d.id,Who:who,Date:body.date||today(),Time:body.time,Officer:body.officer,Reason:body.reason,Outcome:body.outcome,'Follow up':body.followup,'Logged by':body.by});
+    ['vi-who','vi-time','vi-officer','vi-reason','vi-outcome','vi-followup'].forEach(k=>$(k).value='');msg('Visit logged.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+'). The Compliance script may need updating.',false)}}
+async function viRemove(id){if(!confirm('Remove this visit from the log?'))return;try{await post({action:'visitRemove',id});D.Visits=(D.Visits||[]).filter(v=>v.ID!==id);drawAll();}catch(e){msg('Couldn’t remove ('+e.message+').',false)}}
 async function licSave(){const L={};['premises_no','holder','dpm','board'].forEach(k=>L[k]=$('lic-'+k).value.trim());
   try{await post({action:'setting',key:'licence',value:JSON.stringify(L)});await post({action:'setting',key:'plh',value:$('lic-plh').value});SET.licence=JSON.stringify(L);SET.plh=$('lic-plh').value;msg('Licence details saved.',true);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
 async function noticeTick(i){const N=jsonSet('notices',{});N[NOTICES[i]]={d:today(),by:WHO};try{await post({action:'setting',key:'notices',value:JSON.stringify(N)});SET.notices=JSON.stringify(N);drawAll();}catch(e){msg('Couldn’t save ('+e.message+').',false);}}
@@ -474,6 +498,7 @@ function printFile(){const L=jsonSet('licence',{}),f=jsonSet('fra',{}),name=(BL_
   h+='<h2 class="pb">Door supervisor register</h2>'+tbl(['Name','SIA licence number','Licence expiry','Company','Phone'],(D.Security||[]).map(g=>[g.Name,g['SIA number'],fmt(String(g['SIA expiry']||'')),g.Company,g.Phone]));
   const q3=addDays(today(),-92);h+='<h2>Door shifts (last 3 months)</h2>'+tbl(['Date','Name','SIA number','Start','Finish','Signed in by','Notes'],(D.DoorShifts||[]).filter(s=>String(s.Date)>=q3).sort((a,b)=>String(b.Date).localeCompare(String(a.Date))).map(s=>[fmt(String(s.Date)),s.Name,s['SIA number'],s.Start,s.Finish,s['Signed in by'],s.Notes]));
   const w1=addDays(today(),-7);h+='<h2>Toilet checks (last 7 days)</h2>'+tbl(['Date','Time','Toilet','Result','By','Notes'],toiletChecks().filter(c=>String(c.Date)>=w1).sort((a,b)=>String(b['Logged at']||'').localeCompare(String(a['Logged at']||''))).map(c=>[fmt(String(c.Date)),c.Time,c.Item,c.Result==='Fault'?'Problem':'OK',c.By,c.Notes]));
+  h+='<h2>Official visits (police, LSO, EHO, fire service)</h2>'+tbl(['Date','Time','Who','Officer','Reason','What happened','Follow up','Logged by'],(D.Visits||[]).slice().sort((a,b)=>String(b.Date).localeCompare(String(a.Date))).map(v=>[fmt(String(v.Date).slice(0,10)),v.Time||'',v.Who,v.Officer||'',v.Reason||'',v.Outcome||'',v['Follow up']||'',v['Logged by']||'']));
   h+='<h2>Document register</h2>'+tbl(['Document','Type','Expires','Last checked','Check every','Link'],(D.Documents||[]).map(d=>[d.Name,d.Category,fmt(String(d.Expires||'')),fmt(String(d['Last checked']||'').slice(0,10)),(d['Check months']||6)+' months',d['File URL']||'']));
   const N=jsonSet('notices',{});h+='<h2>Notices on display</h2>'+tbl(['Notice','Last checked'],NOTICES.map(n=>[n,N[n]?fmt(N[n].d)+(N[n].by?' by '+N[n].by:''):'not checked']));
   $('cp-print').innerHTML=h;window.print();}
