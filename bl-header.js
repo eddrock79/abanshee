@@ -93,3 +93,37 @@
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(go,800);}); else setTimeout(go,800);
 })();
+// End of Night: "Toilets checked and clear" at close (nobody left in, no rubbish or problems), logged with the other toilet checks
+(function(){
+  if(!/\/end-of-night\//.test(location.pathname)||/mode=opening/.test(location.search)) return;
+  var U='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+  function pub(){return /rose/i.test(((window.BL_CFG||{}).venueKey||'')+location.hostname)?'br':'bl';}
+  function night(){var d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function me(){try{return typeof nxMe==='function'?nxMe():'';}catch(e){return '';}}
+  var box=null,last=null;
+  function draw(){
+    if(!box){box=document.createElement('div');box.id='bl-toiletclose';box.style.cssText='max-width:1400px;margin:10px auto 0;padding:10px 14px;border-radius:12px;border:1px solid #4fb8a866;background:rgba(79,184,168,.08);display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 15px system-ui,sans-serif;color:#cfeee8;box-sizing:border-box';
+      var host=document.getElementById('bl-safety')||document.querySelector('.hpsub')||document.querySelector('.nav-bar');
+      if(!host||!host.parentNode) return; var wrap=document.createElement('div');wrap.style.cssText='padding:0 16px';wrap.appendChild(box);
+      var after=host.id==='bl-safety'?host.parentNode:host;after.parentNode.insertBefore(wrap,after.nextSibling);}
+    box.innerHTML=last?'<span>🚻 Toilets checked and clear at close ✓ <span style="opacity:.75;font-weight:500">'+last.time+' by '+last.by.replace(/[<>&]/g,'')+'</span></span>'
+      :'<span>🚻 Closing check: toilets checked and clear (nobody left in, no rubbish, nothing broken)</span><button type="button" id="bl-tc-go" style="font:inherit;font-weight:800;padding:9px 16px;border-radius:10px;border:0;background:#4fb8a8;color:#0a0a0b;cursor:pointer">Toilets checked and clear</button>';
+    var b=document.getElementById('bl-tc-go'); if(b) b.onclick=save;
+  }
+  function save(){
+    var n=me(); if(!n){n=(prompt('Your name:')||'').trim().slice(0,30); if(!n) return;}
+    var b=document.getElementById('bl-tc-go'); b.disabled=true; b.textContent='Saving…';
+    fetch(U,{method:'POST',body:JSON.stringify({action:'check',pub:pub(),type:'toilet',date:night(),item:'All toilets (closing check)',result:'Pass',notes:'Checked and clear at close',by:n})})
+      .then(function(r){return r.json();}).then(function(j){
+        if(!j.ok) throw 0; var d=new Date(); last={time:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),by:n}; draw();
+      }).catch(function(){b.disabled=false;b.textContent='Toilets checked and clear';alert('Couldn’t save. Check the wifi and try again.');});
+  }
+  function load(){
+    fetch(U+'?action=compliance&pub='+pub()+'&t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var c=(d&&d.Checks||[]).filter(function(x){return x.Type==='toilet'&&x.Item==='All toilets (closing check)'&&String(x.Date).slice(0,10)===night();}).pop();
+      if(c) last={time:String(c.Time||''),by:String(c.By||'')}; draw();
+    }).catch(function(){draw();});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(load,1200);}); else setTimeout(load,1200);
+})();
+
