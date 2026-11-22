@@ -63,3 +63,33 @@
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
 (function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=27';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+// safety checks due (fire alarm, emergency lights, extinguishers, water): a strip on End of Night and Weekly Jobs so they get done; tap to log on the Compliance page
+(function(){
+  if(!/\/(end-of-night|weekly-cleaning)\//.test(location.pathname)) return;
+  var U='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+  var R=[['fire_alarm','Weekly fire alarm test',7,'fire'],['em_light_month','Monthly emergency lights test',31,'fire'],['extinguisher_month','Monthly extinguisher check',31,'fire'],
+         ['legionella_flush','Weekly flush of little-used taps',7,'water'],['legionella_temp','Monthly water temperatures',31,'water']];
+  function go(){
+    var pub=/rose/i.test(((window.BL_CFG||{}).venueKey||'')+location.hostname)?'br':'bl';
+    fetch(U+'?action=compliance&pub='+pub+'&t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.Checks) return;
+      var today=new Date(); today.setHours(12,0,0,0); var soon=new Date(today); soon.setDate(soon.getDate()+1);
+      var due=R.map(function(k){
+        var last=d.Checks.filter(function(c){return c.Type===k[0];}).map(function(c){return String(c.Date);}).sort().pop();
+        var nx=last?new Date(last+'T12:00:00'):null; if(nx) nx.setDate(nx.getDate()+k[2]);
+        return (!nx||nx<=soon)?{k:k,last:last,over:!nx||nx<today}:null;
+      }).filter(Boolean);
+      var old=document.getElementById('bl-safety'); if(old) old.remove();
+      if(!due.length) return;
+      var el=document.createElement('div'); el.id='bl-safety';
+      el.style.cssText='max-width:1400px;margin:10px auto 0;padding:10px 14px;border-radius:12px;border:1px solid #ff9f4366;background:rgba(255,159,67,.10);display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 14px system-ui,sans-serif;color:#ffd2a6;box-sizing:border-box';
+      el.innerHTML='<span style="margin-right:4px">🔥 Safety checks due</span>'+due.map(function(x){
+        var when=!x.last?'not done yet':x.over?'overdue':'due';
+        return '<a href="../compliance/?tab='+x.k[3]+'" style="text-decoration:none;color:#fff;background:#2a1d12;border:1px solid #ff9f43;border-radius:999px;padding:6px 12px">'+x.k[1]+' · '+when+' ›</a>';
+      }).join('');
+      var host=document.querySelector('.hpsub')||document.querySelector('.nav-bar');
+      if(host&&host.parentNode){var wrap=document.createElement('div');wrap.style.cssText='padding:0 16px';wrap.appendChild(el);host.parentNode.insertBefore(wrap,host.nextSibling);}
+    }).catch(function(){});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(go,800);}); else setTimeout(go,800);
+})();
