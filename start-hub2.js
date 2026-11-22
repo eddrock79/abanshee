@@ -25,6 +25,7 @@
       V === 'bl' ? ['Calendar', 'Gigs, DJs and bookings', q(nas + '/events.html')] : null,
       V === 'bl' ? ['Rotas', "Who's working when", q(site + '/rotas/')] : null,
       V === 'bl' ? ['Holidays', 'Book or check time off', q(site + '/holidays/')] : null,
+      ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
       ['Questions', 'Ask instead of messaging the group', q(nas + '/questions.html')],
       ['Ideas', 'Post an idea for the pub', q(nas + '/ideas.html')],
       ['Trello board', "Today's on-shift jobs", V === 'br' ? 'https://trello.com/b/54a2a08e20dbba377fdd5498' : 'https://trello.com/b/54a2a0781d8c930f0225a1ca'],
