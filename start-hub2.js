@@ -19,15 +19,16 @@
     var nas = 'http://' + (/^(192\.168\.1\.40|100\.90\.189\.89|eddrock79nas)/i.test(location.hostname) ? location.hostname : '100.90.189.89') + ':' + (V === 'br' ? '8102' : '8101');
     var q = function (u) { return u; };
     return [
+      ['Compliance', 'Fire checks, training, documents and door staff', q(site + '/compliance/')],
+      ['Toilets & refusals', 'One tap per toilet, refusals tab too', q(site + '/refusals/')],
+      ['Fridge temperatures', 'Fridge and freezer readings', q(nas + '/temps-record.html')],
+      ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
       ['Lost property', 'Log an item or hand one back', q(site + '/lost-property/')],
       ['Cocktails', 'Recipes and what you can make', q(site + '/cocktails/')],
       V === 'bl' ? ['Drinks menu', 'The customer menu, no 2-hour timer', 'https://menu.hauntedpubs.co.uk/?bansheestaff='] : ['Drinks menu', 'The customer menu', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'],
       V === 'bl' ? ['Calendar', 'Gigs, DJs and bookings', q(nas + '/events.html')] : null,
       ['Rotas', "Who's working when", q(site + '/rotas/')],
       V === 'bl' ? ['Holidays', 'Book or check time off', q(site + '/holidays/')] : null,
-      ['Fire checks', 'Weekly alarm test, emergency lights, extinguishers', q(site + '/compliance/?tab=fire')],
-      ['Toilet check', 'One tap per toilet (refusals tab too)', q(site + '/refusals/')],
-      ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
       ['Questions', 'Ask instead of messaging the group', q(nas + '/questions.html')],
       ['Ideas', 'Post an idea for the pub', q(nas + '/ideas.html')],
       ['Trello board', "Today's on-shift jobs", V === 'br' ? 'https://trello.com/b/54a2a08e20dbba377fdd5498' : 'https://trello.com/b/54a2a0781d8c930f0225a1ca'],
@@ -40,15 +41,16 @@
   function desktopSidebar() {
     if ($('h2-sidenav')) return;
     var main = $('nav-main'); if (!main) return;
-    var keep = [['End of night checklist', 0], ['Sunday count', 0]].map(function (k) {
-      var a = [].slice.call(main.querySelectorAll('a')).filter(function (x) { return x.textContent.trim() === k[0]; })[0];
-      return a ? [k[0], '', a.getAttribute('href')] : null;
-    }).filter(Boolean);
+    var link = function (name) { var a = [].slice.call(main.querySelectorAll('a')).filter(function (x) { return x.textContent.trim() === name; })[0]; return a ? a.getAttribute('href') : ''; };
+    var keep = [['Checklists', link('Checklists')], ['Stock', link('Add to the order list')]].filter(function (k) { return k[1]; }).map(function (k) { return [k[0], '', k[1]]; });
+    var V0 = (window.BOARD && BOARD.venue) || 'bl';
+    var mgr = [['Manager dashboard', link('Manager dashboard')], ['Menu editor', link('Menu editor')], ['Food menu admin', link('Food menu admin')],
+               V0 === 'bl' ? ['What&#8217;s On boards', 'https://banshee.hauntedpubs.co.uk/whatson/'] : null, ['Report site', link('Report site')]].filter(function (k) { return k && k[1]; });
     var block = document.createElement('div'); block.id = 'h2-sidenav';
     block.innerHTML = '<p class="navh">Staff pages</p><nav class="nav">' + keep.concat(pagesList()).map(function (x) {
       return '<a href="' + x[2] + '"' + (/trello\.com|192\.168\.0\./.test(x[2]) ? ' target="_blank" rel="noopener"' : '') + '>' + x[0] + '</a>';
-    }).join('') + '</nav>' + (((window.BOARD && BOARD.venue) || 'bl') === 'bl'
-      ? '<p class="navh">Managers</p><nav class="nav"><a href="https://banshee.hauntedpubs.co.uk/whatson/">What&#8217;s On boards</a></nav>' : '');
+    }).join('') + '</nav>' + (mgr.length ? '<p class="navh">Managers</p><nav class="nav">' + mgr.map(function (k) {
+      return '<a href="' + k[1] + '"' + (/^https?:\/\/(sites\.google|demo\.)/.test(k[1]) ? ' target="_blank" rel="noopener"' : '') + '>' + k[0] + '</a>'; }).join('') + '</nav>' : '');
     main.parentNode.style.display = 'none';
     main.parentNode.parentNode.insertBefore(block, main.parentNode.nextSibling);
     document.body.classList.add('hub2-desk');

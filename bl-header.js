@@ -62,4 +62,4 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
-(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=23';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=24';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
