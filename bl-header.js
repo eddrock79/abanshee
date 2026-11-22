@@ -19,7 +19,7 @@
     var nb=document.querySelector('.nav-bar');
     if(nb&&!nb.querySelector('[data-cx]')){
       var after=[].slice.call(nb.querySelectorAll('.nav-btn')).filter(function(x){return /monthly jobs/i.test(x.textContent);})[0];
-      [['Refusals','refusals'],['Lost property','lost-property']].forEach(function(t){
+      [['Toilets & refusals','refusals'],['Lost property','lost-property']].forEach(function(t){
         var cur=location.pathname.indexOf('/'+t[1]+'/')>=0, el=document.createElement(cur?'span':'a');
         el.className='nav-btn'+(cur?' current':''); el.textContent=t[0]; el.setAttribute('data-cx','1'); if(!cur) el.href='../'+t[1]+'/';
         if(after&&after.parentNode){after.parentNode.insertBefore(el,after.nextSibling); after=el;} else nb.appendChild(el);
@@ -62,4 +62,4 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
-(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=22';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=23';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();

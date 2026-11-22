@@ -26,7 +26,7 @@
       V === 'bl' ? ['Rotas', "Who's working when", q(site + '/rotas/')] : null,
       V === 'bl' ? ['Holidays', 'Book or check time off', q(site + '/holidays/')] : null,
       ['Fire checks', 'Weekly alarm test, emergency lights, extinguishers', q(site + '/compliance/?tab=fire')],
-      ['Toilet check', 'Quick tick for each toilet', q(site + '/compliance/?tab=toilets')],
+      ['Toilet check', 'One tap per toilet (refusals tab too)', q(site + '/refusals/')],
       ['Health and safety', 'Policies, chemicals and fire: search them', q(nas + '/hs.html')],
       ['Questions', 'Ask instead of messaging the group', q(nas + '/questions.html')],
       ['Ideas', 'Post an idea for the pub', q(nas + '/ideas.html')],

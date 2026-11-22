@@ -21,7 +21,7 @@
     ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P],
     ['check', '✓', 'Checklists', site + '/home/'],
     ['orders', '🛒', 'Orders', NAS + ':' + dashPort + '/orders.html'],
-    ['refusals', '🚫', 'Refusals', site + '/refusals/'],
+    ['refusals', '🚫', 'Toilets & refusals', site + '/refusals/'],
     ['dash', '📊', 'Dashboard', NAS + ':' + dashPort + '/']
   ];
   var cur = port === '8114' || /start-b[lr]\.html/.test(path) ? 'hub'
@@ -215,7 +215,7 @@
       var t = (b.textContent || '').trim().toLowerCase(); b.classList.add('hp-right'); if (t !== 'switch venue') b.classList.add('hp-out'); s.appendChild(b);
     });
     // links the main menu already gives
-    var drop = /^(refusals|staff hub|⌂ staff hub|order list|orders|checklists|checklists ↗|home|main board|manager dashboard|pub dashboard)$/i;
+    var drop = /^(refusals|toilets & refusals|staff hub|⌂ staff hub|order list|orders|checklists|checklists ↗|home|main board|manager dashboard|pub dashboard)$/i;
     [].slice.call(s.children).forEach(function (a) {
       var t = (a.textContent || '').replace(/\s+/g, ' ').replace(/\d+$/, '').trim();
       if (drop.test(t) && a.style.display !== 'none') hideEl(a);

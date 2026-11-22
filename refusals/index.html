@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refusals — Banshee Labyrinth</title>
+<title>Toilets &amp; refusals — Banshee Labyrinth</title>
 <link rel="apple-touch-icon" href="../logo.jpg">
 <style>
   :root{--bg:#0d0d0f;--surface:#17171a;--surface2:#1f1f24;--border:#2a2a30;--accent:#4fb8a8;--red:#e85d5d;--text:#e8e8ec;--muted:#8a8a96}
@@ -33,6 +33,34 @@
   .rf-empty{color:var(--muted)}
   .rf-tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
   .rf-btn{font-weight:600;font-size:14px;font-family:inherit;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .tc-tabs{display:flex;gap:10px;margin:4px 0 14px}
+  .tc-tab{flex:1;font:inherit;font-weight:800;font-size:20px;padding:16px;border-radius:14px;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer}
+  .tc-tab.on{background:var(--accent);border-color:var(--accent);color:#0a0a0b}
+  .tc-tab small{display:block;font-weight:600;font-size:13px;opacity:.8}
+  .tc-pane{display:none}.tc-pane.on{display:block}
+  .tc-when{color:var(--muted);margin:2px 0 12px;font-size:15px}
+  .tc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .tc-card{border-radius:18px;border:3px solid var(--border);background:var(--surface);overflow:hidden;display:flex;flex-direction:column}
+  .tc-card.due{border-color:var(--red)}.tc-card.ok{border-color:#7ad38a}.tc-card.prob{border-color:#ffb547}
+  .tc-ok{flex:1;font:inherit;color:var(--text);background:none;border:0;padding:22px 14px 16px;cursor:pointer;text-align:center}
+  .tc-ok b{display:block;font-size:24px;margin-bottom:6px}
+  .tc-ok .big{display:block;font-size:17px;font-weight:800;margin:8px 0 2px}
+  .tc-card.due .big{color:var(--red)}.tc-card.ok .big{color:#7ad38a}.tc-card.prob .big{color:#ffb547}
+  .tc-ok small{color:var(--muted);font-size:14px}
+  .tc-ok:active{background:var(--surface2)}
+  .tc-prob{font:inherit;font-weight:700;font-size:15px;border:0;border-top:1px solid var(--border);background:var(--surface2);color:#ffb547;padding:13px;cursor:pointer}
+  .tc-all{width:100%;margin-top:14px;font:inherit;font-weight:800;font-size:19px;padding:18px;border-radius:14px;border:0;background:#7ad38a;color:#0a0a0b;cursor:pointer}
+  .tc-all:disabled,.tc-ok:disabled{opacity:.5}
+  .tc-sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .tc-sheet.on{display:flex}
+  .tc-box{background:var(--surface);border-radius:20px 20px 0 0;padding:18px;width:100%;max-width:720px}
+  .tc-box h3{margin:0 0 12px;font-size:20px}
+  .tc-issues{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .tc-issue{font:inherit;font-weight:700;font-size:16px;padding:16px 10px;border-radius:12px;border:2px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+  .tc-issue.on{border-color:#ffb547;background:rgba(255,181,71,.15)}
+  .tc-row2{display:flex;gap:10px;margin-top:12px}.tc-row2 button{flex:1;font:inherit;font-weight:800;font-size:17px;padding:15px;border-radius:12px;border:0;cursor:pointer}
+  .tc-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#7ad38a;color:#0a0a0b;font-weight:800;padding:12px 20px;border-radius:999px;z-index:60;font-size:16px}
+  .tc-toast.bad{background:var(--red);color:#fff}
   #rf-print{display:none}
   @media print{body{background:#fff;color:#000}.topbar,.nav-bar,.wrap>*:not(#rf-print),#bl-auth-overlay{display:none!important}#rf-print{display:block!important}
     #rf-print table{width:100%;border-collapse:collapse;font-size:12px}#rf-print th,#rf-print td{border:1px solid #999;padding:4px 6px;text-align:left}}
@@ -40,7 +68,7 @@
 </head>
 <body>
 <div class="topbar" style="position:relative;">
-  <div class="topbar-logo">🚫 Refusals</div>
+  <div class="topbar-logo">Toilets &amp; refusals</div>
   <img class="topbar-centre-logo" src="../logo.jpg" alt="The Banshee Labyrinth">
   <div class="topbar-right"></div>
 </div>
@@ -58,13 +86,25 @@
 </div>
 
 <div class="wrap">
-  <h1 class="rf-h">Refusals log</h1>
-  <p class="rf-sub">Tap who you are, then the reason. It's saved straight away with the time.</p>
-
-  <div class="rf-step">1. Who's refusing?</div>
+  <div class="tc-tabs"><button type="button" class="tc-tab on" id="tab-toilets" onclick="tcTab('toilets')">Toilet check<small id="tab-toilets-sub">Tap a toilet when it's checked</small></button>
+    <button type="button" class="tc-tab" id="tab-refusals" onclick="tcTab('refusals')">Refusals<small>Log someone you refused</small></button></div>
+  <div class="rf-step" style="margin-top:0">Who are you?</div>
   <div class="rf-names" id="rf-names"><span class="rf-empty">Loading names…</span></div>
 
-  <div class="rf-step">2. Why?</div>
+  <div class="tc-pane on" id="pane-toilets">
+    <p class="tc-when" id="tc-when"></p>
+    <div class="tc-grid" id="tc-grid"><span class="rf-empty">Loading toilets…</span></div>
+    <button type="button" class="tc-all" id="tc-all" onclick="tcAll()">All toilets checked and OK</button>
+    <div class="rf-cards"><div class="rf-card"><h3>Tonight's checks</h3><div id="tc-today"><span class="rf-empty">Loading…</span></div></div>
+      <div class="rf-card"><h3>Problems tonight</h3><div id="tc-probs"><span class="rf-empty">None</span></div></div></div>
+  </div>
+  <div class="tc-sheet" id="tc-sheet" onclick="if(event.target===this)tcClose()"><div class="tc-box"><h3 id="tc-sheet-h">Problem</h3>
+    <div class="tc-issues" id="tc-issues"></div>
+    <input class="rf-note" id="tc-note" placeholder="Anything else? (optional)" maxlength="200">
+    <div class="tc-row2"><button type="button" style="background:var(--surface2);color:var(--text)" onclick="tcClose()">Cancel</button><button type="button" style="background:#ffb547;color:#111" onclick="tcSaveProblem()">Save problem</button></div></div></div>
+
+  <div class="tc-pane" id="pane-refusals">
+  <div class="rf-step">Why?</div>
   <div class="rf-reasons" id="rf-reasons"></div>
   <input class="rf-note" id="rf-note" placeholder="Optional note (e.g. description, ID shown, group of 4)" maxlength="300">
   <div class="rf-done" id="rf-done"></div>
@@ -74,6 +114,7 @@
     <div class="rf-card"><h3>Today</h3><div id="rf-today"><span class="rf-empty">Loading…</span></div></div>
     <div class="rf-card"><h3>This month</h3><div id="rf-month"><span class="rf-empty">Loading…</span></div>
       <div class="rf-tools"><button class="rf-btn" type="button" onclick="rfPrint()">🖨 Print this month's log</button></div></div>
+  </div>
   </div>
   <div id="rf-print"></div>
 </div>
@@ -94,12 +135,12 @@ async function loadStaff(){
     if(r.ok){rfStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}}catch(e){}
   const h=heroes().filter(n=>rfStaff.includes(n));if(h.length)rfStaff=h.concat(rfStaff.filter(n=>!h.includes(n)));
   try{rfWho=localStorage.getItem('rf_who')||'';}catch(e){}
-  drawNames();}
+  drawNames();if(tcLoaded)tcDraw();}
 function drawNames(){const el=document.getElementById('rf-names');
   el.innerHTML=(rfStaff.length?rfStaff:[]).map(n=>`<button type="button" class="rf-name${n===rfWho?' on':''}" onclick="rfPick(this.dataset.n)" data-n="${esc(n)}">${esc(n)}</button>`).join('')
     +`<button type="button" class="rf-name" onclick="rfOther()">＋ Someone else</button>`;
   document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
-function rfPick(n){rfWho=n;try{localStorage.setItem('rf_who',n);}catch(e){}drawNames();}
+function rfPick(n){rfWho=n;try{localStorage.setItem('rf_who',n);}catch(e){}drawNames();if(tcLoaded)tcDraw();}
 function rfOther(){const n=(prompt('Your name:')||'').trim().slice(0,30);if(n){if(!rfStaff.includes(n))rfStaff.push(n);rfPick(n);}}
 function drawReasons(){document.getElementById('rf-reasons').innerHTML=REASONS.map(r=>`<button type="button" class="rf-reason" onclick="rfLog('${esc(r[1])}')"><span>${r[0]}</span>${esc(r[1])}</button>`).join('');}
 async function rfLog(reason){
@@ -127,9 +168,64 @@ function rfPrint(){const mon=today().slice(0,7),mm=(rfRows||[]).filter(x=>String
   document.getElementById('rf-print').innerHTML=`<h2>${esc(name)} · Refusals log · ${mon}</h2><table><tr><th>Date</th><th>Time</th><th>Reason</th><th>Refused by</th><th>Note</th></tr>`
     +mm.map(x=>`<tr><td>${esc(x['Date'])}</td><td>${esc(x['Time'])}</td><td>${esc(x['Reason'])}</td><td>${esc(x['Refused by'])}</td><td>${esc(x['Note'])}</td></tr>`).join('')+`</table><p>Printed ${new Date().toLocaleString('en-GB')}</p>`;
   window.print();}
-function start(){drawReasons();loadStaff();loadRows();}
+// ── TOILET CHECK: one tap per toilet. Saved as a compliance check (type toilet, Pass or Fault), same as the Compliance page ──
+const TC_ISSUES=['No soap','No toilet roll','No hand towels / dryer broken','Dirty or wet floor','Blocked or leaking','Lock or door broken','Drugs or suspicious','Glasses or rubbish'];
+let TC={areas:['Ladies','Gents','Accessible'],every:60,hours:[960,180],checks:[]},tcArea='',tcLoaded=false;
+function tcTab(t){['toilets','refusals'].forEach(x=>{document.getElementById('pane-'+x).classList.toggle('on',x===t);document.getElementById('tab-'+x).classList.toggle('on',x===t);});
+  try{history.replaceState(null,'',t==='refusals'?'#refusals':location.pathname);}catch(e){}}
+function tcToast(t,bad){const o=document.querySelector('.tc-toast');if(o)o.remove();const d=document.createElement('div');d.className='tc-toast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}
+function tcTrading(){const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function tcOpen(){const n=new Date(),m=n.getHours()*60+n.getMinutes(),[a,b]=TC.hours;return a<=b?(m>=a&&m<b):(m>=a||m<b);}
+function tcLast(area){return TC.checks.filter(c=>c.Item===area).sort((x,y)=>String(x['Logged at']).localeCompare(String(y['Logged at']))).pop();}
+function tcMins(c){if(!c)return null;const t=new Date(c['Logged at']||(String(c.Date)+'T'+(c.Time||'00:00')));return isNaN(t)?null:Math.round((Date.now()-t)/60000);}
+function tcAgo(m){return m==null?'not checked yet':m<1?'just now':m<60?m+' min ago':Math.floor(m/60)+'h '+(m%60)+'m ago';}
+async function tcLoad(){
+  try{const r=await fetch(COMPLIANCE_URL+'?action=compliance&pub='+pub()+'&t='+Date.now());const d=await r.json();
+    const set={};(d.Settings||[]).forEach(x=>{set[x.Key]=String(x.Value||'');});
+    const areas=(set.toilet_areas||'').split('\n').map(x=>x.trim()).filter(Boolean);if(areas.length)TC.areas=areas;
+    const ev=parseInt(set.toilet_every||'60',10);if(ev>=15)TC.every=ev;
+    const hm=String(set.toilet_hours||'16:00-03:00').match(/(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?/);if(hm)TC.hours=[+hm[1]*60+(+hm[2]||0),+hm[3]*60+(+hm[4]||0)];
+    TC.checks=(d.Checks||[]).filter(c=>c.Type==='toilet');tcLoaded=true;}catch(e){}
+  tcDraw();}
+function tcDraw(){const open=tcOpen(),hh=n=>String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+  document.getElementById('tc-when').textContent=(open?'Open now: check each toilet every '+TC.every+' minutes':'Outside check hours')+' ('+hh(TC.hours[0])+' to '+hh(TC.hours[1])+'). Tap a toilet once it\'s checked and OK.';
+  let due=0;
+  document.getElementById('tc-grid').innerHTML=TC.areas.map((a,i)=>{const c=tcLast(a),m=tcMins(c),late=open&&(m==null||m>TC.every),prob=c&&c.Result==='Fault'&&m!=null&&m<=TC.every;
+    if(late)due++;const cls=late?'due':prob?'prob':(m!=null&&m<=TC.every?'ok':'');
+    const big=late?(m==null?'Not checked yet':'Due now'):prob?'Problem reported':(m!=null&&m<=TC.every?'✓ Checked':'Tap when checked');
+    return `<div class="tc-card ${cls}"><button type="button" class="tc-ok" onclick="tcOk(${i})" ${rfWho?'':'disabled'}><b>${esc(a)}</b><span class="big">${big}</span><small>${esc(tcAgo(m))}${c&&c.By?' · '+esc(c.By):''}</small></button>
+      <button type="button" class="tc-prob" onclick="tcProblem(${i})">Report a problem</button></div>`;}).join('');
+  document.getElementById('tc-all').disabled=!rfWho;
+  document.getElementById('tab-toilets-sub').textContent=due?due+' due now':'Tap a toilet when it\'s checked';
+  const td=tcTrading(),tonight=TC.checks.filter(c=>{const d=String(c.Date),t=String(c.Time||'00:00');return (d===td&&t>='06:00')||(d>td&&t<'06:00');})
+    .sort((x,y)=>String(y['Logged at']).localeCompare(String(x['Logged at'])));
+  document.getElementById('tc-today').innerHTML=tonight.length?tonight.slice(0,40).map(c=>`<div class="rf-row"><b>${esc(c.Time||'')}</b><div>${esc(c.Item)} ${c.Result==='Fault'?'⚠':'✓'}<small>${esc(c.By||'')}${c.Notes?' · '+esc(c.Notes):''}</small></div></div>`).join(''):'<span class="rf-empty">No checks yet tonight.</span>';
+  const pr=tonight.filter(c=>c.Result==='Fault');
+  document.getElementById('tc-probs').innerHTML=pr.length?pr.map(c=>`<div class="rf-row"><b>${esc(c.Time||'')}</b><div>${esc(c.Item)}<small>${esc(c.Notes||'')} · ${esc(c.By||'')}</small></div></div>`).join(''):'<span class="rf-empty">None</span>';}
+async function tcPost(area,fault,notes){
+  const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'check',pub:pub(),type:'toilet',item:area,result:fault?'Fault':'Pass',notes:notes||'',by:rfWho})});
+  const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
+  const now=new Date();TC.checks.push({Type:'toilet',Item:area,Result:fault?'Fault':'Pass',Notes:notes||'',By:rfWho,Date:d.date||today(),Time:now.toTimeString().slice(0,5),'Logged at':now.toISOString()});}
+async function tcOk(i){if(!rfWho){tcToast('Tap your name first',true);return;}const a=TC.areas[i];
+  const btns=document.querySelectorAll('.tc-ok');btns[i].disabled=true;
+  try{await tcPost(a,false,'');tcToast('✓ '+a+' checked');}catch(e){tcToast('Not saved: check the wifi',true);}tcDraw();}
+async function tcAll(){if(!rfWho){tcToast('Tap your name first',true);return;}const b=document.getElementById('tc-all');b.disabled=true;b.textContent='Saving…';
+  let bad=0;for(const a of TC.areas){try{await tcPost(a,false,'');}catch(e){bad++;}}
+  b.textContent='All toilets checked and OK';tcToast(bad?bad+' not saved: try again':'✓ All toilets checked',!!bad);tcDraw();}
+function tcProblem(i){if(!rfWho){tcToast('Tap your name first',true);return;}tcArea=TC.areas[i];
+  document.getElementById('tc-sheet-h').textContent='Problem in '+tcArea;
+  document.getElementById('tc-issues').innerHTML=TC_ISSUES.map(x=>`<button type="button" class="tc-issue" onclick="this.classList.toggle('on')">${esc(x)}</button>`).join('');
+  document.getElementById('tc-note').value='';document.getElementById('tc-sheet').classList.add('on');}
+function tcClose(){document.getElementById('tc-sheet').classList.remove('on');}
+async function tcSaveProblem(){const picked=[...document.querySelectorAll('.tc-issue.on')].map(b=>b.textContent),note=document.getElementById('tc-note').value.trim();
+  if(!picked.length&&!note){tcToast('Tap what\'s wrong first',true);return;}
+  const notes=picked.join(', ')+(note?(picked.length?'. ':'')+note:'');tcClose();
+  try{await tcPost(tcArea,true,notes);tcToast('Problem saved: '+tcArea);}catch(e){tcToast('Not saved: check the wifi',true);}tcDraw();}
+setInterval(()=>{if(document.getElementById('pane-toilets').classList.contains('on'))tcDraw();},60000);   // keep the "min ago" fresh
+setInterval(tcLoad,5*60000);                                                                             // and pick up checks made on other tablets
+function start(){drawReasons();loadStaff();loadRows();tcLoad();if(location.hash==='#refusals')tcTab('refusals');}
 (async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
-  BLAuth.init({appName:'Refusals',require:'staff',onReady:start});})();
+  BLAuth.init({appName:'Toilets and refusals',require:'staff',onReady:start});})();
 </script>
 <script src="../bl-header.js" defer></script>
 <link rel="stylesheet" href="../bl-style.css">
