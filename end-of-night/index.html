@@ -778,9 +778,9 @@ function initApp(){
   renderStaff();
   if(sheetId){document.getElementById('gsStatus').textContent='↻ Syncing…';loadFromSheet().then(maybeSeedShifts);}
   else{maybeSeedShifts();}
-  // Highlight today (late-night: day stays same until 7am)
+  // Highlight today (late-night: day stays same until 6am)
   const now=new Date();
-  const adj=now.getHours()<7?new Date(now-864e5):now;
+  const adj=now.getHours()<6?new Date(now-864e5):now;
   const today=adj.toLocaleDateString('en-GB',{weekday:'long'}).toLowerCase();
   if(DAY_KEYS.includes(today)){
     const el=document.getElementById('tab-'+today);
@@ -837,12 +837,12 @@ function renderStaffRemoveList(){
 function toggleStaff(i){state.staff[i].onShift=!state.staff[i].onShift;saveState();renderStaff();if(DAY_KEYS.includes(currentTab))renderDay(DAYS[DAY_KEYS.indexOf(currentTab)]);queueSheetSync();}
 function clearAllShifts(){state.staff.forEach(s=>s.onShift=false);saveState();renderStaff();queueSheetSync();}
 
-// ── ROTA CREW (pre-fill on-shift from tonight's rota; night counts until 7am) ──
+// ── ROTA CREW (pre-fill on-shift from tonight's rota; night counts until 6am) ──
 const SHIFTS_URL='../rotas/shifts.json';
 let rotaShifts=null;
 function rotaDayISO(){
   const n=new Date(), d=new Date(n);
-  if(n.getHours()<7) d.setDate(d.getDate()-1);
+  if(n.getHours()<6) d.setDate(d.getDate()-1);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 function tonightCrew(){ const days=(rotaShifts&&rotaShifts.days)||{}, iso=rotaDayISO();
@@ -932,7 +932,7 @@ function nxBarStripHtml(day,sel,all){const bars=nxBars();if(!bars)return '';
     ${tempSel?`<button type="button" class="nx-barclose" onclick="nxCloseBar('${day}','${sel}')">${sel} not open after all? Close it</button>`:''}</div>`;}
 function nxDayDate(day){ // the date of this weekday's trading night: tonight, or the most recent one before it
   const t=new Date(rotaDayISO()+'T12:00:00'),back=(t.getDay()+6)%7-DAYS.indexOf(day),d=new Date(t);d.setDate(d.getDate()-((back%7)+7)%7);return d;}
-function nxWindow(day){const s=nxDayDate(day);s.setHours(12,0,0,0);const e=new Date(s);e.setDate(e.getDate()+1);return [s,e];}
+function nxWindow(day){const s=nxDayDate(day);s.setHours(6,0,0,0);const e=new Date(s);e.setDate(e.getDate()+1);return [s,e];}
 function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t=new Date(j.timestamp),w=nxWindow(j.day),wk=new Date(w[0]);wk.setDate(wk.getDate()+7);
   return isNaN(t)||(t>=w[0]&&t<wk);}   // counts from that night's start until the same weekday comes round again (late ticks on a past tab stay ticked)
 function nxToday(){return DAYS[(new Date(rotaDayISO()+'T12:00:00').getDay()+6)%7];}

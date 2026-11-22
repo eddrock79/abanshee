@@ -128,7 +128,7 @@ let rfWho='', rfRows=[], rfStaff=[];
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function heroes(){try{const c=JSON.parse(localStorage.getItem('br_crew')||'null');const d=new Date();if(d.getHours()<7)d.setDate(d.getDate()-1);
+function heroes(){try{const c=JSON.parse(localStorage.getItem('br_crew')||'null');const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);
   return c&&c.d===d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()&&Array.isArray(c.n)?c.n:[];}catch(e){return [];}}
 async function loadStaff(){
   try{const id=BL_CFG.endOfNight;const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});

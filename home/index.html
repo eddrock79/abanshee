@@ -362,7 +362,7 @@ function jpCount(rows,day,from,to){const js=rows.filter(j=>(j.day||'').toLowerCa
   return {n:js.filter(j=>{if(!jpDone(j))return false;const t=jpTime(j.timestamp);return !t||(t>=from&&t<to);}).length,of:js.length};}
 async function jpSheet(id){const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Jobs&t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;return jpCSV(await r.text());}
 async function loadJobProgress(){
-  const n=new Date(),night=new Date(n);if(n.getHours()<7)night.setDate(night.getDate()-1);night.setHours(0,0,0,0);
+  const n=new Date(),night=new Date(n);if(n.getHours()<6)night.setDate(night.getDate()-1);night.setHours(0,0,0,0);
   const last=new Date(night);last.setDate(last.getDate()-1);
   const at=(d,h)=>{const x=new Date(d);x.setHours(h,0,0,0);return x;},plus=(d,k)=>{const x=new Date(d);x.setDate(x.getDate()+k);return x;};
   const p=document.getElementById('tn-eon-prog'),w=document.getElementById('tn-wj');
@@ -376,13 +376,13 @@ async function loadJobProgress(){
   }catch(e){ if(w) w.style.display='none'; }
 }
 
-// ── ON TONIGHT (rota crew, 7am-aware: a night counts until 7am next morning) ──
+// ── ON TONIGHT (rota crew, 6am-aware: a night counts until 6am next morning) ──
 const SHIFTS_URL='../rotas/shifts.json';
 const SHIFTS_CACHE='bl_shifts';
 const DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function rotaDayInfo(){
   const n=new Date(); const d=new Date(n);
-  if(n.getHours()<7) d.setDate(d.getDate()-1);
+  if(n.getHours()<6) d.setDate(d.getDate()-1);
   const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   return {iso, name:DOW_FULL[d.getDay()]};
 }

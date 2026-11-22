@@ -344,7 +344,7 @@ function setLiveStatus(st){
 // ── TODAY ──
 function getToday(){
   const now=new Date();
-  const adj=now.getHours()<7?new Date(now-864e5):now;
+  const adj=now.getHours()<6?new Date(now-864e5):now;
   return adj.toLocaleDateString('en-GB',{weekday:'long'});
 }
 

@@ -692,7 +692,7 @@ const NX_AREAS=[["Safety checks",/fire|pat\b|safety|extinguisher|alarm|first aid
 const NX_LIST=MONTHS, NX_KEYS=MONTH_KEYS, NX_KIND='month';
 function nxArea(job){const s=String(job),i=s.indexOf(" | ");if(i>0)return s.slice(0,i);for(const a of NX_AREAS){if(a[1]&&a[1].test(s))return a[0];}return "Other jobs";}
 function nxJobText(job){const s=String(job),i=s.indexOf(" | ");return i>0?s.slice(i+3):s;}
-function nxNow(){const d=new Date();if(NX_KIND==='day'&&d.getHours()<7)d.setDate(d.getDate()-1);return d;}
+function nxNow(){const d=new Date();if(NX_KIND==='day'&&d.getHours()<6)d.setDate(d.getDate()-1);return d;}
 function nxStamp(){const d=nxNow();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(NX_KIND==='day'?d.getDate():1);}
 function nxCur(){const d=nxNow();return NX_KIND==='day'?NX_LIST[(d.getDay()+6)%7]:NX_LIST[d.getMonth()];}
 function nxStart(p){const now=nxNow();let s;
