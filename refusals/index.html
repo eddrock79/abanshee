@@ -130,7 +130,14 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function heroes(){try{const c=JSON.parse(localStorage.getItem('br_crew')||'null');const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);
   return c&&c.d===d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()&&Array.isArray(c.n)?c.n:[];}catch(e){return [];}}
+// names: tonight's rota, plus anyone added this shift on this tablet (kept until 6am); the full staff list only if there's no rota
+function rfNight(){const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function rfExtra(){try{const x=JSON.parse(localStorage.getItem('rf_extra')||'null');return x&&x.d===rfNight()&&Array.isArray(x.n)?x.n:[];}catch(e){return [];}}
+function rfAddExtra(n){const a=rfExtra();if(!a.includes(n))a.push(n);try{localStorage.setItem('rf_extra',JSON.stringify({d:rfNight(),n:a}));}catch(e){}}
 async function loadStaff(){
+  try{const r=await fetch('../rotas/shifts.json?t='+Date.now(),{cache:'no-store'});if(r.ok){const days=(await r.json()).days||{},k=days[rfNight()]?rfNight():Object.keys(days).filter(x=>x.slice(5)===rfNight().slice(5)).pop();
+    const rota=((k&&days[k])||[]).map(x=>x.name).filter(Boolean);
+    if(rota.length){rfStaff=rota.concat(rfExtra().filter(n=>!rota.includes(n)));try{rfWho=localStorage.getItem('rf_who')||'';}catch(e){}if(rfWho&&!rfStaff.includes(rfWho))rfWho='';drawNames();if(tcLoaded)tcDraw();return;}}}catch(e){}
   try{const id=BL_CFG.endOfNight;const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
     if(r.ok){rfStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}}catch(e){}
   const h=heroes().filter(n=>rfStaff.includes(n));if(h.length)rfStaff=h.concat(rfStaff.filter(n=>!h.includes(n)));
@@ -141,7 +148,7 @@ function drawNames(){const el=document.getElementById('rf-names');
     +`<button type="button" class="rf-name" onclick="rfOther()">＋ Someone else</button>`;
   document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
 function rfPick(n){rfWho=n;try{localStorage.setItem('rf_who',n);}catch(e){}drawNames();if(tcLoaded)tcDraw();}
-function rfOther(){const n=(prompt('Your name:')||'').trim().slice(0,30);if(n){if(!rfStaff.includes(n))rfStaff.push(n);rfPick(n);}}
+function rfOther(){let n=(prompt('Your name (you stay on the list for this shift):')||'').replace(/\s+/g,' ').trim().slice(0,30);if(n){n=n.charAt(0).toUpperCase()+n.slice(1);rfAddExtra(n);if(!rfStaff.includes(n))rfStaff.push(n);rfPick(n);}}
 function drawReasons(){document.getElementById('rf-reasons').innerHTML=REASONS.map(r=>`<button type="button" class="rf-reason" onclick="rfLog('${esc(r[1])}')"><span>${r[0]}</span>${esc(r[1])}</button>`).join('');}
 async function rfLog(reason){
   const done=document.getElementById('rf-done'),err=document.getElementById('rf-err');done.style.display=err.style.display='none';
