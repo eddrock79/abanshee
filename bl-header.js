@@ -44,7 +44,7 @@
     row.appendChild(d); right.appendChild(row);
     var nl=document.querySelector('.nav-bar a[href*="eddrock79nas"]');
     // Front page: back to this pub's board on the NAS (target _top also leaves the board's viewer)
-    var fp=document.createElement('a');fp.className='bl-xlink bl-front';fp.href=window.BL_FRONT||'http://100.90.189.89:8114/board/bl';fp.target='_top';fp.textContent='⌂ Staff Hub';
+    var fp=document.createElement('a');fp.className='bl-xlink bl-front';fp.href=window.BL_FRONT||('http://100.90.189.89:8114/board/'+(/rose/i.test(((window.BL_CFG||{}).venueKey||'')+location.hostname)?'br-fe73bad2':'bl-1ce6f0ea'));fp.target='_top';fp.textContent='⌂ Staff Hub';
     var lr=document.createElement('div');lr.className='bl-lrow';lr.appendChild(fp);
     if(nl){nl.className='bl-xlink';nl.removeAttribute('id');nl.textContent='Manager Dashboard';lr.appendChild(nl);}
     right.appendChild(lr);
@@ -62,7 +62,7 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
-(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=34';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=35';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
 // safety checks due (fire alarm, emergency lights, extinguishers, water): a strip on End of Night and Weekly Jobs so they get done; tap to log on the Compliance page
 (function(){
   return;   // replaced by the quick row under the main tabs (hp-nav.js), which shows the same checks on every page

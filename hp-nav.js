@@ -18,7 +18,7 @@
   var P = pub(), site = P === 'br' ? 'https://blackrose.hauntedpubs.co.uk' : 'https://banshee.hauntedpubs.co.uk';
   var dashPort = P === 'br' ? '8102' : '8101';
   var L = [
-    ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P],
+    ['hub', '⌂', 'Staff Hub', NAS + ':8114/board/' + P + '-' + (P === 'br' ? 'fe73bad2' : '1ce6f0ea')],
     ['check', '✓', 'Checklists', site + '/home/'],
     ['orders', '🛒', 'Stock', NAS + ':' + dashPort + '/orders.html'],
     ['refusals', '🚫', 'Toilets & refusals', site + '/refusals/'],
