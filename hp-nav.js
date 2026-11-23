@@ -24,6 +24,17 @@
     ['refusals', '🚫', 'Toilets & refusals', site + '/refusals/'],
     ['dash', '📊', 'Dashboard', NAS + ':' + dashPort + '/']
   ];
+  var DASH = NAS + ':' + dashPort;
+  var MORE = [
+    ['Rotas', site + '/rotas/'], ['Staff courses', site + '/courses/'], ['Compliance', site + '/compliance/'],
+    P === 'br' ? ['Kitchen', DASH + '/kitchen.html'] : ['Fridge temperatures', DASH + '/temps-record.html'],
+    ['Health and safety', DASH + '/hs.html'], ['Lost property', site + '/lost-property/'], ['Cocktails', site + '/cocktails/'],
+    P === 'br' ? ['Drinks menu', 'https://menubr.hauntedpubs.co.uk/?menu_access=active'] : ['Drinks menu', 'https://menu.hauntedpubs.co.uk/?bansheestaff='],
+    P === 'bl' ? ['Calendar', DASH + '/events.html'] : null, P === 'bl' ? ['Holidays', site + '/holidays/'] : null,
+    ['Questions', DASH + '/questions.html'], ['Ideas', DASH + '/ideas.html'], ['Lighting', DASH + '/lights.html'],
+    P === 'br' ? ['QLC+', DASH + '/qlc.html'] : null, P === 'br' ? ['Sound desk', 'http://192.168.0.24'] : null,
+    ['Trello board', P === 'br' ? 'https://trello.com/b/54a2a08e20dbba377fdd5498' : 'https://trello.com/b/54a2a0781d8c930f0225a1ca']
+  ].filter(Boolean);
   var cur = port === '8114' || /start-b[lr]\.html/.test(path) ? 'hub'
     : /orders/.test(path) ? 'orders'
     : /\/refusals\//.test(path) ? 'refusals'
@@ -56,6 +67,12 @@
     'header.hptop{display:block!important;box-sizing:border-box!important;background:#0b0b10!important;border-bottom:3px solid ' + acc + '!important;padding:10px 16px!important;margin:0!important;position:relative!important;z-index:20!important;font-family:' + F + '!important}' +
     '.hptop-in{display:flex!important;align-items:center!important;gap:16px!important;max-width:1400px!important;margin:0 auto!important}' +
     '.hptop-in>a.hplogo{flex:0 0 auto!important;display:block!important;line-height:0!important;padding:0!important;border:0!important;background:none!important}' +
+    /* tap the logo: every other staff page as big tiles */
+    '.hptop-in>a.hplogo{position:relative!important}.hptop-in>a.hplogo::after{content:"\\25BE";position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:' + acc + ';color:#111;font:700 12px/20px system-ui,sans-serif;text-align:center}' +
+    '.hpmore{position:fixed;left:0;right:0;bottom:0;z-index:99990;background:rgba(0,0,0,.6);display:none;overflow:auto}.hpmore.open{display:block}' +
+    '.hpmore-in{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;background:#101016;border-bottom:2px solid ' + acc + '}' +
+    '.hpmore-in a,.hpmore-in button{display:flex;align-items:center;justify-content:center;text-align:center;min-height:68px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:#1b1b22;color:#fff;font:700 17px/1.2 ' + F + ';text-decoration:none;cursor:pointer}' +
+    '.hpmore-in a:active{background:' + acc + ';color:#111}.hpmore-in button{background:none;color:#bbb}' +
     '.hptop-in>a.hplogo img{height:54px!important;width:auto!important;max-width:170px!important;border-radius:6px!important;display:block!important}' +
     'nav.hpnav{flex:1 1 auto!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;margin:0!important;padding:0!important;box-sizing:border-box!important}' +
     'nav.hpnav a{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:52px!important;padding:0 8px!important;box-sizing:border-box!important;margin:0!important;' +
@@ -139,7 +156,7 @@
         }).join('') + '</nav>' + (PREVIEW ? '<div class="hpclock" aria-label="Time"><b></b><span></span></div>' : '') + '</div>';
       document.body.insertBefore(top, document.body.firstChild);
       var lg = top.querySelector('a.hplogo');
-      if (lg) lg.addEventListener('click', function (e) { var br = document.querySelector('header.top .brand'); if (br && typeof br.onclick === 'function') { e.preventDefault(); br.onclick(); } });
+      if (lg) lg.addEventListener('click', function (e) { e.preventDefault(); toggleMore(top); });
       // pages that pad the body (the dashboards) still get the bar edge to edge
       var bs = getComputedStyle(document.body);
       ['Left', 'Right', 'Top'].forEach(function (s) { var v = parseFloat(bs['padding' + s]) || 0; if (v) top.style.setProperty('margin-' + s.toLowerCase(), (-v) + 'px', 'important'); });
@@ -154,6 +171,18 @@
     if (s && s.parentNode !== wrap) wrap.appendChild(s);
     if (PREVIEW) preview(wrap);
     tidy(); return true;
+  }
+  // the logo's drop-down: all the other staff pages; tap the logo again, the dimmed page or Close to shut it
+  function toggleMore(top) {
+    var m = document.getElementById('hpmore');
+    if (!m) {
+      m = document.createElement('div'); m.id = 'hpmore'; m.className = 'hpmore';
+      m.innerHTML = '<div class="hpmore-in">' + MORE.map(function (x) { return '<a href="' + x[1] + '" target="_top"' + (/trello\.com|192\.168\.0\./.test(x[1]) ? ' rel="noopener"' : '') + '>' + x[0] + '</a>'; }).join('') + '<button type="button">✕ Close</button></div>';
+      m.addEventListener('click', function (e) { if (e.target === m || e.target.tagName === 'BUTTON') m.classList.remove('open'); });
+      document.body.appendChild(m);
+    }
+    m.style.top = Math.max(0, top.getBoundingClientRect().bottom) + 'px';
+    m.classList.toggle('open');
   }
   // preview extras: links row only inside its own section; manager tools on the Dashboard; clock in the top bar
   function preview(wrap) {
