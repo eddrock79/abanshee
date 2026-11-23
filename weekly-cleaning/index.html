@@ -702,12 +702,16 @@ function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t
   if(NX_KIND==='day')e.setDate(e.getDate()+7);else e.setFullYear(e.getFullYear()+1);return isNaN(t)||(t>=s&&t<e);}
 function nxMe(){try{const m=JSON.parse(localStorage.getItem('wj_new_me')||'null');return m&&m.d===nxStamp()?m.n:'';}catch(e){return '';}}
 function nxSetMe(n){localStorage.setItem('wj_new_me',JSON.stringify({d:nxStamp(),n:n}));}
-function nxCrew(){const set=[];const rota=(NX_KIND==='day'&&typeof tonightCrew==='function')?tonightCrew():[];
-  rota.concat(state.staff.filter(s=>s.onShift).map(s=>s.name)).forEach(n=>{if(n&&!set.some(x=>x.toLowerCase()===n.toLowerCase()))set.push(n);});
+function nxNightIso(){const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function nxExtra(){try{const x=JSON.parse(localStorage.getItem('nx_extra')||'null');return x&&x.d===nxNightIso()&&Array.isArray(x.n)?x.n:[];}catch(e){return [];}}
+function nxAddExtra(n){const a=nxExtra();if(n&&!a.some(x=>x.toLowerCase()===n.toLowerCase()))a.push(n);try{localStorage.setItem('nx_extra',JSON.stringify({d:nxNightIso(),n:a}));}catch(e){}}
+/* tonight's rota: this page's copy, or the one the Home page keeps (Monthly has none of its own) */
+function nxRotaNames(){try{if(typeof tonightCrew==='function'){const t=tonightCrew();if(t.length)return t;}const days=JSON.parse(localStorage.getItem('bl_shifts')||'{}'),iso=nxNightIso();const k=days[iso]?iso:Object.keys(days).filter(x=>x.slice(5)===iso.slice(5)).pop();return((k&&days[k])||[]).map(x=>x.name).filter(Boolean);}catch(e){return [];}}
+function nxCrew(){const set=[];const rota=nxRotaNames();const base=rota.length?rota.concat(nxExtra()):state.staff.filter(s=>s.onShift).map(s=>s.name).concat(nxExtra());base.forEach(n=>{if(n&&!set.some(x=>x.toLowerCase()===n.toLowerCase()))set.push(n);});
   const me=nxMe();if(me&&!set.includes(me))set.push(me);return set;}
 function nxToast(t){const o=document.querySelector('.nx-toast');if(o)o.remove();const d=document.createElement('div');d.className='nx-toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800);}
 function nxRedraw(p){if(currentTab===String(p).toLowerCase())renderDay(p);}
-function nxPick(n){if(!n)return;nxSetMe(n);const s=state.staff.find(x=>x.name.toLowerCase()===n.toLowerCase());if(s&&!s.onShift){s.onShift=true;saveState();queueSheetSync();}
+function nxPick(n){if(!n)return;nxAddExtra(n);nxSetMe(n);const s=state.staff.find(x=>x.name.toLowerCase()===n.toLowerCase());if(s&&!s.onShift){s.onShift=true;saveState();queueSheetSync();}
   const i=NX_KEYS.indexOf(currentTab);renderDay(i>=0?NX_LIST[i]:nxCur());}
 const NX_HOLD=3500, nxRecent={};
 function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
