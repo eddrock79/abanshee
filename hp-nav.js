@@ -229,8 +229,9 @@
     var m = document.getElementById('hpmore');
     if (!m) {
       m = document.createElement('div'); m.id = 'hpmore'; m.className = 'hpmore';
-      m.innerHTML = '<div class="hpmore-in">' + MORE.map(function (x) { return '<a href="' + x[1] + '" target="_top"' + (/trello\.com|192\.168\.0\./.test(x[1]) ? ' rel="noopener"' : '') + '>' + x[0] + '</a>'; }).join('') + '<button type="button">✕ Close</button></div>';
-      m.addEventListener('click', function (e) { if (e.target === m || e.target.tagName === 'BUTTON') m.classList.remove('open'); });
+      // lighting desks refuse to be shown inside the Staff Hub viewer, so those open as a full page (data-hpfull)
+      m.innerHTML = '<div class="hpmore-in">' + MORE.map(function (x) { return '<a href="' + x[1] + '" target="_top"' + (/trello\.com|192\.168\.0\./.test(x[1]) ? ' rel="noopener"' : '') + (/lights\.html|qlc\.html|192\.168\.0\./.test(x[1]) ? ' data-hpfull="1"' : '') + '>' + x[0] + '</a>'; }).join('') + '<button type="button">✕ Close</button></div>';
+      m.addEventListener('click', function (e) { if (e.target === m || e.target.tagName === 'BUTTON' || e.target.closest('a')) m.classList.remove('open'); });
       document.body.appendChild(m);
     }
     m.style.top = Math.max(0, top.getBoundingClientRect().bottom) + 'px';

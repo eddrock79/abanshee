@@ -62,7 +62,7 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
-(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=35';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=36';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
 // safety checks due (fire alarm, emergency lights, extinguishers, water): a strip on End of Night and Weekly Jobs so they get done; tap to log on the Compliance page
 (function(){
   return;   // replaced by the quick row under the main tabs (hp-nav.js), which shows the same checks on every page
