@@ -1,36 +1,6 @@
 {
-  "generated": "2026-11-21T08:00:14",
+  "generated": "2026-11-23T08:00:16",
   "events": [
-    {
-      "date": "2026-11-16",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-11-16",
-      "room": "Cinema",
-      "what": "Edinburgh B-Team"
-    },
-    {
-      "date": "2026-11-17",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
-    {
-      "date": "2026-11-18",
-      "room": "Chamber Room",
-      "what": "Take the stage"
-    },
-    {
-      "date": "2026-11-21",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-11-22",
-      "room": "Chamber Room",
-      "what": "Karaoke"
-    },
     {
       "date": "2026-11-23",
       "room": "Cinema",
@@ -48,6 +18,71 @@
     },
     {
       "date": "2026-11-29",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-12-07",
+      "room": "Cinema",
+      "what": "Edinburgh B-Team"
+    },
+    {
+      "date": "2026-12-08",
+      "room": "Chamber Room",
+      "what": "Karaoke"
+    },
+    {
+      "date": "2026-12-08",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-12-09",
+      "room": "Chamber Room",
+      "what": "Take the stage"
+    },
+    {
+      "date": "2026-12-09",
+      "room": "Cinema",
+      "what": "Improv"
+    },
+    {
+      "date": "2026-12-10",
+      "room": "Chamber Room",
+      "what": "Booked"
+    },
+    {
+      "date": "2026-12-11",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-12-11",
+      "room": "Chamber Room",
+      "what": "Booked + Dave"
+    },
+    {
+      "date": "2026-12-11",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-12-12",
+      "room": "Cave Bar",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-12-12",
+      "room": "Chamber Room",
+      "what": "Hellraiser + Tension"
+    },
+    {
+      "date": "2026-12-12",
+      "room": "Cinema",
+      "what": "Booking"
+    },
+    {
+      "date": "2026-12-13",
       "room": "Chamber Room",
       "what": "Karaoke"
     }
