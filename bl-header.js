@@ -62,9 +62,10 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
 })();
 // shared main menu (Staff Hub / Checklists / Orders / Refusals), same on every staff page
-(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=32';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
+(function(){if(document.querySelector('script[data-hpnav]'))return;var x=document.createElement('script');x.src='/hp-nav.js?v=34';x.setAttribute('data-hpnav','1');document.head.appendChild(x);})();
 // safety checks due (fire alarm, emergency lights, extinguishers, water): a strip on End of Night and Weekly Jobs so they get done; tap to log on the Compliance page
 (function(){
+  return;   // replaced by the quick row under the main tabs (hp-nav.js), which shows the same checks on every page
   if(!/\/(end-of-night|weekly-cleaning)\//.test(location.pathname)) return;
   var U='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
   var R=[['fire_alarm','Weekly fire alarm test',7,'fire'],['em_light_month','Monthly emergency lights test',31,'fire'],['extinguisher_month','Monthly extinguisher check',31,'fire'],

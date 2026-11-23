@@ -48,10 +48,10 @@
   if (cur === 'hub' && !MOVED) {
     try { if (window.matchMedia('(hover:none) and (pointer:coarse)').matches) window.CHAT_WIDE = '(min-width:1400px)'; } catch (e) {}   // iPad: chat is a button; desktop keeps its column
     var FB = 'https://banshee.hauntedpubs.co.uk/';     // fallback copy if the board service can't hand the file out
-    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=14';
-    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=14'; }; document.head.appendChild(hl);
-    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=14';
-    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=14'; document.head.appendChild(y); }; document.head.appendChild(hs);
+    var hl = document.createElement('link'); hl.rel = 'stylesheet'; hl.href = 'start-hub2.css?v=15';
+    hl.onerror = function () { hl.onerror = null; hl.href = FB + 'start-hub2.css?v=15'; }; document.head.appendChild(hl);
+    var hs = document.createElement('script'); hs.src = 'start-hub2.js?v=15';
+    hs.onerror = function () { var y = document.createElement('script'); y.src = FB + 'start-hub2.js?v=15'; document.head.appendChild(y); }; document.head.appendChild(hs);
   }
   // ── Dashboard layout (main board and sales only) ──
   // live for everyone since 21 Nov 2026
@@ -69,6 +69,11 @@
     '.hptop-in>a.hplogo{flex:0 0 auto!important;display:block!important;line-height:0!important;padding:0!important;border:0!important;background:none!important}' +
     /* tap the logo: every other staff page as big tiles */
     '.hptop-in>a.hplogo{position:relative!important}.hptop-in>a.hplogo::after{content:"\\25BE";position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:' + acc + ';color:#111;font:700 12px/20px system-ui,sans-serif;text-align:center}' +
+    /* the row under the main tabs: All pages, plus what is outstanding right now */
+    '.hpquick{display:flex!important;flex-wrap:wrap!important;gap:8px!important;align-items:center!important;max-width:1400px!important;margin:10px auto 0!important;padding:0 16px!important;box-sizing:border-box!important;font-family:' + F + '!important}' +
+    '.hpquick a,.hpquick button{display:inline-flex!important;align-items:center!important;gap:6px!important;height:40px!important;padding:0 14px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.2)!important;background:#15151b!important;color:#fff!important;font:700 15px/1 ' + F + '!important;text-decoration:none!important;cursor:pointer!important;white-space:nowrap!important}' +
+    '.hpquick .hpq-all{background:' + acc + '!important;color:#111!important;border-color:' + acc + '!important}' +
+    '.hpquick .hpq-due{border-color:#ff9f43!important;color:#ffd2a6!important}' +
     '.hpmore{position:fixed;left:0;right:0;bottom:0;z-index:99990;background:rgba(0,0,0,.6);display:none;overflow:auto}.hpmore.open{display:block}' +
     '.hpmore-in{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;background:#101016;border-bottom:2px solid ' + acc + '}' +
     '.hpmore-in a,.hpmore-in button{display:flex;align-items:center;justify-content:center;text-align:center;min-height:68px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:#1b1b22;color:#fff;font:700 17px/1.2 ' + F + ';text-decoration:none;cursor:pointer}' +
@@ -161,9 +166,10 @@
       var bs = getComputedStyle(document.body);
       ['Left', 'Right', 'Top'].forEach(function (s) { var v = parseFloat(bs['padding' + s]) || 0; if (v) top.style.setProperty('margin-' + s.toLowerCase(), (-v) + 'px', 'important'); });
     }
+    quickRow(top);
     var wrap = document.querySelector('html body .hpsub');
     if (!wrap) {
-      wrap = document.createElement('div'); wrap.className = 'hpsub'; top.parentNode.insertBefore(wrap, top.nextSibling);
+      wrap = document.createElement('div'); wrap.className = 'hpsub'; var qr = document.getElementById('hpquick'); top.parentNode.insertBefore(wrap, (qr || top).nextSibling);
       var bs2 = getComputedStyle(document.body);
       ['Left', 'Right'].forEach(function (k) { var v = parseFloat(bs2['padding' + k]) || 0; if (v) wrap.style.setProperty('margin-' + k.toLowerCase(), (-v) + 'px', 'important'); });
     }
@@ -171,6 +177,52 @@
     if (s && s.parentNode !== wrap) wrap.appendChild(s);
     if (PREVIEW) preview(wrap);
     tidy(); return true;
+  }
+  // quick row: what's outstanding, from the Compliance sheet (works on every page, on and off the pub network); refreshed every 10 minutes
+  var CU = 'https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+  function quickCalc(d) {
+    var out = [], today = new Date(); today.setHours(12, 0, 0, 0);
+    var set = {}; (d.Settings || []).forEach(function (x) { set[x.Key] = String(x.Value || ''); });
+    var areas = (set.toilet_areas || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean); if (!areas.length) areas = ['Ladies', 'Gents', 'Accessible'];
+    var every = parseInt(set.toilet_every || '60', 10); if (!(every >= 15)) every = 60;
+    var hm = String(set.toilet_hours || '16:00-03:00').match(/(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?/), h0 = hm ? +hm[1] * 60 + (+hm[2] || 0) : 960, h1 = hm ? +hm[3] * 60 + (+hm[4] || 0) : 180;
+    var n = new Date(), tm = n.getHours() * 60 + n.getMinutes(), open = h0 <= h1 ? (tm >= h0 && tm < h1) : (tm >= h0 || tm < h1);
+    if (open) {
+      var late = areas.filter(function (ar) {
+        var last = (d.Checks || []).filter(function (c) { return c.Type === 'toilet' && c.Item === ar; }).map(function (c) { return c['Logged at'] ? new Date(c['Logged at']).getTime() : 0; }).sort().pop();
+        return !last || (Date.now() - last) / 60000 > every + 15;
+      });
+      if (late.length) out.push(['🚻 Toilet check: ' + late.length + ' due', site + '/refusals/']);
+    }
+    [['fire_alarm', 'Fire alarm test', 7, 'fire'], ['em_light_month', 'Emergency lights', 31, 'fire'], ['extinguisher_month', 'Extinguishers', 31, 'fire'],
+     ['legionella_flush', 'Tap flush', 7, 'water'], ['legionella_temp', 'Water temperatures', 31, 'water']].forEach(function (k) {
+      var last = (d.Checks || []).filter(function (c) { return c.Type === k[0]; }).map(function (c) { return String(c.Date); }).sort().pop();
+      var nx = last ? new Date(last + 'T12:00:00') : null; if (nx) nx.setDate(nx.getDate() + k[2]);
+      if (!nx || nx <= today) out.push(['🔥 ' + k[1] + ' due', site + '/compliance/?tab=' + k[3]]);
+    });
+    return out;
+  }
+  function quickDraw(row, items) {
+    var fire = items.filter(function (x) { return x[0].indexOf('🔥') === 0; });
+    if (fire.length > 2) items = items.filter(function (x) { return x[0].indexOf('🔥') !== 0; }).concat([['🔥 ' + fire.length + ' safety checks due', site + '/compliance/?tab=fire']]);
+    row.innerHTML = '<button type="button" class="hpq-all">☰ All pages ▾</button>' + items.slice(0, 5).map(function (x) {
+      return '<a class="hpq-due" href="' + x[1] + '" target="_top">' + x[0] + ' ›</a>'; }).join('') +
+      (items.length > 5 ? '<a class="hpq-due" href="' + site + '/compliance/" target="_top">+' + (items.length - 5) + ' more ›</a>' : '') +
+      '<a href="' + site + '/courses/" target="_top">🎓 Do a course +10</a>';
+    row.querySelector('.hpq-all').onclick = function () { var t = document.querySelector('header.hptop'); if (t) toggleMore(t); };
+  }
+  function quickRow(top) {
+    var row = document.getElementById('hpquick');
+    if (!row) { row = document.createElement('div'); row.id = 'hpquick'; row.className = 'hpquick'; top.parentNode.insertBefore(row, top.nextSibling); }
+    var key = 'hpq_' + P, c = null;
+    try { c = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) {}
+    quickDraw(row, c && c.d || []);
+    if (c && Date.now() - c.t < 600000) return;
+    fetch(CU + '?action=compliance&pub=' + P + '&t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.Checks) return; var x = quickCalc(d);
+      try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), d: x })); } catch (e) {}
+      quickDraw(row, x);
+    }).catch(function () {});
   }
   // the logo's drop-down: all the other staff pages; tap the logo again, the dimmed page or Close to shut it
   function toggleMore(top) {
