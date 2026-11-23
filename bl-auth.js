@@ -36,7 +36,16 @@
   /* ---------- tiny helpers ---------- */
   function parseCSVLine(line){const o=[];let c='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"')q=!q;else if(ch===','&&!q){o.push(c.trim());c='';}else c+=ch;}o.push(c.trim());return o;}
   function clean(s){return (s||'').replace(/^"|"$/g,'').trim();}
-  function getAuth(){try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'null');}catch(e){return null;}}
+  // tablets and phones: manager / master drop back to staff after 5 minutes without a tap (staff can't reward themselves)
+  var TOUCH=false;try{TOUCH=matchMedia('(hover:none) and (pointer:coarse)').matches;}catch(e){}
+  var MGR_IDLE=5*60000;
+  function getAuth(){var a=null;try{a=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');}catch(e){return null;}
+    if(a&&TOUCH&&(a.role==='manager'||a.role==='master')&&Date.now()-(a.ts||0)>MGR_IDLE){a={role:'staff',ts:Date.now()};try{localStorage.setItem(AUTH_KEY,JSON.stringify(a));}catch(e){}}
+    return a;}
+  if(TOUCH){var bump=0;['pointerdown','keydown'].forEach(function(ev){document.addEventListener(ev,function(){var n=Date.now();if(n-bump<20000)return;bump=n;
+      var a=null;try{a=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');}catch(e){}if(a&&(a.role==='manager'||a.role==='master')&&n-(a.ts||0)<=MGR_IDLE){a.ts=n;try{localStorage.setItem(AUTH_KEY,JSON.stringify(a));}catch(e){}}},{passive:true,capture:true});});
+    setInterval(function(){var a=null;try{a=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');}catch(e){}
+      if(a&&(a.role==='manager'||a.role==='master')&&Date.now()-(a.ts||0)>MGR_IDLE){var t=document.activeElement;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;getAuth();location.reload();}},30000);}
   function setAuth(role){localStorage.setItem(AUTH_KEY,JSON.stringify({role,ts:Date.now()}));}
 
   /* ---------- PIN loading: timeout + cache ---------- */
