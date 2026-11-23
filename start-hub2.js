@@ -83,7 +83,7 @@
     }
     if (!$('folders') || !$('folders').children.length) fold.style.display = 'none'; else fold.style.display = '';
     var h = $('h-report'); if (h && !/^Last night/.test(h.textContent)) h.textContent = 'Last night · both pubs';
-    var order = ['sec-todo', 'sec-heroes', 'sec-tonight', 'sec-eon', 'sec-shift', 'sec-report', 'sec-reviews', 'sec-snags', 'sec-folders', 'sec-wx', 'sec-news', 'sec-pages'];
+    var order = ['sec-todo', 'sec-heroes', 'sec-proud', 'sec-tonight', 'sec-eon', 'sec-shift', 'sec-report', 'sec-reviews', 'sec-snags', 'sec-folders', 'sec-wx', 'sec-news', 'sec-pages'];
     var prev = null;
     order.forEach(function (id) {
       var el = id === 'sec-todo' ? todo : id === 'sec-folders' ? fold : id === 'sec-pages' ? pages : $(id); if (!el) return;
