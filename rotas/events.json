@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-23T08:00:16",
+  "generated": "2026-11-24T08:00:16",
   "events": [
     {
       "date": "2026-11-23",
@@ -22,69 +22,69 @@
       "what": "Karaoke"
     },
     {
-      "date": "2026-12-07",
+      "date": "2026-11-30",
       "room": "Cinema",
       "what": "Edinburgh B-Team"
     },
     {
-      "date": "2026-12-08",
+      "date": "2026-12-01",
       "room": "Chamber Room",
       "what": "Karaoke"
     },
     {
-      "date": "2026-12-08",
+      "date": "2026-12-01",
       "room": "Cinema",
       "what": "Booking"
     },
     {
-      "date": "2026-12-09",
+      "date": "2026-12-02",
       "room": "Chamber Room",
       "what": "Take the stage"
     },
     {
-      "date": "2026-12-09",
+      "date": "2026-12-02",
       "room": "Cinema",
-      "what": "Improv"
+      "what": "Kei"
     },
     {
-      "date": "2026-12-10",
+      "date": "2026-12-03",
+      "room": "Cinema",
+      "what": "Fleshmarket"
+    },
+    {
+      "date": "2026-12-04",
       "room": "Chamber Room",
-      "what": "Booked"
+      "what": "Luke"
     },
     {
-      "date": "2026-12-11",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-12-11",
-      "room": "Chamber Room",
-      "what": "Booked + Dave"
-    },
-    {
-      "date": "2026-12-11",
+      "date": "2026-12-04",
       "room": "Cinema",
       "what": "Booking"
     },
     {
-      "date": "2026-12-12",
-      "room": "Cave Bar",
-      "what": "Booking"
-    },
-    {
-      "date": "2026-12-12",
+      "date": "2026-12-05",
       "room": "Chamber Room",
-      "what": "Hellraiser + Tension"
+      "what": "Something + DJ"
     },
     {
-      "date": "2026-12-12",
+      "date": "2026-12-05",
       "room": "Cinema",
-      "what": "Booking"
+      "what": "EHF"
     },
     {
-      "date": "2026-12-13",
+      "date": "2026-12-05",
+      "room": "Other",
+      "what": "EVA's Birthday!"
+    },
+    {
+      "date": "2026-12-06",
       "room": "Chamber Room",
-      "what": "Karaoke"
+      "what": "Gig + Karaoke"
+    },
+    {
+      "date": "2026-12-06",
+      "room": "Cinema",
+      "what": "Soundscape"
     }
   ]
 }
