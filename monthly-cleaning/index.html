@@ -714,7 +714,7 @@ function nxToast(t){const o=document.querySelector('.nx-toast');if(o)o.remove();
 function nxRedraw(p){if(currentTab===String(p).toLowerCase())renderMonth(p);}
 function nxPick(n){if(!n)return;nxAddExtra(n);nxSetMe(n);const s=state.staff.find(x=>x.name.toLowerCase()===n.toLowerCase());if(s&&!s.onShift){s.onShift=true;saveState();queueSheetSync();}
   const i=NX_KEYS.indexOf(currentTab);renderMonth(i>=0?NX_LIST[i]:nxCur());}
-const NX_HOLD=3500, nxRecent={};
+const NX_HOLD=10000, nxRecent={};
 function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
   const j=state.jobs.find(x=>x.id===id);if(!j)return;
   if(nxRecent[id]&&nxRecent[id]>Date.now()){nxUndo(id);return;}

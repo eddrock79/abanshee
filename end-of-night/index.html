@@ -948,7 +948,7 @@ function nxCrew(){const set=[];const rota=nxRotaNames();const base=rota.length?r
 function nxToast(t){const o=document.querySelector('.nx-toast');if(o)o.remove();const d=document.createElement('div');d.className='nx-toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800);}
 function nxPick(n){if(!n)return;nxAddExtra(n);nxSetMe(n);const s=state.staff.find(x=>x.name.toLowerCase()===n.toLowerCase());if(s&&!s.onShift){s.onShift=true;saveState();queueSheetSync();}
   renderDay(DAYS[DAY_KEYS.indexOf(currentTab)]||nxToday());}
-const NX_HOLD=3500, nxRecent={};   // id -> time it moves out of "Still to do"
+const NX_HOLD=10000, nxRecent={};   // id -> time it moves out of "Still to do"
 function nxTick(id){const me=nxMe();if(!me){nxToast('Tap your name at the top first');const w=document.querySelector('.nx-who');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});return;}
   const j=state.jobs.find(x=>x.id===id);if(!j)return;
   if(nxRecent[id]&&nxRecent[id]>Date.now()){nxUndo(id);return;}   // second tap while it's still showing = undo
