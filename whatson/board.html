@@ -6,7 +6,7 @@
 <title>The Banshee Labyrinth — What's On</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&family=Bevan&family=Signika:wght@600;700&display=swap" rel="stylesheet">
 
 <!-- ===================================================================
      THE BANSHEE LABYRINTH — "WHAT'S ON" PORTRAIT DISPLAY
@@ -1025,6 +1025,12 @@ input:disabled{opacity:.4}
   border-radius:8px;overflow:hidden;
   background:#1a0a1a center/contain no-repeat;
 }
+/* Private-hire posters (no films set): fill each slot edge to edge, heading in the posters' style */
+body.hire-on .csp-panel{background-size:cover;background-color:#04102c}
+body.hire-on .masthead .eyebrow{font-family:"Signika",sans-serif;font-weight:700;color:#b7dc35;opacity:1;letter-spacing:.38em}
+body.hire-on .masthead h1{font-family:"Bevan",Georgia,serif;font-weight:400;color:#fff;letter-spacing:.01em;
+  font-size:clamp(30px,7vw,140px);animation:none;text-shadow:0 0 28px rgba(183,220,53,.25),0 4px 0 #04102c}
+body.hire-on .masthead h1 em{font-style:normal;color:#b7dc35}
 
 /* ── Stacked promo: portrait shows BOTH adverts simultaneously ──
    Overrides come AFTER base rules so higher specificity wins       */
@@ -1776,6 +1782,12 @@ const CONFIG = {
   // illustrated fallback.
   CINEMA_PROMO_IMG: "https://drive.google.com/thumbnail?id=12JcpsDu7KHGLkTscvPpvaRiKUmNpgXHq&sz=w1920",
   CAVE_PROMO_IMG:  "https://drive.google.com/thumbnail?id=1lNlTK2OT23p9jnfDQC34h-cyOuRMYT5y&sz=w1920",
+  // Portrait TVs, no films set: three posters made as one design (Cave Bar, Cinema, Chamber Room), 983x525 slots
+  CAVE_POSTER_PORTRAIT:    "promo-cave.jpg?v=2",
+  CINEMA_POSTER_PORTRAIT:  "promo-cinema.jpg?v=2",
+  CHAMBER_POSTER_PORTRAIT: "promo-chamber.jpg?v=2",
+  HIRE_TITLE:   "Your Night, <em>Our Vaults</em>",
+  HIRE_EYEBROW: "The Banshee Labyrinth · Private hire",
 
   COCKTAIL_PRICE:"7.50", COCKTAIL_PITCHER:"19",
   COCKTAILS:[
@@ -2338,8 +2350,9 @@ function render(){
   const mode=MODES[state.mode];
   const now=getNow();
 
-  document.getElementById("eyebrow").textContent=mode.eyebrow;
-  document.getElementById("title").textContent=mode.title;
+  document.getElementById("eyebrow").textContent=(state.mode==="cinema" && state._cinemaEmpty && !IS_LANDSCAPE) ? CONFIG.HIRE_EYEBROW : mode.eyebrow;
+  { const hire=!!(state.mode==="cinema" && state._cinemaEmpty && !IS_LANDSCAPE); document.body.classList.toggle("hire-on",hire);
+    const t=document.getElementById("title"); if(hire) t.innerHTML=CONFIG.HIRE_TITLE; else t.textContent=mode.title; }
   document.getElementById("footNote").textContent=mode.foot;
 
   const validDate=!isNaN(now.date.getTime());
@@ -2643,8 +2656,9 @@ function renderCinemaPromo(wrap){
     /* ── PORTRAIT: two panels stacked, each exactly half the available height ──
        Uses background-image divs so sizing is trivial — no position:absolute fight. */
     wrap.innerHTML = `<div class="cpromo-stack-portrait">
-      <div class="csp-panel" ${cinImg  ? `style="background-image:url('${cinImg}')"` : ""}></div>
-      <div class="csp-panel" ${caveImg ? `style="background-image:url('${caveImg}')"` : ""}></div>
+      <div class="csp-panel" style="background-image:url('${CONFIG.CAVE_POSTER_PORTRAIT||cinImg}')"></div>
+      <div class="csp-panel" style="background-image:url('${CONFIG.CINEMA_POSTER_PORTRAIT||caveImg}')"></div>
+      ${CONFIG.CHAMBER_POSTER_PORTRAIT?`<div class="csp-panel" style="background-image:url('${CONFIG.CHAMBER_POSTER_PORTRAIT}')"></div>`:""}
     </div>`;
     return;
   }
@@ -2756,6 +2770,11 @@ async function renderCinema(now, validDate){
   const sig="cine|"+isoDate(now)+"|"+films.map(f=>f._date+f.title+f.time).join(",");
   if(sig===state._cinemaSig && wrap.querySelector(".cinema")) return; // don't restart the reel each minute
   state._cinemaSig=sig;
+  state._cinemaEmpty=!films.length;
+  if(state.mode==="cinema" && !IS_LANDSCAPE){ const hire=!films.length;
+    document.body.classList.toggle("hire-on",hire);
+    if(hire) document.getElementById("title").innerHTML=CONFIG.HIRE_TITLE; else document.getElementById("title").textContent=MODES.cinema.title;
+    document.getElementById("eyebrow").textContent=hire?CONFIG.HIRE_EYEBROW:MODES.cinema.eyebrow; }
   if(!films.length){ renderCinemaPromo(wrap); return; }
 
   const film=films[0], data=film._tmdb||{};
