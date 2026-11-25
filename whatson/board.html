@@ -6,7 +6,7 @@
 <title>The Banshee Labyrinth — What's On</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&family=Bevan&family=Signika:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&family=Bevan&family=Signika:wght@600;700&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 
 <!-- ===================================================================
      THE BANSHEE LABYRINTH — "WHAT'S ON" PORTRAIT DISPLAY
@@ -239,7 +239,7 @@ body{
 }
 
 /* ── creeping shadow — longer reach, deeper darkness ── */
-.creep{position:fixed;top:0;bottom:0;width:58vw;z-index:42;pointer-events:none;opacity:0}
+.creep{position:fixed;top:0;bottom:0;width:58vw;z-index:0;pointer-events:none;opacity:0}  /* behind the board: darkens the room, never the words */
 .creep.left{
   left:0;transform-origin:left center;
   background:linear-gradient(90deg,
@@ -1614,7 +1614,7 @@ body.lay-tonight .bl-logo{animation:logoShade 7.5s ease-in-out infinite alternat
   to{filter:drop-shadow(18px -10px 6px rgba(0,0,0,.7)) drop-shadow(-2px -5px 4px rgba(0,0,0,.7))}}
 @media (prefers-reduced-motion:reduce){body.lay-tonight .bl-logo{animation:none;filter:drop-shadow(4px -6px 4px rgba(0,0,0,.6)) drop-shadow(-4px -6px 4px rgba(0,0,0,.6))}}
 body.lay-tonight .bl-logo{display:block;width:calc(100% + 40px);max-width:none;margin:clamp(-76px,-3.8vh,-20px) -20px clamp(-46px,-2.1vh,-12px);height:auto;pointer-events:none}
-body.lay-tonight .masthead .eyebrow,body.lay-tonight .masthead h1{display:none}
+body.lay-tonight .masthead .eyebrow{display:none}
 body.lay-tonight .masthead{padding-bottom:clamp(8px,1.2vh,16px);border-bottom:0}
 body.lay-tonight .masthead .sub{position:fixed;right:clamp(18px,3.4vw,44px);bottom:clamp(46px,5.6vh,84px);z-index:6;
   display:flex;flex-direction:column;align-items:flex-end;gap:.05em;margin:0;text-align:right}
@@ -1633,6 +1633,92 @@ body:not(.f-garamond) .ev-desc,.ev-desc{font-size:clamp(17px,2.4vw,44px);line-he
 .ev-hero-desc{font-size:clamp(19px,2.7vw,50px)}
 body.lay-tonight .masthead h1{font-size:clamp(46px,8.2vw,150px);line-height:1}
 
+/* ===== v6 (Nov 2026): Events heading = coloured logo + EVENTS; Prices in the clear Barlow face ===== */
+body.lay-tonight .bl-logo{width:min(64%,720px);margin:clamp(4px,.8vh,14px) auto 0;animation:none;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.75)) drop-shadow(0 0 26px rgba(116,227,193,.12))}
+body.lay-tonight .masthead h1{display:flex;align-items:center;justify-content:center;gap:.7em;
+  font-family:var(--evf);font-weight:600;text-transform:uppercase;letter-spacing:.42em;text-indent:.42em;
+  font-size:clamp(24px,4.6vw,88px);color:var(--spectre);animation:none;margin-top:clamp(2px,.5vh,8px);
+  text-shadow:0 0 22px rgba(116,227,193,.35)}
+body.lay-tonight .masthead h1::before,body.lay-tonight .masthead h1::after{content:"";flex:0 1 18%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--spectre));opacity:.6}
+body.lay-tonight .masthead h1::after{background:linear-gradient(270deg,transparent,var(--spectre))}
+
+body.lay-prices .masthead h1{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.05em;animation:none}
+body.lay-prices .pr-member-card{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  font-size:clamp(22px,4.4vw,90px);animation:none}
+body.lay-prices .pr-name{font-family:var(--evf);font-weight:600;font-size:clamp(24px,4.1vw,84px)}
+body.lay-prices .pr-price{font-family:var(--evf);font-weight:700;font-size:clamp(24px,4.3vw,88px);letter-spacing:.01em;color:#8ff5d6}
+body.lay-prices .pr-price .cur{color:inherit;font-size:.82em;opacity:.85}
+body.lay-prices .pr-price .p2{color:var(--bone);font-size:.8em}
+body.lay-prices .pr-sub{font-family:var(--evf);font-weight:600;font-size:clamp(13px,1.8vw,34px);letter-spacing:.06em;color:var(--bone-dim)}
+body.lay-prices .prd-head{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:clamp(24px,4.2vw,86px)}
+body.lay-prices .prd-head .prd-heading{animation:none}
+body.lay-prices .prd-head .prd-price{font-family:var(--evf);font-weight:700;font-size:clamp(24px,4.2vw,86px);animation:none}
+body.lay-prices .prd-card{padding-right:clamp(10px,1.4vw,18px)}
+body.lay-prices .prd-icon{display:none}
+body.lay-prices .prd-name{font-family:var(--evf);font-weight:600;font-size:clamp(22px,3.3vw,64px);line-height:1.02}
+body.lay-prices .prd-ing{font-family:var(--evf);font-weight:500;font-size:clamp(16px,2.35vw,46px);line-height:1.12;
+  color:rgba(236,230,214,.93);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* long lists (e.g. 11 shooters): tighter cards, one line of ingredients */
+body.lay-prices .prd-list.dense{gap:clamp(3px,.45vh,7px)}
+body.lay-prices .prd-list.dense .prd-card{padding-top:clamp(2px,.3vh,6px);padding-bottom:clamp(2px,.3vh,6px)}
+body.lay-prices .prd-list.dense .prd-name{font-size:clamp(20px,3vw,58px)}
+body.lay-prices .prd-list.dense .prd-ing{-webkit-line-clamp:1;font-size:clamp(15px,2.15vw,42px)}
+body.lay-prices .prd-list.dense .prd-icon svg{width:clamp(22px,3vw,64px);height:clamp(22px,3vw,64px)}
+
+/* ===== v7: long logo with a flickering flame (Events) ===== */
+.bl-logo-wrap{display:none}
+body.lay-tonight .bl-logo-wrap{display:block;position:relative;z-index:2;width:72%;max-width:800px;margin:clamp(2px,.4vh,8px) auto 0}
+body.lay-tonight .bl-logo-wrap .bl-logo{width:100%;margin:0;animation:none;filter:drop-shadow(0 6px 16px rgba(0,0,0,.8))}
+/* flame = draught lean (outer) + heat shimmer (middle) + candle flicker (image) + rising embers */
+.bl-flame{position:absolute;left:72.14%;bottom:52.4%;width:13.51%;pointer-events:none;transform-origin:50% 100%;
+  animation:flDraught 9s ease-in-out infinite}
+.bl-flame .fl-sh{display:block;transform-origin:50% 100%;animation:flShimmer 1.8s ease-in-out infinite alternate}
+.bl-flame img{display:block;width:100%;height:auto;animation:flFlicker 3s linear infinite}
+.bl-flame::before{content:"";position:absolute;left:50%;bottom:8%;width:120%;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,190,80,.16),rgba(255,120,30,.05) 45%,transparent 70%);z-index:-1}
+.bl-flame .emb{position:absolute;left:50%;bottom:62%;width:6px;height:6px;border-radius:50%;background:#ffd27a;z-index:3;
+  box-shadow:0 0 6px 2px #ff9a2a,0 0 14px 4px rgba(255,120,30,.55);opacity:0;animation:flEmber 3.2s ease-out infinite}
+.bl-flame .e2{animation-delay:.8s;margin-left:-12px}.bl-flame .e3{animation-delay:1.6s;margin-left:9px}.bl-flame .e4{animation-delay:2.2s;margin-left:-4px}.bl-flame .e5{animation-delay:2.8s;margin-left:14px;width:4px;height:4px}
+@keyframes flDraught{0%,70%,100%{transform:skewX(0) scaleY(1)}78%{transform:skewX(-6deg) scaleY(.97)}84%{transform:skewX(2deg) scaleY(1.01)}90%{transform:skewX(-1deg)}}
+@keyframes flShimmer{from{transform:skewX(-.7deg)}to{transform:skewX(.7deg)}}
+@keyframes flFlicker{0%{opacity:1;filter:brightness(1)}7%{opacity:.93;filter:brightness(.95)}9%{opacity:1;filter:brightness(1.04)}
+  31%{opacity:.96}33%{opacity:1}52%{filter:brightness(1.02)}54%{opacity:.92;filter:brightness(.94)}56%{opacity:1;filter:brightness(1)}
+  78%{opacity:.97}80%{opacity:1;filter:brightness(1.05)}100%{opacity:1;filter:brightness(1)}}
+@keyframes flEmber{0%{opacity:0;transform:translate(0,0) scale(1)}12%{opacity:1}60%{opacity:.85}100%{opacity:0;transform:translate(14px,-130px) scale(.5)}}
+.bl-flame .fl-o,.bl-flame .fl-m,.bl-flame .fl-i{transform-origin:30px 100px;transform-box:view-box}
+.bl-flame .fl-o{animation:flO 1.1s ease-in-out infinite alternate}
+.bl-flame .fl-m{animation:flM .8s ease-in-out infinite alternate}
+.bl-flame .fl-i{animation:flI .6s ease-in-out infinite alternate}
+.bl-flame .fl-glow{transform-origin:30px 78px;transform-box:view-box;animation:flG 1.7s ease-in-out infinite alternate}
+@keyframes flO{0%{transform:scale(1,1) skewX(0)}25%{transform:scale(.94,1.06) skewX(3deg)}50%{transform:scale(1.04,.95) skewX(-2deg)}75%{transform:scale(.97,1.1) skewX(4deg)}100%{transform:scale(1.02,.97) skewX(-3deg)}}
+@keyframes flM{0%{transform:scale(1,1) skewX(0)}40%{transform:scale(.92,1.1) skewX(-4deg)}70%{transform:scale(1.05,.94) skewX(3deg)}100%{transform:scale(.96,1.05) skewX(-2deg)}}
+@keyframes flI{0%{transform:scale(1,1)}50%{transform:scale(.88,1.12)}100%{transform:scale(1.06,.92)}}
+@keyframes flG{0%{opacity:.55;transform:scale(1)}50%{opacity:.85;transform:scale(1.12)}100%{opacity:.6;transform:scale(.95)}}
+@media (prefers-reduced-motion:reduce){.bl-flame *{animation:none!important}}
+/* EVENTS tucked under the logo, in the logo's style: bone lettering between red rules */
+body.lay-tonight .masthead h1{position:relative;z-index:1;line-height:1;margin-top:calc(-6.33% + 7px);font-family:"Cinzel",serif;font-weight:700;color:#efe9dc;
+  letter-spacing:.55em;text-indent:.55em;font-size:clamp(18px,3.3vw,62px);gap:.8em;text-shadow:0 2px 0 #000,0 0 14px rgba(0,0,0,.9)}
+body.lay-tonight .masthead h1::before,body.lay-tonight .masthead h1::after{flex:0 1 16%;height:3px;opacity:.9;
+  background:linear-gradient(90deg,transparent,#c8162e)}
+body.lay-tonight .masthead h1::after{background:linear-gradient(270deg,transparent,#c8162e)}
+
+/* ===== v7: members' prices top table — two even, grouped columns ===== */
+.pr-cols{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(12px,1.8vw,24px);width:100%}
+.pr-col{display:flex;flex-direction:column;gap:clamp(4px,.6vh,8px);min-width:0}
+.pr-grp{font-family:var(--evf);font-weight:700;text-transform:uppercase;letter-spacing:.22em;
+  font-size:clamp(13px,1.9vw,36px);color:var(--spectre);display:flex;align-items:center;gap:.6em;
+  margin:clamp(4px,.7vh,10px) 0 clamp(1px,.2vh,3px)}
+.pr-grp::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(116,227,193,.5),transparent)}
+.pr-cols .pr-row{padding:clamp(4px,.55vh,9px) clamp(8px,1.2vw,16px)}
+.pr-cols .pr-name{overflow:hidden;text-overflow:ellipsis}
+body.lay-prices .pr-cols .pr-name{font-size:clamp(22px,3.7vw,76px)}
+body.lay-prices .pr-cols .pr-price{font-size:clamp(22px,3.9vw,80px);font-variant-numeric:tabular-nums}
+body.lay-prices .pr-cols .pr-sub{font-size:clamp(12px,1.7vw,32px)}
+body.lay-prices .prd-card{padding-top:clamp(3px,.45vh,8px);padding-bottom:clamp(3px,.45vh,8px)}
+body.lay-prices .prd-list{gap:clamp(4px,.55vh,8px)}
+
 /* rows with no time: drop the empty time column */
 .ev-row.no-time{grid-template-columns:1fr auto}
 
@@ -1641,6 +1727,40 @@ body.lay-tonight .masthead .sub{flex-direction:row;align-items:baseline;gap:.7em
 body.lay-tonight .masthead .clock{order:0;font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-dim);letter-spacing:.12em;line-height:1}
 body.lay-tonight .masthead .when{font-family:var(--evf);font-size:clamp(15px,2vw,36px);font-weight:600;color:var(--bone-faint);letter-spacing:.12em;text-transform:uppercase;line-height:1}
 body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
+
+/* v11: every TV board — date + time small in the bottom-left corner; nothing between the title and the content */
+body:not(.phone) .masthead .sub{position:fixed;left:clamp(16px,3vw,40px);right:auto;bottom:clamp(10px,1.3vh,22px);top:auto;z-index:6;
+  display:flex;flex-direction:row;align-items:baseline;gap:.6em;margin:0;text-align:left}
+body:not(.phone) .masthead .when,body:not(.phone) .masthead .clock{order:0;font-family:var(--evf);font-style:normal;font-size:clamp(12px,1.5vw,28px);
+  font-weight:600;color:var(--bone-faint);letter-spacing:.12em;text-transform:uppercase;line-height:1}
+body:not(.phone) .masthead .clock{color:var(--bone-dim)}
+body:not(.phone) #footNote{display:none}
+body:not(.phone) .footer{justify-content:flex-end}
+body.lay-tonight .rooms{margin-bottom:clamp(30px,3.6vh,70px)}
+body.lay-prices .masthead{padding-bottom:clamp(2px,.4vh,6px)}
+body.lay-prices .masthead .eyebrow{display:none}
+body.lay-prices .prices{padding-top:0}
+body.lay-prices .pr-member-card{padding-top:clamp(2px,.3vh,6px);padding-bottom:clamp(2px,.3vh,6px)}
+
+/* v14: members' prices as a menu board — no boxes, dotted rules, slightly bigger text */
+body.lay-prices .pr-cols .pr-row,body.lay-prices .prd-card{background:none;border:0;box-shadow:none;border-radius:0}
+body.lay-prices .pr-cols .pr-row::before,body.lay-prices .prd-card::before{display:none}
+body.lay-prices .pr-cols .pr-row{border-bottom:1px dotted rgba(236,230,214,.18)}
+body.lay-prices .prd-card{border-bottom:1px dotted rgba(236,230,214,.14);padding-left:2px;animation:none}
+body.lay-prices .prd-card:last-child{border-bottom:0}
+body.lay-prices .pr-cols .pr-name{font-size:clamp(24px,4vw,82px)}
+body.lay-prices .pr-cols .pr-price{font-size:clamp(24px,4.2vw,86px)}
+
+/* v13: private-hire heading in the logo's manner — bone lettering between red rules, no small line above */
+body.hire-on .masthead .eyebrow{display:none}
+body.hire-on .masthead h1{display:inline-block;position:relative;font-family:"Cinzel",Georgia,serif;font-weight:700;text-transform:uppercase;
+  color:#efe9dc;letter-spacing:.32em;font-size:clamp(20px,4.2vw,80px);line-height:1.05;padding:.34em .02em .3em .34em;
+  text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.85);margin-top:clamp(4px,.8vh,14px)}
+body.hire-on .masthead h1 em{color:#efe9dc}
+body.hire-on .masthead h1::before,body.hire-on .masthead h1::after{content:"";position:absolute;height:clamp(2px,.4vw,5px);background:#c8162e;
+  border-radius:2px;box-shadow:0 1px 0 rgba(0,0,0,.6)}
+body.hire-on .masthead h1::before{top:0;left:0;right:0}
+body.hire-on .masthead h1::after{bottom:0;left:0;right:0}
 </style>
 </head>
 <body>
@@ -1675,7 +1795,7 @@ body.lay-tonight .rooms{margin-bottom:clamp(54px,7vh,130px)}
 
 <main class="stage">
   <header class="masthead">
-    <img class="bl-logo" src="logo-board-3d.png" alt="The Banshee Labyrinth">
+    <div class="bl-logo-wrap"><img class="bl-logo" src="logo-card.png?v=1" alt="The Banshee Labyrinth"><span class="bl-flame" aria-hidden="true"><span class="fl-sh"><img src="logo-card-flame.png?v=1" alt=""></span><i class="emb e1"></i><i class="emb e2"></i><i class="emb e3"></i><i class="emb e4"></i><i class="emb e5"></i></span></div>
     <div class="eyebrow" id="eyebrow">The Banshee Labyrinth</div>
     <h1 id="title">What's On</h1>
     <div class="sub">
@@ -1753,6 +1873,10 @@ const CONFIG = {
   // below. The same ID goes in settings.html. Until it's set (or if it can't be
   // reached) the board falls back to PRICES.items beneath.
   PRICES_SHEET_ID: "",        // <-- paste the prices sheet ID here
+  // Members' prices come live from the ordering menu (menu.hauntedpubs.co.uk, Members section).
+  // Anything 86'd anywhere on the menu is left off. If the menu can't be reached, the list below is used.
+  MENU_DOC_URL: "https://firestore.googleapis.com/v1/projects/rockboard-2b240/databases/(default)/documents/banshee/drinks-menu?key=AIzaSyCBV3mususv2A_ss0vEiUDxA6PBGCOLCgc",
+  MEMBERS_SHOOTER_PRICE: "3.75",   // used until shooters are added to the menu's Members section
   PRICES_TAB: "prices",
 
   // Fallback list shown when the sheet isn't set/reachable. `note` is the
@@ -1760,16 +1884,18 @@ const CONFIG = {
   PRICES: {
     note:"",
     items:[
-      {name:"Tennent's",      price:"5.00"},
-      {name:"Strongbow",      price:"5.00"},
-      {name:"Red Stripe",     price:"4.70", price2:"5.20", note:"two sizes"},
-      {name:"Vodka + Mixer",  price:"4.70"},
-      {name:"JD + Mixer",     price:"5.20"},
-      {name:"VK",             price:"3.70"},
-      {name:"Jägermeister",   price:"3.20"},
-      {name:"Jäger Bomb",     price:"3.70"},
-      {name:"Fireball",       price:"3.20"},
-      {name:"Red Bull",       price:"3.40"},
+      // backup only (25 Nov 2026 menu prices) — the live list comes from the ordering menu
+      {name:"Tennent's",      price:"5.50", group:"Draught"},
+      {name:"Joker IPA",      price:"5.50", group:"Draught"},
+      {name:"Strongbow",      price:"5.50", group:"Draught"},
+      {name:"Red Stripe",     price:"5.00", note:"bottle",   group:"Bottles"},
+      {name:"Red Stripe",     price:"5.50", note:"pint can", group:"Bottles"},
+      {name:"VK",             price:"4.00", group:"Bottles"},
+      {name:"Vodka + Mixer",  price:"5.00", group:"Spirits"},
+      {name:"JD + Mixer",     price:"6.00", group:"Spirits"},
+      {name:"Jägermeister",   price:"3.50", group:"Shots"},
+      {name:"Jäger Bomb",     price:"4.50", group:"Shots"},
+      {name:"Fireball",       price:"3.50", group:"Shots"},
     ]
   },
 
@@ -1783,13 +1909,13 @@ const CONFIG = {
   CINEMA_PROMO_IMG: "https://drive.google.com/thumbnail?id=12JcpsDu7KHGLkTscvPpvaRiKUmNpgXHq&sz=w1920",
   CAVE_PROMO_IMG:  "https://drive.google.com/thumbnail?id=1lNlTK2OT23p9jnfDQC34h-cyOuRMYT5y&sz=w1920",
   // Portrait TVs, no films set: three posters made as one design (Cave Bar, Cinema, Chamber Room), 983x525 slots
-  CAVE_POSTER_PORTRAIT:    "promo-cave.jpg?v=2",
-  CINEMA_POSTER_PORTRAIT:  "promo-cinema.jpg?v=2",
-  CHAMBER_POSTER_PORTRAIT: "promo-chamber.jpg?v=2",
+  CAVE_POSTER_PORTRAIT:    "promo-cave.jpg?v=4",
+  CINEMA_POSTER_PORTRAIT:  "promo-cinema.jpg?v=5",
+  CHAMBER_POSTER_PORTRAIT: "promo-chamber.jpg?v=4",
   HIRE_TITLE:   "Your Night, <em>Our Vaults</em>",
   HIRE_EYEBROW: "The Banshee Labyrinth · Private hire",
 
-  COCKTAIL_PRICE:"7.50", COCKTAIL_PITCHER:"19",
+  COCKTAIL_PRICE:"8.50", COCKTAIL_PITCHER:"22",
   COCKTAILS:[
     {name:"Devil's Candy",       ing:"JD, Amaretto & Pepsi",                          glyph:"flame"},
     {name:"Zombie",              ing:"Peach Schnapps, Vodka, OJ & Cranberry",         glyph:"skull-sway"},
@@ -2262,6 +2388,20 @@ async function loadData(){
   if(src.kind==="prices"){
     state.pricesNote=(CONFIG.PRICES&&CONFIG.PRICES.note)||"";
     const fallback=()=>{ state.prices=((CONFIG.PRICES&&CONFIG.PRICES.items)||[]).map(it=>({...it})); };
+    state.menuDrinks=null;
+    if(CONFIG.MENU_DOC_URL){
+      try{
+        const res=await fetch(CONFIG.MENU_DOC_URL,{cache:"no-store"});
+        if(!res.ok) throw new Error("HTTP "+res.status);
+        const doc=await res.json();
+        const md=pricesFromMenu(JSON.parse(doc.fields.json.stringValue));
+        if(!md.items.length) throw new Error("no members' prices on the menu");
+        state.prices=md.items; state.menuDrinks=md; state.pricesNote="";
+        state.dataStatus="live"; paintSrc();
+        setStatus(`Live from the menu · ${md.items.length} prices, ${md.cocktails.length} cocktails, ${md.shooters.length} shooters (86'd items left off).`);
+        render(); return;
+      }catch(err){ state.menuDrinks=null; console.warn("menu prices", err); }
+    }
     if(CONFIG.PRICES_SHEET_ID){
       try{
         const res=await fetch(gviz(CONFIG.PRICES_SHEET_ID, CONFIG.PRICES_TAB),{cache:"no-store"});
@@ -2354,6 +2494,7 @@ function render(){
   { const hire=!!(state.mode==="cinema" && state._cinemaEmpty && !IS_LANDSCAPE); document.body.classList.toggle("hire-on",hire);
     const t=document.getElementById("title"); if(hire) t.innerHTML=CONFIG.HIRE_TITLE; else t.textContent=mode.title; }
   document.getElementById("footNote").textContent=mode.foot;
+  document.body.classList.toggle("lay-prices", mode.layout==="prices");
 
   const validDate=!isNaN(now.date.getTime());
   document.getElementById("whenLabel").textContent = validDate
@@ -2482,8 +2623,51 @@ const DRINK_GLYPHS = {
   "peanut": `<svg class="gl" viewBox="0 0 64 64"><g class="g-wobble" style="transform-origin:32px 50px;animation-delay:.4s"><path d="M32 6c-9 0-15 6-15 13 0 4 2 7 4 9-2 3-4 6-4 11 0 8 6 14 15 14s15-6 15-14c0-5-2-8-4-11 2-2 4-5 4-9 0-7-6-13-15-13Z" fill="#d9a441"/><path d="M24 24c5 3 11 3 16 0M22 40c6 3 14 3 20 0" stroke="#8a6520" stroke-width="1.6" fill="none"/><circle cx="24" cy="18" r="1.6" fill="#8a6520"/><circle cx="40" cy="44" r="1.6" fill="#8a6520"/></g></svg>`,
 };
 function glyphMarkup(g){ if(!g) return ""; if(g.charAt(0)==="<") return g; if(DRINK_GLYPHS[g]) return DRINK_GLYPHS[g]; return g; }
+/* Turn the ordering menu into the members' board: Members section only, nothing 86'd. */
+function pricesFromMenu(menu){
+  const cats=(menu&&menu.categories)||[];
+  const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"");
+  const out=new Set(); cats.forEach(c=>(c.items||[]).forEach(i=>{ if(i.unavailable) out.add(norm(i.name)); }));
+  const gone=i=>!!i.unavailable||out.has(norm(i.name));
+  const money=v=>{ const n=Number(v); return isNaN(n)?String(v||""):n.toFixed(2); };
+  const pr=(i,k)=>{ const p=(i.prices||[])[k]; return p?money(p.value):""; };
+  const tidy=s=>String(s||"").replace(/\s*\([^)]*\)/g,"").trim();
+  const glyphs={}; [...(CONFIG.COCKTAILS||[]),...(CONFIG.SHOOTERS||[])].forEach(x=>{ glyphs[norm(x.name)]=x.glyph; });
+  Object.assign(glyphs,{peanutbutterjellytime:"peanut",bloodyroots:"fangs",slipperynipple:"ghost",tequilamidnight:"eye",
+    mollysashes:"flame",yeti:"ghost",themasterschoice:"skull-sway",deadislandicetea:"skull-bones"});
+  const mem=cats.find(c=>c.id==="members");
+  const res={items:[],card:"",cocktails:[],cocktailPrice:"",pitcher:"",shooters:[],shooterPrice:""};
+  if(!mem) return res;
+  const hidden=mem.hiddenGroups||[];
+  const shooterCat=cats.find(c=>c.id==="shooters");
+  const isShooter=new Set(((shooterCat&&shooterCat.items)||[]).map(i=>norm(i.name)));
+  const toCard=i=>({name:i.name, ing:tidy(i.desc), glyph:glyphs[norm(i.name)]||""});
+  (mem.items||[]).forEach(i=>{
+    if(i.isMembershipCard){ res.card=pr(i,0); return; }
+    if(hidden.includes(i.memberGroup)||gone(i)) return;
+    if(i.memberGroup==="Cocktails"){
+      res.cocktails.push(toCard(i));
+      if(!res.cocktailPrice){ res.cocktailPrice=pr(i,0); const pi=(i.prices||[]).findIndex(p=>/pitcher/i.test(p.label)); if(pi>0) res.pitcher=pr(i,pi); }
+      return;
+    }
+    if(isShooter.has(norm(i.name))){ res.shooters.push(toCard(i)); if(!res.shooterPrice) res.shooterPrice=pr(i,0); return; }
+    const ps=i.prices||[], nm=i.name.replace(/\s+can$/i,""), grp=i.memberGroup||"Other";
+    if(ps.length>1) ps.forEach((p,k)=>res.items.push({name:nm, price:pr(i,k), note:String(p.label||"").toLowerCase(), group:grp}));
+    else res.items.push({name:nm, price:pr(i,0), note:"", group:grp});
+  });
+  // shooters not in the Members section yet: use the menu's Shooters list at the members' price
+  if(!res.shooters.length && shooterCat && !hidden.includes("Shooters")){
+    res.shooters=shooterCat.items.filter(i=>!gone(i)).map(toCard);
+    res.shooterPrice=money(CONFIG.MEMBERS_SHOOTER_PRICE||"3.75");
+  }
+  return res;
+}
+
 function buildDrinksMenu(){
-  const C=CONFIG.COCKTAILS||[], S=CONFIG.SHOOTERS||[];
+  const MD=state.menuDrinks;
+  const C=MD?MD.cocktails:(CONFIG.COCKTAILS||[]), S=MD?MD.shooters:(CONFIG.SHOOTERS||[]);
+  const cPrice=(MD&&MD.cocktailPrice)||CONFIG.COCKTAIL_PRICE||"7.50", cPitch=String((MD&&MD.pitcher)||CONFIG.COCKTAIL_PITCHER||"19").replace(/\.00$/,"");
+  const sPrice=(MD&&MD.shooterPrice)||CONFIG.SHOOTER_PRICE||"3.75";
   if(!C.length && !S.length) return "";
   const card=(defaultIcon,x,i)=>`<div class="prd-card" style="animation-delay:${(i*.05).toFixed(2)}s">
     <span class="prd-icon">${glyphMarkup(x.glyph)||defaultIcon}</span>
@@ -2492,12 +2676,12 @@ function buildDrinksMenu(){
   </div>`;
   return `<div class="pr-drinks">
     <div class="prd-col prd-cocktails">
-      <div class="prd-head"><span class="prd-heading">🍸 Cocktails</span><span class="prd-price">£${esc(CONFIG.COCKTAIL_PRICE||"7.50")} &nbsp;·&nbsp; Pitcher £${esc(CONFIG.COCKTAIL_PITCHER||"19")}</span></div>
-      <div class="prd-list">${C.map((x,i)=>card("🍸",x,i)).join("")}</div>
+      <div class="prd-head"><span class="prd-heading">Cocktails</span><span class="prd-price">£${esc(cPrice)}${cPitch?` &nbsp;·&nbsp; Pitcher £${esc(cPitch)}`:""}</span></div>
+      <div class="prd-list${C.length>8?" dense":""}">${C.map((x,i)=>card("🍸",x,i)).join("")}</div>
     </div>
     <div class="prd-col prd-shooters">
-      <div class="prd-head"><span class="prd-heading">🥃 Shooters</span><span class="prd-price">£${esc(CONFIG.SHOOTER_PRICE||"3.75")}</span></div>
-      <div class="prd-list">${S.map((x,i)=>card("🥃",x,i)).join("")}</div>
+      <div class="prd-head"><span class="prd-heading">Shooters</span><span class="prd-price">£${esc(sPrice)}</span></div>
+      <div class="prd-list${S.length>8?" dense":""}">${S.map((x,i)=>card("🥃",x,i)).join("")}</div>
     </div>
   </div>`;
 }
@@ -2513,13 +2697,36 @@ function renderPrices(){
   const note=state.pricesNote||"";
 
   // Guard — don't flash the rise-animations on every re-render if prices haven't changed
-  const sig="prices|"+note+"|"+items.map(x=>x.name+x.price).join(",");
+  const MD=state.menuDrinks;
+  const sig="prices|"+note+"|"+items.map(x=>x.name+x.price+(x.price2||"")+(x.note||"")+(x.group||"")).join(",")+"|"+(MD?[MD.card,MD.cocktailPrice,MD.pitcher,MD.shooterPrice,...MD.cocktails.map(x=>x.name),...MD.shooters.map(x=>x.name)].join(","):"");
   if(sig===state._pricesSig && wrap.querySelector(".prices")) return;
   state._pricesSig=sig;
 
   let html=`<div class="prices">`;
-  html+=`<div class="pr-member-card">💀 Member Cards <span class="pr-mc-price">£2</span></div>`;
+  const cardPrice=(MD&&MD.card)||"4";
+  html+=`<div class="pr-member-card">Member Cards <span class="pr-mc-price">£${esc(String(cardPrice).replace(/\.00$/,""))}</span></div>`;
   if(note) html+=`<div class="pr-note">${esc(note)}</div>`;
+  const row=(it,i)=>{
+    const sub = it.note ? `<span class="pr-sub">${esc(it.note)}</span>` : "";
+    const p2  = it.price2 ? `<span class="p2">/ <span class="cur">£</span>${esc(it.price2)}</span>` : "";
+    return `<div class="pr-row" style="animation-delay:${(i*0.06).toFixed(2)}s">
+      <span class="pr-name">${esc(it.name)}${sub}</span><span class="pr-dots"></span>
+      <span class="pr-price"><span class="cur">£</span>${esc(it.price)}${p2}</span></div>`;
+  };
+  if(items.length && items.every(it=>it.group)){
+    const ORDER=["Draught","Bottles","Spirits","Shots"];
+    const groups=[]; items.forEach(it=>{ let g=groups.find(x=>x.name===it.group); if(!g){g={name:it.group,items:[]};groups.push(g);} g.items.push(it); });
+    groups.sort((a,b)=>((ORDER.indexOf(a.name)+1)||99)-((ORDER.indexOf(b.name)+1)||99));
+    // split the groups into two columns as evenly as possible (headings count as a line)
+    const total=groups.reduce((n,g)=>n+g.items.length+1,0); let left=[],right=[],n=0;
+    groups.forEach(g=>{ if(n+(g.items.length+1)/2<=total/2+0.5){ left.push(g); n+=g.items.length+1; } else right.push(g); });
+    if(!right.length && left.length>1) right.push(left.pop());
+    let k=0; const col=gs=>gs.map(g=>`<div class="pr-grp">${esc(g.name==="Spirits"?"Spirits & mixer":g.name)}</div>`+g.items.map(it=>row(it,k++)).join("")).join("");
+    html+=`<div class="pr-cols"><div class="pr-col">${col(left)}</div><div class="pr-col">${col(right)}</div></div>`;
+    html+=buildDrinksMenu();
+    html+=`</div>`;
+    wrap.innerHTML=html; return;
+  }
   html+=`<div class="pr-list">`;
   if(!items.length){
     html+=`<div class="t-empty">No prices listed yet.</div>`;
