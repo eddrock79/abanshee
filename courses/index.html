@@ -366,6 +366,15 @@ function myPasses(){
 }
 function monthPts(){ const p = myPasses(), mon = night().slice(0, 7); let n = 0; Object.values(p).forEach(r => { if (r.date.slice(0, 7) === mon) n += PTS_PASS + (r.perfect ? PTS_PERFECT : 0); });
   return n; }
+// the team = everyone on the rota list; for each course, who on the team has passed it in the last 12 months
+function team(){ return [...new Set(ROTA.concat(STAFF).map(n => String(n).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b)); }
+function teamPasses(){
+  const yr = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10), names = new Map(team().map(n => [n.toLowerCase(), n])), out = {};
+  TRAIN.forEach(t => { if (!String(t.Course).startsWith('Course: ') || String(t.Date).slice(0, 10) < yr) return;
+    const c = COURSES.find(x => 'Course: ' + x.title === t.Course), who = names.get(String(t.Staff).trim().toLowerCase()); if (!c || !who) return;
+    const d = String(t.Date).slice(0, 10), o = out[c.id] = out[c.id] || {}; if (!o[who] || d > o[who]) o[who] = d; });
+  return out;
+}
 
 function header(){
   const names = ROTA.map(n => `<button type="button" class="nm rota${n === WHO ? ' on' : ''}" data-n="${esc(n)}" onclick="pickName(this.dataset.n)">${esc(n)}</button>`).join('')
@@ -374,16 +383,18 @@ function header(){
   return `<div class="top"><div><h1>Staff courses</h1><p class="sub">A few cards, then 8 questions. Pass mark ${PASS * 100}%. Passing saves to your training record for 12 months and earns points for the league on the Staff Hub.</p></div>
     ${WHO ? `<div class="pts"><b>${monthPts()}</b><span>course points this month</span></div>` : ''}</div>
     <div><p class="qn" style="margin-bottom:8px">WHO ARE YOU? ${ROTA.length ? '(on the rota tonight first)' : ''}</p><div class="names">${names}</div></div>
-    <div class="tabs"><button class="tab" type="button" aria-pressed="${VIEW !== 'check' && VIEW !== 'make'}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button><button class="tab" type="button" aria-pressed="${VIEW === 'who'}" onclick="go('who')">Who’s who (tills)</button>` : ''}</div>`;
+    <div class="tabs"><button class="tab" type="button" aria-pressed="${!['check', 'make', 'who', 'done'].includes(VIEW)}" onclick="go('shelf')">Courses</button>${isMgr() ? `<button class="tab" type="button" aria-pressed="${VIEW === 'check'}" onclick="go('check')">Manager check</button><button class="tab" type="button" aria-pressed="${VIEW === 'make'}" onclick="ED=null;ED_MSG='';go('make')">Make a course</button><button class="tab" type="button" aria-pressed="${VIEW === 'who'}" onclick="go('who')">Who’s who (tills)</button>` : ''}</div>`;
 }
 function shelf(){
-  const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))];
+  const p = WHO ? myPasses() : {}, tags = [...new Set(COURSES.map(c => c.tag))], tp = teamPasses(), N = team().length;
   let h = header();
   tags.forEach(t => {
     h += `<h2>${esc(t)}</h2><div class="grid">` + COURSES.filter(c => c.tag === t).map(c => {
       const r = p[c.id];
       const pill = !WHO ? '<span class="pill">Tap your name first</span>' : r ? `<span class="pill ok">Passed ${r.best}/${c.qs.length}</span>` : '<span class="pill">Not done yet</span>';
-      return `<button class="course" type="button" onclick="openCourse('${c.id}')"><span class="tag">${c.cards.length} cards · ${c.qs.length} questions</span><h3>${esc(c.title)}</h3><p>${esc(c.blurb)}</p><span class="state">${pill}<span class="muted">${PTS_PASS} pts</span></span></button>`;
+      const k = Object.keys(tp[c.id] || {}).length, all = N && k === N;
+      const cnt = N ? `<span style="display:block;margin:6px 0 2px;font-weight:700;font-size:14px;color:${all ? 'var(--good)' : k ? 'var(--accent)' : 'var(--muted)'}" title="How many of the team have passed this in the last 12 months">👥 ${k}/${N} done${all ? ' · everyone!' : ''}</span>` : '';
+      return `<button class="course" type="button" onclick="openCourse('${c.id}')"><span class="tag">${c.cards.length} cards · ${c.qs.length} questions</span><h3>${esc(c.title)}</h3><p>${esc(c.blurb)}</p>${cnt}<span class="state">${pill}<span class="muted">${PTS_PASS} pts</span></span></button>`;
     }).join('') + '</div>';
   });
   return h + `<h2>Points</h2><div class="rules"><div><b>+${PTS_PASS}</b><span>for passing a course</span></div><div><b>+${PTS_PERFECT}</b><span>for a perfect score</span></div>
