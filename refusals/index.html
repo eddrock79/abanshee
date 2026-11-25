@@ -127,6 +127,10 @@ const REASONS=[['🪪','Under age / no ID'],['🍺','Too drunk'],['😠','Aggres
 let rfWho='', rfRows=[], rfStaff=[];
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+/* speed: the Apps Script takes 2-4s per request, so the page shows what this iPad last saw straight away
+   and refreshes in the background; taps show at once and save in the background (undone if the save fails). */
+function rfCacheGet(){try{const c=JSON.parse(localStorage.getItem('rf_cache_'+pub())||'null');return c&&Date.now()-c.at<36*3600e3?c:null;}catch(e){return null;}}
+function rfCachePut(k,v){try{const c=rfCacheGet()||{at:Date.now()};c[k]=v;c.at=Date.now();localStorage.setItem('rf_cache_'+pub(),JSON.stringify(c));}catch(e){}}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function heroes(){try{const c=JSON.parse(localStorage.getItem('br_crew')||'null');const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);
   return c&&c.d===d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()&&Array.isArray(c.n)?c.n:[];}catch(e){return [];}}
@@ -155,15 +159,17 @@ async function rfLog(reason){
   if(!rfWho){err.textContent='Tap your name first.';err.style.display='block';return;}
   let note=document.getElementById('rf-note').value.trim();
   if(reason==='Other'&&!note){note=(prompt('What was the reason?')||'').trim();if(!note)return;}
-  document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=true);
-  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'refusal',pub:pub(),reason:reason,by:rfWho,note:note})});
+  const who=rfWho,now=new Date(),hm=now.toTimeString().slice(0,5),row={'Date':today(),'Time':hm,'Reason':reason,'Refused by':who,'Note':note};
+  if(!Array.isArray(rfRows))rfRows=[];
+  rfRows.unshift(row);drawLists();document.getElementById('rf-note').value='';
+  done.textContent='✓ Logged: '+reason+' · '+hm+' · refused by '+who+(note?' · '+note:'');done.style.display='block';
+  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'refusal',pub:pub(),reason:reason,by:who,note:note})});
     const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
-    done.textContent='✓ Logged: '+reason+' · '+d.time+' · refused by '+rfWho+(note?' · '+note:'');done.style.display='block';
-    document.getElementById('rf-note').value='';
-    rfRows.unshift({'Date':d.date,'Time':d.time,'Reason':reason,'Refused by':rfWho,'Note':note});drawLists();
-  }catch(e){err.textContent='Couldn’t save it ('+(e.message||'no connection')+'). Please try again, or write it on paper and add it later.';err.style.display='block';}
-  document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
-async function loadRows(){try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=40&t='+Date.now());const d=await r.json();rfRows=(d&&d.Refusals)||[];}catch(e){rfRows=null;}drawLists();}
+    if(d.date)row['Date']=d.date;if(d.time)row['Time']=d.time;rfCachePut('rows',rfRows.slice(0,400));drawLists();
+  }catch(e){rfRows=rfRows.filter(x=>x!==row);drawLists();done.style.display='none';if(!document.getElementById('rf-note').value)document.getElementById('rf-note').value=note;
+    err.textContent='Couldn’t save it ('+(e.message||'no connection')+'). Please tap the reason again, or write it on paper and add it later.';err.style.display='block';}}
+async function loadRows(){const c=rfCacheGet();if(c&&c.rows){rfRows=c.rows;drawLists();}
+  try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=40&t='+Date.now());const d=await r.json();rfRows=(d&&d.Refusals)||[];rfCachePut('rows',rfRows.slice(0,400));}catch(e){if(!(c&&c.rows))rfRows=null;}drawLists();}
 function drawLists(){const t=document.getElementById('rf-today'),m=document.getElementById('rf-month');
   if(rfRows===null){t.innerHTML=m.innerHTML='<span class="rf-empty">Couldn’t load the log.</span>';return;}
   const td=today(),mon=td.slice(0,7),list=rfRows.filter(x=>String(x['Date'])===td);
@@ -177,7 +183,7 @@ function rfPrint(){const mon=today().slice(0,7),mm=(rfRows||[]).filter(x=>String
   window.print();}
 // ── TOILET CHECK: one tap per toilet. Saved as a compliance check (type toilet, Pass or Fault), same as the Compliance page ──
 const TC_ISSUES=['No soap','No toilet roll','No hand towels / dryer broken','Dirty or wet floor','Blocked or leaking','Lock or door broken','Drugs or suspicious','Glasses or rubbish'];
-let TC={areas:['Ladies','Gents','Accessible'],every:60,hours:[960,180],checks:[]},tcArea='',tcLoaded=false;
+let TC={areas:['Ladies','Gents','Accessible'],every:60,hours:[960,180],checks:[]},tcArea='',tcLoaded=false,TC_PENDING=[];
 function tcTab(t){['toilets','refusals'].forEach(x=>{document.getElementById('pane-'+x).classList.toggle('on',x===t);document.getElementById('tab-'+x).classList.toggle('on',x===t);});
   try{history.replaceState(null,'',t==='refusals'?'#refusals':location.pathname);}catch(e){}}
 function tcToast(t,bad){const o=document.querySelector('.tc-toast');if(o)o.remove();const d=document.createElement('div');d.className='tc-toast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200);}
@@ -187,12 +193,14 @@ function tcLast(area){return TC.checks.filter(c=>c.Item===area).sort((x,y)=>Stri
 function tcMins(c){if(!c)return null;const t=new Date(c['Logged at']||(String(c.Date)+'T'+(c.Time||'00:00')));return isNaN(t)?null:Math.round((Date.now()-t)/60000);}
 function tcAgo(m){return m==null?'not checked yet':m<1?'just now':m<60?m+' min ago':Math.floor(m/60)+'h '+(m%60)+'m ago';}
 async function tcLoad(){
+  if(!tcLoaded){const c=rfCacheGet();if(c&&c.tc){TC.areas=c.tc.areas||TC.areas;TC.every=c.tc.every||TC.every;TC.hours=c.tc.hours||TC.hours;TC.checks=(c.tc.checks||[]).concat(TC_PENDING);tcLoaded=true;tcDraw();}}
   try{const r=await fetch(COMPLIANCE_URL+'?action=compliance&pub='+pub()+'&t='+Date.now());const d=await r.json();
     const set={};(d.Settings||[]).forEach(x=>{set[x.Key]=String(x.Value||'');});
     const areas=(set.toilet_areas||'').split('\n').map(x=>x.trim()).filter(Boolean);if(areas.length)TC.areas=areas;
     const ev=parseInt(set.toilet_every||'60',10);if(ev>=15)TC.every=ev;
     const hm=String(set.toilet_hours||'16:00-03:00').match(/(\d{1,2}):?(\d{2})?\s*-\s*(\d{1,2}):?(\d{2})?/);if(hm)TC.hours=[+hm[1]*60+(+hm[2]||0),+hm[3]*60+(+hm[4]||0)];
-    TC.checks=(d.Checks||[]).filter(c=>c.Type==='toilet');tcLoaded=true;}catch(e){}
+    TC.checks=(d.Checks||[]).filter(c=>c.Type==='toilet');tcLoaded=true;
+    rfCachePut('tc',{areas:TC.areas,every:TC.every,hours:TC.hours,checks:TC.checks.slice(-300)});TC.checks=TC.checks.concat(TC_PENDING);}catch(e){}
   tcDraw();}
 function tcDraw(){const open=tcOpen(),hh=n=>String(Math.floor(n/60)%24).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
   document.getElementById('tc-when').textContent=(open?'Open now: check each toilet every '+TC.every+' minutes':'Outside check hours')+' ('+hh(TC.hours[0])+' to '+hh(TC.hours[1])+'). Tap a toilet once it\'s checked and OK.';
@@ -210,15 +218,19 @@ function tcDraw(){const open=tcOpen(),hh=n=>String(Math.floor(n/60)%24).padStart
   const pr=tonight.filter(c=>c.Result==='Fault');
   document.getElementById('tc-probs').innerHTML=pr.length?pr.map(c=>`<div class="rf-row"><b>${esc(c.Time||'')}</b><div>${esc(c.Item)}<small>${esc(c.Notes||'')} · ${esc(c.By||'')}</small></div></div>`).join(''):'<span class="rf-empty">None</span>';}
 async function tcPost(area,fault,notes){
-  const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'check',pub:pub(),type:'toilet',item:area,result:fault?'Fault':'Pass',notes:notes||'',by:rfWho})});
-  const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
-  const now=new Date();TC.checks.push({Type:'toilet',Item:area,Result:fault?'Fault':'Pass',Notes:notes||'',By:rfWho,Date:d.date||today(),Time:now.toTimeString().slice(0,5),'Logged at':now.toISOString()});}
+  const now=new Date(),c={Type:'toilet',Item:area,Result:fault?'Fault':'Pass',Notes:notes||'',By:rfWho,Date:today(),Time:now.toTimeString().slice(0,5),'Logged at':now.toISOString(),pending:true};
+  TC.checks.push(c);TC_PENDING.push(c);tcDraw();
+  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'check',pub:pub(),type:'toilet',item:area,result:fault?'Fault':'Pass',notes:notes||'',by:c.By})});
+    const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');if(d.date)c.Date=d.date;delete c.pending;
+  }catch(e){TC.checks=TC.checks.filter(x=>x!==c);throw e;}
+  finally{TC_PENDING=TC_PENDING.filter(x=>x!==c);}}
 async function tcOk(i){if(!rfWho){tcToast('Tap your name first',true);return;}const a=TC.areas[i];
-  const btns=document.querySelectorAll('.tc-ok');btns[i].disabled=true;
-  try{await tcPost(a,false,'');tcToast('✓ '+a+' checked');}catch(e){tcToast('Not saved: check the wifi',true);}tcDraw();}
-async function tcAll(){if(!rfWho){tcToast('Tap your name first',true);return;}const b=document.getElementById('tc-all');b.disabled=true;b.textContent='Saving…';
-  let bad=0;for(const a of TC.areas){try{await tcPost(a,false,'');}catch(e){bad++;}}
-  b.textContent='All toilets checked and OK';tcToast(bad?bad+' not saved: try again':'✓ All toilets checked',!!bad);tcDraw();}
+  const p=tcPost(a,false,'');tcToast('✓ '+a+' checked');
+  try{await p;}catch(e){tcToast(a+' not saved: check the wifi and tap again',true);}tcDraw();}
+async function tcAll(){if(!rfWho){tcToast('Tap your name first',true);return;}
+  const saves=TC.areas.map(a=>tcPost(a,false,'').then(()=>0,()=>1));tcToast('✓ All toilets checked');
+  const res=await Promise.all(saves);
+  const bad=res.reduce((s,x)=>s+x,0);if(bad)tcToast(bad+' not saved: check the wifi and tap again',true);tcDraw();}
 function tcProblem(i){if(!rfWho){tcToast('Tap your name first',true);return;}tcArea=TC.areas[i];
   document.getElementById('tc-sheet-h').textContent='Problem in '+tcArea;
   document.getElementById('tc-issues').innerHTML=TC_ISSUES.map(x=>`<button type="button" class="tc-issue" onclick="this.classList.toggle('on')">${esc(x)}</button>`).join('');
@@ -226,8 +238,9 @@ function tcProblem(i){if(!rfWho){tcToast('Tap your name first',true);return;}tcA
 function tcClose(){document.getElementById('tc-sheet').classList.remove('on');}
 async function tcSaveProblem(){const picked=[...document.querySelectorAll('.tc-issue.on')].map(b=>b.textContent),note=document.getElementById('tc-note').value.trim();
   if(!picked.length&&!note){tcToast('Tap what\'s wrong first',true);return;}
-  const notes=picked.join(', ')+(note?(picked.length?'. ':'')+note:'');tcClose();
-  try{await tcPost(tcArea,true,notes);tcToast('Problem saved: '+tcArea);}catch(e){tcToast('Not saved: check the wifi',true);}tcDraw();}
+  const notes=picked.join(', ')+(note?(picked.length?'. ':'')+note:'');tcClose();const area=tcArea;
+  const p=tcPost(area,true,notes);tcToast('Problem saved: '+area);
+  try{await p;}catch(e){tcToast('Problem not saved: check the wifi and try again',true);}tcDraw();}
 setInterval(()=>{if(document.getElementById('pane-toilets').classList.contains('on'))tcDraw();},60000);   // keep the "min ago" fresh
 setInterval(tcLoad,5*60000);                                                                             // and pick up checks made on other tablets
 function start(){drawReasons();loadStaff();loadRows();tcLoad();if(location.hash==='#refusals')tcTab('refusals');}
