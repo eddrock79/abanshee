@@ -126,6 +126,22 @@ const COMPLIANCE_URL='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3
 const REASONS=[['🪪','Under age / no ID'],['🍺','Too drunk'],['😠','Aggressive / threatening'],['🦨','Smelly / unkempt'],['⛔','Barred / banned'],['✏️','Other']];
 let rfWho='', rfRows=[], rfStaff=[];
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+/* ── ROLL-OUT WAVES + WHO'S USING THIS IPAD (added 26 Nov 2026) ──
+   Changes switch on in waves so staff get a few at a time: wave 2 from Mon 30 Nov, wave 3 from Mon 7 Dec (6am).
+   Preview a wave early by adding ?wave=2 or ?wave=3 to the page address (it lasts for that browser tab).
+   Wave 2, shared iPads: the name tapped is remembered across the staff pages, but forgotten after 20 minutes with
+   nobody touching the screen, so the next person isn't ticking under someone else's name. Tapping another name switches. */
+function blWave(n){try{const q=(location.search.match(/[?&]wave=(\d)/)||[])[1];if(q)sessionStorage.setItem('bl_wave',q);if(+(sessionStorage.getItem('bl_wave')||0)>=n)return true;}catch(e){}
+  const on={2:'2026-11-30T06:00:00',3:'2026-12-07T06:00:00'}[n];return !on||Date.now()>=new Date(on).getTime();}
+const WHO_IDLE=20*60000;
+function whoGet(){try{const w=JSON.parse(localStorage.getItem('bl_who')||'null');return w&&w.n&&Date.now()-w.t<WHO_IDLE?w.n:'';}catch(e){return '';}}
+function whoSet(n){try{if(n)localStorage.setItem('bl_who',JSON.stringify({n:n,t:Date.now()}));else localStorage.removeItem('bl_who');}catch(e){}}
+let whoTouchAt=0;
+document.addEventListener('pointerdown',()=>{if(!blWave(2)||Date.now()-whoTouchAt<15000)return;whoTouchAt=Date.now();const n=whoGet();if(n)whoSet(n);},{passive:true,capture:true});
+function whoWatch(fn){let last=blWave(2)?whoGet():null;setInterval(()=>{if(!blWave(2))return;const n=whoGet();if(n!==last){last=n;try{fn(n);}catch(e){}}},20000);}
+function rfWhoLoad(){if(blWave(2))return whoGet();try{return localStorage.getItem('rf_who')||'';}catch(e){return '';}}
+function whoRemember(n){try{localStorage.setItem('rf_who',n);}catch(e){}if(blWave(2))whoSet(n);}
+
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 /* speed: the Apps Script takes 2-4s per request, so the page shows what this iPad last saw straight away
    and refreshes in the background; taps show at once and save in the background (undone if the save fails). */
@@ -182,17 +198,18 @@ function rfAddExtra(n){const a=rfExtra();if(!a.includes(n))a.push(n);try{localSt
 async function loadStaff(){
   try{const r=await fetch('../rotas/shifts.json?t='+Date.now(),{cache:'no-store'});if(r.ok){const days=(await r.json()).days||{},k=days[rfNight()]?rfNight():Object.keys(days).filter(x=>x.slice(5)===rfNight().slice(5)).pop();
     const rota=((k&&days[k])||[]).map(x=>x.name).filter(Boolean);
-    if(rota.length){rfStaff=rota.concat(rfExtra().filter(n=>!rota.includes(n)));try{rfWho=localStorage.getItem('rf_who')||'';}catch(e){}if(rfWho&&!rfStaff.includes(rfWho))rfWho='';drawNames();if(tcLoaded)tcDraw();return;}}}catch(e){}
+    if(rota.length){rfStaff=rota.concat(rfExtra().filter(n=>!rota.includes(n)));rfWho=rfWhoLoad();if(rfWho&&!rfStaff.includes(rfWho))rfWho='';drawNames();if(tcLoaded)tcDraw();return;}}}catch(e){}
   try{const id=BL_CFG.endOfNight;const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
     if(r.ok){rfStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}}catch(e){}
   const h=heroes().filter(n=>rfStaff.includes(n));if(h.length)rfStaff=h.concat(rfStaff.filter(n=>!h.includes(n)));
-  try{rfWho=localStorage.getItem('rf_who')||'';}catch(e){}
+  rfWho=rfWhoLoad();
   drawNames();if(tcLoaded)tcDraw();}
 function drawNames(){const el=document.getElementById('rf-names');
   el.innerHTML=(rfStaff.length?rfStaff:[]).map(n=>`<button type="button" class="rf-name${n===rfWho?' on':''}" onclick="rfPick(this.dataset.n)" data-n="${esc(n)}">${esc(n)}</button>`).join('')
     +`<button type="button" class="rf-name" onclick="rfOther()">＋ Someone else</button>`;
   document.querySelectorAll('.rf-reason').forEach(b=>b.disabled=!rfWho);}
-function rfPick(n){rfWho=n;try{localStorage.setItem('rf_who',n);}catch(e){}drawNames();if(tcLoaded)tcDraw();}
+function rfPick(n){rfWho=n;whoRemember(n);drawNames();if(tcLoaded)tcDraw();}
+whoWatch(n=>{rfWho=n&&rfStaff.includes(n)?n:'';drawNames();if(tcLoaded)tcDraw();});
 function rfOther(){let n=(prompt('Your name (you stay on the list for this shift):')||'').replace(/\s+/g,' ').trim().slice(0,30);if(n){n=n.charAt(0).toUpperCase()+n.slice(1);rfAddExtra(n);if(!rfStaff.includes(n))rfStaff.push(n);rfPick(n);}}
 function drawReasons(){document.getElementById('rf-reasons').innerHTML=REASONS.map(r=>`<button type="button" class="rf-reason" onclick="rfLog('${esc(r[1])}')"><span>${r[0]}</span>${esc(r[1])}</button>`).join('');}
 async function rfLog(reason){

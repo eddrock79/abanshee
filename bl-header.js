@@ -1,3 +1,6 @@
+// roll-out waves (26 Nov 2026): wave 2 from Mon 30 Nov, wave 3 from Mon 7 Dec, 6am; preview with ?wave=2 or ?wave=3
+function blWaveOn(n){try{var q=(location.search.match(/[?&]wave=(\d)/)||[])[1];if(q)sessionStorage.setItem('bl_wave',q);if(+(sessionStorage.getItem('bl_wave')||0)>=n)return true;}catch(e){}
+  var on={2:'2026-11-30T06:00:00',3:'2026-12-07T06:00:00'}[n];return !on||Date.now()>=new Date(on).getTime();}
 /* Shared Banshee Labyrinth header: logo + "Scotland's Most Haunted Pub" on the left, today's date on the right.
    Keeps every existing element (role chip, status, refresh controls) - only swaps the title/logo and adds the date. */
 (function(){
@@ -101,12 +104,14 @@
   function pub(){return /rose/i.test(((window.BL_CFG||{}).venueKey||'')+location.hostname)?'br':'bl';}
   function night(){var d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function me(){try{return typeof nxMe==='function'?nxMe():'';}catch(e){return '';}}
-  var box=null,last=null;
+  var box=null,last=null,closeAt=180;
+  function nearClose(){if(!blWaveOn(2))return true;var n=new Date(),m=n.getHours()*60+n.getMinutes(),a=(closeAt-60+1440)%1440,b=360;return a<=b?(m>=a&&m<b):(m>=a||m<b);}
   function draw(){
     if(!box){box=document.createElement('div');box.id='bl-toiletclose';box.style.cssText='max-width:1400px;margin:10px auto 0;padding:10px 14px;border-radius:12px;border:1px solid #4fb8a866;background:rgba(79,184,168,.08);display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 15px system-ui,sans-serif;color:#cfeee8;box-sizing:border-box';
       var host=document.getElementById('bl-safety')||document.querySelector('.hpsub')||document.querySelector('.nav-bar');
       if(!host||!host.parentNode) return; var wrap=document.createElement('div');wrap.style.cssText='padding:0 16px';wrap.appendChild(box);
       var after=host.id==='bl-safety'?host.parentNode:host;after.parentNode.insertBefore(wrap,after.nextSibling);}
+    if(box.parentNode)box.parentNode.style.display=(last||nearClose())?'':'none';
     box.innerHTML=last?'<span>🚻 Toilets checked and clear at close ✓ <span style="opacity:.75;font-weight:500">'+last.time+' by '+last.by.replace(/[<>&]/g,'')+'</span></span>'
       :'<span>🚻 Closing check: toilets checked and clear (nobody left in, no rubbish, nothing broken)</span><button type="button" id="bl-tc-go" style="font:inherit;font-weight:800;padding:9px 16px;border-radius:10px;border:0;background:#4fb8a8;color:#0a0a0b;cursor:pointer">Toilets checked and clear</button>';
     var b=document.getElementById('bl-tc-go'); if(b) b.onclick=save;
@@ -122,9 +127,31 @@
   function load(){
     fetch(U+'?action=compliance&pub='+pub()+'&t='+Date.now()).then(function(r){return r.json();}).then(function(d){
       var c=(d&&d.Checks||[]).filter(function(x){return x.Type==='toilet'&&x.Item==='All toilets (closing check)'&&String(x.Date).slice(0,10)===night();}).pop();
+      var s=(d&&d.Settings||[]).filter(function(x){return x.Key==='toilet_hours';})[0],hm=String(s&&s.Value||'16:00-03:00').match(/-\s*(\d{1,2}):?(\d{2})?/);if(hm)closeAt=(+hm[1]*60+(+hm[2]||0))%1440;
       if(c) last={time:String(c.Time||''),by:String(c.By||'')}; draw();
     }).catch(function(){draw();});
   }
+  setInterval(function(){if(box)draw();},5*60000);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(load,1200);}); else setTimeout(load,1200);
 })();
 
+// wave 3 (from Mon 7 Dec 2026): a tidier top. Switch Venue and Log Out move to the bottom of the page (they're rarely
+// needed), "Staff courses" goes from the second row (it's in the quick row and All pages); the row keeps End of Night,
+// Weekly and Monthly Jobs, and disappears on pages that have nothing else in it.
+(function(){
+  if(!blWaveOn(3)) return;
+  function tidy(){
+    var nb=document.querySelector('.nav-bar'); if(!nb||nb.dataset.w3) return; nb.dataset.w3='1';
+    var foot=document.createElement('div'); foot.id='bl-foot';
+    foot.style.cssText='display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:40px auto 24px;padding:0 16px;opacity:.85';
+    Array.prototype.slice.call(document.querySelectorAll('button,a')).forEach(function(b){
+      var t=(b.textContent||'').trim().toLowerCase();
+      if((t==='switch venue'||t==='log out'||t==='logout')&&!b.closest('#bl-foot')&&!b.closest('#bla-chip')&&b.matches('.nav-btn,.bl-mini,.hp-right,.hp-out,#nav-logout')) foot.appendChild(b);
+      else if(t==='staff courses'&&b.closest('.nav-bar')) b.style.display='none';
+    });
+    if(foot.children.length) document.body.appendChild(foot);
+    var left=Array.prototype.slice.call(nb.children).filter(function(c){return c.getBoundingClientRect().height>0;});
+    if(!left.length) nb.style.display='none';
+  }
+  window.addEventListener('load',function(){setTimeout(tidy,1500);});
+})();

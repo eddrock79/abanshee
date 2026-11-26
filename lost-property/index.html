@@ -29,6 +29,8 @@
   .lp-old{opacity:.7}.lp-empty{color:var(--muted)}
   .lp-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-left:6px}
   .lp-tag.w{color:#f2b552}.lp-tag.c{color:#7ad38a}.lp-tag.b{color:var(--muted)}
+.lp-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}.lp-chips-h{width:100%;font-size:13px;color:var(--muted,#a9b0cc);letter-spacing:.04em}.lp-chips-h b{color:var(--accent,#b7dc35)}
+.lp-chip{font:inherit;font-weight:700;font-size:16px;padding:10px 18px;border-radius:999px;border:1px solid var(--line,#2c3766);background:var(--panel,#0e1838);color:inherit;cursor:pointer;min-height:44px}.lp-chip.on{background:var(--accent,#b7dc35);color:#04102c;border-color:transparent}
 </style>
 </head>
 <body>
@@ -73,33 +75,86 @@
 const COMPLIANCE_URL='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
 let lpRows=[], lpStaff=[];
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+/* ── ROLL-OUT WAVES + WHO'S USING THIS IPAD (added 26 Nov 2026) ──
+   Changes switch on in waves so staff get a few at a time: wave 2 from Mon 30 Nov, wave 3 from Mon 7 Dec (6am).
+   Preview a wave early by adding ?wave=2 or ?wave=3 to the page address (it lasts for that browser tab).
+   Wave 2, shared iPads: the name tapped is remembered across the staff pages, but forgotten after 20 minutes with
+   nobody touching the screen, so the next person isn't ticking under someone else's name. Tapping another name switches. */
+function blWave(n){try{const q=(location.search.match(/[?&]wave=(\d)/)||[])[1];if(q)sessionStorage.setItem('bl_wave',q);if(+(sessionStorage.getItem('bl_wave')||0)>=n)return true;}catch(e){}
+  const on={2:'2026-11-30T06:00:00',3:'2026-12-07T06:00:00'}[n];return !on||Date.now()>=new Date(on).getTime();}
+const WHO_IDLE=20*60000;
+function whoGet(){try{const w=JSON.parse(localStorage.getItem('bl_who')||'null');return w&&w.n&&Date.now()-w.t<WHO_IDLE?w.n:'';}catch(e){return '';}}
+function whoSet(n){try{if(n)localStorage.setItem('bl_who',JSON.stringify({n:n,t:Date.now()}));else localStorage.removeItem('bl_who');}catch(e){}}
+let whoTouchAt=0;
+document.addEventListener('pointerdown',()=>{if(!blWave(2)||Date.now()-whoTouchAt<15000)return;whoTouchAt=Date.now();const n=whoGet();if(n)whoSet(n);},{passive:true,capture:true});
+function whoWatch(fn){let last=blWave(2)?whoGet():null;setInterval(()=>{if(!blWave(2))return;const n=whoGet();if(n!==last){last=n;try{fn(n);}catch(e){}}},20000);}
+function rfWhoLoad(){if(blWave(2))return whoGet();try{return localStorage.getItem('rf_who')||'';}catch(e){return '';}}
+function whoRemember(n){try{localStorage.setItem('rf_who',n);}catch(e){}if(blWave(2))whoSet(n);}
+
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function msg(t,ok){const m=document.getElementById('lp-msg');m.textContent=t;m.className='lp-msg '+(ok?'ok':'bad');m.style.display='block';}
 function ago(d){const t=new Date(String(d)+'T12:00:00');if(isNaN(t))return String(d||'');const n=Math.round((Date.now()-t)/864e5);return n<=0?'today':n===1?'yesterday':n+' days ago';}
+/* ── speed + save queue (26 Nov 2026) ── */
+const LQK=()=>'lp_queue_'+pub(),LCK=()=>'lp_cache_'+pub(),lqFly=new Set();
+function lqGet(){try{return JSON.parse(localStorage.getItem(LQK())||'[]');}catch(e){return [];}}
+function lqSet(a){try{localStorage.setItem(LQK(),JSON.stringify(a));}catch(e){}lqBadge();}
+function lqAdd(body,qid){const it={id:qid||Date.now().toString(36)+Math.random().toString(36).slice(2,7),body:body,tries:0};const a=lqGet();a.push(it);lqSet(a);setTimeout(lqFlush,0);return it.id;}
+function lqApply(rows){lqGet().forEach(it=>{const b=it.body;
+  if(b.action==='lost'&&!rows.some(r=>r.qid===it.id))rows.unshift({'ID':'','qid':it.id,'Item':b.item,'Where found':b.where,'Found by':b.by,'Status':'Waiting','Date found':b.date||new Date().toISOString().slice(0,10),pending:true});
+  if(b.action==='lostStatus'){const x=rows.find(r=>String(r['ID'])===String(b.id)||(r.qid&&'q:'+r.qid===b.id));if(x){x['Status']=b.status;x['Status by']=b.by;x.pending=true;}}});return rows;}
+function lqFlush(){const a=lqGet();a.forEach(it=>{if(lqFly.has(it.id))return;
+  if(it.body.action==='lostStatus'&&String(it.body.id).indexOf('q:')===0)return;   // waits for its item to save first
+  lqFly.add(it.id);
+  fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify(it.body)}).then(r=>r.json()).then(d=>{
+      if(!d.ok){const e=new Error(d.error||'not saved');e.refused=true;throw e;}
+      let q=lqGet().filter(x=>x.id!==it.id);
+      if(it.body.action==='lost'){q.forEach(x=>{if(x.body.action==='lostStatus'&&x.body.id==='q:'+it.id)x.body.id=d.id;});
+        (lpRows||[]).forEach(r=>{if(r.qid===it.id){r['ID']=d.id;delete r.qid;delete r.pending;}});}
+      else (lpRows||[]).forEach(r=>{if(String(r['ID'])===String(it.body.id))delete r.pending;});
+      lqSet(q);draw();if(q.length)setTimeout(lqFlush,0);})
+    .catch(e=>{const q=lqGet(),x=q.find(y=>y.id===it.id);if(!x)return;x.tries=(x.tries||0)+1;
+      if(e.refused&&x.tries>=3){lqSet(q.filter(y=>y.id!==it.id));msg('The sheet refused “'+(it.body.item||it.body.status)+'” ('+e.message+'). Please do it again.',false);loadRows();}else lqSet(q);})
+    .finally(()=>{lqFly.delete(it.id);lqBadge();});});lqBadge();}
+function lqBadge(){let b=document.getElementById('lp-queue');const n=lqGet().length;if(!n){if(b)b.remove();return;}
+  if(!b){b=document.createElement('div');b.id='lp-queue';b.style.cssText='position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:60;background:#241a3a;color:#fff;border:1px solid #7d4bb8;border-radius:999px;padding:8px 16px;font:600 14px system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.45);max-width:92vw;text-align:center';document.body.appendChild(b);}
+  b.textContent='⏳ '+n+' waiting to save'+(navigator.onLine===false?' · no wifi: it will send when it’s back':' · sending…');}
+addEventListener('online',lqFlush);document.addEventListener('visibilitychange',()=>{if(!document.hidden)lqFlush();});setInterval(lqFlush,60000);
 async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
   if(r.ok)lpStaff=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}catch(e){}
-  let last='';try{last=localStorage.getItem('rf_who')||'';}catch(e){}
-  document.getElementById('lp-by').innerHTML='<option value="">Pick your name</option>'+lpStaff.map(n=>`<option${n===last?' selected':''}>${esc(n)}</option>`).join('');}
-async function loadRows(){try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=60&t='+Date.now());const d=await r.json();lpRows=(d&&d.LostProperty)||[];}catch(e){lpRows=null;}draw();}
+  const last=rfWhoLoad();
+  document.getElementById('lp-by').innerHTML='<option value="">'+(blWave(2)?'Someone else…':'Pick your name')+'</option>'+lpStaff.map(n=>`<option${n===last?' selected':''}>${esc(n)}</option>`).join('');
+  if(blWave(2))lpChips();}
+// wave 2: tonight's crew as name buttons (same as the other pages); everyone else stays in the list
+let lpCrew=[];
+async function lpChips(){if(!lpCrew.length){try{const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const r=await fetch('../rotas/shifts.json?t='+Date.now(),{cache:'no-store'});if(r.ok){const days=(await r.json()).days||{};lpCrew=((days[k])||[]).map(x=>x.name).filter(Boolean);}}catch(e){}}
+  let box=document.getElementById('lp-chips');if(!box){box=document.createElement('div');box.id='lp-chips';box.className='lp-chips';const f=document.querySelector('.lp-form');f.parentNode.insertBefore(box,f);}
+  const sel=document.getElementById('lp-by'),cur=sel.value;
+  box.innerHTML='<span class="lp-chips-h">'+(cur?'Logging as <b>'+esc(cur)+'</b>. Not you? Tap your name':'Who are you? Tap your name')+'</span>'+lpCrew.map(n=>`<button type="button" class="lp-chip${n===cur?' on':''}" data-n="${esc(n)}">${esc(n)}</button>`).join('');
+  box.querySelectorAll('.lp-chip').forEach(b=>b.onclick=()=>{const n=b.dataset.n;if(![...sel.options].some(o=>o.value===n||o.text===n)){const o=document.createElement('option');o.text=n;sel.appendChild(o);}sel.value=n;whoRemember(n);lpChips();});
+  sel.onchange=()=>{if(sel.value)whoRemember(sel.value);lpChips();};}
+whoWatch(n=>{const sel=document.getElementById('lp-by');if(sel){sel.value=n&&[...sel.options].some(o=>o.value===n)?n:'';}if(blWave(2))lpChips();});
+async function loadRows(){let c=null;try{c=JSON.parse(localStorage.getItem(LCK())||'null');}catch(e){}
+  if(c&&Array.isArray(c.rows)){lpRows=lqApply(c.rows);draw();}
+  try{const r=await fetch(COMPLIANCE_URL+'?action=list&pub='+pub()+'&days=60&t='+Date.now());const d=await r.json();const rows=(d&&d.LostProperty)||[];
+    try{localStorage.setItem(LCK(),JSON.stringify({at:Date.now(),rows:rows}));}catch(e){}lpRows=lqApply(rows);}catch(e){if(!(c&&Array.isArray(c.rows)))lpRows=null;}draw();}
 function draw(){const w=document.getElementById('lp-wait'),dn=document.getElementById('lp-done');
   if(lpRows===null){w.innerHTML=dn.innerHTML='<span class="lp-empty">Couldn’t load the list.</span>';return;}
   const wait=lpRows.filter(x=>x['Status']==='Waiting'),done=lpRows.filter(x=>x['Status']!=='Waiting').slice(0,24);
   w.innerHTML=wait.length?wait.map(x=>`<div class="lp-item"><b>${esc(x['Item'])}</b><small>Found ${esc(ago(x['Date found']))}${x['Where found']?' · '+esc(x['Where found']):''}${x['Found by']?' · by '+esc(x['Found by']):''}</small>`
-    +`<div class="lp-acts"><button class="lp-act go" type="button" onclick="lpSet('${esc(x['ID'])}','Collected')">✓ Collected</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID'])}','Binned')">Binned</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID'])}','Donated')">Donated</button></div></div>`).join(''):'<span class="lp-empty">Nothing waiting. 👍</span>';
+    +`<div class="lp-acts"><button class="lp-act go" type="button" onclick="lpSet('${esc(x['ID']||('q:'+x.qid))}','Collected')">✓ Collected</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID']||('q:'+x.qid))}','Binned')">Binned</button><button class="lp-act" type="button" onclick="lpSet('${esc(x['ID']||('q:'+x.qid))}','Donated')">Donated</button></div></div>`).join(''):'<span class="lp-empty">Nothing waiting. 👍</span>';
   dn.innerHTML=done.length?done.map(x=>`<div class="lp-item lp-old"><b>${esc(x['Item'])}</b><span class="lp-tag ${x['Status']==='Collected'?'c':'b'}">${esc(x['Status'])}</span><small>${esc(x['Status by']||'')}${x['Status at']?' · '+esc(x['Status at']):''}</small></div>`).join(''):'<span class="lp-empty">Nothing sorted recently.</span>';}
 async function lpAdd(){const item=document.getElementById('lp-item').value.trim(),where=document.getElementById('lp-where').value.trim(),by=document.getElementById('lp-by').value;
   if(!item){msg('Say what the item is first.',false);return;}if(!by){msg('Pick your name.',false);return;}
-  try{localStorage.setItem('rf_who',by);}catch(e){}
-  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'lost',pub:pub(),item:item,where:where,by:by})});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
-    msg('✓ Logged: '+item,true);document.getElementById('lp-item').value='';document.getElementById('lp-where').value='';
-    lpRows.unshift({'ID':d.id,'Item':item,'Where found':where,'Found by':by,'Status':'Waiting','Date found':new Date().toISOString().slice(0,10)});draw();
-  }catch(e){msg('Couldn’t save it ('+(e.message||'no connection')+'). Please try again.',false);}}
+  whoRemember(by);
+  const qid=lqAdd({action:'lost',pub:pub(),item:item,where:where,by:by});
+  msg('✓ Logged: '+item,true);document.getElementById('lp-item').value='';document.getElementById('lp-where').value='';
+  if(!Array.isArray(lpRows))lpRows=[];lpRows.unshift({'ID':'','qid':qid,'Item':item,'Where found':where,'Found by':by,'Status':'Waiting','Date found':new Date().toISOString().slice(0,10),pending:true});draw();}
 async function lpSet(id,status){const by=document.getElementById('lp-by').value||(prompt('Your name:')||'').trim();if(!by)return;
-  const x=lpRows.find(r=>String(r['ID'])===String(id));if(!confirm('Mark "'+(x?x['Item']:'item')+'" as '+status.toLowerCase()+'?'))return;
-  try{const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify({action:'lostStatus',pub:pub(),id:id,status:status,by:by})});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');
-    if(x){x['Status']=status;x['Status by']=by;x['Status at']=new Date().toLocaleString('en-GB');}draw();msg('✓ '+status+': '+(x?x['Item']:''),true);
-  }catch(e){msg('Couldn’t update it ('+(e.message||'no connection')+').',false);}}
-function start(){loadStaff();loadRows();}
+  const x=lpRows.find(r=>String(r['ID'])===String(id)&&id!==''||r.qid&&('q:'+r.qid)===id);if(!confirm('Mark "'+(x?x['Item']:'item')+'" as '+status.toLowerCase()+'?'))return;
+  lqAdd({action:'lostStatus',pub:pub(),id:id,status:status,by:by});
+  if(x){x['Status']=status;x['Status by']=by;x['Status at']=new Date().toLocaleString('en-GB');x.pending=true;}draw();msg('✓ '+status+': '+(x?x['Item']:''),true);}
+function start(){loadStaff();lqBadge();loadRows().then(lqFlush,lqFlush);}
 (async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
   BLAuth.init({appName:'Lost property',require:'staff',onReady:start});})();
 </script>

@@ -52,6 +52,7 @@
     #cp-print table{width:100%;border-collapse:collapse;margin:0 0 8px}#cp-print th,#cp-print td{border:1px solid #999;padding:3px 5px;text-align:left;vertical-align:top}
     #cp-print .pb{page-break-before:always}
   }
+.ov-mgr{margin-top:14px;border-top:1px solid var(--line,#2a3360);padding-top:10px}.ov-mgr summary{cursor:pointer;font-weight:700;color:var(--muted,#a9b0cc);padding:8px 0;list-style:none}.ov-mgr summary::before{content:'▸ ';}.ov-mgr[open] summary::before{content:'▾ ';}
 </style>
 </head>
 <body>
@@ -78,7 +79,7 @@
 
   <!-- OVERVIEW -->
   <section class="cp-panel" id="p-overview">
-    <div class="card"><h2>Needs doing <small id="ov-count"></small></h2><div id="ov-due"></div></div>
+    <div class="card"><h2>To do tonight <small id="ov-count"></small></h2><div id="ov-due"></div></div>
     <div class="grid2">
       <div class="card"><h2>Checks <small>last done</small></h2><div id="ov-checks"></div></div>
       <div class="card"><h2>Training gaps</h2><div id="ov-training"></div></div>
@@ -323,6 +324,22 @@ const DOC_CATS=[['Premises licence',12],['Personal licence',12],["Insurance: emp
 let D={Training:[],Checks:[],Actions:[],Settings:[],Documents:[],Security:[],DoorShifts:[]}, SET={}, STAFF=[], WHO='', MGR=false, TAB='overview', CUR={fire:'fire_alarm',water:'legionella_flush'};
 const $=id=>document.getElementById(id);
 function pub(){return /rose/i.test((window.BL_CFG&&BL_CFG.venueKey)||'')?'br':'bl';}
+/* ── ROLL-OUT WAVES + WHO'S USING THIS IPAD (added 26 Nov 2026) ──
+   Changes switch on in waves so staff get a few at a time: wave 2 from Mon 30 Nov, wave 3 from Mon 7 Dec (6am).
+   Preview a wave early by adding ?wave=2 or ?wave=3 to the page address (it lasts for that browser tab).
+   Wave 2, shared iPads: the name tapped is remembered across the staff pages, but forgotten after 20 minutes with
+   nobody touching the screen, so the next person isn't ticking under someone else's name. Tapping another name switches. */
+function blWave(n){try{const q=(location.search.match(/[?&]wave=(\d)/)||[])[1];if(q)sessionStorage.setItem('bl_wave',q);if(+(sessionStorage.getItem('bl_wave')||0)>=n)return true;}catch(e){}
+  const on={2:'2026-11-30T06:00:00',3:'2026-12-07T06:00:00'}[n];return !on||Date.now()>=new Date(on).getTime();}
+const WHO_IDLE=20*60000;
+function whoGet(){try{const w=JSON.parse(localStorage.getItem('bl_who')||'null');return w&&w.n&&Date.now()-w.t<WHO_IDLE?w.n:'';}catch(e){return '';}}
+function whoSet(n){try{if(n)localStorage.setItem('bl_who',JSON.stringify({n:n,t:Date.now()}));else localStorage.removeItem('bl_who');}catch(e){}}
+let whoTouchAt=0;
+document.addEventListener('pointerdown',()=>{if(!blWave(2)||Date.now()-whoTouchAt<15000)return;whoTouchAt=Date.now();const n=whoGet();if(n)whoSet(n);},{passive:true,capture:true});
+function whoWatch(fn){let last=blWave(2)?whoGet():null;setInterval(()=>{if(!blWave(2))return;const n=whoGet();if(n!==last){last=n;try{fn(n);}catch(e){}}},20000);}
+function rfWhoLoad(){if(blWave(2))return whoGet();try{return localStorage.getItem('rf_who')||'';}catch(e){return '';}}
+function whoRemember(n){try{localStorage.setItem('rf_who',n);}catch(e){}if(blWave(2))whoSet(n);}
+
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function addDays(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
@@ -359,6 +376,9 @@ function toiletHours(){const m=String(SET.toilet_hours||'16:00-03:00').match(/(\
 function inOpenHours(){const h=toiletHours(),d=new Date(),t=d.getHours()*60+d.getMinutes();return h[0]<=h[1]?(t>=h[0]&&t<h[1]):(t>=h[0]||t<h[1]);}
 function toiletChecks(){return D.Checks.filter(c=>c.Type==='toilet');}
 function lastToilet(area){return toiletChecks().filter(c=>c.Item===area).sort((a,b)=>String(b['Logged at']||b.Date+' '+b.Time).localeCompare(String(a['Logged at']||a.Date+' '+a.Time)))[0];}
+function agoText(m){if(m==null)return 'not checked today';if(m<60)return m+' min ago';if(m<1440)return Math.floor(m/60)+'h '+(m%60)+'m ago';const d=Math.floor(m/1440);return d+(d===1?' day':' days')+' ago';}
+// the checks bar staff do (the same five the top bar counts); everything else is for the manager or a contractor
+const STAFF_CHECKS=['fire_alarm','em_light_month','extinguisher_month','legionella_flush','legionella_temp'];
 function minsSince(c){if(!c)return null;const t=c['Logged at']?new Date(c['Logged at']):new Date(String(c.Date)+'T'+(c.Time||'00:00'));return isNaN(t)?null:Math.round((Date.now()-t)/60000);}
 function toiletsDue(){if(!inOpenHours())return [];const lim=toiletEvery()+15;return toiletAreas().filter(a=>{const m=minsSince(lastToilet(a));return m==null||m>lim;});}
 // security: SIA licence expiry and anyone still signed in from an earlier day
@@ -368,7 +388,7 @@ function openShifts(){return (D.DoorShifts||[]).filter(s=>!s.Finish);}
 function drawTabs(){
   const over=Object.keys(RULES).map(checkStatus).filter(s=>s.state==='over');
   const n={overview:over.length+gaps().filter(g=>g.state==='over').length,fire:over.filter(s=>s.rule.area==='fire').length,water:over.filter(s=>s.rule.area==='water').length,training:gaps().filter(g=>g.state==='over').length,fra:over.filter(s=>s.rule.area==='fra').length+D.Actions.filter(a=>a.Status!=='Done'&&a.Due&&daysFrom(String(a.Due))<0).length,docs:docsDue().filter(x=>x.state==='over').length,toilets:toiletsDue().length,security:siaDue().filter(x=>x.state==='over').length};
-  n.overview+=n.docs+n.toilets+n.security;
+  n.overview=Object.keys(RULES).filter(k=>STAFF_CHECKS.includes(k)).map(checkStatus).filter(s=>s.state==='over').length+n.toilets;
   const T=[['overview','Overview'],['training','Training'],['fire','Fire safety'],['water','Legionella'],['fra','Fire risk assessment'],['toilets','Toilets'],['security','Security'],['licence','Licence'],['docs','Documents'],['print','Print file']];
   $('cp-tabs').innerHTML=T.map(t=>`<button class="cp-tab" type="button" role="tab" aria-selected="${t[0]===TAB}" onclick="go('${t[0]}')">${t[1]}${n[t[0]]?`<span class="n">${n[t[0]]}</span>`:''}</button>`).join('');
   document.querySelectorAll('.cp-panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+TAB));
@@ -378,17 +398,20 @@ function go(t){TAB=t;try{sessionStorage.setItem('cp_tab',t)}catch(e){}drawAll();
 function drawOverview(){
   const sts=Object.keys(RULES).map(checkStatus);
   const due=[];
-  sts.filter(s=>s.state!=='ok').forEach(s=>due.push({w:s.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(s.rule.label)}</b><small>${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):''):'No record yet'}</small></div>${pillFor(s)}<button class="btn sm" type="button" onclick="logNow('${s.type}')">Log it</button></div>`}));
+  sts.filter(s=>s.state!=='ok').forEach(s=>{const mine=STAFF_CHECKS.includes(s.type);due.push({mine:mine,w:s.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(s.rule.label)}</b><small>${s.last?'Last done '+fmt(String(s.last.Date))+(s.last.By?' by '+esc(s.last.By):''):'No record yet'}</small></div>${mine?'<span class="pill soon">'+(s.state==='over'?'To do':'Due soon')+'</span>':pillFor(s)}<button class="btn sm" type="button" onclick="logNow('${s.type}')">Log it</button></div>`});});
   gaps().forEach(g=>due.push({w:g.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(g.staff)}</b>: ${esc(g.course.name)}<small>${g.rec?'Expires '+fmt(String(g.rec.Expires)):'No record'}</small></div><span class="pill ${g.state}">${g.state==='over'?(g.rec?'Expired':'Missing'):'Due soon'}</span></div>`}));
   D.Actions.filter(a=>a.Status!=='Done').forEach(a=>{const l=a.Due?daysFrom(String(a.Due)):99;if(l<=7)due.push({w:l<0?0:1,html:`<div class="row"><div class="grow"><b>Fire risk action:</b> ${esc(a.Action||a.Finding)}<small>${a.Owner?esc(a.Owner)+' · ':''}due ${fmt(String(a.Due))}</small></div><span class="pill ${l<0?'over':'soon'}">${l<0?'Overdue':'Due soon'}</span></div>`});});
-  if(toiletsDue().length)due.push({w:-2,html:`<div class="row"><div class="grow"><b>Toilet check due</b><small>${toiletsDue().map(a=>{const m=minsSince(lastToilet(a));return esc(a)+(m==null?' (not checked today)':' ('+m+' min ago)')}).join(', ')}</small></div><span class="pill over">Due</span><button class="btn sm" type="button" onclick="go('toilets')">Log it</button></div>`});
+  if(toiletsDue().length)due.push({mine:true,w:-2,html:`<div class="row"><div class="grow"><b>Toilet check due</b><small>${toiletsDue().map(a=>{const m=minsSince(lastToilet(a));return esc(a)+' ('+agoText(m)+')'}).join(', ')}</small></div><span class="pill soon">Due</span><button class="btn sm" type="button" onclick="go('toilets')">Log it</button></div>`});
   siaDue().forEach(x=>due.push({w:x.state==='over'?-1:1,html:`<div class="row"><div class="grow"><b>${esc(x.g.Name)}</b>: door supervisor<small>${esc(x.why)} · SIA ${esc(x.g['SIA number'])}</small></div><span class="pill ${x.state}">${x.state==='over'?'Expired':'Check'}</span><button class="btn sm" type="button" onclick="go('security')">Open</button></div>`}));
   openShifts().filter(s=>String(s.Date)<tradingDay()).forEach(s=>due.push({w:1,html:`<div class="row"><div class="grow"><b>${esc(s.Name)}</b> was never signed out<small>Door shift on ${fmt(String(s.Date))} from ${esc(s.Start)}</small></div><span class="pill soon">Sign out</span><button class="btn sm" type="button" onclick="go('security')">Open</button></div>`}));
   docsDue().forEach(x=>due.push({w:x.state==='over'?0:1,html:`<div class="row"><div class="grow"><b>${esc(x.doc.Name)}</b><small>${esc(x.doc.Category||'')} · ${esc(x.why)}</small></div><span class="pill ${x.state}">${x.state==='over'?'Overdue':'Due soon'}</span><button class="btn sm" type="button" onclick="go('docs')">Open</button></div>`}));
   licenceDue().filter(p=>p.left<=90).forEach(p=>due.push({w:p.left<0?0:1,html:`<div class="row"><div class="grow"><b>${esc(p.name)}</b>: personal licence refresher<small>due ${fmt(p.due)}</small></div><span class="pill ${p.left<0?'over':'soon'}">${p.left<0?'Overdue':'In '+p.left+' days'}</span></div>`}));
   due.sort((a,b)=>a.w-b.w);
-  $('ov-count').textContent=due.length?due.length+' item'+(due.length===1?'':'s'):'';
-  $('ov-due').innerHTML=due.length?due.map(d=>d.html).join(''):'<p class="note">Everything is up to date.</p>';
+  const mine=due.filter(d=>d.mine),mgr=due.filter(d=>!d.mine);
+  $('ov-count').textContent=mine.length?mine.length+' item'+(mine.length===1?'':'s'):'';
+  $('ov-due').innerHTML=(mine.length?mine.map(d=>d.html).join(''):'<p class="note">✓ Nothing for you to do right now.</p>')
+    +(mgr.length?`<details class="ov-mgr"${MGR?' open':''}><summary>Manager and contractor jobs (${mgr.length})</summary>${mgr.map(d=>d.html).join('')}</details>`:'');
+  ['ov-checks','ov-training'].forEach(id=>{const c=$(id)&&$(id).closest('.card');if(c)c.style.display=MGR?'':'none';});   // the full lists are for managers; staff see them on the tabs
   $('ov-checks').innerHTML=sts.map(s=>`<div class="row"><div class="grow">${esc(s.rule.label)}<small>${s.last?fmt(String(s.last.Date)):'never'}</small></div>${pillFor(s)}</div>`).join('');
   const g=gaps();$('ov-training').innerHTML=!STAFF.length?'<p class="note">Loading staff…</p>':g.length?g.slice(0,14).map(x=>`<div class="row"><div class="grow">${esc(x.staff)}<small>${esc(x.course.name)}</small></div><span class="pill ${x.state}">${x.state==='over'?'Missing':'Due soon'}</span></div>`).join('')+(g.length>14?`<p class="note">…and ${g.length-14} more on the Training tab.</p>`:''):'<p class="note">All staff are in date for the required training.</p>';
 }
@@ -405,6 +428,25 @@ function drawTraining(){
 }
 function trCourse(){const c=COURSES.find(x=>x.id===$('tr-course').value);$('tr-exp').value=c.refresh?addDays($('tr-date').value||today(),c.refresh):'';
   $('tr-topics-wrap').style.display=c.topics?'':'none';$('tr-topics').innerHTML=(c.topics||[]).map((t,i)=>`<button type="button" class="chip on" data-t="${esc(t)}" onclick="this.classList.toggle('on')">${esc(t)}</button>`).join('');}
+/* ── speed + save queue (26 Nov 2026): the Apps Script takes 2-4s, so the page opens with what this iPad last saw,
+   and staff check logs are kept on the iPad and sent in the background until the sheet confirms them ── */
+const CQK=()=>'cp_queue_'+pub(),CCK=()=>'cp_cache_'+pub();
+const cqFly=new Set();
+function cqGet(){try{return JSON.parse(localStorage.getItem(CQK())||'[]');}catch(e){return [];}}
+function cqSet(a){try{localStorage.setItem(CQK(),JSON.stringify(a));}catch(e){}cqBadge();}
+function cqLocal(){return cqGet().map(it=>Object.assign({},it.local,{pending:true,qid:it.id}));}
+function cqAdd(body,local){const it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),body:body,local:local,tries:0};
+  const a=cqGet();a.push(it);cqSet(a);D.Checks.push(Object.assign({},local,{pending:true,qid:it.id}));setTimeout(cqFlush,0);}
+function cqFlush(){cqGet().forEach(it=>{if(cqFly.has(it.id))return;cqFly.add(it.id);
+  post(Object.assign({},it.body)).then(d=>{cqSet(cqGet().filter(x=>x.id!==it.id));D.Checks.forEach(c=>{if(c.qid===it.id){c.ID=d.id;delete c.pending;delete c.qid;}});drawAll();},
+    e=>{const refused=!(e instanceof TypeError)&&e&&e.message&&!/fetch|network|load/i.test(e.message);const a=cqGet(),x=a.find(y=>y.id===it.id);if(!x)return;x.tries=(x.tries||0)+1;
+      if(refused&&x.tries>=3){cqSet(a.filter(y=>y.id!==it.id));D.Checks=D.Checks.filter(c=>c.qid!==it.id);drawAll();msg('The sheet refused “'+(RULES[it.body.type]?RULES[it.body.type].label:it.body.item)+'” ('+e.message+'). Please log it again.',false);}
+      else cqSet(a);})
+  .finally(()=>{cqFly.delete(it.id);cqBadge();});});cqBadge();}
+function cqBadge(){let b=document.getElementById('cp-queue');const n=cqGet().length;if(!n){if(b)b.remove();return;}
+  if(!b){b=document.createElement('div');b.id='cp-queue';b.style.cssText='position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:60;background:#241a3a;color:#fff;border:1px solid #7d4bb8;border-radius:999px;padding:8px 16px;font:600 14px system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.45);max-width:92vw;text-align:center';document.body.appendChild(b);}
+  b.textContent='⏳ '+n+' waiting to save'+(navigator.onLine===false?' · no wifi: it will send when it’s back':' · sending…');}
+addEventListener('online',cqFlush);document.addEventListener('visibilitychange',()=>{if(!document.hidden)cqFlush();});setInterval(cqFlush,60000);
 async function post(body){body.pub=pub();body.by=body.by||WHO||(BL_CFG&&BL_CFG.venueName)||'';const r=await fetch(COMPLIANCE_URL,{method:'POST',body:JSON.stringify(body)});const d=await r.json();if(!d.ok)throw new Error(d.error||'not saved');return d;}
 async function trSave(){const c=COURSES.find(x=>x.id===$('tr-course').value),staff=$('tr-staff').value;if(!staff){msg('Pick the staff member.',false);return}
   if(c.id==='alcohol'&&!$('tr-trainer').value.trim()){msg('Add the trainer: it must be a personal licence holder for the alcohol training.',false);return}
@@ -438,7 +480,7 @@ function nextCallPoint(list){if(!list.length)return '';const done=D.Checks.filte
   for(const x of list){if(!done.some(c=>c.Item===x))return x;}let best=list[0],bd='9999';list.forEach(x=>{const l=done.find(c=>c.Item===x);if(l&&String(l.Date)<bd){bd=String(l.Date);best=x}});return best;}
 function tempMark(el){const o=outlets()[+el.dataset.o],v=parseFloat(el.value);if(isNaN(v)){el.style.borderColor='';return}
   const stored=/stored|tank|calorifier/i.test(o.name),bad=el.dataset.k==='cold'?v>=20:v<(stored?60:50);el.style.borderColor=bad?'var(--bad)':'var(--ok)';}
-async function ckSave(k){const r=RULES[k];let by=$('ck-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;try{localStorage.setItem('rf_who',by)}catch(e){}
+async function ckSave(k){const r=RULES[k];let by=$('ck-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;whoRemember(by);
   const date=$('ck-date').value||today(),notes=$('ck-notes').value.trim();const posts=[];
   if(r.temps){const os=outlets();document.querySelectorAll('#ck-temps input').forEach(inp=>{if(inp.value==='')return;const o=os[+inp.dataset.o],v=parseFloat(inp.value),stored=/stored|tank|calorifier/i.test(o.name),bad=inp.dataset.k==='cold'?v>=20:v<(stored?60:50);
       posts.push({action:'check',type:k,item:o.name+' ('+inp.dataset.k+')',reading:v,result:bad?'Fail':'Pass',date,notes,by});});
@@ -447,9 +489,8 @@ async function ckSave(k){const r=RULES[k];let by=$('ck-by').value;if(by==='__oth
     if(r.item==='outlets_little'){const done=all.filter(b=>b.classList.contains('on')).map(b=>b.dataset.x);posts.push({action:'check',type:k,item:done.join(', ')||'(none listed)',result:'Done',date,notes,by});}
     else{const failed=all.filter(b=>b.classList.contains('on')).map(b=>b.dataset.x);posts.push({action:'check',type:k,item:failed.length?'Failed: '+failed.join(', '):'All passed',result:failed.length?'Fail':'Pass',date,notes,by});}}
   else posts.push({action:'check',type:k,item:$('ck-item')?$('ck-item').value:'',result:$('ck-result')?$('ck-result').value:'Done',reading:$('ck-reading')?$('ck-reading').value:'',date,notes,by});
-  try{for(const b of posts){const d=await post(b);D.Checks.push({ID:d.id,Type:b.type,Date:date,Item:b.item,Result:b.result,Reading:b.reading==null?'':b.reading,By:by,Notes:notes,'Logged at':new Date().toISOString()});}
-    const fails=posts.filter(b=>b.result==='Fail');msg('Saved: '+r.label+(fails.length?'. '+fails.length+' result'+(fails.length===1?'':'s')+' failed: please report it and arrange a fix.':''),!fails.length);drawAll();}
-  catch(e){msg('Couldn’t save ('+e.message+'). Please try again.',false);}}
+  posts.forEach(b=>cqAdd(b,{Type:b.type,Date:date,Item:b.item,Result:b.result,Reading:b.reading==null?'':b.reading,By:by,Notes:notes,'Logged at':new Date().toISOString()}));
+  const fails=posts.filter(b=>b.result==='Fail');msg('Saved: '+r.label+(fails.length?'. '+fails.length+' result'+(fails.length===1?'':'s')+' failed: please report it and arrange a fix.':''),!fails.length);drawAll();}
 
 // ── fire risk assessment ──
 function drawFRA(){const f=jsonSet('fra',{});const st=checkStatus('fra_review');
@@ -541,12 +582,11 @@ function drawToilets(){const areas=toiletAreas();if(!TOI_AREA||areas.indexOf(TOI
   $('toi-status').innerHTML=areas.map(a=>{const c=lastToilet(a),m=minsSince(c),due=inOpenHours()&&(m==null||m>toiletEvery()+15);return `<div class="row"><div class="grow"><b>${esc(a)}</b><small>${c?(m<120?m+' minutes ago':fmt(String(c.Date))+' '+esc(c.Time||''))+(c.By?' by '+esc(c.By):''):'not checked yet'}${c&&c.Result==='Fault'?' · problem: '+esc(c.Notes):''}</small></div><span class="pill ${due?'over':c&&c.Result==='Fault'?'soon':'ok'}">${due?'Due':c&&c.Result==='Fault'?'Problem':'OK'}</span></div>`}).join('');
   const td=tradingDay(),list=toiletChecks().filter(c=>{const d=String(c.Date),t=String(c.Time||'00:00');return d===td&&t>='06:00'||d===addDays(td,1)&&t<'06:00';}).sort((a,b)=>String(b['Logged at']||'').localeCompare(String(a['Logged at']||'')));
   $('toi-today').innerHTML=list.length?list.slice(0,30).map(c=>`<div class="row"><div class="grow"><b>${esc(c.Time||'')}</b> ${esc(c.Item)}<small>${esc(c.By||'')}${c.Notes?' · '+esc(c.Notes):''}</small></div><span class="pill ${c.Result==='Fault'?'over':'ok'}">${c.Result==='Fault'?'Problem':'OK'}</span></div>`).join(''):'<p class="note">No toilet checks logged today yet.</p>';}
-async function toiSave(problem){let by=$('toi-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;try{localStorage.setItem('rf_who',by)}catch(e){}
+async function toiSave(problem){let by=$('toi-by').value;if(by==='__other'){by=(prompt('Name:')||'').trim();if(!by)return}WHO=by;whoRemember(by);
   const missed=[...document.querySelectorAll('#toi-items .chip')].filter(b=>!b.classList.contains('on')).map(b=>b.dataset.x);let notes=$('toi-notes').value.trim();
   if(problem&&!notes&&!missed.length){notes=(prompt('What was the problem?')||'').trim();if(!notes)return}
   const fault=problem||missed.length>0;const n2=(missed.length?'Not OK: '+missed.join(', '):'')+(notes?(missed.length?'. ':'')+notes:'');
-  try{const d=await post({action:'check',type:'toilet',item:TOI_AREA,result:fault?'Fault':'Pass',notes:n2,by});
-    D.Checks.push({ID:d.id,Type:'toilet',Date:today(),Time:new Date().toTimeString().slice(0,5),Item:TOI_AREA,Result:fault?'Fault':'Pass',By:by,Notes:n2,'Logged at':new Date().toISOString()});
+  try{cqAdd({action:'check',type:'toilet',item:TOI_AREA,result:fault?'Fault':'Pass',notes:n2,by},{Type:'toilet',Date:today(),Time:new Date().toTimeString().slice(0,5),Item:TOI_AREA,Result:fault?'Fault':'Pass',By:by,Notes:n2,'Logged at':new Date().toISOString()});
     $('toi-notes').value='';document.querySelectorAll('#toi-items .chip').forEach(b=>b.classList.add('on'));msg('Logged: '+TOI_AREA+(fault?' (problem reported: please sort it or add it to the snag list)':' OK'),!fault);
     const areas=toiletAreas(),i=areas.indexOf(TOI_AREA);TOI_AREA=areas[(i+1)%areas.length];drawAll();}
   catch(e){msg('Couldn’t save ('+e.message+').',false);}}
@@ -585,14 +625,18 @@ function drawAll(){drawTabs();if(TAB==='overview')drawOverview();if(TAB==='train
 
 async function loadStaff(){try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+BL_CFG.endOfNight+'/gviz/tq?tqx=out:csv&sheet=Staff&t='+Date.now(),{cache:'no-store'});
   if(r.ok)STAFF=(await r.text()).split('\n').slice(1).map(l=>l.split(',')[0].replace(/"/g,'').trim()).filter(n=>n&&!/set onshift/i.test(n));}catch(e){}
-  try{WHO=localStorage.getItem('rf_who')||''}catch(e){}drawAll();}
-async function loadData(){try{const r=await fetch(COMPLIANCE_URL+'?action=compliance&pub='+pub()+'&t='+Date.now());const d=await r.json();
+  WHO=rfWhoLoad();drawAll();}
+whoWatch(n=>{WHO=n;drawAll();});
+async function loadData(){let cached=null;try{cached=JSON.parse(localStorage.getItem(CCK())||'null');}catch(e){}
+  if(cached&&cached.d&&cached.d.Checks&&Date.now()-cached.at<7*864e5){D=cached.d;D.Checks=D.Checks.concat(cqLocal());SET={};(D.Settings||[]).forEach(s=>SET[s.Key]=String(s.Value||''));drawAll();}
+  try{const r=await fetch(COMPLIANCE_URL+'?action=compliance&pub='+pub()+'&t='+Date.now());const d=await r.json();
     if(!d.Checks){$('cp-setup').style.display='block';$('cp-setup').innerHTML='<b>One-time setup needed:</b> the compliance Google script needs updating before records can be saved here. (Paste in the new script, run <b>setupSheet</b>, then Deploy → Manage deployments → New version.)';return drawAll();}
-    D=d;SET={};(d.Settings||[]).forEach(s=>SET[s.Key]=String(s.Value||''));drawAll();}
-  catch(e){$('cp-setup').style.display='block';$('cp-setup').textContent='Couldn’t reach the compliance sheet. Check the connection and refresh.';drawAll();}}
+    try{localStorage.setItem(CCK(),JSON.stringify({at:Date.now(),d:d}));}catch(e){}
+    D=d;D.Checks=D.Checks.concat(cqLocal());SET={};(d.Settings||[]).forEach(s=>SET[s.Key]=String(s.Value||''));drawAll();}
+  catch(e){if(cached&&cached.d&&cached.d.Checks)return;$('cp-setup').style.display='block';$('cp-setup').textContent='Couldn’t reach the compliance sheet. Check the connection and refresh.';drawAll();}}
 function start(){MGR=!!(window.BLAuth&&BLAuth.isManager&&BLAuth.isManager());document.body.classList.toggle('is-mgr',MGR);
   try{TAB=sessionStorage.getItem('cp_tab')||'overview'}catch(e){}if(/[?&]tab=(\w+)/.test(location.search))TAB=location.search.match(/[?&]tab=(\w+)/)[1];
-  drawAll();loadStaff();loadData();}
+  drawAll();loadStaff();loadData().then(cqFlush,cqFlush);}
 (async function(){if(window.BLConfig&&BLConfig.refresh){try{await BLConfig.refresh();}catch(e){}}
   BLAuth.init({appName:'Compliance',require:'staff',onReady:start});})();
 </script>

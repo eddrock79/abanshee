@@ -181,6 +181,13 @@
   .modal-buttons{display:flex;gap:10px;justify-content:flex-end;}
   @media(max-width:500px){.job-card{flex-wrap:wrap}.assign-select{max-width:100%}}
 
+.nx-bars{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;align-items:stretch}
+.nx-bar{flex:1 1 150px;min-height:54px;border:2px solid var(--border,#444);background:var(--surface,#1b1b22);color:var(--text,#eee);border-radius:12px;padding:8px 12px;font:inherit;font-weight:700;font-size:16px;text-align:left;cursor:pointer}
+.nx-bar small{display:block;font-weight:400;font-size:12px;opacity:.75;margin-top:2px}
+.nx-bar.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.nx-bar.done small{color:var(--green,#4caf50);opacity:1}
+.nx-bar.off{border-style:dashed;opacity:.7;font-weight:600}
+.nx-barclose{flex-basis:100%;background:none;border:0;color:var(--muted,#999);text-decoration:underline;font:inherit;font-size:13px;text-align:left;padding:2px 4px;cursor:pointer}
 /* ===== new day page: pick your name, tap the jobs you've done ===== */
 .nx-trial{background:#4fb8a81f;border-bottom:1px solid #4fb8a855;color:var(--accent);font-size:13px;text-align:center;padding:7px 12px}
 .nx-trial a{color:var(--accent);text-decoration:underline}
@@ -189,8 +196,8 @@
 .nx-sub{color:var(--muted);font-size:14px;margin-top:2px}
 .nx-prog{flex:1;min-width:160px;height:10px;border-radius:5px;background:#ffffff12;overflow:hidden}
 .nx-prog i{display:block;height:100%;background:var(--green);border-radius:5px}
-.nx-last{background:var(--red-dim);border:1px solid #e85d5d66;border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
-.nx-last b{color:var(--red)}
+.nx-last{background:#e8a93a12;border:1px solid #e8a93a55;border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.nx-last b{color:#e8a93a}
 .nx-who{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 12px;margin-bottom:8px;border-bottom:1px solid var(--border)}
 .nx-who p{margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .nx-who p b{color:var(--accent)}
@@ -290,7 +297,7 @@ html body{background:radial-gradient(900px 420px at 85% -5%,#5c2e9155 0,transpar
 .nx-menu{background:#141d40;border-color:#2c3766}
 .nx-toast{color:#04102c}
 .nx-trial{background:#5c2e9133;border-bottom-color:#5c2e91;color:#e4d6ff}
-.nx-last{background:#ff6b8b14;border-color:#ff6b8b66}
+.nx-last{background:#e8a93a12;border-color:#e8a93a55}
 </style>
 <script src="../bl-config.js"></script>
 <script src="../bl-auth.js"></script>
@@ -701,8 +708,8 @@ function nxStart(p){const now=nxNow();let s;
   return s;}
 function nxIsDone(j){if(!j.done)return false;if(!j.timestamp)return true;const t=new Date(j.timestamp),s=nxStart(j.month),e=new Date(s);
   if(NX_KIND==='day')e.setDate(e.getDate()+7);else e.setFullYear(e.getFullYear()+1);return isNaN(t)||(t>=s&&t<e);}
-function nxMe(){try{const m=JSON.parse(localStorage.getItem('mj_new_me')||'null');return m&&m.d===nxStamp()?m.n:'';}catch(e){return '';}}
-function nxSetMe(n){localStorage.setItem('mj_new_me',JSON.stringify({d:nxStamp(),n:n}));}
+function nxMe(){if(blWave(2))return whoGet();try{const m=JSON.parse(localStorage.getItem('mj_new_me')||'null');return m&&m.d===nxStamp()?m.n:'';}catch(e){return '';}}
+function nxSetMe(n){if(blWave(2)){whoSet(n);return;}localStorage.setItem('mj_new_me',JSON.stringify({d:nxStamp(),n:n}));}
 function nxNightIso(){const d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function nxExtra(){try{const x=JSON.parse(localStorage.getItem('nx_extra')||'null');return x&&x.d===nxNightIso()&&Array.isArray(x.n)?x.n:[];}catch(e){return [];}}
 function nxAddExtra(n){const a=nxExtra();if(n&&!a.some(x=>x.toLowerCase()===n.toLowerCase()))a.push(n);try{localStorage.setItem('nx_extra',JSON.stringify({d:nxNightIso(),n:a}));}catch(e){}}
@@ -1048,6 +1055,97 @@ function parseJobsCSV(csv){const lines=csv.split('\n').slice(1).filter(l=>l.trim
 
 // ── SHEET WRITE ──
 function queueSheetSync(){if(syncTimer)clearTimeout(syncTimer);syncTimer=setTimeout(pushToSheet,1500);}
+/* ── ROLL-OUT WAVES + WHO'S USING THIS IPAD (added 26 Nov 2026) ──
+   Changes switch on in waves so staff get a few at a time: wave 2 from Mon 30 Nov, wave 3 from Mon 7 Dec (6am).
+   Preview a wave early by adding ?wave=2 or ?wave=3 to the page address (it lasts for that browser tab).
+   Wave 2, shared iPads: the name tapped is remembered across the staff pages, but forgotten after 20 minutes with
+   nobody touching the screen, so the next person isn't ticking under someone else's name. Tapping another name switches. */
+function blWave(n){try{const q=(location.search.match(/[?&]wave=(\d)/)||[])[1];if(q)sessionStorage.setItem('bl_wave',q);if(+(sessionStorage.getItem('bl_wave')||0)>=n)return true;}catch(e){}
+  const on={2:'2026-11-30T06:00:00',3:'2026-12-07T06:00:00'}[n];return !on||Date.now()>=new Date(on).getTime();}
+const WHO_IDLE=20*60000;
+function whoGet(){try{const w=JSON.parse(localStorage.getItem('bl_who')||'null');return w&&w.n&&Date.now()-w.t<WHO_IDLE?w.n:'';}catch(e){return '';}}
+function whoSet(n){try{if(n)localStorage.setItem('bl_who',JSON.stringify({n:n,t:Date.now()}));else localStorage.removeItem('bl_who');}catch(e){}}
+let whoTouchAt=0;
+document.addEventListener('pointerdown',()=>{if(!blWave(2)||Date.now()-whoTouchAt<15000)return;whoTouchAt=Date.now();const n=whoGet();if(n)whoSet(n);},{passive:true,capture:true});
+function whoWatch(fn){let last=blWave(2)?whoGet():null;setInterval(()=>{if(!blWave(2))return;const n=whoGet();if(n!==last){last=n;try{fn(n);}catch(e){}}},20000);}
+
+whoWatch(()=>{if(typeof msTyping==='function'&&msTyping())return;if(typeof switchTab==='function')switchTab(currentTab);});
+(function(){if(!blWave(3))return;const t=document.querySelector('.tabbar');if(!t)return;
+  const st=document.createElement('style');st.textContent='.tabbar.w3:not(.all) .tab:not(.active):not(.w3-more){display:none}.tabbar .w3-more{opacity:.8}';document.head.appendChild(st);
+  t.classList.add('w3');const b=document.createElement('div');b.className='tab w3-more';b.textContent='Other days ▾';
+  b.onclick=e=>{e.stopPropagation();t.classList.toggle('all');b.textContent=t.classList.contains('all')?'Fewer ▴':'Other days ▾';};t.appendChild(b);})();
+
+/* ── MERGE SYNC (added 26 Nov 2026) ──
+   The sheet write sends the whole list of jobs, so two iPads ticking on the same night could wipe each other's ticks.
+   Now each iPad works out only what IT changed since it last saw the sheet, fetches the sheet's latest copy,
+   puts its own changes on top, and sends that. Unsent changes are kept on the iPad (they survive a reload or the wifi
+   dropping) and retried. While nothing is waiting, the page quietly picks up other iPads' ticks every 90 seconds. */
+const MS_KEY='ms_base_'+((location.pathname.match(/([^\/]+)\/(?:index\.html)?$/)||[0,'page'])[1]);
+const MS_F=['day','month','job','assignedTo','done','notes','timestamp','homeDay','homeMonth'];
+let msBase=null,msRetryT=0,msBusy=false;
+function msDirty(v){try{if(v===undefined)return localStorage.getItem(MS_KEY+'_dirty')==='1';if(v)localStorage.setItem(MS_KEY+'_dirty','1');else localStorage.removeItem(MS_KEY+'_dirty');}catch(e){return false;}}
+try{msBase=JSON.parse(localStorage.getItem(MS_KEY)||'null');}catch(e){}
+function msKeep(){try{localStorage.setItem(MS_KEY,JSON.stringify(msBase));}catch(e){}}
+function msJob(j){const o={};MS_F.forEach(k=>{if(j[k]!==undefined)o[k]=k==='done'?!!j[k]:String(j[k]==null?'':j[k]);});return JSON.stringify(o);}
+function msSnap(st){const jobs={},staff={};(st.jobs||[]).forEach(j=>{jobs[j.id]=msJob(j);});(st.staff||[]).forEach(s=>{staff[s.name]=!!s.onShift;});return{jobs:jobs,staff:staff};}
+function msDiff(base,st){if(!base||!base.jobs)return null;const cur=msSnap(st),d={jobs:[],gone:[],staff:[]};
+  (st.jobs||[]).forEach(j=>{if(base.jobs[j.id]!==cur.jobs[j.id])d.jobs.push(JSON.parse(JSON.stringify(j)));});
+  Object.keys(base.jobs).forEach(id=>{if(!(id in cur.jobs))d.gone.push(+id);});
+  (st.staff||[]).forEach(s=>{if(base.staff[s.name]!==!!s.onShift)d.staff.push({name:s.name,onShift:!!s.onShift});});
+  return (d.jobs.length||d.gone.length||d.staff.length)?d:null;}
+function msApply(d,st){const jobs=(st.jobs||[]).filter(j=>!(d&&d.gone.includes(j.id))),staff=(st.staff||[]).map(s=>({...s}));
+  if(d){d.jobs.forEach(j=>{const i=jobs.findIndex(x=>x.id===j.id);if(i>-1)jobs[i]=j;else jobs.push(j);});
+    d.staff.forEach(s=>{const x=staff.find(y=>y.name===s.name);if(x)x.onShift=s.onShift;else staff.push(s);});}
+  return{jobs:jobs,staff:staff};}
+async function msRemote(){
+  const[sr,jr]=await Promise.all([
+    fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Staff&t=${Date.now()}`,{cache:'no-store'}),
+    fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Jobs&t=${Date.now()}`,{cache:'no-store'})]);
+  if(!sr.ok||!jr.ok)throw new Error('sheet');
+  const st=await sr.text(),jt=await jr.text();
+  const keep={staff:state.staff,jobs:state.jobs};let r;
+  try{state.staff=[];state.jobs=[];parseStaffCSV(st);parseJobsCSV(jt);r={staff:state.staff,jobs:state.jobs};}
+  finally{state.staff=keep.staff;state.jobs=keep.jobs;}
+  if(!r.jobs.length)throw new Error('empty sheet');return r;}
+function msTyping(){const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);}
+function msRender(){if(!msTyping()&&typeof switchTab==='function')switchTab(currentTab);}
+function msRetry(){if(!msRetryT)msRetryT=setTimeout(()=>{msRetryT=0;if(msDirty())queueSheetSync();},30000);}
+const msLoad0=loadFromSheet,msPush0=pushToSheet,msQueue0=queueSheetSync;
+queueSheetSync=function(){msDirty(1);return msQueue0.apply(this,arguments);};
+let msGot=false;const msParse0=parseJobsCSV;
+loadFromSheet=async function(){
+  const pend=msDirty()?msDiff(msBase,state):null;   // changes made on this iPad that never reached the sheet
+  msGot=false;const pj=parseJobsCSV;parseJobsCSV=function(c){msParse0(c);msGot=true;};
+  try{await msLoad0();}finally{parseJobsCSV=pj;}
+  if(!msGot)return;                           // couldn't reach the sheet: keep what this iPad has
+  msBase=msSnap(state);msKeep();
+  if(pend){const m=msApply(pend,state);state.jobs=m.jobs;state.staff=m.staff;saveState();msRender();queueSheetSync();}};
+pushToSheet=async function(){
+  syncTimer=0;
+  if(!scriptUrl||msBusy){if(msBusy)queueSheetSync();return;}
+  if(!sheetId||!msBase){msDirty(0);return msPush0();}   // no sheet set up, or it hasn't loaded yet: save the old way
+  if(!msDiff(msBase,state)){msDirty(0);showSync('Saved ✓','ok');return;}
+  msBusy=true;
+  try{
+    let remote=null;try{remote=await msRemote();}catch(e){}
+    if(!remote){showSync('No connection: your ticks are kept on this iPad and will save when it’s back','err');msRetry();return;}
+    const m=msApply(msDiff(msBase,state),remote);
+    state.jobs=m.jobs;state.staff=m.staff;saveState();
+    const sent=msSnap(m);let failed=false;const ss=showSync;
+    showSync=function(msg,st){if(st==='err')failed=true;return ss.apply(this,arguments);};
+    try{await msPush0();}finally{showSync=ss;}
+    if(failed){msRetry();return;}
+    msBase=sent;msKeep();if(!msDiff(msBase,state))msDirty(0);msRender();
+  }finally{msBusy=false;}};
+async function msRefresh(){
+  if(!sheetId||!msBase||document.hidden||msBusy||syncTimer||msDirty()||msTyping())return;
+  try{const r=await msRemote();if(msDirty()||msBusy||syncTimer)return;
+    const snap=msSnap(r);if(JSON.stringify(snap)===JSON.stringify(msBase))return;
+    state.jobs=r.jobs;state.staff=r.staff;msBase=snap;msKeep();saveState();msRender();}catch(e){}}
+setInterval(msRefresh,90000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(msDirty())queueSheetSync();else msRefresh();}});
+addEventListener('online',()=>{if(msDirty())queueSheetSync();});
+
 async function pushToSheet(){
   if(!scriptUrl)return;showSync('Saving…','pending');
   try{await fetch(scriptUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({staff:state.staff,jobs:state.jobs.map(j=>({...j,day:j.month})),newJobs:state.jobs.filter(j=>j.id>48)})});showSync('Saved ✓','ok');}
