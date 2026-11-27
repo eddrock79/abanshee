@@ -155,3 +155,51 @@ function blWaveOn(n){try{var q=(location.search.match(/[?&]wave=(\d)/)||[])[1];i
   }
   window.addEventListener('load',function(){setTimeout(tidy,1500);});
 })();
+
+// Banshee only: 2:30am heater check (MQS Room, Gig Room, Top Bar), shown on every page from 02:30 until 06:00 until someone
+// confirms. Logged with the compliance checks (type "heaters") so every iPad sees it; if the sheet can't take it yet, it is
+// remembered on this iPad. Preview any time with ?heaters=1.
+(function(){
+  if(/rose/i.test(((window.BL_CFG||{}).venueKey||'')+location.hostname)) return;
+  var U='https://script.google.com/macros/s/AKfycbzGitKoipTO-LeDPf3-cK9pkxfSlHqD_dTdcOQLMYlRmSmRmf6wNLBjfhIO_rC-wRPX/exec';
+  var ROOMS='MQS Room, Gig Room and Top Bar', box=null, last=null, force=/[?&]heaters=1/.test(location.search);
+  function night(){var d=new Date();if(d.getHours()<6)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function due(){var d=new Date(),m=d.getHours()*60+d.getMinutes();return force||(m>=150&&m<360);}
+  function me(){try{return typeof nxMe==='function'?nxMe():'';}catch(e){return '';}}
+  function esc(s){return String(s||'').replace(/[<>&"]/g,'');}
+  function localGet(){try{var x=JSON.parse(localStorage.getItem('bl_heaters')||'null');return x&&x.night===night()?x:null;}catch(e){return null;}}
+  function draw(){
+    if(!due()){if(box&&box.parentNode)box.parentNode.style.display='none';return;}
+    if(!box){box=document.createElement('div');box.id='bl-heaters';
+      box.style.cssText='max-width:1400px;margin:10px auto 0;padding:12px 14px;border-radius:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:700 16px system-ui,sans-serif;box-sizing:border-box';
+      var host=document.getElementById('bl-toiletclose')||document.getElementById('bl-safety')||document.querySelector('.hpsub')||document.querySelector('.nav-bar');
+      if(!host||!host.parentNode) return; var wrap=document.createElement('div');wrap.style.cssText='padding:0 16px';wrap.appendChild(box);
+      var after=(host.id==='bl-safety'||host.id==='bl-toiletclose')?host.parentNode:host;after.parentNode.insertBefore(wrap,after.nextSibling);}
+    box.parentNode.style.display='';
+    var done=last||localGet();
+    if(done){box.style.background='rgba(122,211,138,.10)';box.style.border='1px solid #7ad38a66';box.style.color='#cdeed3';
+      box.innerHTML='<span>🔥 Heaters off ✓ <span style="opacity:.75;font-weight:500">'+esc(done.time)+' by '+esc(done.by)+(done.local?' (saved on this iPad)':'')+'</span></span>';return;}
+    box.style.background='rgba(255,195,90,.14)';box.style.border='2px solid #ffc35a';box.style.color='#ffe3b0';
+    box.innerHTML='<span>🔥 2:30am check: confirm the heaters are switched off in the '+ROOMS+'.</span><button type="button" id="bl-heat-go" style="font:inherit;font-weight:800;padding:10px 18px;border-radius:10px;border:0;background:#ffc35a;color:#1a1000;cursor:pointer">Heaters are off</button>';
+    document.getElementById('bl-heat-go').onclick=save;
+  }
+  function save(){
+    var n=me(); if(!n){n=(prompt('Your name:')||'').trim().slice(0,30); if(!n) return;}
+    var b=document.getElementById('bl-heat-go'); b.disabled=true; b.textContent='Saving…';
+    var d=new Date(),t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    function keepLocal(){try{localStorage.setItem('bl_heaters',JSON.stringify({night:night(),time:t,by:n,local:true}));}catch(e){} draw();}
+    if(force){last={time:t,by:n};draw();return;}      // preview: nothing saved
+    fetch(U,{method:'POST',body:JSON.stringify({action:'check',pub:'bl',type:'heaters',date:night(),item:'Heaters off: '+ROOMS,result:'Done',notes:'Confirmed at the 2:30am check',by:n})})
+      .then(function(r){return r.json();}).then(function(j){if(!j.ok) throw 0; last={time:t,by:n}; draw();})
+      .catch(keepLocal);
+  }
+  function load(){
+    if(!due()){draw();return;}
+    fetch(U+'?action=compliance&pub=bl&t='+Date.now()).then(function(r){return r.json();}).then(function(d){
+      var c=(d&&d.Checks||[]).filter(function(x){return x.Type==='heaters'&&String(x.Date).slice(0,10)===night();}).pop();
+      if(c) last={time:String(c.Time||''),by:String(c.By||'')}; draw();
+    }).catch(function(){draw();});
+  }
+  setInterval(load,5*60000);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(load,1500);}); else setTimeout(load,1500);
+})();
