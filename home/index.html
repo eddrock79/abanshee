@@ -105,7 +105,11 @@
   .tn-wj{display:flex;justify-content:space-between;gap:10px;margin-top:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);text-decoration:none;font-size:15px}
   .tn-wj b{color:var(--accent)}.tn-wj .tn-open{color:var(--muted)}
   .hm-cols{display:grid;grid-template-columns:1fr;gap:14px}.hm-col{display:flex;flex-direction:column;gap:14px;min-width:0}
-  @media(min-width:1000px){.main{max-width:1180px}.hm-cols{grid-template-columns:1.15fr 1fr;align-items:start}}
+  @media(min-width:1000px){.main{max-width:1180px}}
+  .hm-col+.hm-col{display:none}   /* old Coming Up card: now What's on in the Tonight card */
+  .tn-wo{cursor:pointer;border-radius:8px;outline-offset:4px}.tn-wo-h{display:flex;justify-content:space-between;gap:8px}
+  .tn-wo-more{color:var(--accent);letter-spacing:.04em;text-transform:none;font-size:13px}
+  .tn-day{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:8px 0 0}.tn-day:first-child{margin-top:2px}
 
   /* Notice board */
   .notice-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -204,7 +208,7 @@
       <div class="tn-head"><div class="card-title" id="tonight-title" style="margin-bottom:0">Tonight</div><div class="tn-wx" id="wx-content"></div></div>
       <div class="tn-grid">
         <div><div class="tn-lbl">On shift</div><div id="tonight-content"><div class="muted-text">Loading the rota…</div></div></div>
-        <div><div class="tn-lbl">On tonight</div><div id="tonight-events"><div class="muted-text">Loading…</div></div></div>
+        <div class="tn-wo" id="tn-wo" role="button" tabindex="0" aria-expanded="false" onclick="toggleWhatsOn()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleWhatsOn()}"><div class="tn-lbl tn-wo-h"><span>What’s on</span><span class="tn-wo-more" id="tn-wo-more"></span></div><div id="tonight-events"><div class="muted-text">Loading…</div></div></div>
       </div>
       <a class="tn-eon" href="../end-of-night/">✓ Tick tonight's closing jobs<small id="tn-eon-prog"></small></a>
       <a class="tn-wj" href="../weekly-cleaning/" id="tn-wj" style="display:none"></a>
@@ -404,8 +408,34 @@ function renderTonight(){
   const info=rotaDayInfo(), crew=tonightCrewRows();
   document.getElementById('tonight-title').textContent='Tonight · '+info.name;
   el.innerHTML=crew.length?crew.map(c=>`<span class="crew-chip">${escHtml(c.name)}${c.start?` <span class="crew-time">${escHtml(c.start)}</span>`:''}</span>`).join(''):'<div class="muted-text">Nobody on the rota for tonight yet.</div>';
-  if(ev){ const list=cachedEvents().filter(e=>e.date===info.iso).sort((x,y)=>(x.time||'99').localeCompare(y.time||'99'));
-    ev.innerHTML=list.length?list.map(e=>`<div class="tn-ev"><b>${escHtml(e.time||'Tonight')}</b> ${escHtml(e.what||'Event')}<small>${escHtml([e.room,e.type].filter(Boolean).join(' · '))}</small></div>`).join(''):'<div class="muted-text">Nothing listed in Molly’s Chamber or the cinema.</div>'; }
+  if(ev) renderWhatsOn(ev,info);
+}
+
+// What's on: tonight's events (or tomorrow's when nothing is on tonight), at most WO_ROWS rows; tap for tonight + tomorrow in full
+const WO_ROWS=5; let woOpen=false;
+function toggleWhatsOn(){woOpen=!woOpen;renderTonight();}
+function renderWhatsOn(ev,info){
+  const day=iso=>cachedEvents().filter(e=>e.date===iso).sort((x,y)=>(x.time||'99').localeCompare(y.time||'99'));
+  const p=info.iso.split('-'),t=new Date(+p[0],p[1]-1,+p[2]+1);
+  const tIso=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  const tonight=day(info.iso),tom=day(tIso),tName=DOW_FULL[t.getDay()];
+  const row=(e,when)=>`<div class="tn-ev"><b>${escHtml(e.time||when)}</b> ${escHtml(e.what||'Event')}<small>${escHtml([e.room,e.type].filter(Boolean).join(' · '))}</small></div>`;
+  const none='<div class="muted-text">Nothing listed.</div>';
+  let h,more;
+  if(woOpen){
+    h='<div class="tn-day">Tonight</div>'+(tonight.length?tonight.map(e=>row(e,'Tonight')).join(''):none)
+     +'<div class="tn-day">Tomorrow · '+tName+'</div>'+(tom.length?tom.map(e=>row(e,'Tomorrow')).join(''):none);
+    more='Less ‹';
+  }else{
+    const show=tonight.length?tonight:tom, when=tonight.length?'Tonight':'Tomorrow';
+    h=show.length?(tonight.length?'':'<div class="tn-day">Nothing tonight · tomorrow ('+tName+')</div>')+show.slice(0,WO_ROWS).map(e=>row(e,when)).join('')
+      :'<div class="muted-text">Nothing listed tonight or tomorrow.</div>';
+    const hidden=Math.max(0,show.length-WO_ROWS)+(tonight.length?tom.length:0);
+    more=hidden?'+'+hidden+' more ›':'More ›';
+  }
+  ev.innerHTML=h;
+  const m=document.getElementById('tn-wo-more'); if(m) m.textContent=more;
+  const w=document.getElementById('tn-wo'); if(w) w.setAttribute('aria-expanded',woOpen?'true':'false');
 }
 
 let livePin=null, liveSuper=null, liveMaster=null, pinEntry='', superEntry='', sheetId='', isManager=false;
