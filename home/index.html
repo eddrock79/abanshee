@@ -680,11 +680,11 @@ const WX_DESC={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog
 async function loadWeather(){
   const el=document.getElementById('wx-content');
   try{
-    const res=await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.9533&longitude=-3.1883&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m&timezone=Europe/London');
+    const res=await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.9533&longitude=-3.1883&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m&wind_speed_unit=mph&timezone=Europe/London');
     if(!res.ok)throw new Error();
     const d=await res.json();
     const c=d.current;
-    el.innerHTML=`<span class="tn-wxi">${WX_ICONS[c.weathercode]||'🌡'}</span><b>${Math.round(c.temperature_2m)}°C</b> ${WX_DESC[c.weathercode]||''}<small> · feels ${Math.round(c.apparent_temperature)}° · wind ${Math.round(c.windspeed_10m)} km/h</small>`;
+    el.innerHTML=`<span class="tn-wxi">${WX_ICONS[c.weathercode]||'🌡'}</span><b>${Math.round(c.temperature_2m)}°C</b> ${WX_DESC[c.weathercode]||''}<small> · feels ${Math.round(c.apparent_temperature)}° · wind ${Math.round(c.windspeed_10m)} mph</small>`;
   }catch(e){el.innerHTML='';}
 }
 
